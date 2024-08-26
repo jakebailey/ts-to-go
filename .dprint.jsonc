@@ -20,7 +20,6 @@
         "arrowFunction.useParentheses": "preferNone",
         "conditionalExpression.linePerExpression": false, // Keep our "match/case"-ish conditionals.
         "functionExpression.spaceAfterFunctionKeyword": true,
-        "importDeclaration.forceMultiLine": "whenMultiple",
         "constructorType.spaceAfterNewKeyword": true,
         "constructSignature.spaceAfterNewKeyword": true,
 
@@ -46,7 +45,7 @@
     "excludes": [
         "**/.git",
         "**/node_modules",
-        "**/*-lock.json",
+        "**/*-lock.json"
     ],
     // Note: if adding new languages, make sure settings.template.json is updated too.
     // Also, if updating typescript, update the one in package.json.
