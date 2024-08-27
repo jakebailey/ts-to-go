@@ -19,7 +19,9 @@ const project = new Project({
 
 const sourceFile = project.getSourceFileOrThrow(pathFor("checker.ts"));
 
-const writer = new CodeBlockWriter();
+const writer = new CodeBlockWriter({
+    useTabs: true,
+});
 
 writer.writeLine("package output");
 writer.newLine();
@@ -177,17 +179,32 @@ function writeExpression(node: Expression): void {
         writer.write(")");
     }
     else if (Node.isPrefixUnaryExpression(node)) {
-        switch (node.getOperatorToken()) {
-            case ts.SyntaxKind.ExclamationToken:
-                writer.write("!");
+        writer.write(ts.tokenToString(node.getOperatorToken())!);
+        writeExpression(node.getOperand());
+    }
+    else if (Node.isBinaryExpression(node)) {
+        const op = node.getOperatorToken();
+        let tok;
+        switch (op.getKind()) {
+            case ts.SyntaxKind.AmpersandAmpersandToken:
+            case ts.SyntaxKind.BarBarToken:
+            case ts.SyntaxKind.LessThanEqualsToken:
+            case ts.SyntaxKind.LessThanToken:
+            case ts.SyntaxKind.GreaterThanEqualsToken:
+            case ts.SyntaxKind.GreaterThanToken:
+                tok = ts.tokenToString(op.getKind());
                 break;
-
+            case ts.SyntaxKind.EqualsEqualsEqualsToken:
+                tok = "==";
+                break;
             default:
-                writer.write(`${todo(node)} TODO`);
+                writer.write(`${todo(op)} ${todo(node)} TODO`);
                 return;
         }
 
-        writeExpression(node.getOperand());
+        writeExpression(node.getLeft());
+        writer.write(` ${tok} `);
+        writeExpression(node.getRight());
     }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
@@ -521,7 +538,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isModuleDeclaration(node)) {
-        // TODO
         writer.writeLine(todo(node));
 
         writer.newLineIfLastNot();
@@ -541,12 +557,15 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         return;
     }
 
-    // if (Node.isExpressionStatement(node)) {
-    //     writeExpression(node.getExpression());
-    //     writer.newLine();
-    //     traversal.skip();
-    //     return;
-    // }
+    if (Node.isExpressionStatement(node)) {
+        const expression = node.getExpression();
+        if (Node.isCallExpression(expression)) {
+            writeExpression(expression);
+            writer.newLine();
+            traversal.skip();
+            return;
+        }
+    }
 
     if (Node.isReturnStatement(node)) {
         writer.newLineIfLastNot();
