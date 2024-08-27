@@ -170,11 +170,11 @@ function visitExpression(node: Expression): void {
     }
     else if (Node.isAsExpression(node)) {
         visitExpression(node.getExpression());
-        writer.write(` /* as */ ${todo(node.getTypeNodeOrThrow())}`);
+        // writer.write(` /* as */ ${todo(node.getTypeNodeOrThrow())}`);
     }
     else if (Node.isNonNullExpression(node)) {
         visitExpression(node.getExpression());
-        writer.write(`/*!*/`);
+        // writer.write(`/*!*/`);
     }
     else if (Node.isIdentifier(node) || node.getText() === "this") {
         if (node.getText() === "undefined") {
