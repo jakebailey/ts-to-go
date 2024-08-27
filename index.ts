@@ -1,7 +1,8 @@
 import assert from "assert";
 import CodeBlockWriter from "code-block-writer";
+import { execa } from "execa";
 import path from "path";
-import { type ForEachDescendantTraversalControl, Node, Project, ts, TypeNode } from "ts-morph";
+import { Expression, type ForEachDescendantTraversalControl, Node, Project, ts, Type, TypeNode } from "ts-morph";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
 
@@ -27,6 +28,52 @@ function todo(node: { getText(): string; }): string {
     return `/* TODO: ${text} */`;
 }
 
+function typeToString(node: Type) {
+    return `TODO ${todo(node)}`;
+}
+
+function typeNodeToString(node: TypeNode) {
+    return `TODO ${todo(node)}`;
+}
+
+function expressionToString(node: Expression) {
+    return `TODO ${todo(node)}`;
+}
+
+function getName(node: { getName(): string | undefined; }) {
+    const name = node.getName();
+    switch (name) {
+        case "break":
+        case "case":
+        case "chan":
+        case "const":
+        case "continue":
+        case "default":
+        case "defer":
+        case "else":
+        case "fallthrough":
+        case "for":
+        case "func":
+        case "go":
+        case "goto":
+        case "if":
+        case "import":
+        case "interface":
+        case "map":
+        case "package":
+        case "range":
+        case "return":
+        case "select":
+        case "struct":
+        case "switch":
+        case "type":
+        case "var":
+            return `${name}_`;
+        default:
+            return name || "TODO";
+    }
+}
+
 function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     if (Node.isImportDeclaration(node)) {
         traversal.skip();
@@ -34,7 +81,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isTypeAliasDeclaration(node)) {
-        writer.write(`type ${node.getName()}`);
+        writer.write(`type ${getName(node)}`);
 
         const typeParameters = node.getTypeParameters();
         if (typeParameters.length > 0) {
@@ -42,8 +89,8 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
             for (let i = 0; i < typeParameters.length; i++) {
                 const typeParameter = typeParameters[i];
-                writer.write(typeParameter.getName());
-                writer.conditionalWrite(typeParameter.getConstraint() !== undefined, () => ` ${typeParameter.getConstraintOrThrow().getText()}`);
+                writer.write(getName(typeParameter));
+                writer.conditionalWrite(typeParameter.getConstraint() !== undefined, () => ` ${typeNodeToString(typeParameter.getConstraintOrThrow())}`);
                 writer.conditionalWrite(i < typeParameters.length - 1, ", ");
             }
 
@@ -52,35 +99,21 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
         writer.write(" ");
 
-        const type = node.getType();
-        const props = type.getProperties();
-        const sigs = type.getCallSignatures();
-        if (sigs.length > 0) {
-            assert(props.length === 0);
-            if (sigs.length !== 1) {
-                writer.write(todo(type));
+        const type = node.getTypeNodeOrThrow();
+        if (Node.isFunctionTypeNode(type)) {
+            writer.write("func(");
+            const params = type.getParameters();
+            for (let i = 0; i < params.length; i++) {
+                const param = params[i];
+                writer.write(`${getName(param)} ${typeNodeToString(param.getTypeNodeOrThrow())}`);
+                writer.conditionalWrite(i < params.length - 1, ", ");
             }
-            else {
-                const sig = sigs[0];
-                const decl = sig.getDeclaration();
-                assert(Node.isFunctionTypeNode(decl));
-
-                writer.write("func(");
-                const params = decl.getParameters();
-                for (let i = 0; i < params.length; i++) {
-                    const param = params[i];
-                    writer.write(`${param.getName()} ${param.getTypeNodeOrThrow().getText()}`);
-                    writer.conditionalWrite(i < params.length - 1, ", ");
-                }
-                writer.write(")");
-                const ret = sig.getReturnType();
-                if (!ret.isVoid()) {
-                    writer.write(` ${decl.getReturnTypeNodeOrThrow().getText()}`);
-                }
-            }
+            writer.write(")");
+            const ret = type.getReturnTypeNodeOrThrow();
+            writer.write(` ${typeNodeToString(ret)}`);
         }
-        else if (props.length > 0) {
-            assert(sigs.length === 0);
+        else {
+            writer.write(typeNodeToString(type));
         }
 
         writer.newLineIfLastNot();
@@ -90,11 +123,11 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
     if (Node.isFunctionDeclaration(node)) {
         writer.conditionalWrite(!node.hasBody(), "// OVERLOAD: ");
-        writer.write(`func ${node.getName()}(`);
+        writer.write(`func ${getName(node)}(`);
         const params = node.getParameters();
         for (let i = 0; i < params.length; i++) {
             const param = params[i];
-            writer.write(`${param.getName()} ${param.getTypeNodeOrThrow().getText()}`);
+            writer.write(`${getName(param)} ${typeNodeToString(param.getTypeNodeOrThrow())}`);
             writer.conditionalWrite(i < params.length - 1, ", ");
         }
         writer.write(")");
@@ -102,15 +135,15 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         if (!ret.isVoid()) {
             const retNode = node.getReturnTypeNode();
             if (retNode) {
-                writer.write(` ${retNode.getText()}`);
+                writer.write(` ${typeNodeToString(retNode)}`);
             }
             else {
-                writer.write(` /* TODO: inferred */ ${ret.getText()}`);
+                writer.write(` ${typeToString(ret)}`);
             }
         }
         if (node.hasBody()) {
             writer.block(() => {
-                // TODO
+                writer.writeLine(todo(node.getBodyOrThrow()));
             });
         }
 
@@ -120,7 +153,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isInterfaceDeclaration(node)) {
-        writer.write(`type ${node.getName()}`);
+        writer.write(`type ${getName(node)} interface`);
 
         const typeParameters = node.getTypeParameters();
         if (typeParameters.length > 0) {
@@ -128,8 +161,8 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
             for (let i = 0; i < typeParameters.length; i++) {
                 const typeParameter = typeParameters[i];
-                writer.write(typeParameter.getName());
-                writer.conditionalWrite(typeParameter.getConstraint() !== undefined, () => ` ${typeParameter.getConstraintOrThrow().getText()}`);
+                writer.write(getName(typeParameter));
+                writer.conditionalWrite(typeParameter.getConstraint() !== undefined, () => ` ${typeNodeToString(typeParameter.getConstraintOrThrow())}`);
                 writer.conditionalWrite(i < typeParameters.length - 1, ", ");
             }
 
@@ -139,7 +172,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         writer.block(() => {
             const members = node.getMembers();
             for (const member of members) {
-                // writer.write(`${member.getName()}: ${member.getTypeNodeOrThrow().getText()};`);
+                // writer.write(`${member.getName()} ${typeNodeToString(member.getTypeNodeOrThrow())};`);
             }
         });
 
@@ -157,20 +190,20 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         for (const declaration of declarations) {
             const typeNode = declaration.getTypeNode();
             if (typeNode) {
-                writer.write(`var ${declaration.getName()} ${typeNode.getText()}`);
+                writer.write(`var ${getName(declaration)} ${typeNodeToString(typeNode)}`);
             }
             else {
                 if (isGlobal) {
-                    writer.write(`var ${declaration.getName()}`);
+                    writer.write(`var ${getName(declaration)}`);
                 }
                 else {
-                    writer.write(`${declaration.getName()}`);
+                    writer.write(`${getName(declaration)}`);
                 }
             }
 
             const initializer = declaration.getInitializer();
             if (initializer) {
-                writer.write(` ${isGlobal ? "=" : ":="} ${todo(initializer)}`);
+                writer.write(` ${isGlobal ? "=" : ":="} ${expressionToString(initializer)}`);
             }
         }
 
@@ -185,7 +218,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isEnumDeclaration(node)) {
-        const enumName = node.getName();
+        const enumName = getName(node);
 
         writer.write(`type ${enumName}`);
         if (node.getMembers()[0].getInitializer()?.getKindName() === "StringLiteral") {
@@ -200,21 +233,18 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
             const members = node.getMembers();
             const nameMapping = new Map<string, string>();
             for (const member of members) {
-                const memberName = member.getName();
+                const memberName = getName(member);
                 nameMapping.set(memberName, `${enumName}${memberName}`);
             }
             const replacements = [...nameMapping.entries()].sort((a, b) => b[0].length - a[0].length);
 
-            let canOmitType = false;
-
             for (let i = 0; i < members.length; i++) {
                 const member = members[i];
-                const memberName = nameMapping.get(member.getName())!;
+                const memberName = nameMapping.get(getName(member))!;
                 writer.write(`${memberName} `);
                 const initializer = member.getInitializer();
                 if (i === 0 && !initializer) {
                     writer.write(`${enumName} = iota`);
-                    canOmitType = true;
                 }
                 else if (initializer) {
                     let initializerText = initializer.getText();
@@ -224,7 +254,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
                     }
 
                     writer.write(`${enumName} = ${initializerText}`);
-                    canOmitType = false;
                 }
                 writer.newLine();
             }
@@ -239,7 +268,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
     if (Node.isModuleDeclaration(node)) {
         // TODO
-        writer.write(`// namespace ${node.getName()}`);
+        writer.write(`// namespace ${getName(node)}`);
 
         writer.newLineIfLastNot();
         writer.newLine();
@@ -248,12 +277,12 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isClassDeclaration(node)) {
-        writer.write(`type ${node.getName()} struct`);
+        writer.write(`type ${getName(node)} struct`);
 
         writer.block(() => {
             const members = node.getMembers();
             for (const member of members) {
-                // writer.write(`${member.getName()}: ${member.getTypeNodeOrThrow().getText()};`);
+                writer.writeLine(todo(member));
             }
         });
 
@@ -280,3 +309,5 @@ if (result) {
 const output = Bun.file("output.go.txt");
 
 await Bun.write(output, writer.toString());
+
+await execa("go", ["run", "check.go"], { stdio: "inherit" });
