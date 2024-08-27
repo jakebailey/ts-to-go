@@ -407,7 +407,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if node {
 			cachedResolvedSignatures := /* TODO(ArrayLiteralExpression): [] */ TODO
 			cachedTypes := /* TODO(ArrayLiteralExpression): [] */ TODO
-			/* TODO(WhileStatement): while (node) {                 const nodeLinks = getNodeLinks(node);                 cachedResolvedSignatures.push([nodeLinks, nodeLinks.resolvedSignature] as const);                 nodeLinks.resolvedSignature = undefined;                 if (isFunctionExpressionOrArrowFunction(node)) {                     const symbolLinks = getSymbolLinks(getSymbolOfDeclaration(node));                     const type = symbolLinks.type;                     cachedTypes.push([symbolLinks, type] as const);                     symbolLinks.type = undefined;                 }                 node = findAncestor(node.parent, isCallLikeOrFunctionLikeExpression);             } */
+			for node {
+				nodeLinks := getNodeLinks(node)
+				cachedResolvedSignatures.push( /* TODO(ArrayLiteralExpression): [nodeLinks, nodeLinks.resolvedSignature] */ TODO /* as */ /* TODO(TypeReference): const */)
+				nodeLinks.resolvedSignature = nil
+				if isFunctionExpressionOrArrowFunction(node) {
+					symbolLinks := getSymbolLinks(getSymbolOfDeclaration(node))
+					type_ := symbolLinks.type_
+					cachedTypes.push( /* TODO(ArrayLiteralExpression): [symbolLinks, type] */ TODO /* as */ /* TODO(TypeReference): const */)
+					symbolLinks.type_ = nil
+				}
+				node = findAncestor(node.parent, isCallLikeOrFunctionLikeExpression)
+			}
 			result := fn()
 			for _, TODO_IDENTIFIER := range cachedResolvedSignatures {
 				nodeLinks.resolvedSignature = resolvedSignature
@@ -1466,7 +1477,27 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		container := getThisContainer(errorLocation, false, false)
 		var location Node = container
-		/* TODO(WhileStatement): while (location) {             if (isClassLike(location.parent)) {                 const classSymbol = getSymbolOfDeclaration(location.parent);                 if (!classSymbol) {                     break;                 }                  // Check to see if a static member exists.                 const constructorType = getTypeOfSymbol(classSymbol);                 if (getPropertyOfType(constructorType, name)) {                     error(errorLocation, Diagnostics.Cannot_find_name_0_Did_you_mean_the_static_member_1_0, diagnosticName(nameArg), symbolToString(classSymbol));                     return true;                 }                  // No static member is present.                 // Check if we're in an instance method and look for a relevant instance member.                 if (location === container && !isStatic(location)) {                     const instanceType = (getDeclaredTypeOfSymbol(classSymbol) as InterfaceType).thisType!; // TODO: GH#18217                     if (getPropertyOfType(instanceType, name)) {                         error(errorLocation, Diagnostics.Cannot_find_name_0_Did_you_mean_the_instance_member_this_0, diagnosticName(nameArg));                         return true;                     }                 }             }              location = location.parent;         } */
+		for location {
+			if isClassLike(location.parent) {
+				classSymbol := getSymbolOfDeclaration(location.parent)
+				if !classSymbol {
+					break
+				}
+				constructorType := getTypeOfSymbol(classSymbol)
+				if getPropertyOfType(constructorType, name) {
+					error(errorLocation, Diagnostics.Cannot_find_name_0_Did_you_mean_the_static_member_1_0, diagnosticName(nameArg), symbolToString(classSymbol))
+					return true
+				}
+				if location == container && !isStatic(location) {
+					instanceType := (getDeclaredTypeOfSymbol(classSymbol) /* as */ /* TODO(TypeReference): InterfaceType */).thisType /*!*/
+					if getPropertyOfType(instanceType, name) {
+						error(errorLocation, Diagnostics.Cannot_find_name_0_Did_you_mean_the_instance_member_this_0, diagnosticName(nameArg))
+						return true
+					}
+				}
+			}
+			location = location.parent
+		}
 		return false
 	}
 	checkAndReportErrorForExtendingInterface := func(errorLocation Node) bool {
@@ -2112,7 +2143,27 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		typeOnlyExportStarTargets := /* TODO(ConditionalExpression): typeOnlyDeclarationIsExportStar && typeOnlyResolution ? getExportsOfModule(typeOnlyResolution) : undefined */ TODO
 		flags := /* TODO(ConditionalExpression): excludeLocalMeanings ? SymbolFlags.None : symbol.flags */ TODO
 		var seenSymbols TODO
-		/* TODO(WhileStatement): while (symbol.flags & SymbolFlags.Alias) {             const target = getExportSymbolOfValueSymbolIfExported(resolveAlias(symbol));             if (                 !typeOnlyDeclarationIsExportStar && target === typeOnlyResolution ||                 typeOnlyExportStarTargets?.get(target.escapedName) === target             ) {                 break;             }             if (target === unknownSymbol) {                 return SymbolFlags.All;             }              // Optimizations - try to avoid creating or adding to             // `seenSymbols` if possible             if (target === symbol || seenSymbols?.has(target)) {                 break;             }             if (target.flags & SymbolFlags.Alias) {                 if (seenSymbols) {                     seenSymbols.add(target);                 }                 else {                     seenSymbols = new Set([symbol, target]);                 }             }             flags |= target.flags;             symbol = target;         } */
+		for symbol.flags & SymbolFlagsAlias {
+			target := getExportSymbolOfValueSymbolIfExported(resolveAlias(symbol))
+			if !typeOnlyDeclarationIsExportStar && target == typeOnlyResolution || typeOnlyExportStarTargets.get(target.escapedName) == target {
+				break
+			}
+			if target == unknownSymbol {
+				return SymbolFlagsAll
+			}
+			if target == symbol || seenSymbols.has(target) {
+				break
+			}
+			if target.flags & SymbolFlagsAlias {
+				if seenSymbols {
+					seenSymbols.add(target)
+				} else {
+					seenSymbols = /* TODO(NewExpression): new Set([symbol, target]) */ TODO
+				}
+			}
+			flags |= target.flags
+			symbol = target
+		}
 		return flags
 	}
 	markSymbolOfAliasDeclarationIfTypeOnly := func(aliasDeclaration Declaration, immediateTarget *Symbol, finalTarget *Symbol, overwriteEmpty bool, exportStarDeclaration /* TODO(IntersectionType): ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */ TODO, exportStarName __String) bool {
@@ -2178,7 +2229,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return /* TODO(ConditionalExpression): symbol.parent ? getFullyQualifiedName(symbol.parent, containingLocation) + "." + symbolToString(symbol) : symbolToString(symbol, containingLocation, /*meaning* / undefined, SymbolFormatFlags.DoNotIncludeSymbolChain | SymbolFormatFlags.AllowAnyNodeKind) */ TODO
 	}
 	getContainingQualifiedNameNode := func(node QualifiedName) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").QualifiedName */ TODO {
-		/* TODO(WhileStatement): while (isQualifiedName(node.parent)) {             node = node.parent;         } */
+		for isQualifiedName(node.parent) {
+			node = node.parent
+		}
 		return node
 	}
 	tryGetQualifiedNameAsValue := func(node QualifiedName) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol | undefined */ TODO {
@@ -2187,7 +2240,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if !symbol {
 			return nil
 		}
-		/* TODO(WhileStatement): while (isQualifiedName(left.parent)) {             const type = getTypeOfSymbol(symbol);             symbol = getPropertyOfType(type, left.parent.right.escapedText);             if (!symbol) {                 return undefined;             }             left = left.parent;         } */
+		for isQualifiedName(left.parent) {
+			type_ := getTypeOfSymbol(symbol)
+			symbol = getPropertyOfType(type_, left.parent.right.escapedText)
+			if !symbol {
+				return nil
+			}
+			left = left.parent
+		}
 		return symbol
 	}
 	resolveEntityName := func(name EntityNameOrEntityNameExpression, meaning SymbolFlags, ignoreErrors bool, dontResolveAlias bool, location Node) *Symbol {
@@ -3338,7 +3398,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return range_
 			}
 			original := range_.original
-			/* TODO(WhileStatement): while (original && original !== location) {                 original = original.original;             } */
+			for original && original != location {
+				original = original.original
+			}
 			if !original {
 				setOriginalNode(range_, location)
 			}
@@ -3955,7 +4017,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					var resultType /* TODO(UnionType): TypeReferenceNode | ImportTypeNode | undefined */ any
 					if outerTypeParameters {
 						length := outerTypeParameters.length
-						/* TODO(WhileStatement): while (i < length) {                             // Find group of type arguments for type parameters with the same declaring container.                             const start = i;                             const parent = getParentSymbolOfTypeParameter(outerTypeParameters[i])!;                             do {                                 i++;                             }                             while (i < length && getParentSymbolOfTypeParameter(outerTypeParameters[i]) === parent);                             // When type parameters are their own type arguments for the whole group (i.e. we have                             // the default outer type arguments), we don't show the group.                             if (!rangeEquals(outerTypeParameters, typeArguments, start, i)) {                                 const typeArgumentSlice = mapToTypeNodes(typeArguments.slice(start, i), context);                                 const restoreFlags = saveRestoreFlags(context);                                 context.flags |= NodeBuilderFlags.ForbidIndexedAccessSymbolReferences;                                 const ref = symbolToTypeNode(parent, context, SymbolFlags.Type, typeArgumentSlice) as TypeReferenceNode | ImportTypeNode;                                 restoreFlags();                                 resultType = !resultType ? ref : appendReferenceToType(resultType, ref as TypeReferenceNode);                             }                         } */
+						for i < length {
+							start := i
+							parent := getParentSymbolOfTypeParameter( /* TODO(ElementAccessExpression): outerTypeParameters[i] */ TODO) /*!*/
+							/* TODO(DoStatement): do {                                 i++;                             }                             while (i < length && getParentSymbolOfTypeParameter(outerTypeParameters[i]) === parent); */
+							if !rangeEquals(outerTypeParameters, typeArguments, start, i) {
+								typeArgumentSlice := mapToTypeNodes(typeArguments.slice(start, i), context)
+								restoreFlags := saveRestoreFlags(context)
+								context.flags |= NodeBuilderFlagsForbidIndexedAccessSymbolReferences
+								ref := symbolToTypeNode(parent, context, SymbolFlagsType, typeArgumentSlice) /* as */ /* TODO(UnionType): TypeReferenceNode | ImportTypeNode */
+								restoreFlags()
+								resultType = /* TODO(ConditionalExpression): !resultType ? ref : appendReferenceToType(resultType, ref as TypeReferenceNode) */ TODO
+							}
+						}
 					}
 					var typeArgumentNodes /* TODO(TypeOperator): readonly TypeNode[] */ any
 					if typeArguments.length > 0 {
@@ -3964,7 +4038,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							typeParameterCount = Math.min(type_.target.typeParameters.length, typeArguments.length)
 							if isReferenceToType(type_, getGlobalIterableType(false)) || isReferenceToType(type_, getGlobalIterableIteratorType(false)) || isReferenceToType(type_, getGlobalAsyncIterableType(false)) || isReferenceToType(type_, getGlobalAsyncIterableIteratorType(false)) {
 								if !type_.node || !isTypeReferenceNode(type_.node) || !type_.node.typeArguments || type_.node.typeArguments.length < typeParameterCount {
-									/* TODO(WhileStatement): while (typeParameterCount > 0) {                                         const typeArgument = typeArguments[typeParameterCount - 1];                                         const typeParameter = type.target.typeParameters[typeParameterCount - 1];                                         const defaultType = getDefaultFromTypeParameter(typeParameter);                                         if (!defaultType || !isTypeIdenticalTo(typeArgument, defaultType)) {                                             break;                                         }                                         typeParameterCount--;                                     } */
+									for typeParameterCount > 0 {
+										typeArgument := /* TODO(ElementAccessExpression): typeArguments[typeParameterCount - 1] */ TODO
+										typeParameter := /* TODO(ElementAccessExpression): type.target.typeParameters[typeParameterCount - 1] */ TODO
+										defaultType := getDefaultFromTypeParameter(typeParameter)
+										if !defaultType || !isTypeIdenticalTo(typeArgument, defaultType) {
+											break
+										}
+										typeParameterCount--
+									}
 								}
 							}
 						}
@@ -4021,7 +4103,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			getAccessStack := func(ref TypeReferenceNode) []Identifier {
 				state := ref.typeName
 				ids := /* TODO(ArrayLiteralExpression): [] */ TODO
-				/* TODO(WhileStatement): while (!isIdentifier(state)) {                     ids.unshift(state.right);                     state = state.left;                 } */
+				for !isIdentifier(state) {
+					ids.unshift(state.right)
+					state = state.left
+				}
 				ids.unshift(state)
 				return ids
 			}
@@ -4749,7 +4834,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				rawtext := result.escapedText /* as */ /* TODO(StringKeyword): string */
 				i := context.typeParameterNamesByTextNextNameCount.get(rawtext) || 0
 				text := rawtext
-				/* TODO(WhileStatement): while (context.typeParameterNamesByText?.has(text) || typeParameterShadowsOtherTypeParameterInScope(text as __String, context, type)) {                     i++;                     text = `${rawtext}_${i}`;                 } */
+				for context.typeParameterNamesByText.has(text) || typeParameterShadowsOtherTypeParameterInScope(text /* as */ /* TODO(TypeReference): __String */, context, type_) {
+					i++
+					text = /* TODO(TemplateExpression): `${rawtext}_${i}` */ TODO
+				}
 				if text != rawtext {
 					typeArguments := getIdentifierTypeArguments(result)
 					result = factory.createIdentifier(text)
@@ -4931,7 +5019,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return length(existing.typeArguments) >= getMinTypeArgumentCount((type_ /* as */ /* TODO(TypeReference): TypeReference */).target.typeParameters)
 		}
 		getEnclosingDeclarationIgnoringFakeScope := func(enclosingDeclaration Node) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Node */ TODO {
-			/* TODO(WhileStatement): while (getNodeLinks(enclosingDeclaration).fakeScopeForSignatureDeclaration) {                 enclosingDeclaration = enclosingDeclaration.parent;             } */
+			for getNodeLinks(enclosingDeclaration).fakeScopeForSignatureDeclaration {
+				enclosingDeclaration = enclosingDeclaration.parent
+			}
 			return enclosingDeclaration
 		}
 		serializeTypeForDeclaration := func(context NodeBuilderContext, declaration Declaration, type_ Type, symbol Symbol) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").TypeNode */ TODO {
@@ -6227,7 +6317,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			serializePropertySymbolForInterface := func(p Symbol, baseType *Type) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").TypeElement | import("/home/jabaile/work/TypeScript/src/compiler/types").TypeElement[] */ TODO {
 				return serializePropertySymbolForInterfaceWorker(p, false, baseType)
 			}
-			serializeSignatures := func(kind SignatureKind, input Type, baseType *Type, outputKind /* TODO(IndexedAccessType): SignatureDeclaration["kind"] */ TODO) /* TODO(undefined): (import("/home/jabaile/work/TypeScript/src/compiler/types").CallSignatureDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").ConstructSignatureDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").MethodSignature | import("/home/jabaile/work/TypeScript/src/compiler/types").IndexSignatureDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").FunctionTypeNode | import("/home/jabaile/work/TypeScript/src/compiler/types").ConstructorTypeNode | import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocFunctionType | import("/home/jabaile/work/TypeScript/src/compiler/types").FunctionDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").MethodDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").ConstructorDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").GetAccessorDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").SetAccessorDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").FunctionExpression | import("/home/jabaile/work/TypeScript/src/compiler/types").ArrowFunction)[] */ TODO {
+			serializeSignatures := func(kind SignatureKind, input Type, baseType *Type, outputKind /* TODO(IndexedAccessType): SignatureDeclaration["kind"] */ TODO) /* TODO(undefined): (import("/home/jabaile/work/TypeScript/src/compiler/types").FunctionExpression | import("/home/jabaile/work/TypeScript/src/compiler/types").ArrowFunction | import("/home/jabaile/work/TypeScript/src/compiler/types").CallSignatureDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").ConstructSignatureDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").MethodSignature | import("/home/jabaile/work/TypeScript/src/compiler/types").IndexSignatureDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").FunctionTypeNode | import("/home/jabaile/work/TypeScript/src/compiler/types").ConstructorTypeNode | import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocFunctionType | import("/home/jabaile/work/TypeScript/src/compiler/types").FunctionDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").MethodDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").ConstructorDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").GetAccessorDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").SetAccessorDeclaration)[] */ TODO {
 				signatures := getSignaturesOfType(input, kind)
 				if kind == SignatureKindConstruct {
 					if !baseType && every(signatures, func(s /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Signature */ TODO) /* TODO(undefined): boolean */ TODO {
@@ -6328,7 +6418,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				i := 0
 				original := input
-				/* TODO(WhileStatement): while (context.usedSymbolNames?.has(input)) {                     i++;                     input = `${original}_${i}`;                 } */
+				for context.usedSymbolNames.has(input) {
+					i++
+					input = /* TODO(TemplateExpression): `${original}_${i}` */ TODO
+				}
 				context.usedSymbolNames.add(input)
 				if id {
 					context.remappedSymbolNames. /*!*/ set(id, input)
@@ -7128,7 +7221,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return nil
 		}
 		exports := createSymbolTable()
-		/* TODO(WhileStatement): while (isBinaryExpression(decl) || isPropertyAccessExpression(decl)) {             const s = getSymbolOfNode(decl);             if (s?.exports?.size) {                 mergeSymbolTable(exports, s.exports);             }             decl = isBinaryExpression(decl) ? decl.parent : decl.parent.parent;         } */
+		for isBinaryExpression(decl) || isPropertyAccessExpression(decl) {
+			s := getSymbolOfNode(decl)
+			if s.exports.size {
+				mergeSymbolTable(exports, s.exports)
+			}
+			decl = /* TODO(ConditionalExpression): isBinaryExpression(decl) ? decl.parent : decl.parent.parent */ TODO
+		}
 		s := getSymbolOfNode(decl)
 		if s.exports.size {
 			mergeSymbolTable(exports, s.exports)
@@ -7775,7 +7874,90 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return typeParameters
 	}
 	getOuterTypeParameters := func(node Node, includeThisTypes bool) /* TODO(ArrayType): TypeParameter[] */ any {
-		/* TODO(WhileStatement): while (true) {             node = node.parent; // TODO: GH#18217 Use SourceFile kind check instead             if (node && isBinaryExpression(node)) {                 // prototype assignments get the outer type parameters of their constructor function                 const assignmentKind = getAssignmentDeclarationKind(node);                 if (assignmentKind === AssignmentDeclarationKind.Prototype || assignmentKind === AssignmentDeclarationKind.PrototypeProperty) {                     const symbol = getSymbolOfDeclaration(node.left as BindableStaticNameExpression | PropertyAssignment);                     if (symbol && symbol.parent && !findAncestor(symbol.parent.valueDeclaration, d => node === d)) {                         node = symbol.parent.valueDeclaration!;                     }                 }             }             if (!node) {                 return undefined;             }             const kind = node.kind;             switch (kind) {                 case SyntaxKind.ClassDeclaration:                 case SyntaxKind.ClassExpression:                 case SyntaxKind.InterfaceDeclaration:                 case SyntaxKind.CallSignature:                 case SyntaxKind.ConstructSignature:                 case SyntaxKind.MethodSignature:                 case SyntaxKind.FunctionType:                 case SyntaxKind.ConstructorType:                 case SyntaxKind.JSDocFunctionType:                 case SyntaxKind.FunctionDeclaration:                 case SyntaxKind.MethodDeclaration:                 case SyntaxKind.FunctionExpression:                 case SyntaxKind.ArrowFunction:                 case SyntaxKind.TypeAliasDeclaration:                 case SyntaxKind.JSDocTemplateTag:                 case SyntaxKind.JSDocTypedefTag:                 case SyntaxKind.JSDocEnumTag:                 case SyntaxKind.JSDocCallbackTag:                 case SyntaxKind.MappedType:                 case SyntaxKind.ConditionalType: {                     const outerTypeParameters = getOuterTypeParameters(node, includeThisTypes);                     if ((kind === SyntaxKind.FunctionExpression || kind === SyntaxKind.ArrowFunction || isObjectLiteralMethod(node)) && isContextSensitive(node as Expression | MethodDeclaration)) {                         const signature = firstOrUndefined(getSignaturesOfType(getTypeOfSymbol(getSymbolOfDeclaration(node as FunctionLikeDeclaration)), SignatureKind.Call));                         if (signature && signature.typeParameters) {                             return [...(outerTypeParameters || emptyArray), ...signature.typeParameters];                         }                     }                     if (kind === SyntaxKind.MappedType) {                         return append(outerTypeParameters, getDeclaredTypeOfTypeParameter(getSymbolOfDeclaration((node as MappedTypeNode).typeParameter)));                     }                     else if (kind === SyntaxKind.ConditionalType) {                         return concatenate(outerTypeParameters, getInferTypeParameters(node as ConditionalTypeNode));                     }                     const outerAndOwnTypeParameters = appendTypeParameters(outerTypeParameters, getEffectiveTypeParameterDeclarations(node as DeclarationWithTypeParameters));                     const thisType = includeThisTypes &&                         (kind === SyntaxKind.ClassDeclaration || kind === SyntaxKind.ClassExpression || kind === SyntaxKind.InterfaceDeclaration || isJSConstructor(node)) &&                         getDeclaredTypeOfClassOrInterface(getSymbolOfDeclaration(node as ClassLikeDeclaration | InterfaceDeclaration)).thisType;                     return thisType ? append(outerAndOwnTypeParameters, thisType) : outerAndOwnTypeParameters;                 }                 case SyntaxKind.JSDocParameterTag:                     const paramSymbol = getParameterSymbolFromJSDoc(node as JSDocParameterTag);                     if (paramSymbol) {                         node = paramSymbol.valueDeclaration!;                     }                     break;                 case SyntaxKind.JSDoc: {                     const outerTypeParameters = getOuterTypeParameters(node, includeThisTypes);                     return (node as JSDoc).tags                         ? appendTypeParameters(outerTypeParameters, flatMap((node as JSDoc).tags, t => isJSDocTemplateTag(t) ? t.typeParameters : undefined))                         : outerTypeParameters;                 }             }         } */
+		for true {
+			node = node.parent
+			if node && isBinaryExpression(node) {
+				assignmentKind := getAssignmentDeclarationKind(node)
+				if assignmentKind == AssignmentDeclarationKindPrototype || assignmentKind == AssignmentDeclarationKindPrototypeProperty {
+					symbol := getSymbolOfDeclaration(node.left /* as */ /* TODO(UnionType): BindableStaticNameExpression | PropertyAssignment */)
+					if symbol && symbol.parent && !findAncestor(symbol.parent.valueDeclaration, func(d /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Node */ TODO) /* TODO(undefined): boolean */ TODO {
+						return node == d
+					}) {
+						node = symbol.parent.valueDeclaration /*!*/
+					}
+				}
+			}
+			if !node {
+				return nil
+			}
+			kind := node.kind
+			switch kind {
+			case SyntaxKindClassDeclaration:
+				fallthrough // TODO: merge cases
+			case SyntaxKindClassExpression:
+				fallthrough // TODO: merge cases
+			case SyntaxKindInterfaceDeclaration:
+				fallthrough // TODO: merge cases
+			case SyntaxKindCallSignature:
+				fallthrough // TODO: merge cases
+			case SyntaxKindConstructSignature:
+				fallthrough // TODO: merge cases
+			case SyntaxKindMethodSignature:
+				fallthrough // TODO: merge cases
+			case SyntaxKindFunctionType:
+				fallthrough // TODO: merge cases
+			case SyntaxKindConstructorType:
+				fallthrough // TODO: merge cases
+			case SyntaxKindJSDocFunctionType:
+				fallthrough // TODO: merge cases
+			case SyntaxKindFunctionDeclaration:
+				fallthrough // TODO: merge cases
+			case SyntaxKindMethodDeclaration:
+				fallthrough // TODO: merge cases
+			case SyntaxKindFunctionExpression:
+				fallthrough // TODO: merge cases
+			case SyntaxKindArrowFunction:
+				fallthrough // TODO: merge cases
+			case SyntaxKindTypeAliasDeclaration:
+				fallthrough // TODO: merge cases
+			case SyntaxKindJSDocTemplateTag:
+				fallthrough // TODO: merge cases
+			case SyntaxKindJSDocTypedefTag:
+				fallthrough // TODO: merge cases
+			case SyntaxKindJSDocEnumTag:
+				fallthrough // TODO: merge cases
+			case SyntaxKindJSDocCallbackTag:
+				fallthrough // TODO: merge cases
+			case SyntaxKindMappedType:
+				fallthrough // TODO: merge cases
+			case SyntaxKindConditionalType:
+				outerTypeParameters := getOuterTypeParameters(node, includeThisTypes)
+				if (kind == SyntaxKindFunctionExpression || kind == SyntaxKindArrowFunction || isObjectLiteralMethod(node)) && isContextSensitive(node /* as */ /* TODO(UnionType): Expression | MethodDeclaration */) {
+					signature := firstOrUndefined(getSignaturesOfType(getTypeOfSymbol(getSymbolOfDeclaration(node /* as */ /* TODO(TypeReference): FunctionLikeDeclaration */)), SignatureKindCall))
+					if signature && signature.typeParameters {
+						return /* TODO(ArrayLiteralExpression): [...(outerTypeParameters || emptyArray), ...signature.typeParameters] */ TODO
+					}
+				}
+				if kind == SyntaxKindMappedType {
+					return append(outerTypeParameters, getDeclaredTypeOfTypeParameter(getSymbolOfDeclaration((node /* as */ /* TODO(TypeReference): MappedTypeNode */).typeParameter)))
+				} else if kind == SyntaxKindConditionalType {
+					return concatenate(outerTypeParameters, getInferTypeParameters(node /* as */ /* TODO(TypeReference): ConditionalTypeNode */))
+				}
+				outerAndOwnTypeParameters := appendTypeParameters(outerTypeParameters, getEffectiveTypeParameterDeclarations(node /* as */ /* TODO(TypeReference): DeclarationWithTypeParameters */))
+				thisType := includeThisTypes && (kind == SyntaxKindClassDeclaration || kind == SyntaxKindClassExpression || kind == SyntaxKindInterfaceDeclaration || isJSConstructor(node)) && getDeclaredTypeOfClassOrInterface(getSymbolOfDeclaration(node /* as */ /* TODO(UnionType): ClassLikeDeclaration | InterfaceDeclaration */)).thisType
+				return /* TODO(ConditionalExpression): thisType ? append(outerAndOwnTypeParameters, thisType) : outerAndOwnTypeParameters */ TODO
+				fallthrough
+			case SyntaxKindJSDocParameterTag:
+				paramSymbol := getParameterSymbolFromJSDoc(node /* as */ /* TODO(TypeReference): JSDocParameterTag */)
+				if paramSymbol {
+					node = paramSymbol.valueDeclaration /*!*/
+				}
+				break
+			case SyntaxKindJSDoc:
+				outerTypeParameters := getOuterTypeParameters(node, includeThisTypes)
+				return /* TODO(ConditionalExpression): (node as JSDoc).tags                         ? appendTypeParameters(outerTypeParameters, flatMap((node as JSDoc).tags, t => isJSDocTemplateTag(t) ? t.typeParameters : undefined))                         : outerTypeParameters */ TODO
+			}
+		}
 	}
 	getOuterTypeParametersOfClassOrInterface := func(symbol Symbol) /* TODO(ArrayType): TypeParameter[] */ any {
 		declaration := /* TODO(ConditionalExpression): (symbol.flags & SymbolFlags.Class || symbol.flags & SymbolFlags.Function)             ? symbol.valueDeclaration             : symbol.declarations?.find(decl => {                 if (decl.kind === SyntaxKind.InterfaceDeclaration) {                     return true;                 }                 if (decl.kind !== SyntaxKind.VariableDeclaration) {                     return false;                 }                 const initializer = (decl as VariableDeclaration).initializer;                 return !!initializer && (initializer.kind === SyntaxKind.FunctionExpression || initializer.kind === SyntaxKind.ArrowFunction);             })! */ TODO
@@ -8597,9 +8779,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				for _, i := range duplicates {
 					counter := /* TODO(QuestionQuestionToken): ?? */ /* TODO(BinaryExpression): counters.get(names[i]) ?? 1 */ TODO
 					var name __String
-					/* TODO(WhileStatement): while (!tryAddToSet(uniqueNames, name = `${names[i]}_${counter}` as __String)) {                         counter++;                     } */
-					/* TODO(ElementAccessExpression): names[i] */
-					TODO = name
+					for !tryAddToSet(uniqueNames /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): name = `${names[i]}_${counter}` as __String */, TODO) {
+						counter++
+					}
+					/* TODO(ElementAccessExpression): names[i] */ TODO = name
 					counters.set( /* TODO(ElementAccessExpression): names[i] */ TODO /* TODO(PlusToken): + */ /* TODO(BinaryExpression): counter + 1 */, TODO)
 				}
 			}
@@ -9313,7 +9496,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for _, t := range types {
 			if t.flags & TypeFlagsInstantiable {
 				constraint := getConstraintOfType(t)
-				/* TODO(WhileStatement): while (constraint && constraint.flags & (TypeFlags.TypeParameter | TypeFlags.Index | TypeFlags.Conditional)) {                     constraint = getConstraintOfType(constraint);                 } */
+				for constraint && constraint.flags&(TypeFlagsTypeParameter|TypeFlagsIndex|TypeFlagsConditional) {
+					constraint = getConstraintOfType(constraint)
+				}
 				if constraint {
 					constraints = append(constraints, constraint)
 					if targetIsUnion {
@@ -10417,7 +10602,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if types {
 			length := types.length
 			i := 0
-			/* TODO(WhileStatement): while (i < length) {                 const startId = types[i].id;                 let count = 1;                 while (i + count < length && types[i + count].id === startId + count) {                     count++;                 }                 if (result.length) {                     result += ",";                 }                 result += startId;                 if (count > 1) {                     result += ":" + count;                 }                 i += count;             } */
+			for i < length {
+				startId := /* TODO(ElementAccessExpression): types[i] */ TODO.id
+				count := 1
+				for /* TODO(PlusToken): + */ /* TODO(BinaryExpression): i + count */ TODO < length && /* TODO(ElementAccessExpression): types[i + count] */ TODO.id == /* TODO(PlusToken): + */ /* TODO(BinaryExpression): startId + count */ TODO {
+					count++
+				}
+				if result.length {
+					result += ","
+				}
+				result += startId
+				if count > 1 {
+					result += /* TODO(PlusToken): + */ /* TODO(BinaryExpression): ":" + count */ TODO
+				}
+				i += count
+			}
 		}
 		return result
 	}
@@ -10696,7 +10895,30 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getConditionalFlowTypeOfType := func(type_ Type, node Node) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 		var constraints /* TODO(ArrayType): Type[] */ any
 		covariant := true
-		/* TODO(WhileStatement): while (node && !isStatement(node) && node.kind !== SyntaxKind.JSDoc) {             const parent = node.parent;             // only consider variance flipped by parameter locations - `keyof` types would usually be considered variance inverting, but             // often get used in indexed accesses where they behave sortof invariantly, but our checking is lax             if (parent.kind === SyntaxKind.Parameter) {                 covariant = !covariant;             }             // Always substitute on type parameters, regardless of variance, since even             // in contravariant positions, they may rely on substituted constraints to be valid             if ((covariant || type.flags & TypeFlags.TypeVariable) && parent.kind === SyntaxKind.ConditionalType && node === (parent as ConditionalTypeNode).trueType) {                 const constraint = getImpliedConstraint(type, (parent as ConditionalTypeNode).checkType, (parent as ConditionalTypeNode).extendsType);                 if (constraint) {                     constraints = append(constraints, constraint);                 }             }             // Given a homomorphic mapped type { [K in keyof T]: XXX }, where T is constrained to an array or tuple type, in the             // template type XXX, K has an added constraint of number | `${number}`.             else if (type.flags & TypeFlags.TypeParameter && parent.kind === SyntaxKind.MappedType && !(parent as MappedTypeNode).nameType && node === (parent as MappedTypeNode).type) {                 const mappedType = getTypeFromTypeNode(parent as TypeNode) as MappedType;                 if (getTypeParameterFromMappedType(mappedType) === getActualTypeVariable(type)) {                     const typeParameter = getHomomorphicTypeVariable(mappedType);                     if (typeParameter) {                         const constraint = getConstraintOfTypeParameter(typeParameter);                         if (constraint && everyType(constraint, isArrayOrTupleType)) {                             constraints = append(constraints, getUnionType([numberType, numericStringType]));                         }                     }                 }             }             node = parent;         } */
+		for node && !isStatement(node) && node.kind != SyntaxKindJSDoc {
+			parent := node.parent
+			if parent.kind == SyntaxKindParameter {
+				covariant = !covariant
+			}
+			if (covariant || type_.flags&TypeFlagsTypeVariable) && parent.kind == SyntaxKindConditionalType && node == (parent /* as */ /* TODO(TypeReference): ConditionalTypeNode */).trueType {
+				constraint := getImpliedConstraint(type_, (parent /* as */ /* TODO(TypeReference): ConditionalTypeNode */).checkType, (parent /* as */ /* TODO(TypeReference): ConditionalTypeNode */).extendsType)
+				if constraint {
+					constraints = append(constraints, constraint)
+				}
+			} else if type_.flags&TypeFlagsTypeParameter && parent.kind == SyntaxKindMappedType && !(parent /* as */ /* TODO(TypeReference): MappedTypeNode */).nameType && node == (parent /* as */ /* TODO(TypeReference): MappedTypeNode */).type_ {
+				mappedType := getTypeFromTypeNode(parent /* as */ /* TODO(TypeReference): TypeNode */) /* as */ /* TODO(TypeReference): MappedType */
+				if getTypeParameterFromMappedType(mappedType) == getActualTypeVariable(type_) {
+					typeParameter := getHomomorphicTypeVariable(mappedType)
+					if typeParameter {
+						constraint := getConstraintOfTypeParameter(typeParameter)
+						if constraint && everyType(constraint, isArrayOrTupleType) {
+							constraints = append(constraints, getUnionType( /* TODO(ArrayLiteralExpression): [numberType, numericStringType] */ TODO))
+						}
+					}
+				}
+			}
+			node = parent
+		}
 		return /* TODO(ConditionalExpression): constraints ? getSubstitutionType(type, getIntersectionType(constraints)) : type */ TODO
 	}
 	isJSDocTypeReference := func(node Node) /* TODO(TypePredicate): node is TypeReferenceNode */ TODO {
@@ -11354,13 +11576,59 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		len := types.length
 		i := len
 		count := 0
-		/* TODO(WhileStatement): while (i > 0) {             i--;             const source = types[i];             if (hasEmptyObject || source.flags & TypeFlags.StructuredOrInstantiable) {                 // A type parameter with a union constraint may be a subtype of some union, but not a subtype of the                 // individual constituents of that union. For example, `T extends A | B` is a subtype of `A | B`, but not                 // a subtype of just `A` or just `B`. When we encounter such a type parameter, we therefore check if the                 // type parameter is a subtype of a union of all the other types.                 if (source.flags & TypeFlags.TypeParameter && getBaseConstraintOrType(source).flags & TypeFlags.Union) {                     if (isTypeRelatedTo(source, getUnionType(map(types, t => t === source ? neverType : t)), strictSubtypeRelation)) {                         orderedRemoveItemAt(types, i);                     }                     continue;                 }                 // Find the first property with a unit type, if any. When constituents have a property by the same name                 // but of a different unit type, we can quickly disqualify them from subtype checks. This helps subtype                 // reduction of large discriminated union types.                 const keyProperty = source.flags & (TypeFlags.Object | TypeFlags.Intersection | TypeFlags.InstantiableNonPrimitive) ?                     find(getPropertiesOfType(source), p => isUnitType(getTypeOfSymbol(p))) :                     undefined;                 const keyPropertyType = keyProperty && getRegularTypeOfLiteralType(getTypeOfSymbol(keyProperty));                 for (const target of types) {                     if (source !== target) {                         if (count === 100000) {                             // After 100000 subtype checks we estimate the remaining amount of work by assuming the                             // same ratio of checks per element. If the estimated number of remaining type checks is                             // greater than 1M we deem the union type too complex to represent. This for example                             // caps union types at 1000 unique object types.                             const estimatedCount = (count / (len - i)) * len;                             if (estimatedCount > 1000000) {                                 tracing?.instant(tracing.Phase.CheckTypes, "removeSubtypes_DepthLimit", { typeIds: types.map(t => t.id) });                                 error(currentNode, Diagnostics.Expression_produces_a_union_type_that_is_too_complex_to_represent);                                 return undefined;                             }                         }                         count++;                         if (keyProperty && target.flags & (TypeFlags.Object | TypeFlags.Intersection | TypeFlags.InstantiableNonPrimitive)) {                             const t = getTypeOfPropertyOfType(target, keyProperty.escapedName);                             if (t && isUnitType(t) && getRegularTypeOfLiteralType(t) !== keyPropertyType) {                                 continue;                             }                         }                         if (                             isTypeRelatedTo(source, target, strictSubtypeRelation) && (                                 !(getObjectFlags(getTargetType(source)) & ObjectFlags.Class) ||                                 !(getObjectFlags(getTargetType(target)) & ObjectFlags.Class) ||                                 isTypeDerivedFrom(source, target)                             )                         ) {                             orderedRemoveItemAt(types, i);                             break;                         }                     }                 }             }         } */
+		for i > 0 {
+			i--
+			source := /* TODO(ElementAccessExpression): types[i] */ TODO
+			if hasEmptyObject || source.flags&TypeFlagsStructuredOrInstantiable {
+				if source.flags&TypeFlagsTypeParameter && getBaseConstraintOrType(source).flags&TypeFlagsUnion {
+					if isTypeRelatedTo(source, getUnionType(map_(types, func(t /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
+						return /* TODO(ConditionalExpression): t === source ? neverType : t */ TODO
+					})), strictSubtypeRelation) {
+						orderedRemoveItemAt(types, i)
+					}
+					continue
+				}
+				keyProperty := /* TODO(ConditionalExpression): source.flags & (TypeFlags.Object | TypeFlags.Intersection | TypeFlags.InstantiableNonPrimitive) ?                     find(getPropertiesOfType(source), p => isUnitType(getTypeOfSymbol(p))) :                     undefined */ TODO
+				keyPropertyType := keyProperty && getRegularTypeOfLiteralType(getTypeOfSymbol(keyProperty))
+				for _, target := range types {
+					if source != target {
+						if count == 100000 {
+							estimatedCount := /* TODO(AsteriskToken): * */ /* TODO(BinaryExpression): (count / (len - i)) * len */ TODO
+							if estimatedCount > 1000000 {
+								tracing.instant(tracing.Phase.CheckTypes, "removeSubtypes_DepthLimit" /* TODO(ObjectLiteralExpression): { typeIds: types.map(t => t.id) } */, TODO)
+								error(currentNode, Diagnostics.Expression_produces_a_union_type_that_is_too_complex_to_represent)
+								return nil
+							}
+						}
+						count++
+						if keyProperty && target.flags&(TypeFlagsObject|TypeFlagsIntersection|TypeFlagsInstantiableNonPrimitive) {
+							t := getTypeOfPropertyOfType(target, keyProperty.escapedName)
+							if t && isUnitType(t) && getRegularTypeOfLiteralType(t) != keyPropertyType {
+								continue
+							}
+						}
+						if isTypeRelatedTo(source, target, strictSubtypeRelation) && (!(getObjectFlags(getTargetType(source)) & ObjectFlagsClass) || !(getObjectFlags(getTargetType(target)) & ObjectFlagsClass) || isTypeDerivedFrom(source, target)) {
+							orderedRemoveItemAt(types, i)
+							break
+						}
+					}
+				}
+			}
+		}
 		subtypeReductionCache.set(id, types)
 		return types
 	}
 	removeRedundantLiteralTypes := func(types []Type, includes TypeFlags, reduceVoidUndefined bool) {
 		i := types.length
-		/* TODO(WhileStatement): while (i > 0) {             i--;             const t = types[i];             const flags = t.flags;             const remove = flags & (TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) && includes & TypeFlags.String ||                 flags & TypeFlags.NumberLiteral && includes & TypeFlags.Number ||                 flags & TypeFlags.BigIntLiteral && includes & TypeFlags.BigInt ||                 flags & TypeFlags.UniqueESSymbol && includes & TypeFlags.ESSymbol ||                 reduceVoidUndefined && flags & TypeFlags.Undefined && includes & TypeFlags.Void ||                 isFreshLiteralType(t) && containsType(types, (t as LiteralType).regularType);             if (remove) {                 orderedRemoveItemAt(types, i);             }         } */
+		for i > 0 {
+			i--
+			t := /* TODO(ElementAccessExpression): types[i] */ TODO
+			flags := t.flags
+			remove := flags&(TypeFlagsStringLiteral|TypeFlagsTemplateLiteral|TypeFlagsStringMapping) && includes&TypeFlagsString || flags&TypeFlagsNumberLiteral && includes&TypeFlagsNumber || flags&TypeFlagsBigIntLiteral && includes&TypeFlagsBigInt || flags&TypeFlagsUniqueESSymbol && includes&TypeFlagsESSymbol || reduceVoidUndefined && flags&TypeFlagsUndefined && includes&TypeFlagsVoid || isFreshLiteralType(t) && containsType(types, (t /* as */ /* TODO(TypeReference): LiteralType */).regularType)
+			if remove {
+				orderedRemoveItemAt(types, i)
+			}
+		}
 	}
 	removeStringLiteralsMatchedByTemplateLiterals := func(types []Type) {
 		patterns := filter(types, isPatternLiteralType) /* as */ /* TODO(ArrayType): (TemplateLiteralType | StringMappingType)[] */
@@ -11385,7 +11653,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		if patterns.length {
 			i := types.length
-			/* TODO(WhileStatement): while (i > 0) {                 i--;                 const t = types[i];                 if (!(t.flags & TypeFlags.StringLiteral)) continue;                 if (some(patterns, template => isTypeMatchedByTemplateLiteralOrStringMapping(t, template))) {                     orderedRemoveItemAt(types, i);                 }             } */
+			for i > 0 {
+				i--
+				t := /* TODO(ElementAccessExpression): types[i] */ TODO
+				if !(t.flags & TypeFlagsStringLiteral) {
+					/* TODO(ContinueStatement): continue; */
+				}
+				if some(patterns, func(template /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType | import("/home/jabaile/work/TypeScript/src/compiler/types").StringMappingType */ TODO) /* TODO(undefined): boolean */ TODO {
+					return isTypeMatchedByTemplateLiteralOrStringMapping(t, template)
+				}) {
+					orderedRemoveItemAt(types, i)
+				}
+			}
 		}
 	}
 	isTypeMatchedByTemplateLiteralOrStringMapping := func(type_ Type, template /* TODO(UnionType): TemplateLiteralType | StringMappingType */ any) /* TODO(undefined): boolean */ TODO {
@@ -11414,7 +11693,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return containsType(primitives, t)
 			}) {
 				i := types.length
-				/* TODO(WhileStatement): while (i > 0) {                     i--;                     const type = types[i];                     if (type.flags & TypeFlags.Intersection && getObjectFlags(type) & ObjectFlags.IsConstrainedTypeVariable) {                         const index = (type as IntersectionType).types[0].flags & TypeFlags.TypeVariable ? 0 : 1;                         if ((type as IntersectionType).types[index] === typeVariable && containsType(primitives, (type as IntersectionType).types[1 - index])) {                             orderedRemoveItemAt(types, i);                         }                     }                 } */
+				for i > 0 {
+					i--
+					type_ := /* TODO(ElementAccessExpression): types[i] */ TODO
+					if type_.flags&TypeFlagsIntersection && getObjectFlags(type_)&ObjectFlagsIsConstrainedTypeVariable {
+						index := /* TODO(ConditionalExpression): (type as IntersectionType).types[0].flags & TypeFlags.TypeVariable ? 0 : 1 */ TODO
+						if /* TODO(ElementAccessExpression): (type as IntersectionType).types[index] */ TODO == typeVariable && containsType(primitives /* TODO(ElementAccessExpression): (type as IntersectionType).types[1 - index] */, TODO) {
+							orderedRemoveItemAt(types, i)
+						}
+					}
+				}
 				insertType(types, typeVariable)
 			}
 		}
@@ -11619,7 +11907,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	removeRedundantSupertypes := func(types []Type, includes TypeFlags) {
 		i := types.length
-		/* TODO(WhileStatement): while (i > 0) {             i--;             const t = types[i];             const remove = t.flags & TypeFlags.String && includes & (TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) ||                 t.flags & TypeFlags.Number && includes & TypeFlags.NumberLiteral ||                 t.flags & TypeFlags.BigInt && includes & TypeFlags.BigIntLiteral ||                 t.flags & TypeFlags.ESSymbol && includes & TypeFlags.UniqueESSymbol ||                 t.flags & TypeFlags.Void && includes & TypeFlags.Undefined ||                 isEmptyAnonymousObjectType(t) && includes & TypeFlags.DefinitelyNonNullable;             if (remove) {                 orderedRemoveItemAt(types, i);             }         } */
+		for i > 0 {
+			i--
+			t := /* TODO(ElementAccessExpression): types[i] */ TODO
+			remove := t.flags&TypeFlagsString && includes&(TypeFlagsStringLiteral|TypeFlagsTemplateLiteral|TypeFlagsStringMapping) || t.flags&TypeFlagsNumber && includes&TypeFlagsNumberLiteral || t.flags&TypeFlagsBigInt && includes&TypeFlagsBigIntLiteral || t.flags&TypeFlagsESSymbol && includes&TypeFlagsUniqueESSymbol || t.flags&TypeFlagsVoid && includes&TypeFlagsUndefined || isEmptyAnonymousObjectType(t) && includes&TypeFlagsDefinitelyNonNullable
+			if remove {
+				orderedRemoveItemAt(types, i)
+			}
+		}
 	}
 	eachUnionContains := func(unionTypes []UnionType, type_ Type) /* TODO(undefined): boolean */ TODO {
 		for _, u := range unionTypes {
@@ -11643,7 +11938,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		literals := filter(types, func(t /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO(undefined): boolean */ TODO {
 			return !!(t.flags & TypeFlagsStringLiteral)
 		})
-		/* TODO(WhileStatement): while (i > 0) {             i--;             const t = types[i];             if (!(t.flags & (TypeFlags.TemplateLiteral | TypeFlags.StringMapping))) continue;             for (const t2 of literals) {                 if (isTypeSubtypeOf(t2, t)) {                     // For example, `get${T}` & "getX" is just "getX", and Lowercase<string> & "foo" is just "foo"                     orderedRemoveItemAt(types, i);                     break;                 }                 else if (isPatternLiteralType(t)) {                     return true;                 }             }         } */
+		for i > 0 {
+			i--
+			t := /* TODO(ElementAccessExpression): types[i] */ TODO
+			if !(t.flags & (TypeFlagsTemplateLiteral | TypeFlagsStringMapping)) {
+				/* TODO(ContinueStatement): continue; */
+			}
+			for _, t2 := range literals {
+				if isTypeSubtypeOf(t2, t) {
+					orderedRemoveItemAt(types, i)
+					break
+				} else if isPatternLiteralType(t) {
+					return true
+				}
+			}
+		}
 		return false
 	}
 	removeFromEach := func(types []Type, flag TypeFlags) {
@@ -11658,7 +11967,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return false
 		}
 		i := /* TODO(PlusToken): + */ /* TODO(BinaryExpression): index + 1 */ TODO
-		/* TODO(WhileStatement): while (i < types.length) {             const t = types[i];             if (getObjectFlags(t) & ObjectFlags.PrimitiveUnion) {                 (unionTypes || (unionTypes = [types[index] as UnionType])).push(t as UnionType);                 orderedRemoveItemAt(types, i);             }             else {                 i++;             }         } */
+		for i < types.length {
+			t := /* TODO(ElementAccessExpression): types[i] */ TODO
+			if getObjectFlags(t) & ObjectFlagsPrimitiveUnion {
+				(unionTypes || ( /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): unionTypes = [types[index] as UnionType] */ TODO)).push(t /* as */ /* TODO(TypeReference): UnionType */)
+				orderedRemoveItemAt(types, i)
+			} else {
+				i++
+			}
+		}
 		if !unionTypes {
 			return false
 		}
@@ -12503,7 +12820,76 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var result TODO
 		var extraTypes /* TODO(ArrayType): Type[] */ any
 		tailCount := 0
-		/* TODO(WhileStatement): while (true) {             if (tailCount === 1000) {                 error(currentNode, Diagnostics.Type_instantiation_is_excessively_deep_and_possibly_infinite);                 return errorType;             }             const checkType = instantiateType(getActualTypeVariable(root.checkType), mapper);             const extendsType = instantiateType(root.extendsType, mapper);             if (checkType === errorType || extendsType === errorType) {                 return errorType;             }             if (checkType === wildcardType || extendsType === wildcardType) {                 return wildcardType;             }             const checkTypeNode = skipTypeParentheses(root.node.checkType);             const extendsTypeNode = skipTypeParentheses(root.node.extendsType);             // When the check and extends types are simple tuple types of the same arity, we defer resolution of the             // conditional type when any tuple elements are generic. This is such that non-distributable conditional             // types can be written `[X] extends [Y] ? ...` and be deferred similarly to `X extends Y ? ...`.             const checkTuples = isSimpleTupleType(checkTypeNode) && isSimpleTupleType(extendsTypeNode) &&                 length((checkTypeNode as TupleTypeNode).elements) === length((extendsTypeNode as TupleTypeNode).elements);             const checkTypeDeferred = isDeferredType(checkType, checkTuples);             let combinedMapper: TypeMapper | undefined;             if (root.inferTypeParameters) {                 // When we're looking at making an inference for an infer type, when we get its constraint, it'll automagically be                 // instantiated with the context, so it doesn't need the mapper for the inference context - however the constraint                 // may refer to another _root_, _uncloned_ `infer` type parameter [1], or to something mapped by `mapper` [2].                 // [1] Eg, if we have `Foo<T, U extends T>` and `Foo<number, infer B>` - `B` is constrained to `T`, which, in turn, has been instantiated                 // as `number`                 // Conversely, if we have `Foo<infer A, infer B>`, `B` is still constrained to `T` and `T` is instantiated as `A`                 // [2] Eg, if we have `Foo<T, U extends T>` and `Foo<Q, infer B>` where `Q` is mapped by `mapper` into `number` - `B` is constrained to `T`                 // which is in turn instantiated as `Q`, which is in turn instantiated as `number`.                 // So we need to:                 //    * combine `context.nonFixingMapper` with `mapper` so their constraints can be instantiated in the context of `mapper` (otherwise they'd only get inference context information)                 //    * incorporate all of the component mappers into the combined mapper for the true and false members                 // This means we have two mappers that need applying:                 //    * The original `mapper` used to create this conditional                 //    * The mapper that maps the infer type parameter to its inference result (`context.mapper`)                 const context = createInferenceContext(root.inferTypeParameters, /*signature* / undefined, InferenceFlags.None);                 if (mapper) {                     context.nonFixingMapper = combineTypeMappers(context.nonFixingMapper, mapper);                 }                 if (!checkTypeDeferred) {                     // We don't want inferences from constraints as they may cause us to eagerly resolve the                     // conditional type instead of deferring resolution. Also, we always want strict function                     // types rules (i.e. proper contravariance) for inferences.                     inferTypes(context.inferences, checkType, extendsType, InferencePriority.NoConstraints | InferencePriority.AlwaysStrict);                 }                 // It's possible for 'infer T' type paramteters to be given uninstantiated constraints when the                 // those type parameters are used in type references (see getInferredTypeParameterConstraint). For                 // that reason we need context.mapper to be first in the combined mapper. See #42636 for examples.                 combinedMapper = mapper ? combineTypeMappers(context.mapper, mapper) : context.mapper;             }             // Instantiate the extends type including inferences for 'infer T' type parameters             const inferredExtendsType = combinedMapper ? instantiateType(root.extendsType, combinedMapper) : extendsType;             // We attempt to resolve the conditional type only when the check and extends types are non-generic             if (!checkTypeDeferred && !isDeferredType(inferredExtendsType, checkTuples)) {                 // Return falseType for a definitely false extends check. We check an instantiations of the two                 // types with type parameters mapped to the wildcard type, the most permissive instantiations                 // possible (the wildcard type is assignable to and from all types). If those are not related,                 // then no instantiations will be and we can just return the false branch type.                 if (!(inferredExtendsType.flags & TypeFlags.AnyOrUnknown) && (checkType.flags & TypeFlags.Any || !isTypeAssignableTo(getPermissiveInstantiation(checkType), getPermissiveInstantiation(inferredExtendsType)))) {                     // Return union of trueType and falseType for 'any' since it matches anything. Furthermore, for a                     // distributive conditional type applied to the constraint of a type variable, include trueType if                     // there are possible values of the check type that are also possible values of the extends type.                     // We use a reverse assignability check as it is less expensive than the comparable relationship                     // and avoids false positives of a non-empty intersection check.                     if (checkType.flags & TypeFlags.Any || forConstraint && !(inferredExtendsType.flags & TypeFlags.Never) && someType(getPermissiveInstantiation(inferredExtendsType), t => isTypeAssignableTo(t, getPermissiveInstantiation(checkType)))) {                         (extraTypes || (extraTypes = [])).push(instantiateType(getTypeFromTypeNode(root.node.trueType), combinedMapper || mapper));                     }                     // If falseType is an immediately nested conditional type that isn't distributive or has an                     // identical checkType, switch to that type and loop.                     const falseType = getTypeFromTypeNode(root.node.falseType);                     if (falseType.flags & TypeFlags.Conditional) {                         const newRoot = (falseType as ConditionalType).root;                         if (newRoot.node.parent === root.node && (!newRoot.isDistributive || newRoot.checkType === root.checkType)) {                             root = newRoot;                             continue;                         }                         if (canTailRecurse(falseType, mapper)) {                             continue;                         }                     }                     result = instantiateType(falseType, mapper);                     break;                 }                 // Return trueType for a definitely true extends check. We check instantiations of the two                 // types with type parameters mapped to their restrictive form, i.e. a form of the type parameter                 // that has no constraint. This ensures that, for example, the type                 //   type Foo<T extends { x: any }> = T extends { x: string } ? string : number                 // doesn't immediately resolve to 'string' instead of being deferred.                 if (inferredExtendsType.flags & TypeFlags.AnyOrUnknown || isTypeAssignableTo(getRestrictiveInstantiation(checkType), getRestrictiveInstantiation(inferredExtendsType))) {                     const trueType = getTypeFromTypeNode(root.node.trueType);                     const trueMapper = combinedMapper || mapper;                     if (canTailRecurse(trueType, trueMapper)) {                         continue;                     }                     result = instantiateType(trueType, trueMapper);                     break;                 }             }             // Return a deferred type for a check that is neither definitely true nor definitely false             result = createType(TypeFlags.Conditional) as ConditionalType;             result.root = root;             result.checkType = instantiateType(root.checkType, mapper);             result.extendsType = instantiateType(root.extendsType, mapper);             result.mapper = mapper;             result.combinedMapper = combinedMapper;             result.aliasSymbol = aliasSymbol || root.aliasSymbol;             result.aliasTypeArguments = aliasSymbol ? aliasTypeArguments : instantiateTypes(root.aliasTypeArguments, mapper!); // TODO: GH#18217             break;         } */
+		for true {
+			if tailCount == 1000 {
+				error(currentNode, Diagnostics.Type_instantiation_is_excessively_deep_and_possibly_infinite)
+				return errorType
+			}
+			checkType := instantiateType(getActualTypeVariable(root.checkType), mapper)
+			extendsType := instantiateType(root.extendsType, mapper)
+			if checkType == errorType || extendsType == errorType {
+				return errorType
+			}
+			if checkType == wildcardType || extendsType == wildcardType {
+				return wildcardType
+			}
+			checkTypeNode := skipTypeParentheses(root.node.checkType)
+			extendsTypeNode := skipTypeParentheses(root.node.extendsType)
+			checkTuples := isSimpleTupleType(checkTypeNode) && isSimpleTupleType(extendsTypeNode) && length((checkTypeNode /* as */ /* TODO(TypeReference): TupleTypeNode */).elements) == length((extendsTypeNode /* as */ /* TODO(TypeReference): TupleTypeNode */).elements)
+			checkTypeDeferred := isDeferredType(checkType, checkTuples)
+			var combinedMapper *TypeMapper
+			if root.inferTypeParameters {
+				context := createInferenceContext(root.inferTypeParameters, nil, InferenceFlagsNone)
+				if mapper {
+					context.nonFixingMapper = combineTypeMappers(context.nonFixingMapper, mapper)
+				}
+				if !checkTypeDeferred {
+					inferTypes(context.inferences, checkType, extendsType, InferencePriorityNoConstraints|InferencePriorityAlwaysStrict)
+				}
+				combinedMapper = /* TODO(ConditionalExpression): mapper ? combineTypeMappers(context.mapper, mapper) : context.mapper */ TODO
+			}
+			inferredExtendsType := /* TODO(ConditionalExpression): combinedMapper ? instantiateType(root.extendsType, combinedMapper) : extendsType */ TODO
+			if !checkTypeDeferred && !isDeferredType(inferredExtendsType, checkTuples) {
+				if !(inferredExtendsType.flags & TypeFlagsAnyOrUnknown) && (checkType.flags&TypeFlagsAny || !isTypeAssignableTo(getPermissiveInstantiation(checkType), getPermissiveInstantiation(inferredExtendsType))) {
+					if checkType.flags&TypeFlagsAny || forConstraint && !(inferredExtendsType.flags&TypeFlagsNever) && someType(getPermissiveInstantiation(inferredExtendsType), func(t /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO(undefined): boolean */ TODO {
+						return isTypeAssignableTo(t, getPermissiveInstantiation(checkType))
+					}) {
+						(extraTypes || ( /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): extraTypes = [] */ TODO)).push(instantiateType(getTypeFromTypeNode(root.node.trueType), combinedMapper || mapper))
+					}
+					falseType := getTypeFromTypeNode(root.node.falseType)
+					if falseType.flags & TypeFlagsConditional {
+						newRoot := (falseType /* as */ /* TODO(TypeReference): ConditionalType */).root
+						if newRoot.node.parent == root.node && (!newRoot.isDistributive || newRoot.checkType == root.checkType) {
+							root = newRoot
+							continue
+						}
+						if canTailRecurse(falseType, mapper) {
+							continue
+						}
+					}
+					result = instantiateType(falseType, mapper)
+					break
+				}
+				if inferredExtendsType.flags&TypeFlagsAnyOrUnknown || isTypeAssignableTo(getRestrictiveInstantiation(checkType), getRestrictiveInstantiation(inferredExtendsType)) {
+					trueType := getTypeFromTypeNode(root.node.trueType)
+					trueMapper := combinedMapper || mapper
+					if canTailRecurse(trueType, trueMapper) {
+						continue
+					}
+					result = instantiateType(trueType, trueMapper)
+					break
+				}
+			}
+			result = createType(TypeFlagsConditional) /* as */ /* TODO(TypeReference): ConditionalType */
+			result.root = root
+			result.checkType = instantiateType(root.checkType, mapper)
+			result.extendsType = instantiateType(root.extendsType, mapper)
+			result.mapper = mapper
+			result.combinedMapper = combinedMapper
+			result.aliasSymbol = aliasSymbol || root.aliasSymbol
+			result.aliasTypeArguments = /* TODO(ConditionalExpression): aliasSymbol ? aliasTypeArguments : instantiateTypes(root.aliasTypeArguments, mapper!) */ TODO
+			break
+		}
 		return /* TODO(ConditionalExpression): extraTypes ? getUnionType(append(extraTypes, result)) : result */ TODO
 		canTailRecurse := func(newType Type, newMapper *TypeMapper) /* TODO(undefined): boolean */ TODO {
 			if newType.flags&TypeFlagsConditional && newMapper {
@@ -12604,7 +12990,20 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				var nameStack []Identifier = getIdentifierChain(node.qualifier /*!*/)
 				currentNamespace := moduleSymbol
 				var current *Identifier
-				/* TODO(WhileStatement): while (current = nameStack.shift()) {                     const meaning = nameStack.length ? SymbolFlags.Namespace : targetMeaning;                     // typeof a.b.c is normally resolved using `checkExpression` which in turn defers to `checkQualifiedName`                     // That, in turn, ultimately uses `getPropertyOfType` on the type of the symbol, which differs slightly from                     // the `exports` lookup process that only looks up namespace members which is used for most type references                     const mergedResolvedSymbol = getMergedSymbol(resolveSymbol(currentNamespace));                     const symbolFromVariable = node.isTypeOf || isInJSFile(node) && isExportEquals                         ? getPropertyOfType(getTypeOfSymbol(mergedResolvedSymbol), current.escapedText, /*skipObjectFunctionPropertyAugment* / false, /*includeTypeOnlyMembers* / true)                         : undefined;                     const symbolFromModule = node.isTypeOf ? undefined : getSymbol(getExportsOfSymbol(mergedResolvedSymbol), current.escapedText, meaning);                     const next = symbolFromModule ?? symbolFromVariable;                     if (!next) {                         error(current, Diagnostics.Namespace_0_has_no_exported_member_1, getFullyQualifiedName(currentNamespace), declarationNameToString(current));                         return links.resolvedType = errorType;                     }                     getNodeLinks(current).resolvedSymbol = next;                     getNodeLinks(current.parent).resolvedSymbol = next;                     currentNamespace = next;                 } */
+				for /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): current = nameStack.shift() */ TODO {
+					meaning := /* TODO(ConditionalExpression): nameStack.length ? SymbolFlags.Namespace : targetMeaning */ TODO
+					mergedResolvedSymbol := getMergedSymbol(resolveSymbol(currentNamespace))
+					symbolFromVariable := /* TODO(ConditionalExpression): node.isTypeOf || isInJSFile(node) && isExportEquals                         ? getPropertyOfType(getTypeOfSymbol(mergedResolvedSymbol), current.escapedText, /*skipObjectFunctionPropertyAugment* / false, /*includeTypeOnlyMembers* / true)                         : undefined */ TODO
+					symbolFromModule := /* TODO(ConditionalExpression): node.isTypeOf ? undefined : getSymbol(getExportsOfSymbol(mergedResolvedSymbol), current.escapedText, meaning) */ TODO
+					next := /* TODO(QuestionQuestionToken): ?? */ /* TODO(BinaryExpression): symbolFromModule ?? symbolFromVariable */ TODO
+					if !next {
+						error(current, Diagnostics.Namespace_0_has_no_exported_member_1, getFullyQualifiedName(currentNamespace), declarationNameToString(current))
+						return /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): links.resolvedType = errorType */ TODO
+					}
+					getNodeLinks(current).resolvedSymbol = next
+					getNodeLinks(current.parent).resolvedSymbol = next
+					currentNamespace = next
+				}
 				links.resolvedType = resolveImportSymbolType(node, links, currentNamespace, targetMeaning)
 			} else {
 				if moduleSymbol.flags & targetMeaning {
@@ -12648,7 +13047,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getAliasSymbolForTypeNode := func(node Node) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol | undefined */ TODO {
 		host := node.parent
-		/* TODO(WhileStatement): while (isParenthesizedTypeNode(host) || isJSDocTypeExpression(host) || isTypeOperatorNode(host) && host.operator === SyntaxKind.ReadonlyKeyword) {             host = host.parent;         } */
+		for isParenthesizedTypeNode(host) || isJSDocTypeExpression(host) || isTypeOperatorNode(host) && host.operator == SyntaxKindReadonlyKeyword {
+			host = host.parent
+		}
 		return /* TODO(ConditionalExpression): isTypeAlias(host) ? getSymbolOfDeclaration(host) : undefined */ TODO
 	}
 	getTypeArgumentsForAliasSymbol := func(symbol *Symbol) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").TypeParameter[] | undefined */ TODO {
@@ -14261,7 +14662,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return getObjectFlags(source)&ObjectFlagsJsxAttributes && isHyphenatedJsxName(sourceProp.escapedName)
 	}
 	getNormalizedType := func(type_ Type, writing bool) Type {
-		/* TODO(WhileStatement): while (true) {             const t = isFreshLiteralType(type) ? (type as FreshableType).regularType :                 isGenericTupleType(type) ? getNormalizedTupleType(type, writing) :                 getObjectFlags(type) & ObjectFlags.Reference ? (type as TypeReference).node ? createTypeReference((type as TypeReference).target, getTypeArguments(type as TypeReference)) : getSingleBaseForNonAugmentingSubtype(type) || type :                 type.flags & TypeFlags.UnionOrIntersection ? getNormalizedUnionOrIntersectionType(type as UnionOrIntersectionType, writing) :                 type.flags & TypeFlags.Substitution ? writing ? (type as SubstitutionType).baseType : getSubstitutionIntersection(type as SubstitutionType) :                 type.flags & TypeFlags.Simplifiable ? getSimplifiedType(type, writing) :                 type;             if (t === type) return t;             type = t;         } */
+		for true {
+			t := /* TODO(ConditionalExpression): isFreshLiteralType(type) ? (type as FreshableType).regularType :                 isGenericTupleType(type) ? getNormalizedTupleType(type, writing) :                 getObjectFlags(type) & ObjectFlags.Reference ? (type as TypeReference).node ? createTypeReference((type as TypeReference).target, getTypeArguments(type as TypeReference)) : getSingleBaseForNonAugmentingSubtype(type) || type :                 type.flags & TypeFlags.UnionOrIntersection ? getNormalizedUnionOrIntersectionType(type as UnionOrIntersectionType, writing) :                 type.flags & TypeFlags.Substitution ? writing ? (type as SubstitutionType).baseType : getSubstitutionIntersection(type as SubstitutionType) :                 type.flags & TypeFlags.Simplifiable ? getSimplifiedType(type, writing) :                 type */ TODO
+			if t == type_ {
+				/* TODO(ReturnStatement): return t; */
+			}
+			type_ = t
+		}
 	}
 	getNormalizedUnionOrIntersectionType := func(type_ UnionOrIntersectionType, writing bool) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 		reduced := getReducedType(type_)
@@ -14392,7 +14799,59 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			path := ""
 			var secondaryRootErrors []DiagnosticAndArguments = /* TODO(ArrayLiteralExpression): [] */ TODO
-			/* TODO(WhileStatement): while (stack.length) {                 const [msg, ...args] = stack.pop()!;                 switch (msg.code) {                     case Diagnostics.Types_of_property_0_are_incompatible.code: {                         // Parenthesize a `new` if there is one                         if (path.indexOf("new ") === 0) {                             path = `(${path})`;                         }                         const str = "" + args[0];                         // If leading, just print back the arg (irrespective of if it's a valid identifier)                         if (path.length === 0) {                             path = `${str}`;                         }                         // Otherwise write a dotted name if possible                         else if (isIdentifierText(str, getEmitScriptTarget(compilerOptions))) {                             path = `${path}.${str}`;                         }                         // Failing that, check if the name is already a computed name                         else if (str[0] === "[" && str[str.length - 1] === "]") {                             path = `${path}${str}`;                         }                         // And finally write out a computed name as a last resort                         else {                             path = `${path}[${str}]`;                         }                         break;                     }                     case Diagnostics.Call_signature_return_types_0_and_1_are_incompatible.code:                     case Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code:                     case Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code:                     case Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code: {                         if (path.length === 0) {                             // Don't flatten signature compatability errors at the start of a chain - instead prefer                             // to unify (the with no arguments bit is excessive for printback) and print them back                             let mappedMsg = msg;                             if (msg.code === Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code) {                                 mappedMsg = Diagnostics.Call_signature_return_types_0_and_1_are_incompatible;                             }                             else if (msg.code === Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code) {                                 mappedMsg = Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible;                             }                             secondaryRootErrors.unshift([mappedMsg, args[0], args[1]]);                         }                         else {                             const prefix = (msg.code === Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code ||                                     msg.code === Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code)                                 ? "new "                                 : "";                             const params = (msg.code === Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code ||                                     msg.code === Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code)                                 ? ""                                 : "...";                             path = `${prefix}${path}(${params})`;                         }                         break;                     }                     case Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target.code: {                         secondaryRootErrors.unshift([Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target, args[0], args[1]]);                         break;                     }                     case Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target.code: {                         secondaryRootErrors.unshift([Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target, args[0], args[1], args[2]]);                         break;                     }                     default:                         return Debug.fail(`Unhandled Diagnostic: ${msg.code}`);                 }             } */
+			for stack.length {
+				TODO_IDENTIFIER := stack.pop() /*!*/
+				switch msg.code {
+				case Diagnostics.Types_of_property_0_are_incompatible.code:
+					if path.indexOf("new ") == 0 {
+						path = /* TODO(TemplateExpression): `(${path})` */ TODO
+					}
+					str := /* TODO(PlusToken): + */ /* TODO(BinaryExpression): "" + args[0] */ TODO
+					if path.length == 0 {
+						path = /* TODO(TemplateExpression): `${str}` */ TODO
+					} else if isIdentifierText(str, getEmitScriptTarget(compilerOptions)) {
+						path = /* TODO(TemplateExpression): `${path}.${str}` */ TODO
+					} else if /* TODO(ElementAccessExpression): str[0] */ TODO == "[" && /* TODO(ElementAccessExpression): str[str.length - 1] */ TODO == "]" {
+						path = /* TODO(TemplateExpression): `${path}${str}` */ TODO
+					} else {
+						path = /* TODO(TemplateExpression): `${path}[${str}]` */ TODO
+					}
+					break
+					fallthrough
+				case Diagnostics.Call_signature_return_types_0_and_1_are_incompatible.code:
+					fallthrough // TODO: merge cases
+				case Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code:
+					fallthrough // TODO: merge cases
+				case Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code:
+					fallthrough // TODO: merge cases
+				case Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code:
+					if path.length == 0 {
+						mappedMsg := msg
+						if msg.code == Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code {
+							mappedMsg = Diagnostics.Call_signature_return_types_0_and_1_are_incompatible
+						} else if msg.code == Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code {
+							mappedMsg = Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible
+						}
+						secondaryRootErrors.unshift( /* TODO(ArrayLiteralExpression): [mappedMsg, args[0], args[1]] */ TODO)
+					} else {
+						prefix := /* TODO(ConditionalExpression): (msg.code === Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code ||                                     msg.code === Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code)                                 ? "new "                                 : "" */ TODO
+						params := /* TODO(ConditionalExpression): (msg.code === Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code ||                                     msg.code === Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code)                                 ? ""                                 : "..." */ TODO
+						path = /* TODO(TemplateExpression): `${prefix}${path}(${params})` */ TODO
+					}
+					break
+					fallthrough
+				case Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target.code:
+					secondaryRootErrors.unshift( /* TODO(ArrayLiteralExpression): [Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target, args[0], args[1]] */ TODO)
+					break
+					fallthrough
+				case Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target.code:
+					secondaryRootErrors.unshift( /* TODO(ArrayLiteralExpression): [Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target, args[0], args[1], args[2]] */ TODO)
+					break
+					fallthrough
+				default:
+					return Debug.fail( /* TODO(TemplateExpression): `Unhandled Diagnostic: ${msg.code}` */ TODO)
+				}
+			}
 			if path {
 				reportError( /* TODO(ConditionalExpression): path[path.length - 1] === ")"                         ? Diagnostics.The_types_returned_by_0_are_incompatible_between_these_types                         : Diagnostics.The_types_of_0_are_incompatible_between_these_types */ TODO, path)
 			} else {
@@ -15101,7 +15560,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if relation == comparableRelation && sourceFlags&TypeFlagsTypeParameter {
 					constraint := getConstraintOfTypeParameter(source)
 					if constraint {
-						/* TODO(WhileStatement): while (constraint && someType(constraint, c => !!(c.flags & TypeFlags.TypeParameter))) {                             if (result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors* / false)) {                                 return result;                             }                             constraint = getConstraintOfTypeParameter(constraint);                         } */
+						for constraint && someType(constraint, func(c /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO(undefined): boolean */ TODO {
+							return !!(c.flags & TypeFlagsTypeParameter)
+						}) {
+							if /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors* / false) */ TODO {
+								return result
+							}
+							constraint = getConstraintOfTypeParameter(constraint)
+						}
 					}
 					return TernaryFalse
 				}
@@ -16157,7 +16623,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getMappedTargetWithSymbol := func(type_ Type) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 		var target TODO
-		/* TODO(WhileStatement): while (             (getObjectFlags(type) & ObjectFlags.InstantiatedMapped) === ObjectFlags.InstantiatedMapped &&             (target = getModifiersTypeFromMappedType(type as MappedType)) &&             (target.symbol || target.flags & TypeFlags.Intersection && some((target as IntersectionType).types, t => !!t.symbol))         ) {             type = target;         } */
+		for (getObjectFlags(type_)&ObjectFlagsInstantiatedMapped) == ObjectFlagsInstantiatedMapped && ( /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): target = getModifiersTypeFromMappedType(type as MappedType) */ TODO) && (target.symbol || target.flags&TypeFlagsIntersection && some((target /* as */ /* TODO(TypeReference): IntersectionType */).types, func(t /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO(undefined): true */ TODO {
+			return !!t.symbol
+		})) {
+			type_ = target
+		}
 		return type_
 	}
 	hasMatchingRecursionIdentity := func(type_ Type, identity /* TODO(ObjectKeyword): object */ TODO) bool {
@@ -17098,7 +17568,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		if target.flags & TypeFlagsStringMapping {
 			mappingStack := /* TODO(ArrayLiteralExpression): [] */ TODO
-			/* TODO(WhileStatement): while (target.flags & TypeFlags.StringMapping) {                 mappingStack.unshift(target.symbol);                 target = (target as StringMappingType).type;             } */
+			for target.flags & TypeFlagsStringMapping {
+				mappingStack.unshift(target.symbol)
+				target = (target /* as */ /* TODO(TypeReference): StringMappingType */).type_
+			}
 			mappedSource := reduceLeft(mappingStack, func(memo /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO, value /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol */ TODO) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 				return getStringMappingType(value, memo)
 			}, source)
@@ -18007,11 +18480,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return nil
 	}
 	containsMatchingReference := func(source Node, target Node) /* TODO(undefined): boolean */ TODO {
-		/* TODO(WhileStatement): while (isAccessExpression(source)) {             source = source.expression;             if (isMatchingReference(source, target)) {                 return true;             }         } */
+		for isAccessExpression(source) {
+			source = source.expression
+			if isMatchingReference(source, target) {
+				return true
+			}
+		}
 		return false
 	}
 	optionalChainContainsReference := func(source Node, target Node) /* TODO(undefined): boolean */ TODO {
-		/* TODO(WhileStatement): while (isOptionalChain(source)) {             source = source.expression;             if (isMatchingReference(source, target)) {                 return true;             }         } */
+		for isOptionalChain(source) {
+			source = source.expression
+			if isMatchingReference(source, target) {
+				return true
+			}
+		}
 		return false
 	}
 	isDiscriminantProperty := func(type_ *Type, name __String) /* TODO(undefined): boolean */ TODO {
@@ -18702,10 +19185,100 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return node.kind == SyntaxKindFalseKeyword || node.kind == SyntaxKindBinaryExpression && ((node /* as */ /* TODO(TypeReference): BinaryExpression */).operatorToken.kind == SyntaxKindAmpersandAmpersandToken && (isFalseExpression((node /* as */ /* TODO(TypeReference): BinaryExpression */).left) || isFalseExpression((node /* as */ /* TODO(TypeReference): BinaryExpression */).right)) || (node /* as */ /* TODO(TypeReference): BinaryExpression */).operatorToken.kind == SyntaxKindBarBarToken && isFalseExpression((node /* as */ /* TODO(TypeReference): BinaryExpression */).left) && isFalseExpression((node /* as */ /* TODO(TypeReference): BinaryExpression */).right))
 	}
 	isReachableFlowNodeWorker := func(flow FlowNode, noCacheCheck bool) bool {
-		/* TODO(WhileStatement): while (true) {             if (flow === lastFlowNode) {                 return lastFlowNodeReachable;             }             const flags = flow.flags;             if (flags & FlowFlags.Shared) {                 if (!noCacheCheck) {                     const id = getFlowNodeId(flow);                     const reachable = flowNodeReachable[id];                     return reachable !== undefined ? reachable : (flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck* / true));                 }                 noCacheCheck = false;             }             if (flags & (FlowFlags.Assignment | FlowFlags.Condition | FlowFlags.ArrayMutation)) {                 flow = (flow as FlowAssignment | FlowCondition | FlowArrayMutation).antecedent;             }             else if (flags & FlowFlags.Call) {                 const signature = getEffectsSignature((flow as FlowCall).node);                 if (signature) {                     const predicate = getTypePredicateOfSignature(signature);                     if (predicate && predicate.kind === TypePredicateKind.AssertsIdentifier && !predicate.type) {                         const predicateArgument = (flow as FlowCall).node.arguments[predicate.parameterIndex];                         if (predicateArgument && isFalseExpression(predicateArgument)) {                             return false;                         }                     }                     if (getReturnTypeOfSignature(signature).flags & TypeFlags.Never) {                         return false;                     }                 }                 flow = (flow as FlowCall).antecedent;             }             else if (flags & FlowFlags.BranchLabel) {                 // A branching point is reachable if any branch is reachable.                 return some((flow as FlowLabel).antecedent, f => isReachableFlowNodeWorker(f, /*noCacheCheck* / false));             }             else if (flags & FlowFlags.LoopLabel) {                 const antecedents = (flow as FlowLabel).antecedent;                 if (antecedents === undefined || antecedents.length === 0) {                     return false;                 }                 // A loop is reachable if the control flow path that leads to the top is reachable.                 flow = antecedents[0];             }             else if (flags & FlowFlags.SwitchClause) {                 // The control flow path representing an unmatched value in a switch statement with                 // no default clause is unreachable if the switch statement is exhaustive.                 const data = (flow as FlowSwitchClause).node;                 if (data.clauseStart === data.clauseEnd && isExhaustiveSwitchStatement(data.switchStatement)) {                     return false;                 }                 flow = (flow as FlowSwitchClause).antecedent;             }             else if (flags & FlowFlags.ReduceLabel) {                 // Cache is unreliable once we start adjusting labels                 lastFlowNode = undefined;                 const target = (flow as FlowReduceLabel).node.target;                 const saveAntecedents = target.antecedent;                 target.antecedent = (flow as FlowReduceLabel).node.antecedents;                 const result = isReachableFlowNodeWorker((flow as FlowReduceLabel).antecedent, /*noCacheCheck* / false);                 target.antecedent = saveAntecedents;                 return result;             }             else {                 return !(flags & FlowFlags.Unreachable);             }         } */
+		for true {
+			if flow == lastFlowNode {
+				return lastFlowNodeReachable
+			}
+			flags := flow.flags
+			if flags & FlowFlagsShared {
+				if !noCacheCheck {
+					id := getFlowNodeId(flow)
+					reachable := /* TODO(ElementAccessExpression): flowNodeReachable[id] */ TODO
+					return /* TODO(ConditionalExpression): reachable !== undefined ? reachable : (flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck* / true)) */ TODO
+				}
+				noCacheCheck = false
+			}
+			if flags & (FlowFlagsAssignment | FlowFlagsCondition | FlowFlagsArrayMutation) {
+				flow = (flow /* as */ /* TODO(UnionType): FlowAssignment | FlowCondition | FlowArrayMutation */).antecedent
+			} else if flags & FlowFlagsCall {
+				signature := getEffectsSignature((flow /* as */ /* TODO(TypeReference): FlowCall */).node)
+				if signature {
+					predicate := getTypePredicateOfSignature(signature)
+					if predicate && predicate.kind == TypePredicateKindAssertsIdentifier && !predicate.type_ {
+						predicateArgument := /* TODO(ElementAccessExpression): (flow as FlowCall).node.arguments[predicate.parameterIndex] */ TODO
+						if predicateArgument && isFalseExpression(predicateArgument) {
+							return false
+						}
+					}
+					if getReturnTypeOfSignature(signature).flags & TypeFlagsNever {
+						return false
+					}
+				}
+				flow = (flow /* as */ /* TODO(TypeReference): FlowCall */).antecedent
+			} else if flags & FlowFlagsBranchLabel {
+				return some((flow /* as */ /* TODO(TypeReference): FlowLabel */).antecedent, func(f /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").FlowNode */ TODO) /* TODO(undefined): boolean */ TODO {
+					return isReachableFlowNodeWorker(f, false)
+				})
+			} else if flags & FlowFlagsLoopLabel {
+				antecedents := (flow /* as */ /* TODO(TypeReference): FlowLabel */).antecedent
+				if antecedents == nil || antecedents.length == 0 {
+					return false
+				}
+				flow = /* TODO(ElementAccessExpression): antecedents[0] */ TODO
+			} else if flags & FlowFlagsSwitchClause {
+				data := (flow /* as */ /* TODO(TypeReference): FlowSwitchClause */).node
+				if data.clauseStart == data.clauseEnd && isExhaustiveSwitchStatement(data.switchStatement) {
+					return false
+				}
+				flow = (flow /* as */ /* TODO(TypeReference): FlowSwitchClause */).antecedent
+			} else if flags & FlowFlagsReduceLabel {
+				lastFlowNode = nil
+				target := (flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).node.target
+				saveAntecedents := target.antecedent
+				target.antecedent = (flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).node.antecedents
+				result := isReachableFlowNodeWorker((flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).antecedent, false)
+				target.antecedent = saveAntecedents
+				return result
+			} else {
+				return !(flags & FlowFlagsUnreachable)
+			}
+		}
 	}
 	isPostSuperFlowNode := func(flow FlowNode, noCacheCheck bool) bool {
-		/* TODO(WhileStatement): while (true) {             const flags = flow.flags;             if (flags & FlowFlags.Shared) {                 if (!noCacheCheck) {                     const id = getFlowNodeId(flow);                     const postSuper = flowNodePostSuper[id];                     return postSuper !== undefined ? postSuper : (flowNodePostSuper[id] = isPostSuperFlowNode(flow, /*noCacheCheck* / true));                 }                 noCacheCheck = false;             }             if (flags & (FlowFlags.Assignment | FlowFlags.Condition | FlowFlags.ArrayMutation | FlowFlags.SwitchClause)) {                 flow = (flow as FlowAssignment | FlowCondition | FlowArrayMutation | FlowSwitchClause).antecedent;             }             else if (flags & FlowFlags.Call) {                 if ((flow as FlowCall).node.expression.kind === SyntaxKind.SuperKeyword) {                     return true;                 }                 flow = (flow as FlowCall).antecedent;             }             else if (flags & FlowFlags.BranchLabel) {                 // A branching point is post-super if every branch is post-super.                 return every((flow as FlowLabel).antecedent, f => isPostSuperFlowNode(f, /*noCacheCheck* / false));             }             else if (flags & FlowFlags.LoopLabel) {                 // A loop is post-super if the control flow path that leads to the top is post-super.                 flow = (flow as FlowLabel).antecedent![0];             }             else if (flags & FlowFlags.ReduceLabel) {                 const target = (flow as FlowReduceLabel).node.target;                 const saveAntecedents = target.antecedent;                 target.antecedent = (flow as FlowReduceLabel).node.antecedents;                 const result = isPostSuperFlowNode((flow as FlowReduceLabel).antecedent, /*noCacheCheck* / false);                 target.antecedent = saveAntecedents;                 return result;             }             else {                 // Unreachable nodes are considered post-super to silence errors                 return !!(flags & FlowFlags.Unreachable);             }         } */
+		for true {
+			flags := flow.flags
+			if flags & FlowFlagsShared {
+				if !noCacheCheck {
+					id := getFlowNodeId(flow)
+					postSuper := /* TODO(ElementAccessExpression): flowNodePostSuper[id] */ TODO
+					return /* TODO(ConditionalExpression): postSuper !== undefined ? postSuper : (flowNodePostSuper[id] = isPostSuperFlowNode(flow, /*noCacheCheck* / true)) */ TODO
+				}
+				noCacheCheck = false
+			}
+			if flags & (FlowFlagsAssignment | FlowFlagsCondition | FlowFlagsArrayMutation | FlowFlagsSwitchClause) {
+				flow = (flow /* as */ /* TODO(UnionType): FlowAssignment | FlowCondition | FlowArrayMutation | FlowSwitchClause */).antecedent
+			} else if flags & FlowFlagsCall {
+				if (flow /* as */ /* TODO(TypeReference): FlowCall */).node.expression.kind == SyntaxKindSuperKeyword {
+					return true
+				}
+				flow = (flow /* as */ /* TODO(TypeReference): FlowCall */).antecedent
+			} else if flags & FlowFlagsBranchLabel {
+				return every((flow /* as */ /* TODO(TypeReference): FlowLabel */).antecedent, func(f /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").FlowNode */ TODO) /* TODO(undefined): boolean */ TODO {
+					return isPostSuperFlowNode(f, false)
+				})
+			} else if flags & FlowFlagsLoopLabel {
+				flow = /* TODO(ElementAccessExpression): (flow as FlowLabel).antecedent![0] */ TODO
+			} else if flags & FlowFlagsReduceLabel {
+				target := (flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).node.target
+				saveAntecedents := target.antecedent
+				target.antecedent = (flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).node.antecedents
+				result := isPostSuperFlowNode((flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).antecedent, false)
+				target.antecedent = saveAntecedents
+				return result
+			} else {
+				return !!(flags & FlowFlagsUnreachable)
+			}
+		}
 	}
 	isConstantReference := func(node Node) bool {
 		switch node.kind {
@@ -18764,7 +19337,65 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			flowDepth++
 			var sharedFlow *FlowNode
-			/* TODO(WhileStatement): while (true) {                 const flags = flow.flags;                 if (flags & FlowFlags.Shared) {                     // We cache results of flow type resolution for shared nodes that were previously visited in                     // the same getFlowTypeOfReference invocation. A node is considered shared when it is the                     // antecedent of more than one node.                     for (let i = sharedFlowStart; i < sharedFlowCount; i++) {                         if (sharedFlowNodes[i] === flow) {                             flowDepth--;                             return sharedFlowTypes[i];                         }                     }                     sharedFlow = flow;                 }                 let type: FlowType | undefined;                 if (flags & FlowFlags.Assignment) {                     type = getTypeAtFlowAssignment(flow as FlowAssignment);                     if (!type) {                         flow = (flow as FlowAssignment).antecedent;                         continue;                     }                 }                 else if (flags & FlowFlags.Call) {                     type = getTypeAtFlowCall(flow as FlowCall);                     if (!type) {                         flow = (flow as FlowCall).antecedent;                         continue;                     }                 }                 else if (flags & FlowFlags.Condition) {                     type = getTypeAtFlowCondition(flow as FlowCondition);                 }                 else if (flags & FlowFlags.SwitchClause) {                     type = getTypeAtSwitchClause(flow as FlowSwitchClause);                 }                 else if (flags & FlowFlags.Label) {                     if ((flow as FlowLabel).antecedent!.length === 1) {                         flow = (flow as FlowLabel).antecedent![0];                         continue;                     }                     type = flags & FlowFlags.BranchLabel ?                         getTypeAtFlowBranchLabel(flow as FlowLabel) :                         getTypeAtFlowLoopLabel(flow as FlowLabel);                 }                 else if (flags & FlowFlags.ArrayMutation) {                     type = getTypeAtFlowArrayMutation(flow as FlowArrayMutation);                     if (!type) {                         flow = (flow as FlowArrayMutation).antecedent;                         continue;                     }                 }                 else if (flags & FlowFlags.ReduceLabel) {                     const target = (flow as FlowReduceLabel).node.target;                     const saveAntecedents = target.antecedent;                     target.antecedent = (flow as FlowReduceLabel).node.antecedents;                     type = getTypeAtFlowNode((flow as FlowReduceLabel).antecedent);                     target.antecedent = saveAntecedents;                 }                 else if (flags & FlowFlags.Start) {                     // Check if we should continue with the control flow of the containing function.                     const container = (flow as FlowStart).node;                     if (                         container && container !== flowContainer &&                         reference.kind !== SyntaxKind.PropertyAccessExpression &&                         reference.kind !== SyntaxKind.ElementAccessExpression &&                         !(reference.kind === SyntaxKind.ThisKeyword && container.kind !== SyntaxKind.ArrowFunction)                     ) {                         flow = container.flowNode!;                         continue;                     }                     // At the top of the flow we have the initial type.                     type = initialType;                 }                 else {                     // Unreachable code errors are reported in the binding phase. Here we                     // simply return the non-auto declared type to reduce follow-on errors.                     type = convertAutoToAny(declaredType);                 }                 if (sharedFlow) {                     // Record visited node and the associated type in the cache.                     sharedFlowNodes[sharedFlowCount] = sharedFlow;                     sharedFlowTypes[sharedFlowCount] = type;                     sharedFlowCount++;                 }                 flowDepth--;                 return type;             } */
+			for true {
+				flags := flow.flags
+				if flags & FlowFlagsShared {
+					/* TODO(ForStatement): for (let i = sharedFlowStart; i < sharedFlowCount; i++) {                         if (sharedFlowNodes[i] === flow) {                             flowDepth--;                             return sharedFlowTypes[i];                         }                     } */
+					sharedFlow = flow
+				}
+				var type_ *FlowType
+				if flags & FlowFlagsAssignment {
+					type_ = getTypeAtFlowAssignment(flow /* as */ /* TODO(TypeReference): FlowAssignment */)
+					if !type_ {
+						flow = (flow /* as */ /* TODO(TypeReference): FlowAssignment */).antecedent
+						continue
+					}
+				} else if flags & FlowFlagsCall {
+					type_ = getTypeAtFlowCall(flow /* as */ /* TODO(TypeReference): FlowCall */)
+					if !type_ {
+						flow = (flow /* as */ /* TODO(TypeReference): FlowCall */).antecedent
+						continue
+					}
+				} else if flags & FlowFlagsCondition {
+					type_ = getTypeAtFlowCondition(flow /* as */ /* TODO(TypeReference): FlowCondition */)
+				} else if flags & FlowFlagsSwitchClause {
+					type_ = getTypeAtSwitchClause(flow /* as */ /* TODO(TypeReference): FlowSwitchClause */)
+				} else if flags & FlowFlagsLabel {
+					if (flow /* as */ /* TODO(TypeReference): FlowLabel */).antecedent. /*!*/ length == 1 {
+						flow = /* TODO(ElementAccessExpression): (flow as FlowLabel).antecedent![0] */ TODO
+						continue
+					}
+					type_ = /* TODO(ConditionalExpression): flags & FlowFlags.BranchLabel ?                         getTypeAtFlowBranchLabel(flow as FlowLabel) :                         getTypeAtFlowLoopLabel(flow as FlowLabel) */ TODO
+				} else if flags & FlowFlagsArrayMutation {
+					type_ = getTypeAtFlowArrayMutation(flow /* as */ /* TODO(TypeReference): FlowArrayMutation */)
+					if !type_ {
+						flow = (flow /* as */ /* TODO(TypeReference): FlowArrayMutation */).antecedent
+						continue
+					}
+				} else if flags & FlowFlagsReduceLabel {
+					target := (flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).node.target
+					saveAntecedents := target.antecedent
+					target.antecedent = (flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).node.antecedents
+					type_ = getTypeAtFlowNode((flow /* as */ /* TODO(TypeReference): FlowReduceLabel */).antecedent)
+					target.antecedent = saveAntecedents
+				} else if flags & FlowFlagsStart {
+					container := (flow /* as */ /* TODO(TypeReference): FlowStart */).node
+					if container && container != flowContainer && reference.kind != SyntaxKindPropertyAccessExpression && reference.kind != SyntaxKindElementAccessExpression && !(reference.kind == SyntaxKindThisKeyword && container.kind != SyntaxKindArrowFunction) {
+						flow = container.flowNode /*!*/
+						continue
+					}
+					type_ = initialType
+				} else {
+					type_ = convertAutoToAny(declaredType)
+				}
+				if sharedFlow {
+					/* TODO(ElementAccessExpression): sharedFlowNodes[sharedFlowCount] */ TODO = sharedFlow
+					/* TODO(ElementAccessExpression): sharedFlowTypes[sharedFlowCount] */ TODO = type_
+					sharedFlowCount++
+				}
+				flowDepth--
+				return type_
+			}
 		}
 		getInitialOrAssignedType := func(flow FlowAssignment) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 			node := flow.node
@@ -19716,7 +20347,35 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	extendAssignmentPosition := func(node Node, declaration Declaration) /* TODO(undefined): number */ TODO {
 		pos := node.pos
-		/* TODO(WhileStatement): while (node && node.pos > declaration.pos) {             switch (node.kind) {                 case SyntaxKind.VariableStatement:                 case SyntaxKind.ExpressionStatement:                 case SyntaxKind.IfStatement:                 case SyntaxKind.DoStatement:                 case SyntaxKind.WhileStatement:                 case SyntaxKind.ForStatement:                 case SyntaxKind.ForInStatement:                 case SyntaxKind.ForOfStatement:                 case SyntaxKind.WithStatement:                 case SyntaxKind.SwitchStatement:                 case SyntaxKind.TryStatement:                 case SyntaxKind.ClassDeclaration:                     pos = node.end;             }             node = node.parent;         } */
+		for node && node.pos > declaration.pos {
+			switch node.kind {
+			case SyntaxKindVariableStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindExpressionStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindIfStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindDoStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindWhileStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindForStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindForInStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindForOfStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindWithStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindSwitchStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindTryStatement:
+				fallthrough // TODO: merge cases
+			case SyntaxKindClassDeclaration:
+				pos = node.end
+			}
+			node = node.parent
+		}
 		return pos
 	}
 	isConstantVariable := func(symbol Symbol) /* TODO(undefined): boolean | 0 */ TODO {
@@ -19831,7 +20490,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if isPropertyAccessOrQualifiedName(location) {
 				var topProp Node = location
-				/* TODO(WhileStatement): while (isPropertyAccessOrQualifiedName(topProp)) {                         if (isPartOfTypeNode(topProp)) return;                         topProp = topProp.parent;                     } */
+				for isPropertyAccessOrQualifiedName(topProp) {
+					if isPartOfTypeNode(topProp) {
+						/* TODO(ReturnStatement): return; */
+					}
+					topProp = topProp.parent
+				}
 				return markPropertyAliasReferenced(location)
 			}
 			if isExportAssignment(location) {
@@ -20138,7 +20802,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				getNodeLinks(container).flags |= NodeCheckFlagsCaptureArguments
-				/* TODO(WhileStatement): while (container && isArrowFunction(container)) {                     container = getContainingFunction(container);                     if (container) {                         getNodeLinks(container).flags |= NodeCheckFlags.CaptureArguments;                     }                 } */
+				for container && isArrowFunction(container) {
+					container = getContainingFunction(container)
+					if container {
+						getNodeLinks(container).flags |= NodeCheckFlagsCaptureArguments
+					}
+				}
 			}
 			return
 		}
@@ -20151,7 +20820,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if declaration && localOrExportSymbol.flags&SymbolFlagsClass {
 			if isClassLike(declaration) && declaration.name != node {
 				container := getThisContainer(node, false, false)
-				/* TODO(WhileStatement): while (container.kind !== SyntaxKind.SourceFile && container.parent !== declaration) {                     container = getThisContainer(container, /*includeArrowFunctions* / false, /*includeClassComputedPropertyName* / false);                 } */
+				for container.kind != SyntaxKindSourceFile && container.parent != declaration {
+					container = getThisContainer(container, false, false)
+				}
 				if container.kind != SyntaxKindSourceFile {
 					getNodeLinks(declaration).flags |= NodeCheckFlagsContainsConstructorReference
 					getNodeLinks(container).flags |= NodeCheckFlagsContainsConstructorReference
@@ -20226,7 +20897,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		isModuleExports := symbol.flags & SymbolFlagsModuleExports
 		typeIsAutomatic := type_ == autoType || type_ == autoArrayType
 		isAutomaticTypeInNonNull := typeIsAutomatic && node.parent.kind == SyntaxKindNonNullExpression
-		/* TODO(WhileStatement): while (             flowContainer !== declarationContainer && (                 flowContainer.kind === SyntaxKind.FunctionExpression ||                 flowContainer.kind === SyntaxKind.ArrowFunction ||                 isObjectLiteralOrClassExpressionMethodOrAccessor(flowContainer)             ) && (                 isConstantVariable(localOrExportSymbol) && type !== autoArrayType ||                 isParameterOrMutableLocalVariable(localOrExportSymbol) && isPastLastAssignment(localOrExportSymbol, node)             )         ) {             flowContainer = getControlFlowContainer(flowContainer);         } */
+		for flowContainer != declarationContainer && (flowContainer.kind == SyntaxKindFunctionExpression || flowContainer.kind == SyntaxKindArrowFunction || isObjectLiteralOrClassExpressionMethodOrAccessor(flowContainer)) && (isConstantVariable(localOrExportSymbol) && type_ != autoArrayType || isParameterOrMutableLocalVariable(localOrExportSymbol) && isPastLastAssignment(localOrExportSymbol, node)) {
+			flowContainer = getControlFlowContainer(flowContainer)
+		}
 		isNeverInitialized := immediateDeclaration && isVariableDeclaration(immediateDeclaration) && !immediateDeclaration.initializer && !immediateDeclaration.exclamationToken && isMutableLocalVariableDeclaration(immediateDeclaration) && !isSymbolAssignedDefinitely(symbol)
 		assumeInitialized := isParameter || isAlias || (isOuterVariable && !isNeverInitialized) || isSpreadDestructuringAssignmentTarget || isModuleExports || isSameScopedBindingElement(node, declaration) || type_ != autoType && type_ != autoArrayType && (!strictNullChecks || (type_.flags&(TypeFlagsAnyOrUnknown|TypeFlagsVoid)) != 0 || isInTypeQuery(node) || isInAmbientOrTypeNode(node) || node.parent.kind == SyntaxKindExportSpecifier) || node.parent.kind == SyntaxKindNonNullExpression || declaration.kind == SyntaxKindVariableDeclaration && (declaration /* as */ /* TODO(TypeReference): VariableDeclaration */).exclamationToken || declaration.flags&NodeFlagsAmbient
 		initialType := /* TODO(ConditionalExpression): isAutomaticTypeInNonNull ? undefinedType :             assumeInitialized ? (isParameter ? removeOptionalityFromDeclaredType(type, declaration as VariableLikeDeclaration) : type) :             typeIsAutomatic ? undefinedType : getOptionalType(type) */ TODO
@@ -20329,7 +21002,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isAssignedInBodyOfForStatement := func(node Identifier, container ForStatement) bool {
 		var current Node = node
-		/* TODO(WhileStatement): while (current.parent.kind === SyntaxKind.ParenthesizedExpression) {             current = current.parent;         } */
+		for current.parent.kind == SyntaxKindParenthesizedExpression {
+			current = current.parent
+		}
 		isAssigned := false
 		if isAssignmentTarget(current) {
 			isAssigned = true
@@ -20384,7 +21059,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if container.kind == SyntaxKindConstructor {
 			checkThisBeforeSuper(node, container, Diagnostics.super_must_be_called_before_accessing_this_in_the_constructor_of_a_derived_class)
 		}
-		/* TODO(WhileStatement): while (true) {             // Now skip arrow functions to get the "real" owner of 'this'.             if (container.kind === SyntaxKind.ArrowFunction) {                 container = getThisContainer(container, /*includeArrowFunctions* / false, !thisInComputedPropertyName);                 capturedByArrowFunction = true;             }              if (container.kind === SyntaxKind.ComputedPropertyName) {                 container = getThisContainer(container, !capturedByArrowFunction, /*includeClassComputedPropertyName* / false);                 thisInComputedPropertyName = true;                 continue;             }              break;         } */
+		for true {
+			if container.kind == SyntaxKindArrowFunction {
+				container = getThisContainer(container, false, !thisInComputedPropertyName)
+				capturedByArrowFunction = true
+			}
+			if container.kind == SyntaxKindComputedPropertyName {
+				container = getThisContainer(container, !capturedByArrowFunction, false)
+				thisInComputedPropertyName = true
+				continue
+			}
+			break
+		}
 		checkThisInStaticClassFieldInitializerInDecoratedClass(node, container)
 		if thisInComputedPropertyName {
 			error(node, Diagnostics.this_cannot_be_referenced_in_a_computed_property_name)
@@ -20502,7 +21188,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		needToCaptureLexicalThis := false
 		inAsyncFunction := false
 		if !isCallExpression {
-			/* TODO(WhileStatement): while (container && container.kind === SyntaxKind.ArrowFunction) {                 if (hasSyntacticModifier(container, ModifierFlags.Async)) inAsyncFunction = true;                 container = getSuperContainer(container, /*stopOnFunctions* / true);                 needToCaptureLexicalThis = languageVersion < ScriptTarget.ES2015;             } */
+			for container && container.kind == SyntaxKindArrowFunction {
+				if hasSyntacticModifier(container, ModifierFlagsAsync) {
+					/* TODO(ExpressionStatement): inAsyncFunction = true; */
+				}
+				container = getSuperContainer(container, true)
+				needToCaptureLexicalThis = languageVersion < ScriptTargetES2015
+			}
 			if container && hasSyntacticModifier(container, ModifierFlagsAsync) {
 				/* TODO(ExpressionStatement): inAsyncFunction = true; */
 			}
@@ -20604,7 +21296,17 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getThisTypeOfObjectLiteralFromContextualType := func(containingLiteral ObjectLiteralExpression, contextualType *Type) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").Type | undefined */ TODO {
 		literal := containingLiteral
 		type_ := contextualType
-		/* TODO(WhileStatement): while (type) {             const thisType = getThisTypeFromContextualType(type);             if (thisType) {                 return thisType;             }             if (literal.parent.kind !== SyntaxKind.PropertyAssignment) {                 break;             }             literal = literal.parent.parent as ObjectLiteralExpression;             type = getApparentTypeOfContextualType(literal, /*contextFlags* / undefined);         } */
+		for type_ {
+			thisType := getThisTypeFromContextualType(type_)
+			if thisType {
+				return thisType
+			}
+			if literal.parent.kind != SyntaxKindPropertyAssignment {
+				break
+			}
+			literal = literal.parent.parent /* as */ /* TODO(TypeReference): ObjectLiteralExpression */
+			type_ = getApparentTypeOfContextualType(literal, nil)
+		}
 	}
 	getContextualThisParameterType := func(func_ SignatureDeclaration) *Type {
 		if func_.kind == SyntaxKindArrowFunction {
@@ -20795,7 +21497,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isInParameterInitializerBeforeContainingFunction := func(node Node) /* TODO(undefined): boolean */ TODO {
 		inBindingInitializer := false
-		/* TODO(WhileStatement): while (node.parent && !isFunctionLike(node.parent)) {             if (isParameter(node.parent) && (inBindingInitializer || node.parent.initializer === node)) {                 return true;             }             if (isBindingElement(node.parent) && node.parent.initializer === node) {                 inBindingInitializer = true;             }              node = node.parent;         } */
+		for node.parent && !isFunctionLike(node.parent) {
+			if isParameter(node.parent) && (inBindingInitializer || node.parent.initializer == node) {
+				return true
+			}
+			if isBindingElement(node.parent) && node.parent.initializer == node {
+				inBindingInitializer = true
+			}
+			node = node.parent
+		}
 		return false
 	}
 	getContextualIterationType := func(kind IterationTypeKind, functionDecl SignatureDeclaration) *Type {
@@ -22616,7 +23326,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return checkPropertyAccessExpressionOrQualifiedName(node, node.left, leftType, node.right, checkMode)
 	}
 	isMethodAccessForCall := func(node Node) /* TODO(undefined): boolean */ TODO {
-		/* TODO(WhileStatement): while (node.parent.kind === SyntaxKind.ParenthesizedExpression) {             node = node.parent;         } */
+		for node.parent.kind == SyntaxKindParenthesizedExpression {
+			node = node.parent
+		}
 		return isCallOrNewExpression(node.parent) && node.parent.expression == node
 	}
 	lookupSymbolForPrivateIdentifierDeclaration := func(propName __String, location Node) *Symbol {
@@ -22905,7 +23617,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return false
 		}
 		var classType *InterfaceType = getTypeOfSymbol(prop.parent /*!*/) /* as */ /* TODO(TypeReference): InterfaceType */
-		/* TODO(WhileStatement): while (true) {             classType = classType.symbol && getSuperClass(classType) as InterfaceType | undefined;             if (!classType) {                 return false;             }             const superProperty = getPropertyOfType(classType, prop.escapedName);             if (superProperty && superProperty.valueDeclaration) {                 return true;             }         } */
+		for true {
+			classType = classType.symbol && getSuperClass(classType) /* as */ /* TODO(UnionType): InterfaceType | undefined */
+			if !classType {
+				return false
+			}
+			superProperty := getPropertyOfType(classType, prop.escapedName)
+			if superProperty && superProperty.valueDeclaration {
+				return true
+			}
+		}
 	}
 	getSuperClass := func(classType InterfaceType) *Type {
 		x := getBaseTypes(classType)
@@ -23167,7 +23888,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if symbol.flags & SymbolFlagsVariable {
 				var child Node = expr
 				node := expr.parent
-				/* TODO(WhileStatement): while (node) {                     if (                         node.kind === SyntaxKind.ForInStatement &&                         child === (node as ForInStatement).statement &&                         getForInVariableSymbol(node as ForInStatement) === symbol &&                         hasNumericPropertyNames(getTypeOfExpression((node as ForInStatement).expression))                     ) {                         return true;                     }                     child = node;                     node = node.parent;                 } */
+				for node {
+					if node.kind == SyntaxKindForInStatement && child == (node /* as */ /* TODO(TypeReference): ForInStatement */).statement && getForInVariableSymbol(node /* as */ /* TODO(TypeReference): ForInStatement */) == symbol && hasNumericPropertyNames(getTypeOfExpression((node /* as */ /* TODO(TypeReference): ForInStatement */).expression)) {
+						return true
+					}
+					child = node
+					node = node.parent
+				}
 			}
 		}
 		return false
@@ -24052,8 +24779,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypeArgumentsFromNodes := func(typeArgumentNodes []TypeNode, typeParameters []TypeParameter, isJs bool) []Type {
 		typeArguments := typeArgumentNodes.map_(getTypeOfNode)
-		/* TODO(WhileStatement): while (typeArguments.length > typeParameters.length) {             typeArguments.pop();         } */
-		/* TODO(WhileStatement): while (typeArguments.length < typeParameters.length) {             typeArguments.push(getDefaultFromTypeParameter(typeParameters[typeArguments.length]) || getConstraintOfTypeParameter(typeParameters[typeArguments.length]) || getDefaultTypeArgumentType(isJs));         } */
+		for typeArguments.length > typeParameters.length {
+			typeArguments.pop()
+		}
+		for typeArguments.length < typeParameters.length {
+			typeArguments.push(getDefaultFromTypeParameter( /* TODO(ElementAccessExpression): typeParameters[typeArguments.length] */ TODO) || getConstraintOfTypeParameter( /* TODO(ElementAccessExpression): typeParameters[typeArguments.length] */ TODO) || getDefaultTypeArgumentType(isJs))
+		}
 		return typeArguments
 	}
 	inferSignatureInstantiationForOverloadFailure := func(node CallLikeExpression, typeParameters []TypeParameter, candidate Signature, args []Expression, checkMode CheckMode) Signature {
@@ -24593,7 +25324,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return false
 		}
 		var parent Node = node.parent
-		/* TODO(WhileStatement): while (parent && parent.kind === SyntaxKind.PropertyAccessExpression) {             parent = parent.parent;         } */
+		for parent && parent.kind == SyntaxKindPropertyAccessExpression {
+			parent = parent.parent
+		}
 		if parent && isBinaryExpression(parent) && isPrototypeAccess(parent.left) && parent.operatorToken.kind == SyntaxKindEqualsToken {
 			right := getInitializerOfBinaryExpression(parent)
 			return isObjectLiteralExpression(right) && right
@@ -26537,7 +27270,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				operator := operatorToken.kind
 				if isLogicalOrCoalescingBinaryOperator(operator) {
 					parent := node.parent
-					/* TODO(WhileStatement): while (parent.kind === SyntaxKind.ParenthesizedExpression || isLogicalOrCoalescingBinaryExpression(parent)) {                         parent = parent.parent;                     } */
+					for parent.kind == SyntaxKindParenthesizedExpression || isLogicalOrCoalescingBinaryExpression(parent) {
+						parent = parent.parent
+					}
 					if operator == SyntaxKindAmpersandAmpersandToken || isIfStatement(parent) {
 						checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(node.left, leftType /* TODO(ConditionalExpression): isIfStatement(parent) ? parent.thenStatement : undefined */, TODO)
 					}
@@ -27420,7 +28155,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getUniqueTypeParameterName := func(typeParameters []TypeParameter, baseName __String) /* TODO(undefined): import("/home/jabaile/work/TypeScript/src/compiler/types").__String */ TODO {
 		len := (baseName /* as */ /* TODO(StringKeyword): string */).length
-		/* TODO(WhileStatement): while (len > 1 && (baseName as string).charCodeAt(len - 1) >= CharacterCodes._0 && (baseName as string).charCodeAt(len - 1) <= CharacterCodes._9) len--; */
+		for len > 1 && (baseName /* as */ /* TODO(StringKeyword): string */).charCodeAt( /* TODO(MinusToken): - */ /* TODO(BinaryExpression): len - 1 */ TODO) >= CharacterCodes_0 && (baseName /* as */ /* TODO(StringKeyword): string */).charCodeAt( /* TODO(MinusToken): - */ /* TODO(BinaryExpression): len - 1 */ TODO) <= CharacterCodes_9 {
+			len--
+		}
 		s := (baseName /* as */ /* TODO(StringKeyword): string */).slice(0, len)
 		/* TODO(ForStatement): for (let index = 1; true; index++) {             const augmentedName = s + index as __String;             if (!hasTypeParameterByName(typeParameters, augmentedName)) {                 return augmentedName;             }         } */
 	}
@@ -29003,7 +29740,35 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			canHaveCallExpression := true
 			var errorNode Node
-			/* TODO(WhileStatement): while (true) {                 // Allow TS syntax such as non-null assertions and instantiation expressions                 if (isExpressionWithTypeArguments(node) || isNonNullExpression(node)) {                     node = node.expression;                     continue;                 }                  // DecoratorCallExpression :                 //   DecoratorMemberExpression Arguments                  if (isCallExpression(node)) {                     if (!canHaveCallExpression) {                         errorNode = node;                     }                     if (node.questionDotToken) {                         // Even if we already have an error node, error at the `?.` token since it appears earlier.                         errorNode = node.questionDotToken;                     }                     node = node.expression;                     canHaveCallExpression = false;                     continue;                 }                  // DecoratorMemberExpression :                 //   IdentifierReference                 //   DecoratorMemberExpression `.` IdentifierName                 //   DecoratorMemberExpression `.` PrivateIdentifier                  if (isPropertyAccessExpression(node)) {                     if (node.questionDotToken) {                         // Even if we already have an error node, error at the `?.` token since it appears earlier.                         errorNode = node.questionDotToken;                     }                     node = node.expression;                     canHaveCallExpression = false;                     continue;                 }                  if (!isIdentifier(node)) {                     // Even if we already have an error node, error at this node since it appears earlier.                     errorNode = node;                 }                  break;             } */
+			for true {
+				if isExpressionWithTypeArguments(node) || isNonNullExpression(node) {
+					node = node.expression
+					continue
+				}
+				if isCallExpression(node) {
+					if !canHaveCallExpression {
+						errorNode = node
+					}
+					if node.questionDotToken {
+						errorNode = node.questionDotToken
+					}
+					node = node.expression
+					canHaveCallExpression = false
+					continue
+				}
+				if isPropertyAccessExpression(node) {
+					if node.questionDotToken {
+						errorNode = node.questionDotToken
+					}
+					node = node.expression
+					canHaveCallExpression = false
+					continue
+				}
+				if !isIdentifier(node) {
+					errorNode = node
+				}
+				break
+			}
 			if errorNode {
 				addRelatedInfo(error(decorator.expression, Diagnostics.Expression_must_be_enclosed_in_parentheses_to_be_used_as_a_decorator), createDiagnosticForNode(errorNode, Diagnostics.Invalid_syntax_in_decorator))
 				return true
@@ -29088,7 +29853,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getEntityNameForDecoratorMetadataFromTypeList := func(types []TypeNode) *EntityName {
 		var commonEntityName *EntityName
 		for _, typeNode := range types {
-			/* TODO(WhileStatement): while (typeNode.kind === SyntaxKind.ParenthesizedType || typeNode.kind === SyntaxKind.NamedTupleMember) {                 typeNode = (typeNode as ParenthesizedTypeNode | NamedTupleMember).type; // Skip parens if need be             } */
+			for typeNode.kind == SyntaxKindParenthesizedType || typeNode.kind == SyntaxKindNamedTupleMember {
+				typeNode = (typeNode /* as */ /* TODO(UnionType): ParenthesizedTypeNode | NamedTupleMember */).type_
+			}
 			if typeNode.kind == SyntaxKindNeverKeyword {
 				continue
 			}
@@ -29979,7 +30746,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		bothHelper := func(condExpr Expression, body /* TODO(UnionType): Expression | Statement | undefined */ any) {
 			condExpr = skipParentheses(condExpr)
 			helper(condExpr, body)
-			/* TODO(WhileStatement): while (isBinaryExpression(condExpr) && (condExpr.operatorToken.kind === SyntaxKind.BarBarToken || condExpr.operatorToken.kind === SyntaxKind.QuestionQuestionToken)) {                 condExpr = skipParentheses(condExpr.left);                 helper(condExpr, body);             } */
+			for isBinaryExpression(condExpr) && (condExpr.operatorToken.kind == SyntaxKindBarBarToken || condExpr.operatorToken.kind == SyntaxKindQuestionQuestionToken) {
+				condExpr = skipParentheses(condExpr.left)
+				helper(condExpr, body)
+			}
 		}
 		helper := func(condExpr Expression, body /* TODO(UnionType): Expression | Statement | undefined */ any) {
 			location := /* TODO(ConditionalExpression): isLogicalOrCoalescingBinaryExpression(condExpr) ? skipParentheses(condExpr.right) : condExpr */ TODO
@@ -30023,7 +30793,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return !!forEachChild(body /* TODO(FunctionExpression): function check(childNode): boolean | undefined {             if (isIdentifier(childNode)) {                 const childSymbol = getSymbolAtLocation(childNode);                 if (childSymbol && childSymbol === testedSymbol) {                     // If the test was a simple identifier, the above check is sufficient                     if (isIdentifier(expr) || isIdentifier(testedNode) && isBinaryExpression(testedNode.parent)) {                         return true;                     }                     // Otherwise we need to ensure the symbol is called on the same target                     let testedExpression = testedNode.parent;                     let childExpression = childNode.parent;                     while (testedExpression && childExpression) {                         if (                             isIdentifier(testedExpression) && isIdentifier(childExpression) ||                             testedExpression.kind === SyntaxKind.ThisKeyword && childExpression.kind === SyntaxKind.ThisKeyword                         ) {                             return getSymbolAtLocation(testedExpression) === getSymbolAtLocation(childExpression);                         }                         else if (isPropertyAccessExpression(testedExpression) && isPropertyAccessExpression(childExpression)) {                             if (getSymbolAtLocation(testedExpression.name) !== getSymbolAtLocation(childExpression.name)) {                                 return false;                             }                             childExpression = childExpression.expression;                             testedExpression = testedExpression.expression;                         }                         else if (isCallExpression(testedExpression) && isCallExpression(childExpression)) {                             childExpression = childExpression.expression;                             testedExpression = testedExpression.expression;                         }                         else {                             return false;                         }                     }                 }             }             return forEachChild(childNode, check);         } */, TODO)
 	}
 	isSymbolUsedInBinaryExpressionChain := func(node Node, testedSymbol Symbol) bool {
-		/* TODO(WhileStatement): while (isBinaryExpression(node) && node.operatorToken.kind === SyntaxKind.AmpersandAmpersandToken) {             const isUsed = forEachChild(node.right, function visit(child): boolean | undefined {                 if (isIdentifier(child)) {                     const symbol = getSymbolAtLocation(child);                     if (symbol && symbol === testedSymbol) {                         return true;                     }                 }                 return forEachChild(child, visit);             });             if (isUsed) {                 return true;             }             node = node.parent;         } */
+		for isBinaryExpression(node) && node.operatorToken.kind == SyntaxKindAmpersandAmpersandToken {
+			isUsed := forEachChild(node.right /* TODO(FunctionExpression): function visit(child): boolean | undefined {                 if (isIdentifier(child)) {                     const symbol = getSymbolAtLocation(child);                     if (symbol && symbol === testedSymbol) {                         return true;                     }                 }                 return forEachChild(child, visit);             } */, TODO)
+			if isUsed {
+				return true
+			}
+			node = node.parent
+		}
 		return false
 	}
 	checkDoStatement := func(node DoStatement) {
@@ -31977,7 +32753,27 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if targetSymbol == unknownSymbol {
 			/* TODO(ReturnStatement): return targetSymbol; */
 		}
-		/* TODO(WhileStatement): while (symbol.flags & SymbolFlags.Alias) {             const target = getImmediateAliasedSymbol(symbol);             if (target) {                 if (target === targetSymbol) break;                 if (target.declarations && length(target.declarations)) {                     if (isDeprecatedSymbol(target)) {                         addDeprecatedSuggestion(location, target.declarations, target.escapedName as string);                         break;                     }                     else {                         if (symbol === targetSymbol) break;                         symbol = target;                     }                 }             }             else {                 break;             }         } */
+		for symbol.flags & SymbolFlagsAlias {
+			target := getImmediateAliasedSymbol(symbol)
+			if target {
+				if target == targetSymbol {
+					/* TODO(BreakStatement): break; */
+				}
+				if target.declarations && length(target.declarations) {
+					if isDeprecatedSymbol(target) {
+						addDeprecatedSuggestion(location, target.declarations, target.escapedName /* as */ /* TODO(StringKeyword): string */)
+						break
+					} else {
+						if symbol == targetSymbol {
+							/* TODO(BreakStatement): break; */
+						}
+						symbol = target
+					}
+				}
+			} else {
+				break
+			}
+		}
 		return targetSymbol
 	}
 	checkImportBinding := func(node /* TODO(UnionType): ImportEqualsDeclaration | ImportClause | NamespaceImport | ImportSpecifier */ any) {
@@ -32826,7 +33622,48 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		symbols.delete(InternalSymbolNameThis)
 		return symbolsToArray(symbols)
 		populateSymbols := func() {
-			/* TODO(WhileStatement): while (location) {                 if (canHaveLocals(location) && location.locals && !isGlobalSourceFile(location)) {                     copySymbols(location.locals, meaning);                 }                  switch (location.kind) {                     case SyntaxKind.SourceFile:                         if (!isExternalModule(location as SourceFile)) break;                         // falls through                     case SyntaxKind.ModuleDeclaration:                         copyLocallyVisibleExportSymbols(getSymbolOfDeclaration(location as ModuleDeclaration | SourceFile).exports!, meaning & SymbolFlags.ModuleMember);                         break;                     case SyntaxKind.EnumDeclaration:                         copySymbols(getSymbolOfDeclaration(location as EnumDeclaration).exports!, meaning & SymbolFlags.EnumMember);                         break;                     case SyntaxKind.ClassExpression:                         const className = (location as ClassExpression).name;                         if (className) {                             copySymbol((location as ClassExpression).symbol, meaning);                         }                      // this fall-through is necessary because we would like to handle                     // type parameter inside class expression similar to how we handle it in classDeclaration and interface Declaration.                     // falls through                     case SyntaxKind.ClassDeclaration:                     case SyntaxKind.InterfaceDeclaration:                         // If we didn't come from static member of class or interface,                         // add the type parameters into the symbol table                         // (type parameters of classDeclaration/classExpression and interface are in member property of the symbol.                         // Note: that the memberFlags come from previous iteration.                         if (!isStaticSymbol) {                             copySymbols(getMembersOfSymbol(getSymbolOfDeclaration(location as ClassDeclaration | InterfaceDeclaration)), meaning & SymbolFlags.Type);                         }                         break;                     case SyntaxKind.FunctionExpression:                         const funcName = (location as FunctionExpression).name;                         if (funcName) {                             copySymbol((location as FunctionExpression).symbol, meaning);                         }                         break;                 }                  if (introducesArgumentsExoticObject(location)) {                     copySymbol(argumentsSymbol, meaning);                 }                  isStaticSymbol = isStatic(location);                 location = location.parent;             } */
+			for location {
+				if canHaveLocals(location) && location.locals && !isGlobalSourceFile(location) {
+					copySymbols(location.locals, meaning)
+				}
+				switch location.kind {
+				case SyntaxKindSourceFile:
+					if !isExternalModule(location /* as */ /* TODO(TypeReference): SourceFile */) {
+						/* TODO(BreakStatement): break; */
+					}
+					fallthrough
+				case SyntaxKindModuleDeclaration:
+					copyLocallyVisibleExportSymbols(getSymbolOfDeclaration(location /* as */ /* TODO(UnionType): ModuleDeclaration | SourceFile */).exports /*!*/, meaning&SymbolFlagsModuleMember)
+					break
+				case SyntaxKindEnumDeclaration:
+					copySymbols(getSymbolOfDeclaration(location /* as */ /* TODO(TypeReference): EnumDeclaration */).exports /*!*/, meaning&SymbolFlagsEnumMember)
+					break
+				case SyntaxKindClassExpression:
+					className := (location /* as */ /* TODO(TypeReference): ClassExpression */).name
+					if className {
+						copySymbol((location /* as */ /* TODO(TypeReference): ClassExpression */).symbol, meaning)
+					}
+					fallthrough
+				case SyntaxKindClassDeclaration:
+					fallthrough // TODO: merge cases
+				case SyntaxKindInterfaceDeclaration:
+					if !isStaticSymbol {
+						copySymbols(getMembersOfSymbol(getSymbolOfDeclaration(location /* as */ /* TODO(UnionType): ClassDeclaration | InterfaceDeclaration */)), meaning&SymbolFlagsType)
+					}
+					break
+				case SyntaxKindFunctionExpression:
+					funcName := (location /* as */ /* TODO(TypeReference): FunctionExpression */).name
+					if funcName {
+						copySymbol((location /* as */ /* TODO(TypeReference): FunctionExpression */).symbol, meaning)
+					}
+					break
+				}
+				if introducesArgumentsExoticObject(location) {
+					copySymbol(argumentsSymbol, meaning)
+				}
+				isStaticSymbol = isStatic(location)
+				location = location.parent
+			}
 			copySymbols(globals, meaning)
 		}
 		copySymbol := func(symbol Symbol, meaning SymbolFlags) {
@@ -32858,17 +33695,26 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return name.kind == SyntaxKindIdentifier && isTypeDeclaration(name.parent) && getNameOfDeclaration(name.parent) == name
 	}
 	isTypeReferenceIdentifier := func(node EntityName) bool {
-		/* TODO(WhileStatement): while (node.parent.kind === SyntaxKind.QualifiedName) {             node = node.parent as QualifiedName;         } */
+		for node.parent.kind == SyntaxKindQualifiedName {
+			node = node.parent /* as */ /* TODO(TypeReference): QualifiedName */
+		}
 		return node.parent.kind == SyntaxKindTypeReference
 	}
 	isInNameOfExpressionWithTypeArguments := func(node Node) bool {
-		/* TODO(WhileStatement): while (node.parent.kind === SyntaxKind.PropertyAccessExpression) {             node = node.parent;         } */
+		for node.parent.kind == SyntaxKindPropertyAccessExpression {
+			node = node.parent
+		}
 		return node.parent.kind == SyntaxKindExpressionWithTypeArguments
 	}
 	forEachEnclosingClass := func(node Node, callback func(node ClassLikeDeclaration) *T) *T {
 		var result *T
 		containingClass := getContainingClass(node)
-		/* TODO(WhileStatement): while (containingClass) {             if (result = callback(containingClass)) break;             containingClass = getContainingClass(containingClass);         } */
+		for containingClass {
+			if /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): result = callback(containingClass) */ TODO {
+				/* TODO(BreakStatement): break; */
+			}
+			containingClass = getContainingClass(containingClass)
+		}
 		return result
 	}
 	isNodeUsedDuringClassInitialization := func(node Node) /* TODO(undefined): boolean */ TODO {
@@ -32887,7 +33733,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		})
 	}
 	getLeftSideOfImportEqualsOrExportAssignment := func(nodeOnRightSide EntityName) /* TODO(UnionType): ImportEqualsDeclaration | ExportAssignment | undefined */ any {
-		/* TODO(WhileStatement): while (nodeOnRightSide.parent.kind === SyntaxKind.QualifiedName) {             nodeOnRightSide = nodeOnRightSide.parent as QualifiedName;         } */
+		for nodeOnRightSide.parent.kind == SyntaxKindQualifiedName {
+			nodeOnRightSide = nodeOnRightSide.parent /* as */ /* TODO(TypeReference): QualifiedName */
+		}
 		if nodeOnRightSide.parent.kind == SyntaxKindImportEqualsDeclaration {
 			return /* TODO(ConditionalExpression): (nodeOnRightSide.parent as ImportEqualsDeclaration).moduleReference === nodeOnRightSide ? nodeOnRightSide.parent as ImportEqualsDeclaration : undefined */ TODO
 		}
@@ -32919,7 +33767,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isImportTypeQualifierPart := func(node EntityName) *ImportTypeNode {
 		parent := node.parent
-		/* TODO(WhileStatement): while (isQualifiedName(parent)) {             node = parent;             parent = parent.parent;         } */
+		for isQualifiedName(parent) {
+			node = parent
+			parent = parent.parent
+		}
 		if parent && parent.kind == SyntaxKindImportType && (parent /* as */ /* TODO(TypeReference): ImportTypeNode */).qualifier == node {
 			return parent /* as */ /* TODO(TypeReference): ImportTypeNode */
 		}
@@ -32968,7 +33819,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return /* TODO(ConditionalExpression): sym === unknownSymbol ? undefined : sym */ TODO
 			}
 		}
-		/* TODO(WhileStatement): while (isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName(name)) {             name = name.parent as QualifiedName | PropertyAccessEntityNameExpression | JSDocMemberName;         } */
+		for isRightSideOfQualifiedNameOrPropertyAccessOrJSDocMemberName(name) {
+			name = name.parent /* as */ /* TODO(UnionType): QualifiedName | PropertyAccessEntityNameExpression | JSDocMemberName */
+		}
 		if isInNameOfExpressionWithTypeArguments(name) {
 			meaning := SymbolFlagsNone
 			if name.parent.kind == SyntaxKindExpressionWithTypeArguments {
@@ -33386,7 +34239,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	tryGetTarget := func(symbol Symbol) *Symbol {
 		var target *Symbol
 		var next *Symbol = symbol
-		/* TODO(WhileStatement): while (next = getSymbolLinks(next).target) {             target = next;         } */
+		for /* TODO(EqualsToken): = */ /* TODO(BinaryExpression): next = getSymbolLinks(next).target */ TODO {
+			target = next
+		}
 		return target
 	}
 	isArgumentsLocalBinding := func(nodeIn Identifier) bool {
@@ -35263,7 +36118,33 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	checkGrammarBreakOrContinueStatement := func(node BreakOrContinueStatement) bool {
 		var current Node = node
-		/* TODO(WhileStatement): while (current) {             if (isFunctionLikeOrClassStaticBlockDeclaration(current)) {                 return grammarErrorOnNode(node, Diagnostics.Jump_target_cannot_cross_function_boundary);             }              switch (current.kind) {                 case SyntaxKind.LabeledStatement:                     if (node.label && (current as LabeledStatement).label.escapedText === node.label.escapedText) {                         // found matching label - verify that label usage is correct                         // continue can only target labels that are on iteration statements                         const isMisplacedContinueLabel = node.kind === SyntaxKind.ContinueStatement                             && !isIterationStatement((current as LabeledStatement).statement, /*lookInLabeledStatements* / true);                          if (isMisplacedContinueLabel) {                             return grammarErrorOnNode(node, Diagnostics.A_continue_statement_can_only_jump_to_a_label_of_an_enclosing_iteration_statement);                         }                          return false;                     }                     break;                 case SyntaxKind.SwitchStatement:                     if (node.kind === SyntaxKind.BreakStatement && !node.label) {                         // unlabeled break within switch statement - ok                         return false;                     }                     break;                 default:                     if (isIterationStatement(current, /*lookInLabeledStatements* / false) && !node.label) {                         // unlabeled break or continue within iteration statement - ok                         return false;                     }                     break;             }              current = current.parent;         } */
+		for current {
+			if isFunctionLikeOrClassStaticBlockDeclaration(current) {
+				return grammarErrorOnNode(node, Diagnostics.Jump_target_cannot_cross_function_boundary)
+			}
+			switch current.kind {
+			case SyntaxKindLabeledStatement:
+				if node.label && (current /* as */ /* TODO(TypeReference): LabeledStatement */).label.escapedText == node.label.escapedText {
+					isMisplacedContinueLabel := node.kind == SyntaxKindContinueStatement && !isIterationStatement((current /* as */ /* TODO(TypeReference): LabeledStatement */).statement, true)
+					if isMisplacedContinueLabel {
+						return grammarErrorOnNode(node, Diagnostics.A_continue_statement_can_only_jump_to_a_label_of_an_enclosing_iteration_statement)
+					}
+					return false
+				}
+				break
+			case SyntaxKindSwitchStatement:
+				if node.kind == SyntaxKindBreakStatement && !node.label {
+					return false
+				}
+				break
+			default:
+				if isIterationStatement(current, false) && !node.label {
+					return false
+				}
+				break
+			}
+			current = current.parent
+		}
 		if node.label {
 			message := /* TODO(ConditionalExpression): node.kind === SyntaxKind.BreakStatement                 ? Diagnostics.A_break_statement_can_only_jump_to_a_label_of_an_enclosing_statement                 : Diagnostics.A_continue_statement_can_only_jump_to_a_label_of_an_enclosing_iteration_statement */ TODO
 			return grammarErrorOnNode(node, message)

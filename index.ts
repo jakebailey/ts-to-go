@@ -760,6 +760,18 @@ function visitStatement(node: Statement) {
         const initializer = node.getInitializer();
     }
 
+    if (Node.isWhileStatement(node)) {
+        writer.write("for ");
+        visitExpression(node.getExpression());
+        writer.write(" {");
+        writer.indent(() => {
+            visitStatement(node.getStatement());
+        });
+        writer.write("}");
+        writer.newLineIfLastNot();
+        return;
+    }
+
     if (Node.isBlock(node)) {
         visitBlock(node);
         return;
