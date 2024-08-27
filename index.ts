@@ -724,6 +724,13 @@ function visitStatement(node: Statement) {
         return;
     }
 
+    if (Node.isBreakStatement(node)) {
+        assert(!node.getLabel());
+        writer.write("break");
+        writer.newLine();
+        return;
+    }
+
     if (Node.isIfStatement(node)) {
         visitIfStatement(node);
         return;
@@ -755,6 +762,48 @@ function visitStatement(node: Statement) {
 
     if (Node.isBlock(node)) {
         visitBlock(node);
+        return;
+    }
+
+    if (Node.isSwitchStatement(node)) {
+        writer.write("switch ");
+        visitExpression(node.getExpression());
+        writer.write(" {");
+        const clauses = node.getClauses();
+        for (let i = 0; i < clauses.length; i++) {
+            const clause = clauses[i];
+            const isLast = i === clauses.length - 1;
+            // writer.write(todo(clause));
+            writer.newLineIfLastNot();
+
+            const statements = clause.getStatements();
+            const lastStatement = statements.at(-1);
+            const fallsThrough = !isLast &&
+                (!lastStatement ||
+                    (!Node.isBreakStatement(lastStatement) && !Node.isReturnStatement(lastStatement)));
+
+            if (Node.isCaseClause(clause)) {
+                writer.write("case ");
+                const expression = clause.getExpression();
+                visitExpression(expression);
+                writer.write(":");
+            }
+            else {
+                writer.write("default: ");
+            }
+
+            writer.indent(() => {
+                for (const statement of statements) {
+                    visitStatement(statement);
+                }
+                if (fallsThrough) {
+                    writer.newLineIfLastNot();
+                    writer.writeLine(`fallthrough${!lastStatement ? " // TODO: merge cases" : ""}`);
+                }
+            });
+        }
+        writer.write("}");
+        writer.newLineIfLastNot();
         return;
     }
 
