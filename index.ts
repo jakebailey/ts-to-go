@@ -171,6 +171,19 @@ function writeExpression(node: Expression): void {
         }
         writer.write(")");
     }
+    else if (Node.isPrefixUnaryExpression(node)) {
+        switch (node.getOperatorToken()) {
+            case ts.SyntaxKind.ExclamationToken:
+                writer.write("!");
+                break;
+
+            default:
+                writer.write(`${todo(node)} TODO`);
+                return;
+        }
+
+        writeExpression(node.getOperand());
+    }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
     //     writer.indent(() => {
@@ -415,29 +428,38 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
         for (const declaration of declarations) {
             const typeNode = declaration.getTypeNode();
-            if (typeNode) {
+            const initializer = declaration.getInitializer();
+
+            if (isGlobal) {
                 writer.write(`var ${getNameOfNamed(declaration)}`);
-                writer.write(" ");
-                writeTypeNode(typeNode);
+                if (typeNode) {
+                    writer.write(" ");
+                    writeTypeNode(typeNode);
+                }
+                if (initializer) {
+                    writer.write(" = ");
+                    writeExpression(initializer);
+                }
             }
             else {
-                if (isGlobal) {
-                    writer.write(`var ${getNameOfNamed(declaration)}`);
+                if (typeNode) {
+                    writer.write(`var ${getNameOfNamed(declaration)} `);
+                    writeTypeNode(typeNode);
+                    if (initializer) {
+                        writer.write(" = ");
+                        writeExpression(initializer);
+                    }
+                }
+                else if (initializer) {
+                    writer.write(`${getNameOfNamed(declaration)} := `);
+                    writeExpression(initializer);
                 }
                 else {
-                    writer.write(`${getNameOfNamed(declaration)}`);
+                    // No annotation or inferred type, comes from something later...
+                    writer.write(`var ${getNameOfNamed(declaration)} TODO`);
                 }
             }
-
-            const initializer = declaration.getInitializer();
-            if (initializer) {
-                writer.write(` ${isGlobal || typeNode ? "=" : ":="} `);
-                writeExpression(initializer);
-            }
-        }
-
-        if (declarations.length > 1) {
-            writer.writeLine(")");
+            writer.newLineIfLastNot();
         }
 
         writer.newLineIfLastNot();
@@ -539,9 +561,28 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         return;
     }
 
+    if (Node.isForOfStatement(node)) {
+        writer.write("for _, ");
+        const initializer = node.getInitializer();
+        if (Node.isVariableDeclarationList(initializer)) {
+            writer.write(getNameOfNamed(initializer.getDeclarations()[0]));
+        }
+        else {
+            writer.write(todo(initializer));
+        }
+        writer.write(" := range ");
+        writeExpression(node.getExpression());
+        writer.block(() => {
+            node.getStatement().forEachDescendant(visitor);
+        });
+        writer.newLineIfLastNot();
+        traversal.skip();
+        return;
+    }
+
     writer.writeLine(todo(node));
     traversal.skip();
-    console.error(`Unhandled node kind: ${node.getKindName()}`);
+    // console.error(`Unhandled node kind: ${node.getKindName()}`);
 }
 
 const result = sourceFile.forEachDescendant(visitor);
