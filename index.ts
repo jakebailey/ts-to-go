@@ -4,7 +4,7 @@ import { write } from "console";
 import { execa } from "execa";
 import { WriteStream } from "fs";
 import path, { format } from "path";
-import { Expression, type ForEachDescendantTraversalControl, IfStatement, Node, Project, ts, Type, TypeNode } from "ts-morph";
+import { ArrowFunction, Expression, type ForEachDescendantTraversalControl, FunctionDeclaration, IfStatement, Node, Project, ts, Type, TypeNode } from "ts-morph";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
 
@@ -157,7 +157,7 @@ function writeExpression(node: Expression): void {
         writeExpression(node.getExpression());
         writer.write(` /* as */ ${todo(node.getTypeNodeOrThrow())}`);
     }
-    else if (Node.isIdentifier(node)) {
+    else if (Node.isIdentifier(node) || node.getText() === "this") {
         if (node.getText() === "undefined") {
             writer.write("nil");
         }
@@ -198,6 +198,7 @@ function writeExpression(node: Expression): void {
             case ts.SyntaxKind.GreaterThanEqualsToken:
             case ts.SyntaxKind.GreaterThanToken:
             case ts.SyntaxKind.AmpersandToken:
+            case ts.SyntaxKind.BarToken:
                 tok = ts.tokenToString(op.getKind());
                 break;
             case ts.SyntaxKind.EqualsEqualsEqualsToken:
@@ -233,6 +234,15 @@ function writeExpression(node: Expression): void {
 
         writeExpression(node.getExpression());
         writer.write(`.${sanitizeName(node.getName())}`);
+    }
+    else if (Node.isArrowFunction(node)) {
+        writer.write("func");
+        writeFunctionParametersAndReturn(node);
+        writer.write(" {");
+        writer.indent(() => {
+            node.getBody().forEachDescendant(visitor);
+        });
+        writer.write("}");
     }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
@@ -333,6 +343,40 @@ function writeIfStatement(node: IfStatement) {
     }
 }
 
+function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction) {
+    writer.write("(");
+    const params = node.getParameters();
+    for (let i = 0; i < params.length; i++) {
+        const param = params[i];
+        writer.write(getNameOfNamed(param));
+        writer.write(" ");
+        const paramType = param.getTypeNode();
+        if (paramType) {
+            writeTypeNode(paramType);
+        }
+        else {
+            writeType(param.getType());
+        }
+        const initializer = param.getInitializer();
+        if (initializer) {
+            writer.write(` /* = */ ${todo(initializer)}`);
+        }
+        writer.conditionalWrite(i < params.length - 1, ", ");
+    }
+    writer.write(")");
+    const ret = node.getReturnType();
+    if (!ret.isVoid()) {
+        writer.write(" ");
+        const retNode = node.getReturnTypeNode();
+        if (retNode) {
+            writeTypeNode(retNode);
+        }
+        else {
+            writeType(ret);
+        }
+    }
+}
+
 function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     if (node.getKindName() === "EndOfFileToken") {
         return;
@@ -380,47 +424,21 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         writer.conditionalWrite(!node.hasBody(), "// OVERLOAD: ");
 
         if (!isGlobal) {
-            writer.write(`${getNameOfNamed(node)} := func(`);
+            writer.write(`${getNameOfNamed(node)} := func`);
         }
         else {
-            writer.write(`func ${getNameOfNamed(node)}(`);
+            writer.write(`func ${getNameOfNamed(node)}`);
         }
 
-        const params = node.getParameters();
-        for (let i = 0; i < params.length; i++) {
-            const param = params[i];
-            writer.write(getNameOfNamed(param));
-            writer.write(" ");
-            const paramType = param.getTypeNode();
-            if (paramType) {
-                writeTypeNode(paramType);
-            }
-            else {
-                writeType(param.getType());
-            }
-            const initializer = param.getInitializer();
-            if (initializer) {
-                writer.write(` /* = */ ${todo(initializer)}`);
-            }
-            writer.conditionalWrite(i < params.length - 1, ", ");
-        }
-        writer.write(")");
-        const ret = node.getReturnType();
-        if (!ret.isVoid()) {
-            writer.write(" ");
-            const retNode = node.getReturnTypeNode();
-            if (retNode) {
-                writeTypeNode(retNode);
-            }
-            else {
-                writeType(ret);
-            }
-        }
+        writeFunctionParametersAndReturn(node);
+
         if (node.hasBody()) {
-            writer.block(() => {
+            writer.write(" {");
+            writer.indent(() => {
                 const body = node.getBodyOrThrow();
                 body.forEachDescendant(visitor);
             });
+            writer.write("}");
         }
 
         writer.newLineIfLastNot();
@@ -449,7 +467,8 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
             writer.write("]");
         }
 
-        writer.block(() => {
+        writer.write(" {");
+        writer.indent(() => {
             const members = node.getMembers();
             for (const member of members) {
                 if (Node.isMethodSignature(member)) {
@@ -465,6 +484,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
                 }
             }
         });
+        writer.write("}");
 
         writer.newLineIfLastNot();
         traversal.skip();
@@ -573,19 +593,8 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         return;
     }
 
-    if (Node.isClassDeclaration(node)) {
-        writer.write(`type ${getNameOfNamed(node)} struct`);
-
-        writer.block(() => {
-            writer.writeLine(todo(node));
-        });
-
-        writer.newLineIfLastNot();
-        traversal.skip();
-        return;
-    }
-
     if (Node.isExpressionStatement(node)) {
+        // Handling expressions separately so we _don't_ handle side effect expressions in writeExpression
         const expression = node.getExpression();
         if (Node.isCallExpression(expression)) {
             writeExpression(expression);
@@ -602,6 +611,16 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
                 writeExpression(left);
                 writer.write(` ${tokenStr} `);
                 writeExpression(right);
+                writer.newLine();
+                traversal.skip();
+                return;
+            }
+        }
+        if (Node.isPostfixUnaryExpression(expression)) {
+            const tokenStr = ts.tokenToString(expression.getOperatorToken());
+            if (tokenStr) {
+                writeExpression(expression.getOperand());
+                writer.write(tokenStr);
                 writer.newLine();
                 traversal.skip();
                 return;
@@ -639,9 +658,11 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         }
         writer.write(" := range ");
         writeExpression(node.getExpression());
-        writer.block(() => {
+        writer.write(" {");
+        writer.indent(() => {
             node.getStatement().forEachDescendant(visitor);
         });
+        writer.write("}");
         writer.newLineIfLastNot();
         traversal.skip();
         return;
