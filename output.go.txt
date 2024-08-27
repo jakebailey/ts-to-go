@@ -242,7 +242,7 @@ const (
     UnusedKindParameter 
 )
 
-type AddUnusedDiagnostic func(containingNode TODO /* TODO: Node */, type_ TODO /* TODO: UnusedKind */, diagnostic TODO /* TODO: DiagnosticWithLocation */) TODO /* TODO: void */
+type AddUnusedDiagnostic func(containingNodeTODO /* TODO: Node */, type_TODO /* TODO: UnusedKind */, diagnosticTODO /* TODO: DiagnosticWithLocation */) TODO /* TODO: void */
 var isNotOverloadAndNotAccessor = TODO /* TODO: and(isNotOverload, isNotAccessor) */
 
 type DeclarationMeaning int32
@@ -316,7 +316,7 @@ func getSymbolId(symbol TODO /* TODO: Symbol */) TODO /* TODO: SymbolId */ {
         return symbol.id;
     } */
 }
-func isInstantiatedModule(node TODO /* TODO: ModuleDeclaration */, preserveConstEnums TODO /* TODO: boolean */) TODO /* TODO: boolean */ {
+func isInstantiatedModule(node TODO /* TODO: ModuleDeclaration */, preserveConstEnums TODO /* TODO: boolean */) {
     /* TODO: {
         const moduleState = getModuleInstanceState(node);
         return moduleState === ModuleInstanceState.Instantiated ||
@@ -51575,7 +51575,7 @@ func isDeclarationNameOrImportPropertyName(name TODO /* TODO: Node */) TODO /* T
 }
 // namespace JsxNames
 
-func getIterationTypesKeyFromIterationTypeKind(typeKind TODO /* TODO: IterationTypeKind */) TODO /* TODO: "yieldType" | "returnType" | "nextType" */ {
+func getIterationTypesKeyFromIterationTypeKind(typeKind TODO /* TODO: IterationTypeKind */) {
     /* TODO: {
         switch (typeKind) {
             case IterationTypeKind.Yield:
@@ -51587,12 +51587,12 @@ func getIterationTypesKeyFromIterationTypeKind(typeKind TODO /* TODO: IterationT
         }
     } */
 }
-func signatureHasRestParameter(s TODO /* TODO: Signature */) TODO /* TODO: boolean */ {
+func signatureHasRestParameter(s TODO /* TODO: Signature */) {
     /* TODO: {
         return !!(s.flags & SignatureFlags.HasRestParameter);
     } */
 }
-func signatureHasLiteralTypes(s TODO /* TODO: Signature */) TODO /* TODO: boolean */ {
+func signatureHasLiteralTypes(s TODO /* TODO: Signature */) {
     /* TODO: {
         return !!(s.flags & SignatureFlags.HasLiteralTypes);
     } */

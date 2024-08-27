@@ -28,16 +28,33 @@ function todo(node: { getText(): string; }): string {
     return `/* TODO: ${text} */`;
 }
 
-function typeToString(node: Type) {
+function writeType(node: Type) {
     return `TODO ${todo(node)}`;
 }
 
-function typeNodeToString(node: TypeNode) {
-    return `TODO ${todo(node)}`;
+function writeTypeNode(type: TypeNode) {
+    if (Node.isFunctionTypeNode(type)) {
+        writer.write("func(");
+        const params = type.getParameters();
+        for (let i = 0; i < params.length; i++) {
+            const param = params[i];
+            writer.write(getName(param));
+            writeTypeNode(param.getTypeNodeOrThrow());
+            writer.conditionalWrite(i < params.length - 1, ", ");
+        }
+        writer.write(")");
+        const ret = type.getReturnTypeNodeOrThrow();
+        writer.write(` `);
+        writeTypeNode(ret);
+        return;
+    }
+    else {
+        writer.write(`TODO ${todo(type)}`);
+    }
 }
 
-function expressionToString(node: Expression) {
-    return `TODO ${todo(node)}`;
+function writeExpression(node: Expression) {
+    writer.write(`TODO ${todo(node)}`);
 }
 
 function getName(node: { getName(): string | undefined; }) {
@@ -90,7 +107,11 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
             for (let i = 0; i < typeParameters.length; i++) {
                 const typeParameter = typeParameters[i];
                 writer.write(getName(typeParameter));
-                writer.conditionalWrite(typeParameter.getConstraint() !== undefined, () => ` ${typeNodeToString(typeParameter.getConstraintOrThrow())}`);
+                const constraint = typeParameter.getConstraint();
+                if (constraint) {
+                    writer.write(" ");
+                    writeTypeNode(constraint);
+                }
                 writer.conditionalWrite(i < typeParameters.length - 1, ", ");
             }
 
@@ -98,23 +119,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         }
 
         writer.write(" ");
-
-        const type = node.getTypeNodeOrThrow();
-        if (Node.isFunctionTypeNode(type)) {
-            writer.write("func(");
-            const params = type.getParameters();
-            for (let i = 0; i < params.length; i++) {
-                const param = params[i];
-                writer.write(`${getName(param)} ${typeNodeToString(param.getTypeNodeOrThrow())}`);
-                writer.conditionalWrite(i < params.length - 1, ", ");
-            }
-            writer.write(")");
-            const ret = type.getReturnTypeNodeOrThrow();
-            writer.write(` ${typeNodeToString(ret)}`);
-        }
-        else {
-            writer.write(typeNodeToString(type));
-        }
+        writeTypeNode(node.getTypeNodeOrThrow());
 
         writer.newLineIfLastNot();
         traversal.skip();
@@ -127,7 +132,9 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         const params = node.getParameters();
         for (let i = 0; i < params.length; i++) {
             const param = params[i];
-            writer.write(`${getName(param)} ${typeNodeToString(param.getTypeNodeOrThrow())}`);
+            writer.write(getName(param));
+            writer.write(" ");
+            writeTypeNode(param.getTypeNodeOrThrow());
             writer.conditionalWrite(i < params.length - 1, ", ");
         }
         writer.write(")");
@@ -135,10 +142,11 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         if (!ret.isVoid()) {
             const retNode = node.getReturnTypeNode();
             if (retNode) {
-                writer.write(` ${typeNodeToString(retNode)}`);
+                writer.write(` `);
+                writeTypeNode(retNode);
             }
             else {
-                writer.write(` ${typeToString(ret)}`);
+                writeType(ret);
             }
         }
         if (node.hasBody()) {
@@ -162,7 +170,11 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
             for (let i = 0; i < typeParameters.length; i++) {
                 const typeParameter = typeParameters[i];
                 writer.write(getName(typeParameter));
-                writer.conditionalWrite(typeParameter.getConstraint() !== undefined, () => ` ${typeNodeToString(typeParameter.getConstraintOrThrow())}`);
+                const constraint = typeParameter.getConstraint();
+                if (constraint) {
+                    writer.write(" ");
+                    writeTypeNode(constraint);
+                }
                 writer.conditionalWrite(i < typeParameters.length - 1, ", ");
             }
 
@@ -190,7 +202,9 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         for (const declaration of declarations) {
             const typeNode = declaration.getTypeNode();
             if (typeNode) {
-                writer.write(`var ${getName(declaration)} ${typeNodeToString(typeNode)}`);
+                writer.write(`var ${getName(declaration)}`);
+                writer.write(" ");
+                writeTypeNode(typeNode);
             }
             else {
                 if (isGlobal) {
@@ -203,7 +217,8 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
             const initializer = declaration.getInitializer();
             if (initializer) {
-                writer.write(` ${isGlobal ? "=" : ":="} ${expressionToString(initializer)}`);
+                writer.write(` ${isGlobal ? "=" : ":="} `);
+                writeExpression(initializer);
             }
         }
 
@@ -310,4 +325,7 @@ const output = Bun.file("output.go.txt");
 
 await Bun.write(output, writer.toString());
 
-await execa("go", ["run", "check.go"], { stdio: "inherit" });
+const goResult = await execa("go", ["run", "check.go"], { stdio: "inherit" });
+if (goResult.exitCode === 0) {
+    console.log("All good!");
+}
