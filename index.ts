@@ -37,20 +37,18 @@ const writer = new CodeBlockWriter({
 writer.writeLine("package output");
 writer.newLine();
 
-type Printable = { getKindName?(): string; getText(): string; };
-
-function todo(node: Printable): string {
-    // const currentLine = " " + new Error().stack?.split("\n")[2].trim();
-    const currentLine = "";
-
-    let text = node.getText();
+function asComment(text: string) {
     text = text.replaceAll("*/", "* /");
     text = text.replace(/\r?\n/g, " ");
-    return `/* TODO(${node.getKindName?.()}${currentLine}): ${text} */`;
+    return `/* ${text} */`;
+}
+
+function writeTodoNode(node: Node) {
+    writer.write(asComment(`TODO(${node.getKindName()}): ${node.getText()}`));
 }
 
 function writeType(node: Type): void {
-    writer.write(`${todo(node)} TODO`);
+    writer.write(`${asComment("TODO inferred type " + node.getText())} TODO`);
 }
 
 function visitTypeNode(type: TypeNode): void {
@@ -101,7 +99,8 @@ function visitTypeNode(type: TypeNode): void {
             writer.write(sanitizeName(name.getText()));
         }
         else {
-            writer.write(`${todo(name)} TODO`);
+            writeTodoNode(name);
+            writer.write(` TODO`);
         }
         const typeArguments = type.getTypeArguments();
         if (typeArguments.length > 0) {
@@ -131,19 +130,23 @@ function visitTypeNode(type: TypeNode): void {
                     visitTypeNode(a);
                 }
                 else {
-                    writer.write(`${todo(a)} any`);
+                    writeTodoNode(a);
+                    writer.write(` any`);
                 }
             }
             else {
-                writer.write(`${todo(type)} any`);
+                writeTodoNode(type);
+                writer.write(` any`);
             }
         }
         else {
-            writer.write(`${todo(type)} any`);
+            writeTodoNode(type);
+            writer.write(` any`);
         }
     }
     else {
-        writer.write(`${todo(type)} TODO`);
+        writeTodoNode(type);
+        writer.write(` any`);
     }
 }
 
@@ -158,7 +161,8 @@ function visitExpression(node: Expression): void {
                     source = `(?i:${source})`;
                     break;
                 default:
-                    writer.write(`${todo(node)} TODO`);
+                    writeTodoNode(node);
+                    writer.write(` TODO`);
                     return;
             }
         }
@@ -227,7 +231,9 @@ function visitExpression(node: Expression): void {
                 tok = "!=";
                 break;
             default:
-                writer.write(`${todo(op)} ${todo(node)} TODO`);
+                writeTodoNode(op);
+                writeTodoNode(node);
+                writer.write(` TODO`);
                 return;
         }
 
@@ -288,7 +294,8 @@ function visitExpression(node: Expression): void {
                     writer.write(")");
                 }
                 else {
-                    writer.write(`${todo(node)} make(map[any]any)`);
+                    writeTodoNode(node);
+                    writer.write(` make(map[any]any)`);
                 }
                 return;
             }
@@ -299,12 +306,14 @@ function visitExpression(node: Expression): void {
                     writer.write("]struct{})");
                 }
                 else {
-                    writer.write(`${todo(node)} make(map[any]struct{})`);
+                    writeTodoNode(node);
+                    writer.write(` make(map[any]struct{})`);
                 }
                 return;
             }
         }
-        writer.write(`${todo(node)} TODO`);
+        writeTodoNode(node);
+        writer.write(` TODO`);
     }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
@@ -329,7 +338,8 @@ function visitExpression(node: Expression): void {
     //     writer.write("}");
     // }
     else {
-        writer.write(`${todo(node)} TODO`);
+        writeTodoNode(node);
+        writer.write(` TODO`);
     }
 }
 
@@ -388,7 +398,7 @@ function visitIfStatement(node: IfStatement) {
                 visitStatement(thenStatement);
             }
             else {
-                writer.write(todo(thenStatement));
+                writeTodoNode(node);
             }
         }
         writer.newLineIfLastNot();
@@ -409,7 +419,7 @@ function visitIfStatement(node: IfStatement) {
                 visitStatement(elseStatement);
             }
             else {
-                writer.write(todo(elseStatement));
+                writeTodoNode(node);
             }
         });
         writer.write("}");
@@ -450,7 +460,7 @@ function visitExpressionStatement(node: ExpressionStatement) {
         }
     }
 
-    writer.writeLine(todo(node));
+    writeTodoNode(node);
 }
 
 function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction) {
@@ -469,7 +479,7 @@ function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunct
         }
         const initializer = param.getInitializer();
         if (initializer) {
-            writer.write(` /* = */ ${todo(initializer)}`);
+            writer.write(` ${asComment(" = " + initializer.getText())}`);
         }
         writer.conditionalWrite(i < params.length - 1, ", ");
     }
@@ -492,7 +502,7 @@ function visitBlock(node: Block) {
         if (Node.isStatement(node)) {
             return visitStatement(node);
         }
-        writer.writeLine(todo(node));
+        writeTodoNode(node);
     });
 }
 
@@ -597,7 +607,7 @@ function visitStatement(node: Statement) {
                     writer.newLine();
                 }
                 else {
-                    writer.writeLine(todo(member));
+                    writeTodoNode(node);
                 }
             }
         });
@@ -700,7 +710,7 @@ function visitStatement(node: Statement) {
     }
 
     if (Node.isModuleDeclaration(node)) {
-        writer.writeLine(todo(node));
+        writeTodoNode(node);
 
         writer.newLineIfLastNot();
         return;
@@ -749,7 +759,7 @@ function visitStatement(node: Statement) {
             writer.write(getNameOfNamed(initializer.getDeclarations()[0]));
         }
         else {
-            writer.write(todo(initializer));
+            writeTodoNode(initializer);
         }
         writer.write(" := range ");
         visitExpression(node.getExpression());
@@ -838,7 +848,7 @@ function visitStatement(node: Statement) {
         return;
     }
 
-    writer.writeLine(todo(node));
+    writeTodoNode(node);
     // console.error(`Unhandled node kind: ${node.getKindName()}`);
 }
 
@@ -846,7 +856,7 @@ sourceFile.forEachChild(node => {
     if (Node.isStatement(node)) {
         return visitStatement(node);
     }
-    writer.writeLine(todo(node));
+    writeTodoNode(node);
 });
 
 const outFile = Bun.file("output.go.txt");
