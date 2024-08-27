@@ -1,7 +1,7 @@
 import assert from "assert";
 import CodeBlockWriter from "code-block-writer";
 import { execa } from "execa";
-import path from "path";
+import path, { format } from "path";
 import { Expression, type ForEachDescendantTraversalControl, Node, Project, ts, Type, TypeNode } from "ts-morph";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
@@ -22,10 +22,10 @@ const writer = new CodeBlockWriter();
 writer.writeLine("package output");
 writer.newLine();
 
-function todo(node: { getText(): string; }): string {
+function todo(node: { getKindName?(): string; getText(): string; }): string {
     let text = node.getText();
     text = text.replaceAll("*/", "* /");
-    return `/* TODO: ${text} */`;
+    return `/* TODO(${node.getKindName?.()}): ${text} */`;
 }
 
 function writeType(node: Type) {
@@ -82,6 +82,29 @@ function writeTypeNode(type: TypeNode) {
                 writer.conditionalWrite(i < typeArguments.length - 1, ", ");
             }
             writer.write("]");
+        }
+    }
+    else if (Node.isUnionTypeNode(type)) {
+        if (type.getTypeNodes().length === 2) {
+            let [a, b] = type.getTypeNodes();
+            if (Node.isUndefinedKeyword(a)) {
+                [a, b] = [b, a];
+            }
+            if (Node.isUndefinedKeyword(b)) {
+                if (Node.isTypeReference(a)) {
+                    writer.write("*");
+                    writeTypeNode(a);
+                }
+                else {
+                    writer.write(`TODO ${todo(a)}`);
+                }
+            }
+            else {
+                writer.write(`TODO ${todo(type)}`);
+            }
+        }
+        else {
+            writer.write(`TODO ${todo(type)}`);
         }
     }
     else {
@@ -216,7 +239,8 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         }
         if (node.hasBody()) {
             writer.block(() => {
-                writer.writeLine(todo(node.getBodyOrThrow()));
+                const body = node.getBodyOrThrow();
+                body.forEachDescendant(visitor);
             });
         }
 
@@ -264,7 +288,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         });
 
         writer.newLineIfLastNot();
-        writer.newLine();
         traversal.skip();
         return;
     }
@@ -292,7 +315,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
             const initializer = declaration.getInitializer();
             if (initializer) {
-                writer.write(` ${isGlobal ? "=" : ":="} `);
+                writer.write(` ${isGlobal || typeNode ? "=" : ":="} `);
                 writeExpression(initializer);
             }
         }
@@ -302,7 +325,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         }
 
         writer.newLineIfLastNot();
-        writer.newLine();
         traversal.skip();
         return;
     }
@@ -351,7 +373,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         writer.writeLine(")");
 
         writer.newLineIfLastNot();
-        writer.newLine();
         traversal.skip();
         return;
     }
@@ -361,7 +382,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         writer.writeLine(todo(node));
 
         writer.newLineIfLastNot();
-        writer.newLine();
         traversal.skip();
         return;
     }
@@ -374,7 +394,6 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         });
 
         writer.newLineIfLastNot();
-        writer.newLine();
         traversal.skip();
         return;
     }
@@ -393,11 +412,16 @@ if (result) {
     console.error(result);
 }
 
-const output = Bun.file("output.go.txt");
+let output = writer.toString();
 
-await Bun.write(output, writer.toString());
+await Bun.write(Bun.file("output.go.txt"), output);
 
-const goResult = await execa("go", ["run", "check.go"], { stdio: "inherit" });
-if (goResult.exitCode === 0) {
+try {
+    const formatted = await execa("gofmt", ["-s"], { input: output });
+    output = formatted.stdout;
+    await Bun.write(Bun.file("output.go.txt"), output);
     console.log("All good!");
+}
+catch (e) {
+    console.error(e);
 }
