@@ -384,6 +384,9 @@ function visitIfStatement(node: IfStatement) {
             if (Node.isBlock(thenStatement)) {
                 visitBlock(thenStatement);
             }
+            else if (Node.isStatement(thenStatement)) {
+                visitStatement(thenStatement);
+            }
             else {
                 writer.write(todo(thenStatement));
             }
@@ -401,6 +404,9 @@ function visitIfStatement(node: IfStatement) {
         writer.indent(() => {
             if (Node.isBlock(elseStatement)) {
                 visitBlock(elseStatement);
+            }
+            else if (Node.isStatement(elseStatement)) {
+                visitStatement(elseStatement);
             }
             else {
                 writer.write(todo(elseStatement));
