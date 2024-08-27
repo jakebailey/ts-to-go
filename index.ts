@@ -156,7 +156,12 @@ function writeExpression(node: Expression): void {
         writer.write(` /* as */ ${todo(node.getTypeNodeOrThrow())}`);
     }
     else if (Node.isIdentifier(node)) {
-        writer.write(sanitizeName(node.getText()));
+        if (node.getText() === "undefined") {
+            writer.write("nil");
+        }
+        else {
+            writer.write(sanitizeName(node.getText()));
+        }
     }
     else if (Node.isCallExpression(node)) {
         const expression = node.getExpression();
@@ -545,6 +550,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
     if (Node.isReturnStatement(node)) {
         writer.newLineIfLastNot();
+        writer.write("return");
         const expression = node.getExpression();
         if (expression) {
             writer.write(" ");
@@ -578,6 +584,10 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         writer.newLineIfLastNot();
         traversal.skip();
         return;
+    }
+
+    if (Node.isForStatement(node)) {
+        const initializer = node.getInitializer();
     }
 
     writer.writeLine(todo(node));
