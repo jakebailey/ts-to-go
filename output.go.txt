@@ -1,0 +1,326 @@
+package output
+
+var ambientModuleSymbolRegex = /* TODO: /^".+"$/ */
+
+var anon = /* TODO: "(anonymous)" as __String & string */
+
+type ReferenceHint int32
+const (
+    ReferenceHintUnspecified ReferenceHint = iota
+    ReferenceHintIdentifier 
+    ReferenceHintProperty 
+    ReferenceHintExportAssignment 
+    ReferenceHintJsx 
+    ReferenceHintAsyncFunction 
+    ReferenceHintExportImportEquals 
+    ReferenceHintExportSpecifier 
+    ReferenceHintDecorator 
+)
+
+var nextSymbolId = /* TODO: 1 */
+
+var nextNodeId = /* TODO: 1 */
+
+var nextMergeId = /* TODO: 1 */
+
+var nextFlowId = /* TODO: 1 */
+
+type IterationUse int32
+const (
+    IterationUseAllowsSyncIterablesFlag IterationUse = 1 << 0
+    IterationUseAllowsAsyncIterablesFlag IterationUse = 1 << 1
+    IterationUseAllowsStringInputFlag IterationUse = 1 << 2
+    IterationUseForOfFlag IterationUse = 1 << 3
+    IterationUseYieldStarFlag IterationUse = 1 << 4
+    IterationUseSpreadFlag IterationUse = 1 << 5
+    IterationUseDestructuringFlag IterationUse = 1 << 6
+    IterationUsePossiblyOutOfBounds IterationUse = 1 << 7
+    IterationUseElement IterationUse = IterationUseAllowsSyncIterablesFlag
+    IterationUseSpread IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseSpreadFlag
+    IterationUseDestructuring IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseDestructuringFlag
+    IterationUseForOf IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsStringInputFlag | IterationUseIterationUseForOfFlag
+    IterationUseForAwaitOf IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsAsyncIterablesFlag | IterationUseAllowsStringInputFlag | IterationUseIterationUseForOfFlag
+    IterationUseYieldStar IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseYieldStarFlag
+    IterationUseAsyncYieldStar IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsAsyncIterablesFlag | IterationUseIterationUseYieldStarFlag
+    IterationUseGeneratorReturnType IterationUse = IterationUseAllowsSyncIterablesFlag
+    IterationUseAsyncGeneratorReturnType IterationUse = IterationUseAllowsAsyncIterablesFlag
+)
+
+type IterationTypeKind int32
+const (
+    IterationTypeKindYield IterationTypeKind = iota
+    IterationTypeKindReturn 
+    IterationTypeKindNext 
+)
+
+type IterationTypesResolver {
+}
+
+type WideningKind int32
+const (
+    WideningKindNormal WideningKind = iota
+    WideningKindFunctionReturn 
+    WideningKindGeneratorNext 
+    WideningKindGeneratorYield 
+)
+
+type TypeFacts int32
+const (
+    TypeFactsNone TypeFacts = 0
+    TypeFactsTypeofEQString TypeFacts = 1 << 0
+    TypeFactsTypeofEQNumber TypeFacts = 1 << 1
+    TypeFactsTypeofEQBigInt TypeFacts = 1 << 2
+    TypeFactsTypeofEQBoolean TypeFacts = 1 << 3
+    TypeFactsTypeofEQSymbol TypeFacts = 1 << 4
+    TypeFactsTypeofEQObject TypeFacts = 1 << 5
+    TypeFactsTypeofEQFunction TypeFacts = 1 << 6
+    TypeFactsTypeofEQHostObject TypeFacts = 1 << 7
+    TypeFactsTypeofNEString TypeFacts = 1 << 8
+    TypeFactsTypeofNENumber TypeFacts = 1 << 9
+    TypeFactsTypeofNEBigInt TypeFacts = 1 << 10
+    TypeFactsTypeofNEBoolean TypeFacts = 1 << 11
+    TypeFactsTypeofNESymbol TypeFacts = 1 << 12
+    TypeFactsTypeofNEObject TypeFacts = 1 << 13
+    TypeFactsTypeofNEFunction TypeFacts = 1 << 14
+    TypeFactsTypeofNEHostObject TypeFacts = 1 << 15
+    TypeFactsEQUndefined TypeFacts = 1 << 16
+    TypeFactsEQNull TypeFacts = 1 << 17
+    TypeFactsEQUndefinedOrNull TypeFacts = 1 << 18
+    TypeFactsNEUndefined TypeFacts = 1 << 19
+    TypeFactsNENull TypeFacts = 1 << 20
+    TypeFactsNEUndefinedOrNull TypeFacts = 1 << 21
+    TypeFactsTruthy TypeFacts = 1 << 22
+    TypeFactsFalsy TypeFacts = 1 << 23
+    TypeFactsIsUndefined TypeFacts = 1 << 24
+    TypeFactsIsNull TypeFacts = 1 << 25
+    TypeFactsIsUndefinedOrNull TypeFacts = TypeFactsIsUndefined | TypeFactsIsNull
+    TypeFactsAll TypeFacts = (1 << 27) - 1
+    TypeFactsBaseStringStrictFacts TypeFacts = TypeFactsTypeofEQString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
+    TypeFactsBaseStringFacts TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsStringStrictFacts TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+    TypeFactsStringFacts TypeFacts = TypeFactsBaseTypeFactsStringFacts | TypeFactsTruthy
+    TypeFactsEmptyStringStrictFacts TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsFalsy
+    TypeFactsEmptyStringFacts TypeFacts = TypeFactsBaseTypeFactsStringFacts
+    TypeFactsNonEmptyStringStrictFacts TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsTruthy
+    TypeFactsNonEmptyStringFacts TypeFacts = TypeFactsBaseTypeFactsStringFacts | TypeFactsTruthy
+    TypeFactsBaseNumberStrictFacts TypeFacts = TypeFactsTypeofEQNumber | TypeFactsTypeofNEString | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
+    TypeFactsBaseNumberFacts TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsNumberStrictFacts TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+    TypeFactsNumberFacts TypeFacts = TypeFactsBaseTypeFactsNumberFacts | TypeFactsTruthy
+    TypeFactsZeroNumberStrictFacts TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsFalsy
+    TypeFactsZeroNumberFacts TypeFacts = TypeFactsBaseTypeFactsNumberFacts
+    TypeFactsNonZeroNumberStrictFacts TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsTruthy
+    TypeFactsNonZeroNumberFacts TypeFacts = TypeFactsBaseTypeFactsNumberFacts | TypeFactsTruthy
+    TypeFactsBaseBigIntStrictFacts TypeFacts = TypeFactsTypeofEQBigInt | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
+    TypeFactsBaseBigIntFacts TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsBigIntStrictFacts TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+    TypeFactsBigIntFacts TypeFacts = TypeFactsBaseTypeFactsBigIntFacts | TypeFactsTruthy
+    TypeFactsZeroBigIntStrictFacts TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsFalsy
+    TypeFactsZeroBigIntFacts TypeFacts = TypeFactsBaseTypeFactsBigIntFacts
+    TypeFactsNonZeroBigIntStrictFacts TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsTruthy
+    TypeFactsNonZeroBigIntFacts TypeFacts = TypeFactsBaseTypeFactsBigIntFacts | TypeFactsTruthy
+    TypeFactsBaseBooleanStrictFacts TypeFacts = TypeFactsTypeofEQBoolean | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
+    TypeFactsBaseBooleanFacts TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsBooleanStrictFacts TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+    TypeFactsBooleanFacts TypeFacts = TypeFactsBaseTypeFactsBooleanFacts | TypeFactsTruthy
+    TypeFactsFalseStrictFacts TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsFalsy
+    TypeFactsFalseFacts TypeFacts = TypeFactsBaseTypeFactsBooleanFacts
+    TypeFactsTrueStrictFacts TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsTruthy
+    TypeFactsTrueFacts TypeFacts = TypeFactsBaseTypeFactsBooleanFacts | TypeFactsTruthy
+    TypeFactsSymbolStrictFacts TypeFacts = TypeFactsTypeofEQSymbol | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull | TypeFactsTruthy
+    TypeFactsSymbolFacts TypeFacts = TypeFactsSymbolStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsObjectStrictFacts TypeFacts = TypeFactsTypeofEQObject | TypeFactsTypeofEQHostObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEFunction | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull | TypeFactsTruthy
+    TypeFactsObjectFacts TypeFacts = TypeFactsObjectStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsFunctionStrictFacts TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofEQHostObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull | TypeFactsTruthy
+    TypeFactsFunctionFacts TypeFacts = TypeFactsFunctionStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
+    TypeFactsVoidFacts TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQUndefined | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsNENull | TypeFactsFalsy
+    TypeFactsUndefinedFacts TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQUndefined | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsNENull | TypeFactsFalsy | TypeFactsIsUndefined
+    TypeFactsNullFacts TypeFacts = TypeFactsTypeofEQObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsNEUndefined | TypeFactsFalsy | TypeFactsIsNull
+    TypeFactsEmptyObjectStrictFacts TypeFacts = TypeFactsAll & ~(TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsTypeFactsIsUndefinedOrNull)
+    TypeFactsEmptyObjectFacts TypeFacts = TypeFactsAll & ~TypeFactsTypeFactsIsUndefinedOrNull
+    TypeFactsUnknownFacts TypeFacts = TypeFactsAll & ~TypeFactsTypeFactsIsUndefinedOrNull
+    TypeFactsAllTypeofNE TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsNEUndefined
+    TypeFactsOrFactsMask TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofNEObject
+    TypeFactsAndFactsMask TypeFacts = TypeFactsAll & ~TypeFactsOrFactsMask
+)
+
+var typeofNEFacts ReadonlyMap<string, TypeFacts> = /* TODO: new Map(Object.entries({
+    string: TypeFacts.TypeofNEString,
+    number: TypeFacts.TypeofNENumber,
+    bigint: TypeFacts.TypeofNEBigInt,
+    boolean: TypeFacts.TypeofNEBoolean,
+    symbol: TypeFacts.TypeofNESymbol,
+    undefined: TypeFacts.NEUndefined,
+    object: TypeFacts.TypeofNEObject,
+    function: TypeFacts.TypeofNEFunction,
+})) */
+
+type TypeSystemEntity 
+type TypeSystemPropertyName int32
+const (
+    TypeSystemPropertyNameType TypeSystemPropertyName = iota
+    TypeSystemPropertyNameResolvedBaseConstructorType 
+    TypeSystemPropertyNameDeclaredType 
+    TypeSystemPropertyNameResolvedReturnType 
+    TypeSystemPropertyNameImmediateBaseConstraint 
+    TypeSystemPropertyNameResolvedTypeArguments 
+    TypeSystemPropertyNameResolvedBaseTypes 
+    TypeSystemPropertyNameWriteType 
+    TypeSystemPropertyNameParameterInitializerContainsUndefined 
+)
+
+type CheckMode int32
+const (
+    CheckModeNormal CheckMode = 0
+    CheckModeContextual CheckMode = 1 << 0
+    CheckModeInferential CheckMode = 1 << 1
+    CheckModeSkipContextSensitive CheckMode = 1 << 2
+    CheckModeSkipGenericFunctions CheckMode = 1 << 3
+    CheckModeIsForSignatureHelp CheckMode = 1 << 4
+    CheckModeRestBindingElement CheckMode = 1 << 5
+    CheckModeTypeOnly CheckMode = 1 << 6
+)
+
+type SignatureCheckMode int32
+const (
+    SignatureCheckModeNone SignatureCheckMode = 0
+    SignatureCheckModeBivariantCallback SignatureCheckMode = 1 << 0
+    SignatureCheckModeStrictCallback SignatureCheckMode = 1 << 1
+    SignatureCheckModeIgnoreReturnTypes SignatureCheckMode = 1 << 2
+    SignatureCheckModeStrictArity SignatureCheckMode = 1 << 3
+    SignatureCheckModeStrictTopSignature SignatureCheckMode = 1 << 4
+    SignatureCheckModeCallback SignatureCheckMode = SignatureCheckModeBivariantSignatureCheckModeCallback | SignatureCheckModeStrictSignatureCheckModeCallback
+)
+
+type IntersectionState int32
+const (
+    IntersectionStateNone IntersectionState = 0
+    IntersectionStateSource IntersectionState = 1 << 0
+    IntersectionStateTarget IntersectionState = 1 << 1
+)
+
+type RecursionFlags int32
+const (
+    RecursionFlagsNone RecursionFlags = 0
+    RecursionFlagsSource RecursionFlags = 1 << 0
+    RecursionFlagsTarget RecursionFlags = 1 << 1
+    RecursionFlagsBoth RecursionFlags = RecursionFlagsSource | RecursionFlagsTarget
+)
+
+type MappedTypeModifiers int32
+const (
+    MappedTypeModifiersIncludeReadonly MappedTypeModifiers = 1 << 0
+    MappedTypeModifiersExcludeReadonly MappedTypeModifiers = 1 << 1
+    MappedTypeModifiersIncludeOptional MappedTypeModifiers = 1 << 2
+    MappedTypeModifiersExcludeOptional MappedTypeModifiers = 1 << 3
+)
+
+type MappedTypeNameTypeKind int32
+const (
+    MappedTypeNameTypeKindNone MappedTypeNameTypeKind = iota
+    MappedTypeNameTypeKindFiltering 
+    MappedTypeNameTypeKindRemapping 
+)
+
+type ExpandingFlags int32
+const (
+    ExpandingFlagsNone ExpandingFlags = 0
+    ExpandingFlagsSource ExpandingFlags = 1
+    ExpandingFlagsTarget ExpandingFlags = 1 << 1
+    ExpandingFlagsBoth ExpandingFlags = ExpandingFlagsSource | ExpandingFlagsTarget
+)
+
+type MembersOrExportsResolutionKind string
+const (
+    MembersOrExportsResolutionKindresolvedExports MembersOrExportsResolutionKind = "MembersOrExportsResolutionKindresolvedExports"
+    MembersOrExportsResolutionKindresolvedMembers MembersOrExportsResolutionKind = "MembersOrExportsResolutionKindresolvedMembers"
+)
+
+type UnusedKind int32
+const (
+    UnusedKindLocal UnusedKind = iota
+    UnusedKindParameter 
+)
+
+type AddUnusedDiagnostic func(containingNode Node, type UnusedKind, diagnostic DiagnosticWithLocation)
+var isNotOverloadAndNotAccessor = /* TODO: and(isNotOverload, isNotAccessor) */
+
+type DeclarationMeaning int32
+const (
+    DeclarationMeaningGetAccessor DeclarationMeaning = 1
+    DeclarationMeaningSetAccessor DeclarationMeaning = 2
+    DeclarationMeaningPropertyAssignment DeclarationMeaning = 4
+    DeclarationMeaningMethod DeclarationMeaning = 8
+    DeclarationMeaningPrivateStatic DeclarationMeaning = 16
+    DeclarationMeaningGetOrSetAccessor DeclarationMeaning = DeclarationMeaningGetAccessor | DeclarationMeaningSetAccessor
+    DeclarationMeaningPropertyAssignmentOrMethod DeclarationMeaning = DeclarationMeaningPropertyAssignment | DeclarationMeaningMethod
+)
+
+type DeclarationSpaces int32
+const (
+    DeclarationSpacesNone DeclarationSpaces = 0
+    DeclarationSpacesExportValue DeclarationSpaces = 1 << 0
+    DeclarationSpacesExportType DeclarationSpaces = 1 << 1
+    DeclarationSpacesExportNamespace DeclarationSpaces = 1 << 2
+)
+
+type MinArgumentCountFlags int32
+const (
+    MinArgumentCountFlagsNone MinArgumentCountFlags = 0
+    MinArgumentCountFlagsStrongArityForUntypedJS MinArgumentCountFlags = 1 << 0
+    MinArgumentCountFlagsVoidIsNonOptional MinArgumentCountFlags = 1 << 1
+)
+
+type IntrinsicTypeKind int32
+const (
+    IntrinsicTypeKindUppercase IntrinsicTypeKind = iota
+    IntrinsicTypeKindLowercase 
+    IntrinsicTypeKindCapitalize 
+    IntrinsicTypeKindUncapitalize 
+    IntrinsicTypeKindNoInfer 
+)
+
+var intrinsicTypeKinds ReadonlyMap<string, IntrinsicTypeKind> = /* TODO: new Map(Object.entries({
+    Uppercase: IntrinsicTypeKind.Uppercase,
+    Lowercase: IntrinsicTypeKind.Lowercase,
+    Capitalize: IntrinsicTypeKind.Capitalize,
+    Uncapitalize: IntrinsicTypeKind.Uncapitalize,
+    NoInfer: IntrinsicTypeKind.NoInfer,
+})) */
+
+var SymbolLinks = /* TODO: class implements SymbolLinks {
+    declare _symbolLinksBrand: any;
+} */
+
+func NodeLinks(this NodeLinks) {
+}
+func getNodeId(node Node) number {
+}
+func getSymbolId(symbol Symbol) SymbolId {
+}
+func isInstantiatedModule(node ModuleDeclaration, preserveConstEnums boolean) /* TODO: inferred */ boolean {
+}
+func createTypeChecker(host TypeCheckerHost) TypeChecker {
+}
+func isNotAccessor(declaration Declaration) boolean {
+}
+func isNotOverload(declaration Declaration) boolean {
+}
+func isDeclarationNameOrImportPropertyName(name Node) boolean {
+}
+// namespace JsxNames
+
+func getIterationTypesKeyFromIterationTypeKind(typeKind IterationTypeKind) /* TODO: inferred */ "yieldType" | "returnType" | "nextType" {
+}
+func signatureHasRestParameter(s Signature) /* TODO: inferred */ boolean {
+}
+func signatureHasLiteralTypes(s Signature) /* TODO: inferred */ boolean {
+}
+func createBasicNodeBuilderModuleSpecifierResolutionHost(host TypeCheckerHost) ModuleSpecifierResolutionHost {
+}
+type NodeBuilderContext {
+}
+
+type SymbolTrackerImpl struct {
+}
+

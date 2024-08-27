@@ -9,6 +9,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "code-block-writer": "^13.0.2",
     "dprint": "^0.47.2",
     "ts-morph": "^23.0.0"
   }
