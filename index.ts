@@ -38,15 +38,51 @@ function writeTypeNode(type: TypeNode) {
         const params = type.getParameters();
         for (let i = 0; i < params.length; i++) {
             const param = params[i];
-            writer.write(getName(param));
+            writer.write(getNameOfNamed(param));
+            writer.write(" ");
             writeTypeNode(param.getTypeNodeOrThrow());
             writer.conditionalWrite(i < params.length - 1, ", ");
         }
-        writer.write(")");
+        writer.write(") ");
         const ret = type.getReturnTypeNodeOrThrow();
-        writer.write(` `);
         writeTypeNode(ret);
-        return;
+    }
+    else if (Node.isBooleanKeyword(type)) {
+        writer.write("bool");
+    }
+    else if (Node.isStringKeyword(type)) {
+        writer.write("string");
+    }
+    else if (Node.isNumberKeyword(type)) {
+        writer.write("number");
+    }
+    else if (type.getText() === "void") {
+        writer.write("void");
+    }
+    else if (Node.isArrayTypeNode(type)) {
+        writer.write("[]");
+        writeTypeNode(type.getElementTypeNode());
+    }
+    else if (Node.isTypeOperatorTypeNode(type)) {
+        writeTypeNode(type.getTypeNode());
+    }
+    else if (Node.isTypeReference(type)) {
+        const name = type.getTypeName();
+        if (Node.isIdentifier(name)) {
+            writer.write(sanitizeName(name.getText()));
+        }
+        else {
+            writer.write(`TODO ${todo(name)}`);
+        }
+        const typeArguments = type.getTypeArguments();
+        if (typeArguments.length > 0) {
+            writer.write("[");
+            for (let i = 0; i < typeArguments.length; i++) {
+                writeTypeNode(typeArguments[i]);
+                writer.conditionalWrite(i < typeArguments.length - 1, ", ");
+            }
+            writer.write("]");
+        }
     }
     else {
         writer.write(`TODO ${todo(type)}`);
@@ -54,11 +90,36 @@ function writeTypeNode(type: TypeNode) {
 }
 
 function writeExpression(node: Expression) {
-    writer.write(`TODO ${todo(node)}`);
+    if (Node.isRegularExpressionLiteral(node)) {
+        const re = node.getLiteralValue();
+        let source = re.source.replaceAll("`", "\\`");
+
+        for (const flag of re.flags.split("")) {
+            switch (flag) {
+                case "i":
+                    source = `(?i:${source})`;
+                    break;
+                default:
+                    writer.write(`TODO ${todo(node)}`);
+                    return;
+            }
+        }
+
+        writer.write(`regexp.MustParse(\`${source}\`)`);
+    }
+    else if (Node.isLiteralExpression(node)) {
+        writer.write(node.getText());
+    }
+    else if (Node.isAsExpression(node)) {
+        writeExpression(node.getExpression());
+        writer.write(` /* as ${node.getTypeNodeOrThrow().getText()} */`);
+    }
+    else {
+        writer.write(`TODO ${todo(node)}`);
+    }
 }
 
-function getName(node: { getName(): string | undefined; }) {
-    const name = node.getName();
+function sanitizeName(name: string | undefined) {
     switch (name) {
         case "break":
         case "case":
@@ -91,6 +152,10 @@ function getName(node: { getName(): string | undefined; }) {
     }
 }
 
+function getNameOfNamed(node: { getName(): string | undefined; }) {
+    return sanitizeName(node.getName());
+}
+
 function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     if (Node.isImportDeclaration(node)) {
         traversal.skip();
@@ -98,7 +163,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isTypeAliasDeclaration(node)) {
-        writer.write(`type ${getName(node)}`);
+        writer.write(`type ${getNameOfNamed(node)}`);
 
         const typeParameters = node.getTypeParameters();
         if (typeParameters.length > 0) {
@@ -106,7 +171,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
             for (let i = 0; i < typeParameters.length; i++) {
                 const typeParameter = typeParameters[i];
-                writer.write(getName(typeParameter));
+                writer.write(getNameOfNamed(typeParameter));
                 const constraint = typeParameter.getConstraint();
                 if (constraint) {
                     writer.write(" ");
@@ -128,11 +193,11 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
     if (Node.isFunctionDeclaration(node)) {
         writer.conditionalWrite(!node.hasBody(), "// OVERLOAD: ");
-        writer.write(`func ${getName(node)}(`);
+        writer.write(`func ${getNameOfNamed(node)}(`);
         const params = node.getParameters();
         for (let i = 0; i < params.length; i++) {
             const param = params[i];
-            writer.write(getName(param));
+            writer.write(getNameOfNamed(param));
             writer.write(" ");
             writeTypeNode(param.getTypeNodeOrThrow());
             writer.conditionalWrite(i < params.length - 1, ", ");
@@ -161,7 +226,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isInterfaceDeclaration(node)) {
-        writer.write(`type ${getName(node)} interface`);
+        writer.write(`type ${getNameOfNamed(node)} struct`);
 
         const typeParameters = node.getTypeParameters();
         if (typeParameters.length > 0) {
@@ -169,7 +234,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
             for (let i = 0; i < typeParameters.length; i++) {
                 const typeParameter = typeParameters[i];
-                writer.write(getName(typeParameter));
+                writer.write(getNameOfNamed(typeParameter));
                 const constraint = typeParameter.getConstraint();
                 if (constraint) {
                     writer.write(" ");
@@ -184,7 +249,17 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         writer.block(() => {
             const members = node.getMembers();
             for (const member of members) {
-                // writer.write(`${member.getName()} ${typeNodeToString(member.getTypeNodeOrThrow())};`);
+                if (Node.isMethodSignature(member)) {
+                    assert.fail("oops");
+                }
+                else if (Node.isPropertySignature(member)) {
+                    writer.write(`${getNameOfNamed(member)} `);
+                    writeTypeNode(member.getTypeNodeOrThrow());
+                    writer.newLine();
+                }
+                else {
+                    writer.writeLine(todo(member));
+                }
             }
         });
 
@@ -202,16 +277,16 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         for (const declaration of declarations) {
             const typeNode = declaration.getTypeNode();
             if (typeNode) {
-                writer.write(`var ${getName(declaration)}`);
+                writer.write(`var ${getNameOfNamed(declaration)}`);
                 writer.write(" ");
                 writeTypeNode(typeNode);
             }
             else {
                 if (isGlobal) {
-                    writer.write(`var ${getName(declaration)}`);
+                    writer.write(`var ${getNameOfNamed(declaration)}`);
                 }
                 else {
-                    writer.write(`${getName(declaration)}`);
+                    writer.write(`${getNameOfNamed(declaration)}`);
                 }
             }
 
@@ -233,7 +308,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isEnumDeclaration(node)) {
-        const enumName = getName(node);
+        const enumName = getNameOfNamed(node);
 
         writer.write(`type ${enumName}`);
         if (node.getMembers()[0].getInitializer()?.getKindName() === "StringLiteral") {
@@ -248,14 +323,14 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
             const members = node.getMembers();
             const nameMapping = new Map<string, string>();
             for (const member of members) {
-                const memberName = getName(member);
+                const memberName = getNameOfNamed(member);
                 nameMapping.set(memberName, `${enumName}${memberName}`);
             }
             const replacements = [...nameMapping.entries()].sort((a, b) => b[0].length - a[0].length);
 
             for (let i = 0; i < members.length; i++) {
                 const member = members[i];
-                const memberName = nameMapping.get(getName(member))!;
+                const memberName = nameMapping.get(getNameOfNamed(member))!;
                 writer.write(`${memberName} `);
                 const initializer = member.getInitializer();
                 if (i === 0 && !initializer) {
@@ -283,7 +358,7 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
 
     if (Node.isModuleDeclaration(node)) {
         // TODO
-        writer.write(`// namespace ${getName(node)}`);
+        writer.writeLine(todo(node));
 
         writer.newLineIfLastNot();
         writer.newLine();
@@ -292,13 +367,10 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isClassDeclaration(node)) {
-        writer.write(`type ${getName(node)} struct`);
+        writer.write(`type ${getNameOfNamed(node)} struct`);
 
         writer.block(() => {
-            const members = node.getMembers();
-            for (const member of members) {
-                writer.writeLine(todo(member));
-            }
+            writer.writeLine(todo(node));
         });
 
         writer.newLineIfLastNot();

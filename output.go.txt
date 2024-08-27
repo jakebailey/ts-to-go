@@ -1,8 +1,8 @@
 package output
 
-var ambientModuleSymbolRegex = TODO /* TODO: /^".+"$/ */
+var ambientModuleSymbolRegex = regexp.MustParse(`^".+"$`)
 
-var anon = TODO /* TODO: "(anonymous)" as __String & string */
+var anon = "(anonymous)" /* as __String & string */
 
 type ReferenceHint int32
 const (
@@ -17,13 +17,13 @@ const (
     ReferenceHintDecorator 
 )
 
-var nextSymbolId = TODO /* TODO: 1 */
+var nextSymbolId = 1
 
-var nextNodeId = TODO /* TODO: 1 */
+var nextNodeId = 1
 
-var nextMergeId = TODO /* TODO: 1 */
+var nextMergeId = 1
 
-var nextFlowId = TODO /* TODO: 1 */
+var nextFlowId = 1
 
 type IterationUse int32
 const (
@@ -53,7 +53,20 @@ const (
     IterationTypeKindNext 
 )
 
-type IterationTypesResolver interface {
+type IterationTypesResolver struct {
+    iterableCacheKey TODO /* TODO: "iterationTypesOfAsyncIterable" | "iterationTypesOfIterable" */
+    iteratorCacheKey TODO /* TODO: "iterationTypesOfAsyncIterator" | "iterationTypesOfIterator" */
+    iteratorSymbolName TODO /* TODO: "asyncIterator" | "iterator" */
+    getGlobalIteratorType func(reportErrors bool) GenericType
+    getGlobalIterableType func(reportErrors bool) GenericType
+    getGlobalIterableIteratorType func(reportErrors bool) GenericType
+    getGlobalIteratorObjectType func(reportErrors bool) GenericType
+    getGlobalGeneratorType func(reportErrors bool) GenericType
+    getGlobalBuiltinIteratorTypes func() []GenericType
+    resolveIterationType func(type_ Type, errorNode TODO /* TODO: Node | undefined */) TODO /* TODO: Type | undefined */
+    mustHaveANextMethodDiagnostic DiagnosticMessage
+    mustBeAMethodDiagnostic DiagnosticMessage
+    mustHaveAValueDiagnostic DiagnosticMessage
 }
 
 type WideningKind int32
@@ -144,7 +157,7 @@ const (
     TypeFactsAndFactsMask TypeFacts = TypeFactsAll & ~TypeFactsOrFactsMask
 )
 
-var typeofNEFacts TODO /* TODO: ReadonlyMap<string, TypeFacts> */ = TODO /* TODO: new Map(Object.entries({
+var typeofNEFacts ReadonlyMap[string, TypeFacts] = TODO /* TODO: new Map(Object.entries({
     string: TypeFacts.TypeofNEString,
     number: TypeFacts.TypeofNENumber,
     bigint: TypeFacts.TypeofNEBigInt,
@@ -242,7 +255,7 @@ const (
     UnusedKindParameter 
 )
 
-type AddUnusedDiagnostic func(containingNodeTODO /* TODO: Node */, type_TODO /* TODO: UnusedKind */, diagnosticTODO /* TODO: DiagnosticWithLocation */) TODO /* TODO: void */
+type AddUnusedDiagnostic func(containingNode Node, type_ UnusedKind, diagnostic DiagnosticWithLocation) void
 var isNotOverloadAndNotAccessor = TODO /* TODO: and(isNotOverload, isNotAccessor) */
 
 type DeclarationMeaning int32
@@ -280,7 +293,7 @@ const (
     IntrinsicTypeKindNoInfer 
 )
 
-var intrinsicTypeKinds TODO /* TODO: ReadonlyMap<string, IntrinsicTypeKind> */ = TODO /* TODO: new Map(Object.entries({
+var intrinsicTypeKinds ReadonlyMap[string, IntrinsicTypeKind] = TODO /* TODO: new Map(Object.entries({
     Uppercase: IntrinsicTypeKind.Uppercase,
     Lowercase: IntrinsicTypeKind.Lowercase,
     Capitalize: IntrinsicTypeKind.Capitalize,
@@ -292,12 +305,12 @@ var SymbolLinks = TODO /* TODO: class implements SymbolLinks {
     declare _symbolLinksBrand: any;
 } */
 
-func NodeLinks(this TODO /* TODO: NodeLinks */) {
+func NodeLinks(this NodeLinks) {
     /* TODO: {
         this.flags = NodeCheckFlags.None;
     } */
 }
-func getNodeId(node TODO /* TODO: Node */) TODO /* TODO: number */ {
+func getNodeId(node Node) number {
     /* TODO: {
         if (!node.id) {
             node.id = nextNodeId;
@@ -306,7 +319,7 @@ func getNodeId(node TODO /* TODO: Node */) TODO /* TODO: number */ {
         return node.id;
     } */
 }
-func getSymbolId(symbol TODO /* TODO: Symbol */) TODO /* TODO: SymbolId */ {
+func getSymbolId(symbol Symbol) SymbolId {
     /* TODO: {
         if (!symbol.id) {
             symbol.id = nextSymbolId;
@@ -316,14 +329,14 @@ func getSymbolId(symbol TODO /* TODO: Symbol */) TODO /* TODO: SymbolId */ {
         return symbol.id;
     } */
 }
-func isInstantiatedModule(node TODO /* TODO: ModuleDeclaration */, preserveConstEnums TODO /* TODO: boolean */) {
+func isInstantiatedModule(node ModuleDeclaration, preserveConstEnums bool) {
     /* TODO: {
         const moduleState = getModuleInstanceState(node);
         return moduleState === ModuleInstanceState.Instantiated ||
             (preserveConstEnums && moduleState === ModuleInstanceState.ConstEnumOnly);
     } */
 }
-func createTypeChecker(host TODO /* TODO: TypeCheckerHost */) TODO /* TODO: TypeChecker */ {
+func createTypeChecker(host TypeCheckerHost) TypeChecker {
     /* TODO: {
         // Why var? It avoids TDZ checks in the runtime which can be costly.
         // See: https://github.com/microsoft/TypeScript/issues/52924
@@ -51550,19 +51563,19 @@ func createTypeChecker(host TODO /* TODO: TypeCheckerHost */) TODO /* TODO: Type
         }
     } */
 }
-func isNotAccessor(declaration TODO /* TODO: Declaration */) TODO /* TODO: boolean */ {
+func isNotAccessor(declaration Declaration) bool {
     /* TODO: {
         // Accessors check for their own matching duplicates, and in contexts where they are valid, there are already duplicate identifier checks
         return !isAccessor(declaration);
     } */
 }
-func isNotOverload(declaration TODO /* TODO: Declaration */) TODO /* TODO: boolean */ {
+func isNotOverload(declaration Declaration) bool {
     /* TODO: {
         return (declaration.kind !== SyntaxKind.FunctionDeclaration && declaration.kind !== SyntaxKind.MethodDeclaration) ||
             !!(declaration as FunctionDeclaration).body;
     } */
 }
-func isDeclarationNameOrImportPropertyName(name TODO /* TODO: Node */) TODO /* TODO: boolean */ {
+func isDeclarationNameOrImportPropertyName(name Node) bool {
     /* TODO: {
         switch (name.parent.kind) {
             case SyntaxKind.ImportSpecifier:
@@ -51573,9 +51586,20 @@ func isDeclarationNameOrImportPropertyName(name TODO /* TODO: Node */) TODO /* T
         }
     } */
 }
-// namespace JsxNames
+/* TODO: namespace JsxNames {
+    export const JSX = "JSX" as __String;
+    export const IntrinsicElements = "IntrinsicElements" as __String;
+    export const ElementClass = "ElementClass" as __String;
+    export const ElementAttributesPropertyNameContainer = "ElementAttributesProperty" as __String; // TODO: Deprecate and remove support
+    export const ElementChildrenAttributeNameContainer = "ElementChildrenAttribute" as __String;
+    export const Element = "Element" as __String;
+    export const ElementType = "ElementType" as __String;
+    export const IntrinsicAttributes = "IntrinsicAttributes" as __String;
+    export const IntrinsicClassAttributes = "IntrinsicClassAttributes" as __String;
+    export const LibraryManagedAttributes = "LibraryManagedAttributes" as __String;
+} */
 
-func getIterationTypesKeyFromIterationTypeKind(typeKind TODO /* TODO: IterationTypeKind */) {
+func getIterationTypesKeyFromIterationTypeKind(typeKind IterationTypeKind) {
     /* TODO: {
         switch (typeKind) {
             case IterationTypeKind.Yield:
@@ -51587,17 +51611,17 @@ func getIterationTypesKeyFromIterationTypeKind(typeKind TODO /* TODO: IterationT
         }
     } */
 }
-func signatureHasRestParameter(s TODO /* TODO: Signature */) {
+func signatureHasRestParameter(s Signature) {
     /* TODO: {
         return !!(s.flags & SignatureFlags.HasRestParameter);
     } */
 }
-func signatureHasLiteralTypes(s TODO /* TODO: Signature */) {
+func signatureHasLiteralTypes(s Signature) {
     /* TODO: {
         return !!(s.flags & SignatureFlags.HasLiteralTypes);
     } */
 }
-func createBasicNodeBuilderModuleSpecifierResolutionHost(host TODO /* TODO: TypeCheckerHost */) TODO /* TODO: ModuleSpecifierResolutionHost */ {
+func createBasicNodeBuilderModuleSpecifierResolutionHost(host TypeCheckerHost) ModuleSpecifierResolutionHost {
     /* TODO: {
         return {
             getCommonSourceDirectory: !!(host as Program).getCommonSourceDirectory ? () => (host as Program).getCommonSourceDirectory() : () => "",
@@ -51616,16 +51640,44 @@ func createBasicNodeBuilderModuleSpecifierResolutionHost(host TODO /* TODO: Type
         };
     } */
 }
-type NodeBuilderContext interface {
+type NodeBuilderContext struct {
+    enclosingDeclaration TODO /* TODO: Node | undefined */
+    enclosingFile TODO /* TODO: SourceFile | undefined */
+    flags NodeBuilderFlags
+    internalFlags InternalNodeBuilderFlags
+    tracker SymbolTrackerImpl
+    encounteredError bool
+    reportedDiagnostic bool
+    trackedSymbols TODO /* TODO: TrackedSymbol[] | undefined */
+    visitedTypes TODO /* TODO: Set<number> | undefined */
+    symbolDepth TODO /* TODO: Map<string, number> | undefined */
+    inferTypeParameters TODO /* TODO: TypeParameter[] | undefined */
+    approximateLength number
+    truncating bool
+    mustCreateTypeParameterSymbolList bool
+    typeParameterSymbolList TODO /* TODO: Set<number> | undefined */
+    mustCreateTypeParametersNamesLookups bool
+    typeParameterNames TODO /* TODO: Map<TypeId, Identifier> | undefined */
+    typeParameterNamesByText TODO /* TODO: Set<string> | undefined */
+    typeParameterNamesByTextNextNameCount TODO /* TODO: Map<string, number> | undefined */
+    usedSymbolNames TODO /* TODO: Set<string> | undefined */
+    remappedSymbolNames TODO /* TODO: Map<SymbolId, string> | undefined */
+    remappedSymbolReferences TODO /* TODO: Map<SymbolId, Symbol> | undefined */
+    reverseMappedStack TODO /* TODO: ReverseMappedSymbol[] | undefined */
+    bundled bool
+    mapper TODO /* TODO: TypeMapper | undefined */
 }
 
 type SymbolTrackerImpl struct {
-    /* TODO: moduleResolverHost: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; } | undefined = undefined; */
-    /* TODO: context: NodeBuilderContext; */
-    /* TODO: readonly inner: SymbolTracker | undefined = undefined; */
-    /* TODO: readonly canTrackSymbol: boolean; */
-    /* TODO: disableTrackSymbol = false; */
-    /* TODO: constructor(context: NodeBuilderContext, tracker: SymbolTracker | undefined, moduleResolverHost: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; } | undefined) {
+    /* TODO: class SymbolTrackerImpl implements SymbolTracker {
+        moduleResolverHost: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; } | undefined = undefined;
+        context: NodeBuilderContext;
+
+        readonly inner: SymbolTracker | undefined = undefined;
+        readonly canTrackSymbol: boolean;
+        disableTrackSymbol = false;
+
+        constructor(context: NodeBuilderContext, tracker: SymbolTracker | undefined, moduleResolverHost: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; } | undefined) {
             while (tracker instanceof SymbolTrackerImpl) {
                 tracker = tracker.inner;
             }
@@ -51634,8 +51686,9 @@ type SymbolTrackerImpl struct {
             this.moduleResolverHost = moduleResolverHost;
             this.context = context;
             this.canTrackSymbol = !!this.inner?.trackSymbol;
-        } */
-    /* TODO: trackSymbol(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags): boolean {
+        }
+
+        trackSymbol(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags): boolean {
             if (this.inner?.trackSymbol && !this.disableTrackSymbol) {
                 if (this.inner.trackSymbol(symbol, enclosingDeclaration, meaning)) {
                     this.onDiagnosticReported();
@@ -51645,62 +51698,73 @@ type SymbolTrackerImpl struct {
                 if (!(symbol.flags & SymbolFlags.TypeParameter)) (this.context.trackedSymbols ??= []).push([symbol, enclosingDeclaration, meaning]);
             }
             return false;
-        } */
-    /* TODO: reportInaccessibleThisError(): void {
+        }
+
+        reportInaccessibleThisError(): void {
             if (this.inner?.reportInaccessibleThisError) {
                 this.onDiagnosticReported();
                 this.inner.reportInaccessibleThisError();
             }
-        } */
-    /* TODO: reportPrivateInBaseOfClassExpression(propertyName: string): void {
+        }
+
+        reportPrivateInBaseOfClassExpression(propertyName: string): void {
             if (this.inner?.reportPrivateInBaseOfClassExpression) {
                 this.onDiagnosticReported();
                 this.inner.reportPrivateInBaseOfClassExpression(propertyName);
             }
-        } */
-    /* TODO: reportInaccessibleUniqueSymbolError(): void {
+        }
+
+        reportInaccessibleUniqueSymbolError(): void {
             if (this.inner?.reportInaccessibleUniqueSymbolError) {
                 this.onDiagnosticReported();
                 this.inner.reportInaccessibleUniqueSymbolError();
             }
-        } */
-    /* TODO: reportCyclicStructureError(): void {
+        }
+
+        reportCyclicStructureError(): void {
             if (this.inner?.reportCyclicStructureError) {
                 this.onDiagnosticReported();
                 this.inner.reportCyclicStructureError();
             }
-        } */
-    /* TODO: reportLikelyUnsafeImportRequiredError(specifier: string): void {
+        }
+
+        reportLikelyUnsafeImportRequiredError(specifier: string): void {
             if (this.inner?.reportLikelyUnsafeImportRequiredError) {
                 this.onDiagnosticReported();
                 this.inner.reportLikelyUnsafeImportRequiredError(specifier);
             }
-        } */
-    /* TODO: reportTruncationError(): void {
+        }
+
+        reportTruncationError(): void {
             if (this.inner?.reportTruncationError) {
                 this.onDiagnosticReported();
                 this.inner.reportTruncationError();
             }
-        } */
-    /* TODO: reportNonlocalAugmentation(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void {
+        }
+
+        reportNonlocalAugmentation(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void {
             if (this.inner?.reportNonlocalAugmentation) {
                 this.onDiagnosticReported();
                 this.inner.reportNonlocalAugmentation(containingFile, parentSymbol, augmentingSymbol);
             }
-        } */
-    /* TODO: reportNonSerializableProperty(propertyName: string): void {
+        }
+
+        reportNonSerializableProperty(propertyName: string): void {
             if (this.inner?.reportNonSerializableProperty) {
                 this.onDiagnosticReported();
                 this.inner.reportNonSerializableProperty(propertyName);
             }
-        } */
-    /* TODO: private onDiagnosticReported() {
+        }
+
+        private onDiagnosticReported() {
             this.context.reportedDiagnostic = true;
-        } */
-    /* TODO: reportInferenceFallback(node: Node): void {
+        }
+
+        reportInferenceFallback(node: Node): void {
             if (this.inner?.reportInferenceFallback) {
                 this.inner.reportInferenceFallback(node);
             }
-        } */
+        }
+    } */
 }
 
