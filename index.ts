@@ -1,5 +1,6 @@
 import assert from "assert";
 import CodeBlockWriter from "code-block-writer";
+import { write } from "console";
 import { execa } from "execa";
 import path, { format } from "path";
 import { Expression, type ForEachDescendantTraversalControl, Node, Project, ts, Type, TypeNode } from "ts-morph";
@@ -22,17 +23,28 @@ const writer = new CodeBlockWriter();
 writer.writeLine("package output");
 writer.newLine();
 
-function todo(node: { getKindName?(): string; getText(): string; }): string {
+type Printable = { getKindName?(): string; getText(): string; };
+
+function todoFn(node: Printable, singleLine?: boolean): string {
     let text = node.getText();
     text = text.replaceAll("*/", "* /");
+    if (singleLine) {
+        text = text.replaceAll("\n", " ");
+    }
     return `/* TODO(${node.getKindName?.()}): ${text} */`;
 }
 
 function writeType(node: Type) {
+    const todo = (node: Printable) => todoFn(node, true);
     return `TODO ${todo(node)}`;
 }
 
 function writeTypeNode(type: TypeNode) {
+    const todo = (node: Printable) => todoFn(node, true);
+    while (Node.isParenthesizedTypeNode(type)) {
+        type = type.getTypeNode();
+    }
+
     if (Node.isFunctionTypeNode(type)) {
         writer.write("func(");
         const params = type.getParameters();
@@ -57,7 +69,10 @@ function writeTypeNode(type: TypeNode) {
         writer.write("number");
     }
     else if (type.getText() === "void") {
-        writer.write("void");
+        const parent = type.getParentIfKind(ts.SyntaxKind.FunctionType);
+        if (parent?.getReturnTypeNode() !== type) {
+            writer.write("void");
+        }
     }
     else if (Node.isArrayTypeNode(type)) {
         writer.write("[]");
@@ -96,15 +111,15 @@ function writeTypeNode(type: TypeNode) {
                     writeTypeNode(a);
                 }
                 else {
-                    writer.write(`TODO ${todo(a)}`);
+                    writer.write(`any ${todo(a)}`);
                 }
             }
             else {
-                writer.write(`TODO ${todo(type)}`);
+                writer.write(`any ${todo(type)}`);
             }
         }
         else {
-            writer.write(`TODO ${todo(type)}`);
+            writer.write(`any ${todo(type)}`);
         }
     }
     else {
@@ -113,6 +128,7 @@ function writeTypeNode(type: TypeNode) {
 }
 
 function writeExpression(node: Expression) {
+    const todo = (node: Printable) => todoFn(node, true);
     if (Node.isRegularExpressionLiteral(node)) {
         const re = node.getLiteralValue();
         let source = re.source.replaceAll("`", "\\`");
@@ -136,6 +152,22 @@ function writeExpression(node: Expression) {
     else if (Node.isAsExpression(node)) {
         writeExpression(node.getExpression());
         writer.write(` /* as ${node.getTypeNodeOrThrow().getText()} */`);
+    }
+    else if (Node.isIdentifier(node)) {
+        writer.write(sanitizeName(node.getText()));
+    }
+    else if (Node.isCallExpression(node)) {
+        const expression = node.getExpression();
+        writeExpression(expression);
+        writer.write("(");
+        const args = node.getArguments();
+        for (let i = 0; i < args.length; i++) {
+            const expr = args[i];
+            assert(Node.isExpression(expr));
+            writeExpression(expr);
+            writer.conditionalWrite(i < args.length - 1, ", ");
+        }
+        writer.write(")");
     }
     else {
         writer.write(`TODO ${todo(node)}`);
@@ -180,6 +212,7 @@ function getNameOfNamed(node: { getName(): string | undefined; }) {
 }
 
 function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
+    const todo = (node: Printable) => todoFn(node);
     if (Node.isImportDeclaration(node)) {
         traversal.skip();
         return;
@@ -398,12 +431,19 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         return;
     }
 
+    if (Node.isExpressionStatement(node)) {
+        writeExpression(node.getExpression());
+        writer.newLine();
+        traversal.skip();
+        return;
+    }
+
     if (node.getKindName() === "EndOfFileToken") {
         return;
     }
 
     traversal.stop();
-    return `Unhandled node kind: ${node.getKindName()}`;
+    console.error(`Unhandled node kind: ${node.getKindName()}`);
 }
 
 const result = sourceFile.forEachDescendant(visitor);
