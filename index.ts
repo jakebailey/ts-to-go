@@ -772,6 +772,19 @@ function visitStatement(node: Statement) {
         return;
     }
 
+    if (Node.isDoStatement(node)) {
+        writer.writeLine("// TODO: refactor do-while loop approximation");
+        writer.write("for ok := true; ok; ok = ");
+        visitExpression(node.getExpression());
+        writer.write(" {");
+        writer.indent(() => {
+            visitStatement(node.getStatement());
+        });
+        writer.write("}");
+        writer.newLineIfLastNot();
+        return;
+    }
+
     if (Node.isBlock(node)) {
         visitBlock(node);
         return;

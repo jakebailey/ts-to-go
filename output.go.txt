@@ -434,14 +434,22 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		containingCall := findAncestor(node, isCallLikeExpression)
 		if containingCall {
 			toMarkSkip := node /*!*/
-			/* TODO(DoStatement): do {                 getNodeLinks(toMarkSkip).skipDirectInference = true;                 toMarkSkip = toMarkSkip.parent;             }             while (toMarkSkip && toMarkSkip !== containingCall); */
+			// TODO: refactor do-while loop approximation
+			for ok := true; ok; ok = toMarkSkip && toMarkSkip != containingCall {
+				getNodeLinks(toMarkSkip).skipDirectInference = true
+				toMarkSkip = toMarkSkip.parent
+			}
 		}
 		isInferencePartiallyBlocked = true
 		result := runWithoutResolvedSignatureCaching(node, fn)
 		isInferencePartiallyBlocked = false
 		if containingCall {
 			toMarkSkip := node /*!*/
-			/* TODO(DoStatement): do {                 getNodeLinks(toMarkSkip).skipDirectInference = undefined;                 toMarkSkip = toMarkSkip.parent;             }             while (toMarkSkip && toMarkSkip !== containingCall); */
+			// TODO: refactor do-while loop approximation
+			for ok := true; ok; ok = toMarkSkip && toMarkSkip != containingCall {
+				getNodeLinks(toMarkSkip).skipDirectInference = nil
+				toMarkSkip = toMarkSkip.parent
+			}
 		}
 		return result
 	}
@@ -4020,7 +4028,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						for i < length {
 							start := i
 							parent := getParentSymbolOfTypeParameter( /* TODO(ElementAccessExpression): outerTypeParameters[i] */ TODO) /*!*/
-							/* TODO(DoStatement): do {                                 i++;                             }                             while (i < length && getParentSymbolOfTypeParameter(outerTypeParameters[i]) === parent); */
+							// TODO: refactor do-while loop approximation
+							for ok := true; ok; ok = i < length && getParentSymbolOfTypeParameter( /* TODO(ElementAccessExpression): outerTypeParameters[i] */ TODO) == parent {
+								i++
+							}
 							if !rangeEquals(outerTypeParameters, typeArguments, start, i) {
 								typeArgumentSlice := mapToTypeNodes(typeArguments.slice(start, i), context)
 								restoreFlags := saveRestoreFlags(context)
@@ -16657,7 +16668,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return type_.symbol
 		}
 		if type_.flags & TypeFlagsIndexedAccess {
-			/* TODO(DoStatement): do {                 type = (type as IndexedAccessType).objectType;             }             while (type.flags & TypeFlags.IndexedAccess); */
+			// TODO: refactor do-while loop approximation
+			for ok := true; ok; ok = type_.flags & TypeFlagsIndexedAccess {
+				type_ = (type_ /* as */ /* TODO(TypeReference): IndexedAccessType */).objectType
+			}
 			return type_
 		}
 		if type_.flags & TypeFlagsConditional {
@@ -32607,10 +32621,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		case SyntaxKindIdentifier:
 			return node
 		case SyntaxKindQualifiedName:
-			/* TODO(DoStatement): do {                     node = node.left;                 }                 while (node.kind !== SyntaxKind.Identifier); */
+			// TODO: refactor do-while loop approximation
+			for ok := true; ok; ok = node.kind != SyntaxKindIdentifier {
+				node = node.left
+			}
 			return node
 		case SyntaxKindPropertyAccessExpression:
-			/* TODO(DoStatement): do {                     if (isModuleExportsAccessExpression(node.expression) && !isPrivateIdentifier(node.name)) {                         return node.name;                     }                     node = node.expression;                 }                 while (node.kind !== SyntaxKind.Identifier); */
+			// TODO: refactor do-while loop approximation
+			for ok := true; ok; ok = node.kind != SyntaxKindIdentifier {
+				if isModuleExportsAccessExpression(node.expression) && !isPrivateIdentifier(node.name) {
+					return node.name
+				}
+				node = node.expression
+			}
 			return node
 		}
 	}
