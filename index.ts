@@ -182,6 +182,11 @@ function writeExpression(node: Expression): void {
         writer.write(ts.tokenToString(node.getOperatorToken())!);
         writeExpression(node.getOperand());
     }
+    else if (Node.isParenthesizedExpression(node)) {
+        writer.write("(");
+        writeExpression(node.getExpression());
+        writer.write(")");
+    }
     else if (Node.isBinaryExpression(node)) {
         const op = node.getOperatorToken();
         let tok;
@@ -192,6 +197,7 @@ function writeExpression(node: Expression): void {
             case ts.SyntaxKind.LessThanToken:
             case ts.SyntaxKind.GreaterThanEqualsToken:
             case ts.SyntaxKind.GreaterThanToken:
+            case ts.SyntaxKind.AmpersandToken:
                 tok = ts.tokenToString(op.getKind());
                 break;
             case ts.SyntaxKind.EqualsEqualsEqualsToken:
@@ -205,6 +211,28 @@ function writeExpression(node: Expression): void {
         writeExpression(node.getLeft());
         writer.write(` ${tok} `);
         writeExpression(node.getRight());
+    }
+    else if (Node.isTrueLiteral(node)) {
+        writer.write("true");
+    }
+    else if (Node.isFalseLiteral(node)) {
+        writer.write("false");
+    }
+    else if (Node.isPropertyAccessExpression(node)) {
+        // Check for enum accesses first
+        const expression = node.getExpression();
+        if (Node.isIdentifier(expression)) {
+            const type = expression.getType();
+            if (type.isEnum()) {
+                const enumName = expression.getText();
+                const enumMember = node.getNameNode();
+                writer.write(`${enumName}${enumMember.getText()}`);
+                return;
+            }
+        }
+
+        writeExpression(node.getExpression());
+        writer.write(`.${sanitizeName(node.getName())}`);
     }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
@@ -564,6 +592,19 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
             writer.newLine();
             traversal.skip();
             return;
+        }
+        if (Node.isBinaryExpression(expression)) {
+            const op = expression.getOperatorToken();
+            if (op.getKind() === ts.SyntaxKind.EqualsToken) {
+                const left = expression.getLeft();
+                const right = expression.getRight();
+                writeExpression(left);
+                writer.write(" = ");
+                writeExpression(right);
+                writer.newLine();
+                traversal.skip();
+                return;
+            }
         }
     }
 
