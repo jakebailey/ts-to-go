@@ -1,9 +1,10 @@
-import assert from "assert";
+import assert, { rejects } from "assert";
 import CodeBlockWriter from "code-block-writer";
 import { write } from "console";
 import { execa } from "execa";
+import { WriteStream } from "fs";
 import path, { format } from "path";
-import { Expression, type ForEachDescendantTraversalControl, Node, Project, ts, Type, TypeNode } from "ts-morph";
+import { Expression, type ForEachDescendantTraversalControl, IfStatement, Node, Project, ts, Type, TypeNode } from "ts-morph";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
 
@@ -25,22 +26,18 @@ writer.newLine();
 
 type Printable = { getKindName?(): string; getText(): string; };
 
-function todoFn(node: Printable, singleLine?: boolean): string {
+function todo(node: Printable): string {
     let text = node.getText();
     text = text.replaceAll("*/", "* /");
-    if (singleLine) {
-        text = text.replaceAll("\n", " ");
-    }
+    text = text.replace(/\r?\n/g, " ");
     return `/* TODO(${node.getKindName?.()}): ${text} */`;
 }
 
-function writeType(node: Type) {
-    const todo = (node: Printable) => todoFn(node, true);
-    return `TODO ${todo(node)}`;
+function writeType(node: Type): void {
+    writer.write(`${todo(node)} TODO`);
 }
 
-function writeTypeNode(type: TypeNode) {
-    const todo = (node: Printable) => todoFn(node, true);
+function writeTypeNode(type: TypeNode): void {
     while (Node.isParenthesizedTypeNode(type)) {
         type = type.getTypeNode();
     }
@@ -87,7 +84,7 @@ function writeTypeNode(type: TypeNode) {
             writer.write(sanitizeName(name.getText()));
         }
         else {
-            writer.write(`TODO ${todo(name)}`);
+            writer.write(`${todo(name)} TODO`);
         }
         const typeArguments = type.getTypeArguments();
         if (typeArguments.length > 0) {
@@ -107,28 +104,33 @@ function writeTypeNode(type: TypeNode) {
             }
             if (Node.isUndefinedKeyword(b)) {
                 if (Node.isTypeReference(a)) {
-                    writer.write("*");
+                    switch (a.getText()) {
+                        case "Node":
+                        case "Declaration":
+                            break;
+                        default:
+                            writer.write("*");
+                    }
                     writeTypeNode(a);
                 }
                 else {
-                    writer.write(`any ${todo(a)}`);
+                    writer.write(`${todo(a)} any`);
                 }
             }
             else {
-                writer.write(`any ${todo(type)}`);
+                writer.write(`${todo(type)} any`);
             }
         }
         else {
-            writer.write(`any ${todo(type)}`);
+            writer.write(`${todo(type)} any`);
         }
     }
     else {
-        writer.write(`TODO ${todo(type)}`);
+        writer.write(`${todo(type)} TODO`);
     }
 }
 
-function writeExpression(node: Expression) {
-    const todo = (node: Printable) => todoFn(node, true);
+function writeExpression(node: Expression): void {
     if (Node.isRegularExpressionLiteral(node)) {
         const re = node.getLiteralValue();
         let source = re.source.replaceAll("`", "\\`");
@@ -139,7 +141,7 @@ function writeExpression(node: Expression) {
                     source = `(?i:${source})`;
                     break;
                 default:
-                    writer.write(`TODO ${todo(node)}`);
+                    writer.write(`${todo(node)} TODO`);
                     return;
             }
         }
@@ -151,7 +153,7 @@ function writeExpression(node: Expression) {
     }
     else if (Node.isAsExpression(node)) {
         writeExpression(node.getExpression());
-        writer.write(` /* as ${node.getTypeNodeOrThrow().getText()} */`);
+        writer.write(` /* as */ ${todo(node.getTypeNodeOrThrow())}`);
     }
     else if (Node.isIdentifier(node)) {
         writer.write(sanitizeName(node.getText()));
@@ -169,8 +171,30 @@ function writeExpression(node: Expression) {
         }
         writer.write(")");
     }
+    // else if (Node.isObjectLiteralExpression(node)) {
+    //     writer.write("map[any]any{");
+    //     writer.indent(() => {
+    //         const properties = node.getProperties();
+    //         for (const prop of properties) {
+    //             if (Node.isShorthandPropertyAssignment(prop)) {
+    //                 writer.write(`${getNameOfNamed(prop)}: ${getNameOfNamed(prop)}`);
+    //             }
+    //             else if (Node.isPropertyAssignment(prop)) {
+    //                 writer.write(`${getNameOfNamed(prop)}: `);
+    //                 writeExpression(prop.getInitializerOrThrow());
+    //                 writer.write(",");
+    //             }
+    //             else {
+    //                 writer.write(todo(prop));
+    //             }
+    //             writer.write(",");
+    //             writer.newLine();
+    //         }
+    //     });
+    //     writer.write("}");
+    // }
     else {
-        writer.write(`TODO ${todo(node)}`);
+        writer.write(`${todo(node)} TODO`);
     }
 }
 
@@ -208,11 +232,51 @@ function sanitizeName(name: string | undefined) {
 }
 
 function getNameOfNamed(node: { getName(): string | undefined; }) {
-    return sanitizeName(node.getName());
+    const name = sanitizeName(node.getName());
+    if (/^[a-zA-Z0-9_]+$/.test(name)) {
+        return name;
+    }
+    return `TODO_IDENTIFIER`;
+}
+
+function writeIfStatement(node: IfStatement) {
+    writer.write("if ");
+    writeExpression(node.getExpression());
+    writer.write(" {");
+    writer.indent(() => {
+        const thenStatement = node.getThenStatement();
+        if (thenStatement) {
+            thenStatement.forEachDescendant(visitor);
+        }
+        writer.newLineIfLastNot();
+    });
+
+    const elseStatement = node.getElseStatement();
+    if (elseStatement) {
+        writer.write("} else ");
+        if (Node.isIfStatement(elseStatement)) {
+            writeIfStatement(elseStatement);
+        }
+        else {
+            writer.write("{");
+            writer.indent(() => {
+                elseStatement.forEachDescendant(visitor);
+            });
+            writer.write("}");
+        }
+    }
+    else {
+        writer.write("}");
+    }
 }
 
 function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
-    const todo = (node: Printable) => todoFn(node);
+    if (node.getKindName() === "EndOfFileToken") {
+        return;
+    }
+
+    writer.newLineIfLastNot();
+
     if (Node.isImportDeclaration(node)) {
         traversal.skip();
         return;
@@ -248,22 +312,41 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
     }
 
     if (Node.isFunctionDeclaration(node)) {
+        const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
+
         writer.conditionalWrite(!node.hasBody(), "// OVERLOAD: ");
-        writer.write(`func ${getNameOfNamed(node)}(`);
+
+        if (!isGlobal) {
+            writer.write(`${getNameOfNamed(node)} := func(`);
+        }
+        else {
+            writer.write(`func ${getNameOfNamed(node)}(`);
+        }
+
         const params = node.getParameters();
         for (let i = 0; i < params.length; i++) {
             const param = params[i];
             writer.write(getNameOfNamed(param));
             writer.write(" ");
-            writeTypeNode(param.getTypeNodeOrThrow());
+            const paramType = param.getTypeNode();
+            if (paramType) {
+                writeTypeNode(paramType);
+            }
+            else {
+                writeType(param.getType());
+            }
+            const initializer = param.getInitializer();
+            if (initializer) {
+                writer.write(` /* = */ ${todo(initializer)}`);
+            }
             writer.conditionalWrite(i < params.length - 1, ", ");
         }
         writer.write(")");
         const ret = node.getReturnType();
         if (!ret.isVoid()) {
+            writer.write(" ");
             const retNode = node.getReturnTypeNode();
             if (retNode) {
-                writer.write(` `);
                 writeTypeNode(retNode);
             }
             else {
@@ -431,18 +514,33 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         return;
     }
 
-    if (Node.isExpressionStatement(node)) {
-        writeExpression(node.getExpression());
+    // if (Node.isExpressionStatement(node)) {
+    //     writeExpression(node.getExpression());
+    //     writer.newLine();
+    //     traversal.skip();
+    //     return;
+    // }
+
+    if (Node.isReturnStatement(node)) {
+        writer.newLineIfLastNot();
+        const expression = node.getExpression();
+        if (expression) {
+            writer.write(" ");
+            writeExpression(expression);
+        }
         writer.newLine();
         traversal.skip();
         return;
     }
 
-    if (node.getKindName() === "EndOfFileToken") {
+    if (Node.isIfStatement(node)) {
+        writeIfStatement(node);
+        traversal.skip();
         return;
     }
 
-    traversal.stop();
+    writer.writeLine(todo(node));
+    traversal.skip();
     console.error(`Unhandled node kind: ${node.getKindName()}`);
 }
 
@@ -452,16 +550,15 @@ if (result) {
     console.error(result);
 }
 
-let output = writer.toString();
+const outFile = Bun.file("output.go.txt");
 
-await Bun.write(Bun.file("output.go.txt"), output);
+await Bun.write(outFile, writer.toString());
 
-try {
-    const formatted = await execa("gofmt", ["-s"], { input: output });
-    output = formatted.stdout;
-    await Bun.write(Bun.file("output.go.txt"), output);
+const formatted = await execa("gofmt", ["output.go.txt"], { reject: false });
+if (formatted.exitCode === 0) {
+    await Bun.write(outFile, formatted.stdout);
     console.log("All good!");
 }
-catch (e) {
-    console.error(e);
+else {
+    console.log(formatted.stderr);
 }
