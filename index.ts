@@ -1,10 +1,19 @@
-import assert, { rejects } from "assert";
+import assert from "assert";
 import CodeBlockWriter from "code-block-writer";
-import { write } from "console";
 import { execa } from "execa";
-import { WriteStream } from "fs";
-import path, { format } from "path";
-import { ArrowFunction, Expression, type ForEachDescendantTraversalControl, FunctionDeclaration, IfStatement, Node, Project, ts, Type, TypeNode } from "ts-morph";
+import path from "path";
+import {
+    ArrowFunction,
+    Expression,
+    type ForEachDescendantTraversalControl,
+    FunctionDeclaration,
+    IfStatement,
+    Node,
+    Project,
+    ts,
+    Type,
+    TypeNode,
+} from "ts-morph";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
 
@@ -40,6 +49,7 @@ function writeType(node: Type): void {
 }
 
 function writeTypeNode(type: TypeNode): void {
+    // In Go, there's never a reason to parenthesize a type.
     while (Node.isParenthesizedTypeNode(type)) {
         type = type.getTypeNode();
     }
@@ -240,7 +250,15 @@ function writeExpression(node: Expression): void {
         writeFunctionParametersAndReturn(node);
         writer.write(" {");
         writer.indent(() => {
-            node.getBody().forEachDescendant(visitor);
+            const body = node.getBody();
+            if (Node.isBlock(body)) {
+                body.forEachDescendant(visitor);
+            }
+            else {
+                assert(Node.isExpression(body));
+                writer.write("return ");
+                writeExpression(body);
+            }
         });
         writer.write("}");
     }
