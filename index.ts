@@ -595,11 +595,12 @@ function visitor(node: Node, traversal: ForEachDescendantTraversalControl) {
         }
         if (Node.isBinaryExpression(expression)) {
             const op = expression.getOperatorToken();
-            if (op.getKind() === ts.SyntaxKind.EqualsToken) {
+            const tokenStr = ts.tokenToString(op.getKind());
+            if (tokenStr?.endsWith("=") && !tokenStr.startsWith("?") && tokenStr !== "||=") {
                 const left = expression.getLeft();
                 const right = expression.getRight();
                 writeExpression(left);
-                writer.write(" = ");
+                writer.write(` ${tokenStr} `);
                 writeExpression(right);
                 writer.newLine();
                 traversal.skip();
