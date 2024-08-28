@@ -364,6 +364,10 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             return;
         }
     }
+    else if (Node.isSpreadElement(node)) {
+        visitExpression(node.getExpression());
+        writer.write("...");
+    }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
     //     writer.indent(() => {

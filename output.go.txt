@@ -851,7 +851,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	errorSkippedOn := func(key CompilerOptions, location Node, message DiagnosticMessage, args DiagnosticArguments) Diagnostic {
-		diagnostic := error(location, message /* TODO(SpreadElement): ...args */, TODO)
+		diagnostic := error(location, message, args...)
 		diagnostic.skippedOn = key
 		return diagnostic
 	}
@@ -859,13 +859,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		// converted from conditional expression
 		switch {
 		case location:
-			return createDiagnosticForNode(location, message /* TODO(SpreadElement): ...args */, TODO)
+			return createDiagnosticForNode(location, message, args...)
 		default:
-			return createCompilerDiagnostic(message /* TODO(SpreadElement): ...args */, TODO)
+			return createCompilerDiagnostic(message, args...)
 		}
 	}
 	error := func(location Node, message DiagnosticMessage, args DiagnosticArguments) Diagnostic {
-		diagnostic := createError(location, message /* TODO(SpreadElement): ...args */, TODO)
+		diagnostic := createError(location, message, args...)
 		diagnostics.add(diagnostic)
 		return diagnostic
 	}
@@ -888,7 +888,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		addErrorOrSuggestion(isError /* TODO(ConditionalExpression): "message" in message ? createDiagnosticForNode(location, message, ...args) : createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(location), location, message) */, TODO)
 	}
 	errorAndMaybeSuggestAwait := func(location Node, maybeMissingAwait bool, message DiagnosticMessage, args DiagnosticArguments) Diagnostic {
-		diagnostic := error(location, message /* TODO(SpreadElement): ...args */, TODO)
+		diagnostic := error(location, message, args...)
 		if maybeMissingAwait {
 			related := createDiagnosticForNode(location, Diagnostics.Did_you_forget_to_use_await)
 			addRelatedInfo(diagnostic, related)
@@ -2042,7 +2042,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				exportedSymbol := /* TODO(ConditionalExpression): exports ? find(symbolsToArray(exports), symbol => !!getSymbolIfSameReference(symbol, localSymbol)) : undefined */ TODO
 				diagnostic := /* TODO(ConditionalExpression): exportedSymbol ? error(name, Diagnostics.Module_0_declares_1_locally_but_it_is_exported_as_2, moduleName, declarationName, symbolToString(exportedSymbol)) : error(name, Diagnostics.Module_0_declares_1_locally_but_it_is_not_exported, moduleName, declarationName) */ TODO
 				if localSymbol.declarations {
-					addRelatedInfo(diagnostic /* TODO(SpreadElement): ...map(localSymbol.declarations, (decl, index) => createDiagnosticForNode(decl, index === 0 ? Diagnostics._0_is_declared_here : Diagnostics.and_here, declarationName)) */, TODO)
+					addRelatedInfo(diagnostic, map_(localSymbol.declarations, func(decl /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Declaration */ any, index /* TODO inferred type number */ any) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DiagnosticWithLocation */ any {
+						return createDiagnosticForNode(decl /* TODO(ConditionalExpression): index === 0 ? Diagnostics._0_is_declared_here : Diagnostics.and_here */, TODO, declarationName)
+					})...)
 				}
 			}
 		} else {
@@ -13843,7 +13845,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		case type_.flags & TypeFlagsStringLiteral:
 			return getStringLiteralType(applyStringMapping(symbol, (type_).value))
 		case type_.flags & TypeFlagsTemplateLiteral:
-			return getTemplateLiteralType( /* TODO(SpreadElement): ...applyTemplateStringMapping(symbol, (type as TemplateLiteralType).texts, (type as TemplateLiteralType).types) */ TODO)
+			return getTemplateLiteralType(applyTemplateStringMapping(symbol, (type_).texts, (type_).types)...)
 		case type_.flags&TypeFlagsStringMapping && symbol == type_.symbol:
 			return type_
 		case type_.flags&(TypeFlagsAny|TypeFlagsString|TypeFlagsStringMapping) || isGenericIndexType(type_):
@@ -16704,7 +16706,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			diag := createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(errorNode), errorNode, errorInfo, relatedInformation)
 			if relatedInfo {
-				addRelatedInfo(diag /* TODO(SpreadElement): ...relatedInfo */, TODO)
+				addRelatedInfo(diag, relatedInfo...)
 			}
 			if errorOutputContainer {
 				(errorOutputContainer.errors || ( /* TODO(BinaryExpression): errorOutputContainer.errors = [] */ TODO)).push(diag)
@@ -16739,9 +16741,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			info := lastSkippedInfo
 			lastSkippedInfo = nil
 			if stack.length == 1 {
-				reportError( /* TODO(SpreadElement): ...stack[0] */ TODO)
+				reportError(stack[0]...)
 				if info {
-					reportRelationError(nil /* TODO(SpreadElement): ...info */, TODO)
+					reportRelationError(nil, info...)
 				}
 				return
 			}
@@ -16808,11 +16810,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			for _, TODO_IDENTIFIER := range secondaryRootErrors {
 				originalValue := msg.elidedInCompatabilityPyramid
 				msg.elidedInCompatabilityPyramid = false
-				reportError(msg /* TODO(SpreadElement): ...args */, TODO)
+				reportError(msg, args...)
 				msg.elidedInCompatabilityPyramid = originalValue
 			}
 			if info {
-				reportRelationError(nil /* TODO(SpreadElement): ...info */, TODO)
+				reportRelationError(nil, info...)
 			}
 		}
 		reportError := func(message DiagnosticMessage, args DiagnosticArguments) {
@@ -16824,13 +16826,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return
 			}
 			if skipParentCounter == 0 {
-				errorInfo = chainDiagnosticMessages(errorInfo, message /* TODO(SpreadElement): ...args */, TODO)
+				errorInfo = chainDiagnosticMessages(errorInfo, message, args...)
 			} else {
 				skipParentCounter--
 			}
 		}
 		reportParentSkippedError := func(message DiagnosticMessage, args DiagnosticArguments) {
-			reportError(message /* TODO(SpreadElement): ...args */, TODO)
+			reportError(message, args...)
 			skipParentCounter++
 		}
 		associateRelatedInfo := func(info DiagnosticRelatedInformation) {
@@ -18072,7 +18074,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if props.length == 1 {
 				propName := symbolToString(unmatchedProperty, nil, SymbolFlagsNone, SymbolFormatFlagsAllowAnyNodeKind|SymbolFormatFlagsWriteComputedProps)
-				reportError(Diagnostics.Property_0_is_missing_in_type_1_but_required_in_type_2, propName /* TODO(SpreadElement): ...getTypeNamesForErrorDisplay(source, target) */, TODO)
+				reportError(Diagnostics.Property_0_is_missing_in_type_1_but_required_in_type_2, propName, getTypeNamesForErrorDisplay(source, target)...)
 				if length(unmatchedProperty.declarations) {
 					associateRelatedInfo(createDiagnosticForNode(unmatchedProperty.declarations[0], Diagnostics._0_is_declared_here, propName))
 				}
@@ -28026,12 +28028,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if isCallExpression(node) {
 			TODO_IDENTIFIER := getDiagnosticSpanForCallNode(node)
 			if /* TODO(BinaryExpression): "message" in message */ TODO {
-				return createFileDiagnostic(sourceFile, start, length, message /* TODO(SpreadElement): ...args */, TODO)
+				return createFileDiagnostic(sourceFile, start, length, message, args...)
 			}
 			return createDiagnosticForFileFromMessageChain(sourceFile, message)
 		} else {
 			if /* TODO(BinaryExpression): "message" in message */ TODO {
-				return createDiagnosticForNode(node, message /* TODO(SpreadElement): ...args */, TODO)
+				return createDiagnosticForNode(node, message, args...)
 			}
 			return createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(node), node, message)
 		}
@@ -28127,7 +28129,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			parameter := closestSignature. /*?*/ declaration. /*?*/ parameters[ /* TODO(ConditionalExpression): closestSignature.thisParameter ? args.length + 1 : args.length */ TODO]
 			if parameter {
 				var messageAndArgs DiagnosticAndArguments = /* TODO(ConditionalExpression): isBindingPattern(parameter.name) ? [Diagnostics.An_argument_matching_this_binding_pattern_was_not_provided] : isRestParameter(parameter) ? [Diagnostics.Arguments_for_the_rest_parameter_0_were_not_provided, idText(getFirstIdentifier(parameter.name))] : [Diagnostics.An_argument_for_0_was_not_provided, !parameter.name ? args.length : idText(getFirstIdentifier(parameter.name))] */ TODO
-				parameterError := createDiagnosticForNode(parameter /* TODO(SpreadElement): ...messageAndArgs */, TODO)
+				parameterError := createDiagnosticForNode(parameter, messageAndArgs...)
 				return addRelatedInfo(diagnostic, parameterError)
 			}
 			return diagnostic
@@ -33368,7 +33370,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			forEach(declarations, func(declaration /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Declaration */ any) {
 				diagnostic := /* TODO(ConditionalExpression): declaration.kind === SyntaxKind.ClassDeclaration ? Diagnostics.Class_declaration_cannot_implement_overload_list_for_0 : declaration.kind === SyntaxKind.FunctionDeclaration ? Diagnostics.Function_with_bodies_can_only_merge_with_classes_that_are_ambient : undefined */ TODO
 				if diagnostic {
-					addRelatedInfo(error(getNameOfDeclaration(declaration) || declaration, diagnostic, symbolName(symbol)) /* TODO(SpreadElement): ...relatedDiagnostics */, TODO)
+					addRelatedInfo(error(getNameOfDeclaration(declaration) || declaration, diagnostic, symbolName(symbol)), relatedDiagnostics...)
 				}
 			})
 		}
@@ -33510,7 +33512,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getAwaitedTypeOfPromise := func(type_ Type, errorNode Node, diagnosticMessage DiagnosticMessage, args DiagnosticArguments) *Type {
 		promisedType := getPromisedTypeOfPromise(type_, errorNode)
-		return promisedType && getAwaitedType(promisedType, errorNode, diagnosticMessage /* TODO(SpreadElement): ...args */, TODO)
+		return promisedType && getAwaitedType(promisedType, errorNode, diagnosticMessage, args...)
 	}
 	getPromisedTypeOfPromise := func(type_ Type, errorNode Node, thisTypeForErrorOut /* TODO(TypeLiteral): { value?: Type; } */ any) *Type {
 		if isTypeAny(type_) {
@@ -33633,7 +33635,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return type_
 	}
 	getAwaitedType := func(type_ Type, errorNode Node, diagnosticMessage DiagnosticMessage, args DiagnosticArguments) *Type {
-		awaitedType := getAwaitedTypeNoAlias(type_, errorNode, diagnosticMessage /* TODO(SpreadElement): ...args */, TODO)
+		awaitedType := getAwaitedTypeNoAlias(type_, errorNode, diagnosticMessage, args...)
 		return awaitedType && createAwaitedTypeIfNeeded(awaitedType)
 	}
 	getAwaitedTypeNoAlias := func(type_ Type, errorNode Node, diagnosticMessage DiagnosticMessage, args DiagnosticArguments) *Type {
@@ -33675,7 +33677,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return nil
 			}
 			awaitedTypeStack.push(type_.id)
-			awaitedType := getAwaitedTypeNoAlias(promisedType, errorNode, diagnosticMessage /* TODO(SpreadElement): ...args */, TODO)
+			awaitedType := getAwaitedTypeNoAlias(promisedType, errorNode, diagnosticMessage, args...)
 			awaitedTypeStack.pop()
 			if !awaitedType {
 				return nil
@@ -33690,7 +33692,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if thisTypeForErrorOut.value {
 					chain = chainDiagnosticMessages(chain, Diagnostics.The_this_context_of_type_0_is_not_assignable_to_method_s_this_of_type_1, typeToString(type_), typeToString(thisTypeForErrorOut.value))
 				}
-				chain = chainDiagnosticMessages(chain, diagnosticMessage /* TODO(SpreadElement): ...args */, TODO)
+				chain = chainDiagnosticMessages(chain, diagnosticMessage, args...)
 				diagnostics.add(createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(errorNode), errorNode, chain))
 			}
 			return nil
@@ -34254,7 +34256,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					range_ := /* TODO(ConditionalExpression): isJSDocTemplateTag(parent) // Whole @template tag ? rangeOfNode(parent) // Include the `<>` in the error message : rangeOfTypeParameters(sourceFile, parent.typeParameters!) */ TODO
 					only := parent.typeParameters.length == 1
 					var messageAndArg DiagnosticAndArguments = /* TODO(ConditionalExpression): only ? [Diagnostics._0_is_declared_but_its_value_is_never_read, name] : [Diagnostics.All_type_parameters_are_unused] */ TODO
-					addDiagnostic(typeParameter, UnusedKindParameter, createFileDiagnostic(sourceFile, range_.pos, range_.end-range_.pos /* TODO(SpreadElement): ...messageAndArg */, TODO))
+					addDiagnostic(typeParameter, UnusedKindParameter, createFileDiagnostic(sourceFile, range_.pos, range_.end-range_.pos, messageAndArg...))
 				}
 			} else {
 				addDiagnostic(typeParameter, UnusedKindParameter, createDiagnosticForNode(typeParameter, Diagnostics._0_is_declared_but_its_value_is_never_read, name))
@@ -35225,7 +35227,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if errorNode {
 					rootDiag := reportTypeNotIterableError(errorNode, type_, !!(use & IterationUseAllowsAsyncIterablesFlag))
 					if errorOutputContainer. /*?*/ errors {
-						addRelatedInfo(rootDiag /* TODO(SpreadElement): ...errorOutputContainer.errors */, TODO)
+						addRelatedInfo(rootDiag, errorOutputContainer.errors...)
 					}
 				}
 				return nil
@@ -35255,7 +35257,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if errorNode {
 					rootDiag := reportTypeNotIterableError(errorNode, type_, !!(use & IterationUseAllowsAsyncIterablesFlag))
 					if errorOutputContainer. /*?*/ errors {
-						addRelatedInfo(rootDiag /* TODO(SpreadElement): ...errorOutputContainer.errors */, TODO)
+						addRelatedInfo(rootDiag, errorOutputContainer.errors...)
 					}
 				}
 				setCachedIterationTypes(type_, cacheKey, noIterationTypes)
@@ -37795,11 +37797,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			clear(potentialUnusedRenamedBindingElementsInTypes)
 			forEach(nodes, checkSourceElement)
 			checkDeferredNodes(file)
-			(links.potentialThisCollisions || ( /* TODO(BinaryExpression): links.potentialThisCollisions = [] */ TODO)).push( /* TODO(SpreadElement): ...potentialThisCollisions */ TODO)
-			(links.potentialNewTargetCollisions || ( /* TODO(BinaryExpression): links.potentialNewTargetCollisions = [] */ TODO)).push( /* TODO(SpreadElement): ...potentialNewTargetCollisions */ TODO)
-			(links.potentialWeakMapSetCollisions || ( /* TODO(BinaryExpression): links.potentialWeakMapSetCollisions = [] */ TODO)).push( /* TODO(SpreadElement): ...potentialWeakMapSetCollisions */ TODO)
-			(links.potentialReflectCollisions || ( /* TODO(BinaryExpression): links.potentialReflectCollisions = [] */ TODO)).push( /* TODO(SpreadElement): ...potentialReflectCollisions */ TODO)
-			(links.potentialUnusedRenamedBindingElementsInTypes || ( /* TODO(BinaryExpression): links.potentialUnusedRenamedBindingElementsInTypes = [] */ TODO)).push( /* TODO(SpreadElement): ...potentialUnusedRenamedBindingElementsInTypes */ TODO)
+			(links.potentialThisCollisions || ( /* TODO(BinaryExpression): links.potentialThisCollisions = [] */ TODO)).push(potentialThisCollisions...)
+			(links.potentialNewTargetCollisions || ( /* TODO(BinaryExpression): links.potentialNewTargetCollisions = [] */ TODO)).push(potentialNewTargetCollisions...)
+			(links.potentialWeakMapSetCollisions || ( /* TODO(BinaryExpression): links.potentialWeakMapSetCollisions = [] */ TODO)).push(potentialWeakMapSetCollisions...)
+			(links.potentialReflectCollisions || ( /* TODO(BinaryExpression): links.potentialReflectCollisions = [] */ TODO)).push(potentialReflectCollisions...)
+			(links.potentialUnusedRenamedBindingElementsInTypes || ( /* TODO(BinaryExpression): links.potentialUnusedRenamedBindingElementsInTypes = [] */ TODO)).push(potentialUnusedRenamedBindingElementsInTypes...)
 			links.flags |= NodeCheckFlagsPartiallyTypeChecked
 			for _, node := range nodes {
 				nodeLinks := getNodeLinks(node)
@@ -40108,7 +40110,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					diagnostics := nonSimpleParameters.map_(func(parameter /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ParameterDeclaration */ any, index /* TODO inferred type number */ any) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DiagnosticWithLocation */ any {
 						return ( /* TODO(ConditionalExpression): index === 0 ? createDiagnosticForNode(parameter, Diagnostics.Non_simple_parameter_declared_here) : createDiagnosticForNode(parameter, Diagnostics.and_here) */ TODO)
 					})
-					addRelatedInfo(error(useStrictDirective, Diagnostics.use_strict_directive_cannot_be_used_with_non_simple_parameter_list) /* TODO(SpreadElement): ...diagnostics */, TODO)
+					addRelatedInfo(error(useStrictDirective, Diagnostics.use_strict_directive_cannot_be_used_with_non_simple_parameter_list), diagnostics...)
 					return true
 				}
 			}
@@ -40832,7 +40834,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		sourceFile := getSourceFileOfNode(node)
 		if !hasParseDiagnostics(sourceFile) {
 			span := getSpanOfTokenAtPosition(sourceFile, node.pos)
-			diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message /* TODO(SpreadElement): ...args */, TODO))
+			diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message, args...))
 			return true
 		}
 		return false
@@ -40840,7 +40842,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	grammarErrorAtPos := func(nodeForSourceFile Node, start number, length number, message DiagnosticMessage, args DiagnosticArguments) bool {
 		sourceFile := getSourceFileOfNode(nodeForSourceFile)
 		if !hasParseDiagnostics(sourceFile) {
-			diagnostics.add(createFileDiagnostic(sourceFile, start, length, message /* TODO(SpreadElement): ...args */, TODO))
+			diagnostics.add(createFileDiagnostic(sourceFile, start, length, message, args...))
 			return true
 		}
 		return false
@@ -40848,7 +40850,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	grammarErrorOnNodeSkippedOn := func(key CompilerOptions, node Node, message DiagnosticMessage, args DiagnosticArguments) bool {
 		sourceFile := getSourceFileOfNode(node)
 		if !hasParseDiagnostics(sourceFile) {
-			errorSkippedOn(key, node, message /* TODO(SpreadElement): ...args */, TODO)
+			errorSkippedOn(key, node, message, args...)
 			return true
 		}
 		return false
@@ -40856,7 +40858,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	grammarErrorOnNode := func(node Node, message DiagnosticMessage, args DiagnosticArguments) bool {
 		sourceFile := getSourceFileOfNode(node)
 		if !hasParseDiagnostics(sourceFile) {
-			diagnostics.add(createDiagnosticForNode(node, message /* TODO(SpreadElement): ...args */, TODO))
+			diagnostics.add(createDiagnosticForNode(node, message, args...))
 			return true
 		}
 		return false
@@ -40984,7 +40986,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		sourceFile := getSourceFileOfNode(node)
 		if !hasParseDiagnostics(sourceFile) {
 			span := getSpanOfTokenAtPosition(sourceFile, node.pos)
-			diagnostics.add(createFileDiagnostic(sourceFile, textSpanEnd(span), 0, message /* TODO(SpreadElement): ...args */, TODO))
+			diagnostics.add(createFileDiagnostic(sourceFile, textSpanEnd(span), 0, message, args...))
 			return true
 		}
 		return false
