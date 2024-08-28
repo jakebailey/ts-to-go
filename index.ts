@@ -64,21 +64,19 @@ function asComment(text: string) {
 
 const todoCounts = new Map<string, number>();
 
-let tmp = 0;
-
 function writeTodoNode(node: Node) {
     const nodeKind = Node.isTypeNode(node) ? "TypeNode" : "Node";
     const kindName = node.getKindName();
     const todoName = `${nodeKind} ${kindName}`;
     const count = todoCounts.get(todoName) || 0;
     todoCounts.set(todoName, count + 1);
-    writer.write(asComment(`TODO(${todoName}): ${node.getText()}`));
+    writer.write(asComment(`TODO(TS-TO-GO) ${todoName}: ${node.getText()}`));
 }
 
 function writeType(node: Type): void {
     let text = node.getText();
     text = text.replaceAll(`import("/home/jabaile/work/TypeScript/src/compiler/types").`, "");
-    writer.write(`${asComment("TODO inferred type " + text)} any`);
+    writer.write(`${asComment("TODO(TS-TO-GO) inferred type " + text)} any`);
 }
 
 function visitTypeNode(type: TypeNode): void {
@@ -130,7 +128,7 @@ function visitTypeNode(type: TypeNode): void {
         }
         else {
             writeTodoNode(name);
-            writer.write(` TODO`);
+            writer.write(` any`);
         }
         const typeArguments = type.getTypeArguments();
         if (typeArguments.length > 0) {
@@ -179,7 +177,7 @@ function visitTypeNode(type: TypeNode): void {
 }
 
 function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sideEffect: () => void) {
-    writer.writeLine("// converted from conditional expression");
+    writer.writeLine("// TODO(TS-TO-GO): converted from conditional expression");
     writer.write("switch {");
 
     let ladder: Expression = node;
@@ -307,7 +305,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
 
         visitExpression(node.getExpression());
         if (node.hasQuestionDotToken()) {
-            writer.write("/*?*/");
+            writer.write("/* TODO(TS-TO-GO): was ? */");
         }
         writer.write(`.${sanitizeName(node.getName())}`);
     }
@@ -404,7 +402,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             writeType(type);
         }
         else {
-            writer.write("TODO");
+            writer.write("any");
         }
 
         writer.write("{");
@@ -422,7 +420,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         writer.write("}");
     }
     else if (Node.isObjectLiteralExpression(node)) {
-        writer.write("map[any]any{ /* was object literal */");
+        writer.write("map[any]any{ /* TODO(TS-TO-GO): was object literal */");
         writer.indent(() => {
             const properties = node.getProperties();
             for (const prop of properties) {
@@ -686,12 +684,7 @@ function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunct
 }
 
 function visitBlock(node: Block) {
-    node.forEachChild(node => {
-        if (Node.isStatement(node)) {
-            return visitStatement(node);
-        }
-        writeTodoNode(node);
-    });
+    node.getStatementsWithComments().forEach(visitStatement);
 }
 
 function visitStatement(node: Statement) {
@@ -735,14 +728,14 @@ function visitStatement(node: Statement) {
 
     if (Node.isFunctionDeclaration(node)) {
         if (!node.hasBody()) {
-            writer.write(asComment(`OVERLOAD: ${node.getText()}`));
+            writer.write(asComment(`TODO(TS-TO-GO): ${node.getText()}`));
             return;
         }
 
         const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
 
         if (node.isGenerator()) {
-            writer.writeLine("// TODO: was generator");
+            writer.writeLine("// TODO(TS-TO-GO): was generator");
         }
 
         if (!isGlobal) {
@@ -1044,7 +1037,7 @@ function visitStatement(node: Statement) {
     }
 
     if (Node.isDoStatement(node)) {
-        writer.writeLine("// TODO: refactor do-while loop approximation");
+        writer.writeLine("// TODO(TS-TO-GO): refactor do-while loop approximation");
         writer.write("for ok := true; ok; ok = ");
         visitExpression(node.getExpression());
         writer.write(" {");
@@ -1094,7 +1087,7 @@ function visitStatement(node: Statement) {
                 }
                 if (fallsThrough) {
                     writer.newLineIfLastNot();
-                    writer.writeLine(`fallthrough${!lastStatement ? " // TODO: merge cases" : ""}`);
+                    writer.writeLine(`fallthrough${!lastStatement ? " // TODO(TS-TO-GO): merge cases" : ""}`);
                 }
             });
         }
@@ -1102,20 +1095,16 @@ function visitStatement(node: Statement) {
         writer.newLineIfLastNot();
         return;
     }
+    else if (Node.isCommentStatement(node)) {
+        writer.write(node.getText());
+        return;
+    }
 
     writeTodoNode(node);
     // console.error(`Unhandled node kind: ${node.getKindName()}`);
 }
 
-sourceFile.forEachChild(node => {
-    if (Node.isStatement(node)) {
-        return visitStatement(node);
-    }
-    if (node.getKindName() === "EndOfFileToken") {
-        return;
-    }
-    writeTodoNode(node);
-});
+sourceFile.getStatementsWithComments().forEach(visitStatement);
 
 const outFile = Bun.file("output.go.txt");
 
