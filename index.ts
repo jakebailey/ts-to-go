@@ -687,11 +687,32 @@ function visitBlock(node: Block) {
     node.getStatementsWithComments().forEach(visitStatement);
 }
 
+function writeLeadingComments(node: Node) {
+    for (const range of node.getLeadingCommentRanges()) {
+        writer.writeLine(range.getText());
+    }
+}
+
+function writeTrailingComments(node: Node) {
+    for (const range of node.getTrailingCommentRanges()) {
+        writer.writeLine(range.getText());
+    }
+}
+
 function visitStatement(node: Statement) {
-    if (node.getKindName() === "EndOfFileToken") {
-        return;
+    writer.newLineIfLastNot();
+    if (!node.getPreviousSibling()?.getKindName()?.endsWith("Trivia")) {
+        writeLeadingComments(node);
     }
 
+    visitStatement2(node);
+
+    if (!node.getNextSibling()?.getKindName()?.endsWith("Trivia")) {
+        writeTrailingComments(node);
+    }
+}
+
+function visitStatement2(node: Statement) {
     writer.newLineIfLastNot();
 
     if (Node.isImportDeclaration(node)) {
