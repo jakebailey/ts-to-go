@@ -43,8 +43,13 @@ function asComment(text: string) {
     return `/* ${text} */`;
 }
 
+const todoCounts = new Map<string, number>();
+
 function writeTodoNode(node: Node) {
-    writer.write(asComment(`TODO(${node.getKindName()}): ${node.getText()}`));
+    const kindName = node.getKindName();
+    const count = todoCounts.get(kindName) || 0;
+    todoCounts.set(kindName, count + 1);
+    writer.write(asComment(`TODO(${kindName}): ${node.getText()}`));
 }
 
 function writeType(node: Type): void {
@@ -231,7 +236,6 @@ function visitExpression(node: Expression): void {
                 tok = "!=";
                 break;
             default:
-                writeTodoNode(op);
                 writeTodoNode(node);
                 writer.write(` TODO`);
                 return;
@@ -262,6 +266,12 @@ function visitExpression(node: Expression): void {
 
         visitExpression(node.getExpression());
         writer.write(`.${sanitizeName(node.getName())}`);
+    }
+    else if (Node.isElementAccessExpression(node)) {
+        visitExpression(node.getExpression());
+        writer.write("[");
+        visitExpression(node.getArgumentExpressionOrThrow());
+        writer.write("]");
     }
     else if (Node.isArrowFunction(node)) {
         writer.write("func");
@@ -871,3 +881,4 @@ if (formatted.exitCode === 0) {
 else {
     console.log(formatted.stderr);
 }
+console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}: ${v}`).join("\n"));
