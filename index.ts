@@ -399,28 +399,28 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         }
         writer.write("}");
     }
-    // else if (Node.isObjectLiteralExpression(node)) {
-    //     writer.write("map[any]any{");
-    //     writer.indent(() => {
-    //         const properties = node.getProperties();
-    //         for (const prop of properties) {
-    //             if (Node.isShorthandPropertyAssignment(prop)) {
-    //                 writer.write(`${getNameOfNamed(prop)}: ${getNameOfNamed(prop)}`);
-    //             }
-    //             else if (Node.isPropertyAssignment(prop)) {
-    //                 writer.write(`${getNameOfNamed(prop)}: `);
-    //                 writeExpression(prop.getInitializerOrThrow());
-    //                 writer.write(",");
-    //             }
-    //             else {
-    //                 writer.write(todo(prop));
-    //             }
-    //             writer.write(",");
-    //             writer.newLine();
-    //         }
-    //     });
-    //     writer.write("}");
-    // }
+    else if (Node.isObjectLiteralExpression(node)) {
+        writer.write("map[any]any{ /* was object literal */");
+        writer.indent(() => {
+            const properties = node.getProperties();
+            for (const prop of properties) {
+                if (Node.isShorthandPropertyAssignment(prop)) {
+                    writer.write(`"${getNameOfNamed(prop)}": ${getNameOfNamed(prop)}`);
+                    writer.write(",");
+                }
+                else if (Node.isPropertyAssignment(prop)) {
+                    writer.write(`"${getNameOfNamed(prop)}": `);
+                    visitExpression(prop.getInitializerOrThrow());
+                    writer.write(",");
+                }
+                else {
+                    writeTodoNode(prop);
+                }
+                writer.newLine();
+            }
+        });
+        writer.write("}");
+    }
     else {
         writeTodoNode(node);
         writer.write(` TODO`);
