@@ -61,7 +61,9 @@ function writeTodoNode(node: Node) {
 }
 
 function writeType(node: Type): void {
-    writer.write(`${asComment("TODO inferred type " + node.getText())} any`);
+    let text = node.getText();
+    text = text.replaceAll(`import("/home/jabaile/work/TypeScript/src/compiler/types").`, "");
+    writer.write(`${asComment("TODO inferred type " + text)} any`);
 }
 
 function visitTypeNode(type: TypeNode): void {
@@ -753,10 +755,17 @@ function visitStatement(node: Statement) {
             const typeNode = declaration.getTypeNode();
             const initializer = declaration.getInitializer();
 
-            // if (!isGlobal && Node.isConditionalExpression(initializer)) {
-            // }
-
-            if (isGlobal) {
+            if (!isGlobal && Node.isConditionalExpression(initializer)) {
+                writer.write(`var ${getNameOfNamed(declaration)} `);
+                if (typeNode) {
+                    visitTypeNode(typeNode);
+                }
+                else {
+                    writeType(declaration.getType());
+                }
+                writeConditionalExpressionAsSwitchCase(initializer, `${getNameOfNamed(declaration)} = `);
+            }
+            else if (isGlobal) {
                 writer.write(`var ${getNameOfNamed(declaration)}`);
                 if (typeNode) {
                     writer.write(" ");
