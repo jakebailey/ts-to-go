@@ -456,6 +456,20 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         visitExpression(whenFalse);
         writer.write(")");
     }
+    else if (Node.isTemplateExpression(node)) {
+        writer.write("__TEMPLATE__(");
+        const head = node.getHead().getLiteralText();
+        writer.write(JSON.stringify(head));
+        const spans = node.getTemplateSpans();
+        for (const span of spans) {
+            writer.write(", ");
+            visitExpression(span.getExpression());
+            writer.write(", ");
+            const literal = span.getLiteral();
+            writer.write(JSON.stringify(literal.getLiteralText()));
+        }
+        writer.write(")");
+    }
     else {
         writeTodoNode(node);
         writer.write(` TODO`);
