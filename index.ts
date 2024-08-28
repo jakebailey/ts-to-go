@@ -55,7 +55,7 @@ function writeTodoNode(node: Node) {
 }
 
 function writeType(node: Type): void {
-    writer.write(`${asComment("TODO inferred type " + node.getText())} TODO`);
+    writer.write(`${asComment("TODO inferred type " + node.getText())} any`);
 }
 
 function visitTypeNode(type: TypeNode): void {
@@ -126,20 +126,15 @@ function visitTypeNode(type: TypeNode): void {
                 [a, b] = [b, a];
             }
             if (Node.isUndefinedKeyword(b)) {
-                if (Node.isTypeReference(a)) {
-                    switch (a.getText()) {
-                        case "Node":
-                        case "Declaration":
-                            break;
-                        default:
-                            writer.write("*");
-                    }
-                    visitTypeNode(a);
+                switch (a.getText()) {
+                    case "Node":
+                    case "Declaration":
+                        break;
+                    default:
+                        writer.write("*");
                 }
-                else {
-                    writeTodoNode(a);
-                    writer.write(` any`);
-                }
+
+                visitTypeNode(a);
             }
             else {
                 writeTodoNode(type);
@@ -150,6 +145,9 @@ function visitTypeNode(type: TypeNode): void {
             writeTodoNode(type);
             writer.write(` any`);
         }
+    }
+    else if (Node.isAnyKeyword(type)) {
+        writer.write("any");
     }
     else {
         writeTodoNode(type);
