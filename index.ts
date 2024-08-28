@@ -459,14 +459,27 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
     else if (Node.isTemplateExpression(node)) {
         writer.write("__TEMPLATE__(");
         const head = node.getHead().getLiteralText();
-        writer.write(JSON.stringify(head));
+        if (head) {
+            writer.write(JSON.stringify(head));
+        }
+
         const spans = node.getTemplateSpans();
-        for (const span of spans) {
-            writer.write(", ");
+
+        for (let i = 0; i < spans.length; i++) {
+            const span = spans[i];
+            if (i === 0 && head) {
+                writer.write(", ");
+            }
+
             visitExpression(span.getExpression());
-            writer.write(", ");
-            const literal = span.getLiteral();
-            writer.write(JSON.stringify(literal.getLiteralText()));
+            const literal = span.getLiteral().getLiteralText();
+            if (literal) {
+                writer.write(", ");
+                writer.write(JSON.stringify(literal));
+            }
+            if (i < spans.length - 1) {
+                writer.write(", ");
+            }
         }
         writer.write(")");
     }
