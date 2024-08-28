@@ -157,16 +157,49 @@ function visitTypeNode(type: TypeNode): void {
     }
 }
 
-function isConditionalExpressionLadder(node: ConditionalExpression): boolean {
-    const whenTrue = node.getWhenTrue();
-    const whenFalse = node.getWhenFalse();
-    if (Node.isConditionalExpression(whenTrue)) {
-        return false;
+function writeConditionalExpressionForReturn(node: ConditionalExpression) {
+    writer.writeLine("// converted from conditional expression");
+    writer.write("switch {");
+
+    let ladder: Expression = node;
+    while (Node.isConditionalExpression(ladder)) {
+        const cond = ladder.getCondition();
+        const whenTrue = ladder.getWhenTrue();
+        const whenFalse = ladder.getWhenFalse();
+
+        writer.newLine();
+        writer.write("case ");
+        visitExpression(cond);
+        writer.write(":");
+        writer.indent(() => {
+            if (Node.isConditionalExpression(whenTrue)) {
+                writeConditionalExpressionForReturn(whenTrue);
+            }
+            else {
+                writer.write("return ");
+                visitExpression(whenTrue);
+            }
+        });
+
+        ladder = whenFalse;
     }
-    return !Node.isConditionalExpression(whenFalse) || isConditionalExpressionLadder(whenFalse);
+
+    writer.newLine();
+    writer.write("default:");
+    writer.indent(() => {
+        writer.write("return ");
+        visitExpression(ladder);
+    });
+    writer.newLine();
+    writer.write("}");
+    return;
 }
 
 function visitExpression(node: Expression, inStatement?: boolean): void {
+    while (Node.isParenthesizedExpression(node)) {
+        node = node.getExpression();
+    }
+
     if (Node.isRegularExpressionLiteral(node)) {
         const re = node.getLiteralValue();
         let source = re.source.replaceAll("`", "\\`");
@@ -783,36 +816,8 @@ function visitStatement(node: Statement) {
         writer.newLineIfLastNot();
 
         const expression = node.getExpression();
-        if (Node.isConditionalExpression(expression) && isConditionalExpressionLadder(expression)) {
-            writer.writeLine("// converted from conditional expression");
-            writer.write("switch {");
-
-            let ladder: Expression = expression;
-            while (Node.isConditionalExpression(ladder)) {
-                const cond = ladder.getCondition();
-                const whenTrue = ladder.getWhenTrue();
-                const whenFalse = ladder.getWhenFalse();
-
-                writer.newLine();
-                writer.write("case ");
-                visitExpression(cond);
-                writer.write(":");
-                writer.indent(() => {
-                    writer.write("return ");
-                    visitExpression(whenTrue);
-                });
-
-                ladder = whenFalse;
-            }
-
-            writer.newLine();
-            writer.write("default:");
-            writer.indent(() => {
-                writer.write("return ");
-                visitExpression(ladder);
-            });
-            writer.newLine();
-            writer.write("}");
+        if (Node.isConditionalExpression(expression)) {
+            writeConditionalExpressionForReturn(expression);
             return;
         }
 
