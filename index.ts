@@ -374,6 +374,31 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         visitExpression(node.getExpression());
         writer.write("...");
     }
+    else if (Node.isArrayLiteralExpression(node)) {
+        writer.write("[]");
+        const type = node.getType().getArrayElementType();
+        if (type) {
+            writer.write(" ");
+            writeType(type);
+        }
+        else {
+            writer.write("TODO");
+        }
+
+        writer.write("{");
+        const elements = node.getElements();
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements[i];
+            if (Node.isSpreadElement(element)) {
+                writeTodoNode(element);
+            }
+            else {
+                visitExpression(element);
+                writer.conditionalWrite(i < elements.length - 1, ", ");
+            }
+        }
+        writer.write("}");
+    }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
     //     writer.indent(() => {
