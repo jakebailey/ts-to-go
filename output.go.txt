@@ -2505,10 +2505,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if mode == ModuleKindESNext && resolutionIsNode16OrNext && isExtensionlessRelativePathImport {
 					absoluteRef := getNormalizedAbsolutePath(moduleReference, getDirectoryPath(currentSourceFile.path))
 					suggestedExt := suggestedExtensions.find(func(TODO_IDENTIFIER /* TODO inferred type [string, string] */ TODO) /* TODO inferred type boolean */ TODO {
-						return host.fileExists( /* TODO(BinaryExpression): absoluteRef + actualExt */ TODO)
+						return host.fileExists(absoluteRef + actualExt)
 					})[1]
 					if suggestedExt {
-						error(errorNode, Diagnostics.Relative_import_paths_need_explicit_file_extensions_in_ECMAScript_imports_when_moduleResolution_is_node16_or_nodenext_Did_you_mean_0 /* TODO(BinaryExpression): moduleReference + suggestedExt */, TODO)
+						error(errorNode, Diagnostics.Relative_import_paths_need_explicit_file_extensions_in_ECMAScript_imports_when_moduleResolution_is_node16_or_nodenext_Did_you_mean_0, moduleReference+suggestedExt)
 					} else {
 						error(errorNode, Diagnostics.Relative_import_paths_need_explicit_file_extensions_in_ECMAScript_imports_when_moduleResolution_is_node16_or_nodenext_Consider_adding_an_extension_to_the_import_path)
 					}
@@ -2528,7 +2528,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if emitModuleKindIsNonNodeESM(moduleKind) || mode == ModuleKindESNext {
 				preferTs := isDeclarationFileName(moduleReference) && shouldAllowImportingTsExtension(compilerOptions)
 				ext := /* TODO(ConditionalExpression): tsExtension === Extension.Mts || tsExtension === Extension.Dmts ? preferTs ? ".mts" : ".mjs" : tsExtension === Extension.Cts || tsExtension === Extension.Dmts ? preferTs ? ".cts" : ".cjs" : preferTs ? ".ts" : ".js" */ TODO
-				return /* TODO(BinaryExpression): importSourceWithoutExtension + ext */ TODO
+				return importSourceWithoutExtension + ext
 			}
 			return importSourceWithoutExtension
 		}
@@ -3395,7 +3395,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		result := writer.getText()
 		maxLength := /* TODO(ConditionalExpression): noTruncation ? noTruncationMaximumTruncationLength * 2 : defaultMaximumTruncationLength * 2 */ TODO
 		if maxLength && result && result.length >= maxLength {
-			return /* TODO(BinaryExpression): result.substr(0, maxLength - "...".length) + "..." */ TODO
+			return result.substr(0, maxLength-"...".length) + "..."
 		}
 		return result
 	}
@@ -3629,16 +3629,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return symbolToTypeNode(type_.symbol, context, SymbolFlagsType)
 			}
 			if type_.flags & TypeFlagsStringLiteral {
-				context.approximateLength += /* TODO(BinaryExpression): (type as StringLiteralType).value.length + 2 */ TODO
+				context.approximateLength += (type_).value.length + 2
 				return factory.createLiteralTypeNode(setEmitFlags(factory.createStringLiteral((type_).value, !!(context.flags&NodeBuilderFlagsUseSingleQuotesForStringLiteralType)), EmitFlagsNoAsciiEscaping))
 			}
 			if type_.flags & TypeFlagsNumberLiteral {
 				value := (type_).value
-				context.approximateLength += ( /* TODO(BinaryExpression): "" + value */ TODO).length
+				context.approximateLength += ("" + value).length
 				return factory.createLiteralTypeNode( /* TODO(ConditionalExpression): value < 0 ? factory.createPrefixUnaryExpression(SyntaxKind.MinusToken, factory.createNumericLiteral(-value)) : factory.createNumericLiteral(value) */ TODO)
 			}
 			if type_.flags & TypeFlagsBigIntLiteral {
-				context.approximateLength += /* TODO(BinaryExpression): (pseudoBigIntToString((type as BigIntLiteralType).value).length) + 1 */ TODO
+				context.approximateLength += (pseudoBigIntToString((type_).value).length) + 1
 				return factory.createLiteralTypeNode(factory.createBigIntLiteral((type_).value))
 			}
 			if type_.flags & TypeFlagsBooleanLiteral {
@@ -3709,7 +3709,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if type_.flags&TypeFlagsTypeParameter || objectFlags&ObjectFlagsClassOrInterface {
 				if type_.flags&TypeFlagsTypeParameter && contains(context.inferTypeParameters, type_) {
-					context.approximateLength += /* TODO(BinaryExpression): symbolName(type.symbol).length + 6 */ TODO
+					context.approximateLength += symbolName(type_.symbol).length + 6
 					var constraintNode *TypeNode
 					constraint := getConstraintOfTypeParameter(type_)
 					if constraint {
@@ -3765,7 +3765,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				types := (type_).types
 				templateHead := factory.createTemplateHead(texts[0])
 				templateSpans := factory.createNodeArray(map_(types, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO, i /* TODO inferred type number */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralTypeSpan */ TODO {
-					return factory.createTemplateLiteralTypeSpan(typeToTypeNodeHelper(t, context), ( /* TODO(ConditionalExpression): i < types.length - 1 ? factory.createTemplateMiddle : factory.createTemplateTail */ TODO)(texts[ /* TODO(BinaryExpression): i + 1 */ TODO]))
+					return factory.createTemplateLiteralTypeSpan(typeToTypeNodeHelper(t, context), ( /* TODO(ConditionalExpression): i < types.length - 1 ? factory.createTemplateMiddle : factory.createTemplateTail */ TODO)(texts[i+1]))
 				}))
 				context.approximateLength += 2
 				return factory.createTemplateLiteralType(templateHead, templateSpans)
@@ -3954,14 +3954,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if depth > 10 {
 						return createElidedInformationPlaceholder(context)
 					}
-					context.symbolDepth.set(id /* TODO(BinaryExpression): depth + 1 */, TODO)
+					context.symbolDepth.set(id, depth+1)
 				}
 				context.visitedTypes.add(typeId)
 				prevTrackedSymbols := context.trackedSymbols
 				context.trackedSymbols = nil
 				startLength := context.approximateLength
 				result := transform(type_)
-				addedLength := /* TODO(BinaryExpression): context.approximateLength - startLength */ TODO
+				addedLength := context.approximateLength - startLength
 				if !context.reportedDiagnostic && !context.encounteredError {
 					links.serializedTypes.set(key /* TODO(ObjectLiteralExpression): { node: result, truncating: context.truncating, addedLength, trackedSymbols: context.trackedSymbols, } */, TODO)
 				}
@@ -4012,7 +4012,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					types := map_(abstractSignatures, func(s /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Signature */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ObjectType */ TODO {
 						return getOrCreateTypeFromSignature(s)
 					})
-					typeElementCount := /* TODO(BinaryExpression): resolved.callSignatures.length + (resolved.constructSignatures.length - abstractSignatures.length) + resolved.indexInfos.length + // exclude `prototype` when writing a class expression as a type literal, as per // the logic in `createTypeNodesFromResolvedType`. (context.flags & NodeBuilderFlags.WriteClassExpressionAsTypeLiteral ? countWhere(resolved.properties, p => !(p.flags & SymbolFlags.Prototype)) : length(resolved.properties)) */ TODO
+					typeElementCount := resolved.callSignatures.length + (resolved.constructSignatures.length - abstractSignatures.length) + resolved.indexInfos.length + ( /* TODO(ConditionalExpression): context.flags & NodeBuilderFlags.WriteClassExpressionAsTypeLiteral ? countWhere(resolved.properties, p => !(p.flags & SymbolFlags.Prototype)) : length(resolved.properties) */ TODO)
 					if typeElementCount {
 						types.push(getResolvedTypeWithoutAbstractConstructSignatures(resolved))
 					}
@@ -4098,8 +4098,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							if isReferenceToType(type_, getGlobalIterableType(false)) || isReferenceToType(type_, getGlobalIterableIteratorType(false)) || isReferenceToType(type_, getGlobalAsyncIterableType(false)) || isReferenceToType(type_, getGlobalAsyncIterableIteratorType(false)) {
 								if !type_.node || !isTypeReferenceNode(type_.node) || !type_.node.typeArguments || type_.node.typeArguments.length < typeParameterCount {
 									for typeParameterCount > 0 {
-										typeArgument := typeArguments[ /* TODO(BinaryExpression): typeParameterCount - 1 */ TODO]
-										typeParameter := type_.target.typeParameters[ /* TODO(BinaryExpression): typeParameterCount - 1 */ TODO]
+										typeArgument := typeArguments[typeParameterCount-1]
+										typeParameter := type_.target.typeParameters[typeParameterCount-1]
 										defaultType := getDefaultFromTypeParameter(typeParameter)
 										if !defaultType || !isTypeIdenticalTo(typeArgument, defaultType) {
 											break
@@ -4201,9 +4201,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							context.tracker.reportPrivateInBaseOfClassExpression(unescapeLeadingUnderscores(propertySymbol.escapedName))
 						}
 					}
-					if checkTruncationLength(context) && ( /* TODO(BinaryExpression): i + 2 */ TODO < /* TODO(BinaryExpression): properties.length - 1 */ TODO) {
+					if checkTruncationLength(context) && (i+2 < properties.length-1) {
 						typeElements.push(factory.createPropertySignature(nil /* TODO(TemplateExpression): `... ${properties.length - i} more ...` */, TODO, nil, nil))
-						addPropertyToElementList(properties[ /* TODO(BinaryExpression): properties.length - 1 */ TODO], context, typeElements)
+						addPropertyToElementList(properties[properties.length-1], context, typeElements)
 						break
 					}
 					addPropertyToElementList(propertySymbol, context, typeElements)
@@ -4226,7 +4226,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return false
 				}
 				for i := 0; i < depth; i++ {
-					prop := context.reverseMappedStack[ /* TODO(BinaryExpression): context.reverseMappedStack!.length - 1 - i */ TODO]
+					prop := context.reverseMappedStack[context.reverseMappedStack.length-1-i]
 					if prop.links.mappedType.symbol != (propertySymbol).links.mappedType.symbol {
 						return false
 					}
@@ -4259,7 +4259,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			context.enclosingDeclaration = propertySymbol.valueDeclaration || propertySymbol.declarations[0] || saveEnclosingDeclaration
 			propertyName := getPropertyNameNodeForSymbol(propertySymbol, context)
 			context.enclosingDeclaration = saveEnclosingDeclaration
-			context.approximateLength += /* TODO(BinaryExpression): symbolName(propertySymbol).length + 1 */ TODO
+			context.approximateLength += symbolName(propertySymbol).length + 1
 			if propertySymbol.flags & SymbolFlagsAccessor {
 				writeType := getWriteTypeOfSymbol(propertySymbol)
 				if propertyType != writeType && !isErrorType(propertyType) && !isErrorType(writeType) {
@@ -4340,9 +4340,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				i := 0
 				for _, type_ := range types {
 					i++
-					if checkTruncationLength(context) && ( /* TODO(BinaryExpression): i + 2 */ TODO < /* TODO(BinaryExpression): types.length - 1 */ TODO) {
+					if checkTruncationLength(context) && (i+2 < types.length-1) {
 						result.push(factory.createTypeReferenceNode( /* TODO(TemplateExpression): `... ${types.length - i} more ...` */ TODO, nil))
-						typeNode := typeToTypeNodeHelper(types[ /* TODO(BinaryExpression): types.length - 1 */ TODO], context)
+						typeNode := typeToTypeNodeHelper(types[types.length-1], context)
 						if typeNode {
 							result.push(typeNode)
 						}
@@ -4387,7 +4387,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if !indexInfo.type_ && !(context.flags & NodeBuilderFlagsAllowEmptyIndexInfoType) {
 				context.encounteredError = true
 			}
-			context.approximateLength += /* TODO(BinaryExpression): name.length + 4 */ TODO
+			context.approximateLength += name.length + 4
 			return factory.createIndexSignature( /* TODO(ConditionalExpression): indexInfo.isReadonly ? [factory.createToken(SyntaxKind.ReadonlyKeyword)] : undefined */ TODO /* TODO(ArrayLiteralExpression): [indexingParameter] */, TODO, typeNode)
 		}
 		type SignatureToSignatureDeclarationOptions struct {
@@ -4564,7 +4564,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			isOptional := parameterDeclaration && isOptionalParameter(parameterDeclaration) || getCheckFlags(parameterSymbol)&CheckFlagsOptionalParameter
 			questionToken := /* TODO(ConditionalExpression): isOptional ? factory.createToken(SyntaxKind.QuestionToken) : undefined */ TODO
 			parameterNode := factory.createParameterDeclaration(modifiers, dotDotDotToken, name, questionToken, parameterTypeNode, nil)
-			context.approximateLength += /* TODO(BinaryExpression): symbolName(parameterSymbol).length + 3 */ TODO
+			context.approximateLength += symbolName(parameterSymbol).length + 3
 			return parameterNode
 		}
 		parameterToParameterDeclarationName := func(parameterSymbol Symbol, parameterDeclaration /* TODO(UnionType): ParameterDeclaration | JSDocParameterTag | undefined */ any, context NodeBuilderContext) /* TODO inferred type string | import("/home/jabaile/work/TypeScript/src/compiler/types").BindingName */ TODO {
@@ -4654,7 +4654,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if specifierA && specifierB {
 						isBRelative := pathIsRelative(specifierB)
 						if pathIsRelative(specifierA) == isBRelative {
-							return /* TODO(BinaryExpression): moduleSpecifiers.countPathComponents(specifierA) - moduleSpecifiers.countPathComponents(specifierB) */ TODO
+							return moduleSpecifiers.countPathComponents(specifierA) - moduleSpecifiers.countPathComponents(specifierB)
 						}
 						if isBRelative {
 							return -1
@@ -4688,9 +4688,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			context.typeParameterSymbolList.add(symbolId)
 			var typeParameterNodes /* TODO(UnionType): readonly TypeNode[] | readonly TypeParameterDeclaration[] | undefined */ any
-			if context.flags&NodeBuilderFlagsWriteTypeParametersInQualifiedName && index < ( /* TODO(BinaryExpression): chain.length - 1 */ TODO) {
+			if context.flags&NodeBuilderFlagsWriteTypeParametersInQualifiedName && index < (chain.length-1) {
 				parentSymbol := symbol
-				nextSymbol := chain[ /* TODO(BinaryExpression): index + 1 */ TODO]
+				nextSymbol := chain[index+1]
 				if getCheckFlags(nextSymbol) & CheckFlagsInstantiated {
 					params := getTypeParametersOfClassOrInterface( /* TODO(ConditionalExpression): parentSymbol.flags & SymbolFlags.Alias ? resolveAlias(parentSymbol) : parentSymbol */ TODO)
 					typeParameterNodes = mapToTypeNodes(map_(params, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TypeParameter */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
@@ -4723,12 +4723,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if !file {
 				if ambientModuleSymbolRegex.test(symbol.escapedName) {
-					return (symbol.escapedName).substring(1 /* TODO(BinaryExpression): (symbol.escapedName as string).length - 1 */, TODO)
+					return (symbol.escapedName).substring(1, (symbol.escapedName).length-1)
 				}
 			}
 			if !context.enclosingFile || !context.tracker.moduleResolverHost {
 				if ambientModuleSymbolRegex.test(symbol.escapedName) {
-					return (symbol.escapedName).substring(1 /* TODO(BinaryExpression): (symbol.escapedName as string).length - 1 */, TODO)
+					return (symbol.escapedName).substring(1, (symbol.escapedName).length-1)
 				}
 				return getSourceFileOfNode(getNonAugmentationDeclaration(symbol)).fileName
 			}
@@ -4791,7 +4791,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				lit := factory.createLiteralTypeNode(factory.createStringLiteral(specifier))
-				context.approximateLength += /* TODO(BinaryExpression): specifier.length + 10 */ TODO
+				context.approximateLength += specifier.length + 10
 				if !nonRootParts || isEntityName(nonRootParts) {
 					if nonRootParts {
 						lastId := /* TODO(ConditionalExpression): isIdentifier(nonRootParts) ? nonRootParts : nonRootParts.right */ TODO
@@ -4804,7 +4804,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return factory.createIndexedAccessTypeNode(factory.createImportTypeNode(lit, attributes, qualifier, typeParameterNodes, isTypeOf), splitNode.indexType)
 				}
 			}
-			entityName := createAccessFromSymbolChain(chain /* TODO(BinaryExpression): chain.length - 1 */, TODO, 0)
+			entityName := createAccessFromSymbolChain(chain, chain.length-1, 0)
 			if isIndexedAccessTypeNode(entityName) {
 				return entityName
 			}
@@ -4819,12 +4819,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			createAccessFromSymbolChain := func(chain []Symbol, index number, stopper number) /* TODO(UnionType): EntityName | IndexedAccessTypeNode */ any {
 				typeParameterNodes := /* TODO(ConditionalExpression): index === (chain.length - 1) ? overrideTypeArguments : lookupTypeParameterNodes(chain, index, context) */ TODO
 				symbol := chain[index]
-				parent := chain[ /* TODO(BinaryExpression): index - 1 */ TODO]
+				parent := chain[index-1]
 				var symbolName /* TODO(StringKeyword): string */ any
 				if index == 0 {
 					context.flags |= NodeBuilderFlagsInInitialEntityName
 					symbolName = getNameOfSymbolAsWritten(symbol, context)
-					context.approximateLength += /* TODO(BinaryExpression): (symbolName ? symbolName.length : 0) + 1 */ TODO
+					context.approximateLength += ( /* TODO(ConditionalExpression): symbolName ? symbolName.length : 0 */ TODO) + 1
 					context.flags ^= NodeBuilderFlagsInInitialEntityName
 				} else {
 					if parent && getExportsOfSymbol(parent) {
@@ -4840,7 +4840,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if symbolName == nil {
 					name := firstDefined(symbol.declarations, getNameOfDeclaration)
 					if name && isComputedPropertyName(name) && isEntityName(name.expression) {
-						LHS := createAccessFromSymbolChain(chain /* TODO(BinaryExpression): index - 1 */, TODO, stopper)
+						LHS := createAccessFromSymbolChain(chain, index-1, stopper)
 						if isEntityName(LHS) {
 							return factory.createIndexedAccessTypeNode(factory.createParenthesizedType(factory.createTypeQueryNode(LHS)), factory.createTypeQueryNode(name.expression))
 						}
@@ -4848,9 +4848,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					symbolName = getNameOfSymbolAsWritten(symbol, context)
 				}
-				context.approximateLength += /* TODO(BinaryExpression): symbolName.length + 1 */ TODO
+				context.approximateLength += symbolName.length + 1
 				if !(context.flags & NodeBuilderFlagsForbidIndexedAccessSymbolReferences) && parent && getMembersOfSymbol(parent) && getMembersOfSymbol(parent).get(symbol.escapedName) && getSymbolIfSameReference(getMembersOfSymbol(parent).get(symbol.escapedName), symbol) {
-					LHS := createAccessFromSymbolChain(chain /* TODO(BinaryExpression): index - 1 */, TODO, stopper)
+					LHS := createAccessFromSymbolChain(chain, index-1, stopper)
 					if isIndexedAccessTypeNode(LHS) {
 						return factory.createIndexedAccessTypeNode(LHS, factory.createLiteralTypeNode(factory.createStringLiteral(symbolName)))
 					} else {
@@ -4863,7 +4863,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				identifier.symbol = symbol
 				if index > stopper {
-					LHS := createAccessFromSymbolChain(chain /* TODO(BinaryExpression): index - 1 */, TODO, stopper)
+					LHS := createAccessFromSymbolChain(chain, index-1, stopper)
 					if !isEntityName(LHS) {
 						return Debug.fail("Impossible construct - an export of an indexed access cannot be reachable")
 					}
@@ -4926,7 +4926,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if expectsIdentifier && chain.length != 1 && !context.encounteredError && !(context.flags & NodeBuilderFlagsAllowQualifiedNameInPlaceOfIdentifier) {
 				context.encounteredError = true
 			}
-			return createEntityNameFromSymbolChain(chain /* TODO(BinaryExpression): chain.length - 1 */, TODO)
+			return createEntityNameFromSymbolChain(chain, chain.length-1)
 			createEntityNameFromSymbolChain := func(chain []Symbol, index number) EntityName {
 				typeParameterNodes := lookupTypeParameterNodes(chain, index, context)
 				symbol := chain[index]
@@ -4947,7 +4947,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		symbolToExpression := func(symbol Symbol, context NodeBuilderContext, meaning SymbolFlags) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Expression */ TODO {
 			chain := lookupSymbolChain(symbol, context, meaning)
-			return createExpressionFromSymbolChain(chain /* TODO(BinaryExpression): chain.length - 1 */, TODO)
+			return createExpressionFromSymbolChain(chain, chain.length-1)
 			createExpressionFromSymbolChain := func(chain []Symbol, index number) Expression {
 				typeParameterNodes := lookupTypeParameterNodes(chain, index, context)
 				symbol := chain[index]
@@ -4971,7 +4971,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return /* TODO(ConditionalExpression): index > 0 ? factory.createPropertyAccessExpression(createExpressionFromSymbolChain(chain, index - 1), identifier) : identifier */ TODO
 				} else {
 					if firstChar == CharacterCodesopenBracket {
-						symbolName = symbolName.substring(1 /* TODO(BinaryExpression): symbolName.length - 1 */, TODO)
+						symbolName = symbolName.substring(1, symbolName.length-1)
 						firstChar = symbolName.charCodeAt(0)
 					}
 					var expression *Expression
@@ -4979,7 +4979,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						expression = factory.createStringLiteral(stripQuotes(symbolName).replace( /* TODO(RegularExpressionLiteral): /\\./g */ TODO, func(s /* TODO inferred type string */ TODO) /* TODO inferred type string */ TODO {
 							return s.substring(1)
 						}), firstChar == CharacterCodessingleQuote)
-					} else if ( /* TODO(BinaryExpression): "" + +symbolName */ TODO) == symbolName {
+					} else if ("" + +symbolName) == symbolName {
 						expression = factory.createNumericLiteral(+symbolName)
 					}
 					if !expression {
@@ -4990,7 +4990,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						identifier.symbol = symbol
 						expression = identifier
 					}
-					return factory.createElementAccessExpression(createExpressionFromSymbolChain(chain /* TODO(BinaryExpression): index - 1 */, TODO), expression)
+					return factory.createElementAccessExpression(createExpressionFromSymbolChain(chain, index-1), expression)
 				}
 			}
 		}
@@ -5028,7 +5028,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			nameType := getSymbolLinks(symbol).nameType
 			if nameType {
 				if nameType.flags & TypeFlagsStringOrNumberLiteral {
-					name := /* TODO(BinaryExpression): "" + (nameType as StringLiteralType | NumberLiteralType).value */ TODO
+					name := "" + (nameType).value
 					if !isIdentifierText(name, getEmitScriptTarget(compilerOptions)) && (stringNamed || !isNumericLiteralName(name)) {
 						return factory.createStringLiteral(name, !!singleQuote)
 					}
@@ -5296,7 +5296,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if !finalizeBoundary() {
 				return nil
 			}
-			context.approximateLength += /* TODO(BinaryExpression): existing.end - existing.pos */ TODO
+			context.approximateLength += existing.end - existing.pos
 			return transformed
 			visitExistingNodeTreeSymbols := func(node Node) Node {
 				if hadError {
@@ -5802,7 +5802,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					serializeSymbol(symbol, false, !!propertyAsAlias)
 				})
 				if !suppressNewPrivateContext {
-					deferredPrivatesStack[ /* TODO(BinaryExpression): deferredPrivatesStack.length - 1 */ TODO].forEach(func(symbol Symbol) {
+					deferredPrivatesStack[deferredPrivatesStack.length-1].forEach(func(symbol Symbol) {
 						serializeSymbol(symbol, true, !!propertyAsAlias)
 					})
 					deferredPrivatesStack.pop()
@@ -5935,7 +5935,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if some(symbol.declarations, isPartOfParameterDeclaration) {
 					return
 				}
-				Debug.assertIsDefined(deferredPrivatesStack[ /* TODO(BinaryExpression): deferredPrivatesStack.length - 1 */ TODO])
+				Debug.assertIsDefined(deferredPrivatesStack[deferredPrivatesStack.length-1])
 				getUnusedName(unescapeLeadingUnderscores(symbol.escapedName), symbol)
 				isExternalImportAlias := !!(symbol.flags & SymbolFlagsAlias) && !some(symbol.declarations, func(d /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Declaration */ TODO) /* TODO inferred type boolean */ TODO {
 					return !!findAncestor(d, isExportDeclaration) || isNamespaceExport(d) || (isImportEqualsDeclaration(d) && !isExternalModuleReference(d.moduleReference))
@@ -6548,9 +6548,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					baseType := /* TODO(ConditionalExpression): t.flags & TypeFlags.BooleanLiteral ? booleanType : getBaseTypeOfEnumLikeType(t as LiteralType) */ TODO
 					if baseType.flags & TypeFlagsUnion {
 						count := (baseType).types.length
-						if /* TODO(BinaryExpression): i + count */ TODO <= types.length && getRegularTypeOfLiteralType(types[ /* TODO(BinaryExpression): i + count - 1 */ TODO]) == getRegularTypeOfLiteralType((baseType).types[ /* TODO(BinaryExpression): count - 1 */ TODO]) {
+						if i+count <= types.length && getRegularTypeOfLiteralType(types[i+count-1]) == getRegularTypeOfLiteralType((baseType).types[count-1]) {
 							result.push(baseType)
-							i += /* TODO(BinaryExpression): count - 1 */ TODO
+							i += count - 1
 							continue
 						}
 					}
@@ -6594,7 +6594,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		nameType := getSymbolLinks(symbol).nameType
 		if nameType {
 			if nameType.flags & TypeFlagsStringOrNumberLiteral {
-				name := /* TODO(BinaryExpression): "" + (nameType as StringLiteralType | NumberLiteralType).value */ TODO
+				name := "" + (nameType).value
 				if !isIdentifierText(name, getEmitScriptTarget(compilerOptions)) && !isNumericLiteralName(name) {
 					return /* TODO(TemplateExpression): `"${escapeString(name, CharacterCodes.doubleQuote)}"` */ TODO
 				}
@@ -6819,7 +6819,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return true
 	}
 	findResolutionCycleStartIndex := func(target TypeSystemEntity, propertyName TypeSystemPropertyName) number {
-		for i := /* TODO(BinaryExpression): resolutionTargets.length - 1 */ TODO; i >= resolutionStart; i-- {
+		for i := resolutionTargets.length - 1; i >= resolutionStart; i-- {
 			if resolutionTargetHasProperty(resolutionTargets[i], resolutionPropertyNames[i]) {
 				return -1
 			}
@@ -6998,7 +6998,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if node.kind == SyntaxKindPropertyAssignment || node.kind == SyntaxKindShorthandPropertyAssignment {
 			return getLiteralPropertyNameText((node).name)
 		}
-		return /* TODO(BinaryExpression): "" + ((parent as BindingPattern | ArrayLiteralExpression).elements as NodeArray<Node>).indexOf(node) */ TODO
+		return "" + ((parent).elements).indexOf(node)
 	}
 	getLiteralPropertyNameText := func(name PropertyName) /* TODO inferred type string | undefined */ TODO {
 		type_ := getLiteralTypeFromPropertyName(name)
@@ -7512,7 +7512,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		elementTypes := map_(elements, func(e /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 			return /* TODO(ConditionalExpression): isOmittedExpression(e) ? anyType : getTypeFromBindingElement(e, includePatternInType, reportErrors) */ TODO
 		})
-		minLength := /* TODO(BinaryExpression): findLastIndex(elements, e => !(e === restElement || isOmittedExpression(e) || hasDefaultValue(e)), elements.length - 1) + 1 */ TODO
+		minLength := findLastIndex(elements, func(e /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ TODO) /* TODO inferred type boolean */ TODO {
+			return !(e == restElement || isOmittedExpression(e) || hasDefaultValue(e))
+		}, elements.length-1) + 1
 		elementFlags := map_(elements, func(e /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ TODO, i /* TODO inferred type number */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ElementFlags.Required | import("/home/jabaile/work/TypeScript/src/compiler/types").ElementFlags.Optional | import("/home/jabaile/work/TypeScript/src/compiler/types").ElementFlags.Rest */ TODO {
 			return /* TODO(ConditionalExpression): e === restElement ? ElementFlags.Rest : i >= minLength ? ElementFlags.Optional : ElementFlags.Required */ TODO
 		})
@@ -7684,7 +7686,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		} else if isEnumMember(declaration) {
 			type_ = getTypeOfEnumMember(symbol)
 		} else {
-			return Debug.fail( /* TODO(BinaryExpression): "Unhandled declaration kind! " + Debug.formatSyntaxKind(declaration.kind) + " for " + Debug.formatSymbol(symbol) */ TODO)
+			return Debug.fail("Unhandled declaration kind! " + Debug.formatSyntaxKind(declaration.kind) + " for " + Debug.formatSymbol(symbol))
 		}
 		if !popTypeResolution() {
 			if symbol.flags&SymbolFlagsValueModule && !(symbol.flags & SymbolFlagsAssignment) {
@@ -8261,7 +8263,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	areAllOuterTypeParametersApplied := func(type_ Type) bool {
 		outerTypeParameters := (type_).outerTypeParameters
 		if outerTypeParameters {
-			last := /* TODO(BinaryExpression): outerTypeParameters.length - 1 */ TODO
+			last := outerTypeParameters.length - 1
 			typeArguments := getTypeArguments(type_)
 			return outerTypeParameters[last].symbol != typeArguments[last].symbol
 		}
@@ -8839,7 +8841,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getExpandedParameters := func(sig Signature, skipUnionExpanding bool) [][]Symbol {
 		if signatureHasRestParameter(sig) {
-			restIndex := /* TODO(BinaryExpression): sig.parameters.length - 1 */ TODO
+			restIndex := sig.parameters.length - 1
 			restSymbol := sig.parameters[restIndex]
 			restType := getTypeOfSymbol(restSymbol)
 			if isTupleType(restType) {
@@ -8885,7 +8887,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						counter++
 					}
 					names[i] = name
-					counters.set(names[i] /* TODO(BinaryExpression): counter + 1 */, TODO)
+					counters.set(names[i], counter+1)
 				}
 			}
 			return names
@@ -9043,7 +9045,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				shorterParamType = instantiateType(shorterParamType, mapper)
 			}
 			unionParamType := getIntersectionType( /* TODO(ArrayLiteralExpression): [longestParamType, shorterParamType] */ TODO)
-			isRestParam := eitherHasEffectiveRest && !needsExtraRestElement && i == ( /* TODO(BinaryExpression): longestCount - 1 */ TODO)
+			isRestParam := eitherHasEffectiveRest && !needsExtraRestElement && i == (longestCount-1)
 			isOptional := i >= getMinArgumentCount(longest) && i >= getMinArgumentCount(shorter)
 			leftName := /* TODO(ConditionalExpression): i >= leftCount ? undefined : getParameterNameAtPosition(left, i) */ TODO
 			rightName := /* TODO(ConditionalExpression): i >= rightCount ? undefined : getParameterNameAtPosition(right, i) */ TODO
@@ -9525,14 +9527,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if (type_).objectFlags & ObjectFlagsMapped {
 					resolveMappedTypeMembers(type_)
 				} else {
-					Debug.fail( /* TODO(BinaryExpression): "Unhandled object type " + Debug.formatObjectFlags(type.objectFlags) */ TODO)
+					Debug.fail("Unhandled object type " + Debug.formatObjectFlags(type_.objectFlags))
 				}
 			} else if type_.flags & TypeFlagsUnion {
 				resolveUnionTypeMembers(type_)
 			} else if type_.flags & TypeFlagsIntersection {
 				resolveIntersectionTypeMembers(type_)
 			} else {
-				Debug.fail( /* TODO(BinaryExpression): "Unhandled type " + Debug.formatTypeFlags(type.flags) */ TODO)
+				Debug.fail("Unhandled type " + Debug.formatTypeFlags(type_.flags))
 			}
 		}
 		return type_
@@ -9628,7 +9630,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return hasSyntacticModifier(d, ModifierFlagsConst)
 		}) || type_.flags&TypeFlagsUnionOrIntersection && some((type_).types, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type boolean */ TODO {
 			return isConstTypeVariable(t, depth)
-		}) || type_.flags&TypeFlagsIndexedAccess && isConstTypeVariable((type_).objectType /* TODO(BinaryExpression): depth + 1 */, TODO) || type_.flags&TypeFlagsConditional && isConstTypeVariable(getConstraintOfConditionalType(type_) /* TODO(BinaryExpression): depth + 1 */, TODO) || type_.flags&TypeFlagsSubstitution && isConstTypeVariable((type_).baseType, depth) || getObjectFlags(type_)&ObjectFlagsMapped && isConstMappedType(type_, depth) || isGenericTupleType(type_) && findIndex(getElementTypes(type_), func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO, i /* TODO inferred type number */ TODO) /* TODO inferred type boolean */ TODO {
+		}) || type_.flags&TypeFlagsIndexedAccess && isConstTypeVariable((type_).objectType, depth+1) || type_.flags&TypeFlagsConditional && isConstTypeVariable(getConstraintOfConditionalType(type_), depth+1) || type_.flags&TypeFlagsSubstitution && isConstTypeVariable((type_).baseType, depth) || getObjectFlags(type_)&ObjectFlagsMapped && isConstMappedType(type_, depth) || isGenericTupleType(type_) && findIndex(getElementTypes(type_), func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO, i /* TODO inferred type number */ TODO) /* TODO inferred type boolean */ TODO {
 			return !!(type_.target.elementFlags[i] & ElementFlagsVariadic) && isConstTypeVariable(t, depth)
 		}) >= 0))
 	}
@@ -10286,7 +10288,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if isExternalModuleNameRelative(moduleName) {
 			return nil
 		}
-		symbol := getSymbol(globals /* TODO(BinaryExpression): '"' + moduleName + '"' */, TODO, SymbolFlagsValueModule)
+		symbol := getSymbol(globals, '"'+moduleName+'"', SymbolFlagsValueModule)
 		return /* TODO(ConditionalExpression): symbol && withAugmentations ? getMergedSymbol(symbol) : symbol */ TODO
 	}
 	hasEffectiveQuestionToken := func(node /* TODO(UnionType): ParameterDeclaration | JSDocParameterTag | JSDocPropertyTag */ any) /* TODO inferred type boolean */ TODO {
@@ -10322,7 +10324,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if typeParameters {
 			for i := 0; i < typeParameters.length; i++ {
 				if !hasTypeParameterDefault(typeParameters[i]) {
-					minTypeArgumentCount = /* TODO(BinaryExpression): i + 1 */ TODO
+					minTypeArgumentCount = i + 1
 				}
 			}
 		}
@@ -10508,7 +10510,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				continue
 			}
 			if i > 0 && (decl).body {
-				previous := symbol.declarations[ /* TODO(BinaryExpression): i - 1 */ TODO]
+				previous := symbol.declarations[i-1]
 				if decl.parent == previous.parent && decl.kind == previous.kind && decl.pos == previous.end {
 					continue
 				}
@@ -10653,7 +10655,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	tryGetRestTypeOfSignature := func(signature Signature) *Type {
 		if signatureHasRestParameter(signature) {
-			sigRestType := getTypeOfSymbol(signature.parameters[ /* TODO(BinaryExpression): signature.parameters.length - 1 */ TODO])
+			sigRestType := getTypeOfSymbol(signature.parameters[signature.parameters.length-1])
 			restType := /* TODO(ConditionalExpression): isTupleType(sigRestType) ? getRestTypeOfTupleType(sigRestType) : sigRestType */ TODO
 			return restType && getIndexTypeOfType(restType, numberType)
 		}
@@ -10726,7 +10728,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			var baseConstraints []Type = map_(typeParameters, func(tp /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TypeParameter */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 				return instantiateType(tp, baseConstraintMapper) || unknownType
 			})
-			for i := 0; i < /* TODO(BinaryExpression): typeParameters.length - 1 */ TODO; i++ {
+			for i := 0; i < typeParameters.length-1; i++ {
 				baseConstraints = instantiateTypes(baseConstraints, baseConstraintMapper)
 			}
 			baseConstraints = instantiateTypes(baseConstraints, typeEraser)
@@ -10867,7 +10869,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			for i < length {
 				startId := types[i].id
 				count := 1
-				for /* TODO(BinaryExpression): i + count */ TODO < length && types[ /* TODO(BinaryExpression): i + count */ TODO].id == /* TODO(BinaryExpression): startId + count */ TODO {
+				for i+count < length && types[i+count].id == startId+count {
 					count++
 				}
 				if result.length {
@@ -10875,7 +10877,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				result += startId
 				if count > 1 {
-					result += /* TODO(BinaryExpression): ":" + count */ TODO
+					result += ":" + count
 				}
 				i += count
 			}
@@ -10989,7 +10991,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		links := getSymbolLinks(symbol)
 		typeParameters := links.typeParameters
-		id := /* TODO(BinaryExpression): getTypeListId(typeArguments) + getAliasId(aliasSymbol, aliasTypeArguments) */ TODO
+		id := getTypeListId(typeArguments) + getAliasId(aliasSymbol, aliasTypeArguments)
 		instantiation := links.instantiations.get(id)
 		if !instantiation {
 			links.instantiations.set(id /* TODO(BinaryExpression): instantiation = instantiateTypeWithAlias(type, createTypeMapper(typeParameters, fillMissingTypeArguments(typeArguments, typeParameters, getMinTypeArgumentCount(typeParameters), isInJSFile(symbol.valueDeclaration))), aliasSymbol, aliasTypeArguments) */, TODO)
@@ -11638,7 +11640,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if elementFlags.length == 1 && elementFlags[0]&ElementFlagsRest {
 			return /* TODO(ConditionalExpression): readonly ? globalReadonlyArrayType : globalArrayType */ TODO
 		}
-		key := /* TODO(BinaryExpression): map(elementFlags, f => f & ElementFlags.Required ? "#" : f & ElementFlags.Optional ? "?" : f & ElementFlags.Rest ? "." : "*").join() + (readonly ? "R" : "") + (some(namedMemberDeclarations, node => !!node) ? "," + map(namedMemberDeclarations, node => node ? getNodeId(node) : "_").join(",") : "") */ TODO
+		key := map_(elementFlags, func(f /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ElementFlags */ TODO) /* TODO inferred type "#" | "?" | "." | "*" */ TODO {
+			return /* TODO(ConditionalExpression): f & ElementFlags.Required ? "#" : f & ElementFlags.Optional ? "?" : f & ElementFlags.Rest ? "." : "*" */ TODO
+		}).join() + ( /* TODO(ConditionalExpression): readonly ? "R" : "" */ TODO) + ( /* TODO(ConditionalExpression): some(namedMemberDeclarations, node => !!node) ? "," + map(namedMemberDeclarations, node => node ? getNodeId(node) : "_").join(",") : "" */ TODO)
 		type_ := tupleTypes.get(key)
 		if !type_ {
 			tupleTypes.set(key /* TODO(BinaryExpression): type = createTupleTargetType(elementFlags, readonly, namedMemberDeclarations) */, TODO)
@@ -11660,7 +11664,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				flags := elementFlags[i]
 				combinedFlags |= flags
 				if !(combinedFlags & ElementFlagsVariable) {
-					property := createSymbol(SymbolFlagsProperty|( /* TODO(ConditionalExpression): flags & ElementFlags.Optional ? SymbolFlags.Optional : 0 */ TODO) /* TODO(BinaryExpression): "" + i */, TODO /* TODO(ConditionalExpression): readonly ? CheckFlags.Readonly : 0 */, TODO)
+					property := createSymbol(SymbolFlagsProperty|( /* TODO(ConditionalExpression): flags & ElementFlags.Optional ? SymbolFlags.Optional : 0 */ TODO), ""+i /* TODO(ConditionalExpression): readonly ? CheckFlags.Readonly : 0 */, TODO)
 					property.links.tupleLabelDeclaration = namedMemberDeclarations[i]
 					property.links.type_ = typeParameter
 					properties.push(property)
@@ -11734,7 +11738,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					addElement(type_, ElementFlagsVariadic, target.labeledElementDeclarations[i])
 				} else if isTupleType(type_) {
 					elements := getElementTypes(type_)
-					if /* TODO(BinaryExpression): elements.length + expandedTypes.length */ TODO >= 10_000 {
+					if elements.length+expandedTypes.length >= 10_000 {
 						error(currentNode /* TODO(ConditionalExpression): isPartOfTypeNode(currentNode!) ? Diagnostics.Type_produces_a_tuple_type_that_is_too_large_to_represent : Diagnostics.Expression_produces_a_tuple_type_that_is_too_large_to_represent */, TODO)
 						return errorType
 					}
@@ -11754,12 +11758,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		if firstRestIndex >= 0 && firstRestIndex < lastOptionalOrRestIndex {
-			expandedTypes[firstRestIndex] = getUnionType(sameMap(expandedTypes.slice(firstRestIndex /* TODO(BinaryExpression): lastOptionalOrRestIndex + 1 */, TODO), func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO, i /* TODO inferred type number */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
+			expandedTypes[firstRestIndex] = getUnionType(sameMap(expandedTypes.slice(firstRestIndex, lastOptionalOrRestIndex+1), func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO, i /* TODO inferred type number */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 				return /* TODO(ConditionalExpression): expandedFlags[firstRestIndex + i] & ElementFlags.Variadic ? getIndexedAccessType(t, numberType) : t */ TODO
 			}))
-			expandedTypes.splice( /* TODO(BinaryExpression): firstRestIndex + 1 */ TODO /* TODO(BinaryExpression): lastOptionalOrRestIndex - firstRestIndex */, TODO)
-			expandedFlags.splice( /* TODO(BinaryExpression): firstRestIndex + 1 */ TODO /* TODO(BinaryExpression): lastOptionalOrRestIndex - firstRestIndex */, TODO)
-			expandedDeclarations.splice( /* TODO(BinaryExpression): firstRestIndex + 1 */ TODO /* TODO(BinaryExpression): lastOptionalOrRestIndex - firstRestIndex */, TODO)
+			expandedTypes.splice(firstRestIndex+1, lastOptionalOrRestIndex-firstRestIndex)
+			expandedFlags.splice(firstRestIndex+1, lastOptionalOrRestIndex-firstRestIndex)
+			expandedDeclarations.splice(firstRestIndex+1, lastOptionalOrRestIndex-firstRestIndex)
 		}
 		tupleTarget := getTupleTargetType(expandedFlags, target.readonly, expandedDeclarations)
 		return /* TODO(ConditionalExpression): tupleTarget === emptyGenericType ? emptyObjectType : expandedFlags.length ? createTypeReference(tupleTarget, expandedTypes) : tupleTarget */ TODO
@@ -11780,12 +11784,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	sliceTupleType := func(type_ TupleTypeReference, index number, endSkipCount /* TODO inferred type number */ TODO /*  = 0 */) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 		target := type_.target
-		endIndex := /* TODO(BinaryExpression): getTypeReferenceArity(type) - endSkipCount */ TODO
+		endIndex := getTypeReferenceArity(type_) - endSkipCount
 		return /* TODO(ConditionalExpression): index > target.fixedLength ? getRestArrayTypeOfTupleType(type) || createTupleType(emptyArray) : createTupleType(getTypeArguments(type).slice(index, endIndex), target.elementFlags.slice(index, endIndex), /*readonly* / false, target.labeledElementDeclarations && target.labeledElementDeclarations.slice(index, endIndex)) */ TODO
 	}
 	getKnownKeysOfTupleType := func(type_ TupleTypeReference) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 		return getUnionType(append(arrayOf(type_.target.fixedLength, func(i /* TODO inferred type number */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").StringLiteralType */ TODO {
-			return getStringLiteralType( /* TODO(BinaryExpression): "" + i */ TODO)
+			return getStringLiteralType("" + i)
 		}), getIndexType( /* TODO(ConditionalExpression): type.target.readonly ? globalReadonlyArrayType : globalArrayType */ TODO)))
 	}
 	getStartElementCount := func(type_ TupleType, flags ElementFlags) /* TODO inferred type number */ TODO {
@@ -11795,10 +11799,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return /* TODO(ConditionalExpression): index >= 0 ? index : type.elementFlags.length */ TODO
 	}
 	getEndElementCount := func(type_ TupleType, flags ElementFlags) /* TODO inferred type number */ TODO {
-		return /* TODO(BinaryExpression): type.elementFlags.length - findLastIndex(type.elementFlags, f => !(f & flags)) - 1 */ TODO
+		return type_.elementFlags.length - findLastIndex(type_.elementFlags, func(f /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ElementFlags */ TODO) /* TODO inferred type boolean */ TODO {
+			return !(f & flags)
+		}) - 1
 	}
 	getTotalFixedElementCount := func(type_ TupleType) /* TODO inferred type number */ TODO {
-		return /* TODO(BinaryExpression): type.fixedLength + getEndElementCount(type, ElementFlags.Fixed) */ TODO
+		return type_.fixedLength + getEndElementCount(type_, ElementFlagsFixed)
 	}
 	getElementTypes := func(type_ TupleTypeReference) []Type {
 		typeArguments := getTypeArguments(type_)
@@ -11894,7 +11900,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				for _, target := range types {
 					if source != target {
 						if count == 100000 {
-							estimatedCount := /* TODO(BinaryExpression): (count / (len - i)) * len */ TODO
+							estimatedCount := (count / (len - i)) * len
 							if estimatedCount > 1000000 {
 								tracing.instant(tracing.Phase.CheckTypes, "removeSubtypes_DepthLimit" /* TODO(ObjectLiteralExpression): { typeIds: types.map(t => t.id) } */, TODO)
 								error(currentNode, Diagnostics.Expression_produces_a_union_type_that_is_too_complex_to_represent)
@@ -11936,12 +11942,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		templateLiterals := filter(patterns, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType | import("/home/jabaile/work/TypeScript/src/compiler/types").StringMappingType */ TODO) /* TODO inferred type boolean */ TODO {
 			return !!(t.flags & TypeFlagsTemplateLiteral)
 		})
-		estimatedCount := /* TODO(BinaryExpression): templateLiterals.length * countWhere(types, t => !!(t.flags & TypeFlags.StringLiteral)) */ TODO
+		estimatedCount := templateLiterals.length * countWhere(types, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type boolean */ TODO {
+			return !!(t.flags & TypeFlagsStringLiteral)
+		})
 		if estimatedCount > 0 {
 			trie := createPrefixSuffixTrie()
 			forEach(templateLiterals, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType */ TODO) {
 				prefix := t.texts[0]
-				suffix := t.texts[ /* TODO(BinaryExpression): t.texts.length - 1 */ TODO]
+				suffix := t.texts[t.texts.length-1]
 				trie.set(prefix, suffix, func(templates /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType[] | undefined */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType[] */ TODO {
 					return append(templates, t)
 				})
@@ -11985,7 +11993,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if type_.flags&TypeFlagsIntersection && getObjectFlags(type_)&ObjectFlagsIsConstrainedTypeVariable {
 					index := /* TODO(ConditionalExpression): (type as IntersectionType).types[0].flags & TypeFlags.TypeVariable ? 0 : 1 */ TODO
 					if (type_).types[index] == typeVariable {
-						insertType(primitives, (type_).types[ /* TODO(BinaryExpression): 1 - index */ TODO])
+						insertType(primitives, (type_).types[1-index])
 					}
 				}
 			}
@@ -11999,7 +12007,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					type_ := types[i]
 					if type_.flags&TypeFlagsIntersection && getObjectFlags(type_)&ObjectFlagsIsConstrainedTypeVariable {
 						index := /* TODO(ConditionalExpression): (type as IntersectionType).types[0].flags & TypeFlags.TypeVariable ? 0 : 1 */ TODO
-						if (type_).types[index] == typeVariable && containsType(primitives, (type_).types[ /* TODO(BinaryExpression): 1 - index */ TODO]) {
+						if (type_).types[index] == typeVariable && containsType(primitives, (type_).types[1-index]) {
 							orderedRemoveItemAt(types, i)
 						}
 					}
@@ -12038,7 +12046,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if types.length == 2 && !origin && (types[0].flags&TypeFlagsUnion || types[1].flags&TypeFlagsUnion) {
 			infix := /* TODO(ConditionalExpression): unionReduction === UnionReduction.None ? "N" : unionReduction === UnionReduction.Subtype ? "S" : "L" */ TODO
 			index := /* TODO(ConditionalExpression): types[0].id < types[1].id ? 0 : 1 */ TODO
-			id := /* TODO(BinaryExpression): types[index].id + infix + types[1 - index].id + getAliasId(aliasSymbol, aliasTypeArguments) */ TODO
+			id := types[index].id + infix + types[1-index].id + getAliasId(aliasSymbol, aliasTypeArguments)
 			type_ := unionOfUnionTypes.get(id)
 			if !type_ {
 				type_ = getUnionTypeWorker(types, unionReduction, aliasSymbol, aliasTypeArguments, nil)
@@ -12094,9 +12102,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return namedUnions[0]
 			}
 			namedTypesCount := reduceLeft(namedUnions, func(sum /* TODO inferred type number */ TODO, union /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type number */ TODO {
-				return /* TODO(BinaryExpression): sum + (union as UnionType).types.length */ TODO
+				return sum + (union).types.length
 			}, 0)
-			if /* TODO(BinaryExpression): namedTypesCount + reducedTypes.length */ TODO == typeSet.length {
+			if namedTypesCount+reducedTypes.length == typeSet.length {
 				for _, t := range namedUnions {
 					insertType(reducedTypes, t)
 				}
@@ -12141,7 +12149,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return types[0]
 		}
 		typeKey := /* TODO(ConditionalExpression): !origin ? getTypeListId(types) : origin.flags & TypeFlags.Union ? `|${getTypeListId((origin as UnionType).types)}` : origin.flags & TypeFlags.Intersection ? `&${getTypeListId((origin as IntersectionType).types)}` : `#${(origin as IndexType).type.id}|${getTypeListId(types)}` */ TODO
-		id := /* TODO(BinaryExpression): typeKey + getAliasId(aliasSymbol, aliasTypeArguments) */ TODO
+		id := typeKey + getAliasId(aliasSymbol, aliasTypeArguments)
 		type_ := unionTypes.get(id)
 		if !type_ {
 			type_ = createType(TypeFlagsUnion)
@@ -12271,7 +12279,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if index < 0 {
 			return false
 		}
-		i := /* TODO(BinaryExpression): index + 1 */ TODO
+		i := index + 1
 		for i < types.length {
 			t := types[i]
 			if getObjectFlags(t) & ObjectFlagsPrimitiveUnion {
@@ -12350,7 +12358,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if typeSet.length == 2 && !(flags & IntersectionFlagsNoConstraintReduction) {
 			typeVarIndex := /* TODO(ConditionalExpression): typeSet[0].flags & TypeFlags.TypeVariable ? 0 : 1 */ TODO
 			typeVariable := typeSet[typeVarIndex]
-			primitiveType := typeSet[ /* TODO(BinaryExpression): 1 - typeVarIndex */ TODO]
+			primitiveType := typeSet[1-typeVarIndex]
 			if typeVariable.flags&TypeFlagsTypeVariable && (primitiveType.flags&(TypeFlagsPrimitive|TypeFlagsNonPrimitive) && !isGenericStringLikeType(primitiveType) || includes&TypeFlagsIncludesEmptyObject) {
 				constraint := getBaseConstraintOfType(typeVariable)
 				if constraint && everyType(constraint, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type boolean */ TODO {
@@ -12370,7 +12378,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			}
 		}
-		id := /* TODO(BinaryExpression): getTypeListId(typeSet) + (flags & IntersectionFlags.NoConstraintReduction ? "*" : getAliasId(aliasSymbol, aliasTypeArguments)) */ TODO
+		id := getTypeListId(typeSet) + ( /* TODO(ConditionalExpression): flags & IntersectionFlags.NoConstraintReduction ? "*" : getAliasId(aliasSymbol, aliasTypeArguments) */ TODO)
 		result := intersectionTypes.get(id)
 		if !result {
 			if includes & TypeFlagsUnion {
@@ -12388,7 +12396,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					removeFromEach(typeSet, TypeFlagsNull)
 					result = getUnionType( /* TODO(ArrayLiteralExpression): [getIntersectionType(typeSet, flags), nullType] */ TODO, UnionReductionLiteral, aliasSymbol, aliasTypeArguments)
 				} else if typeSet.length >= 3 && types.length > 2 {
-					middle := Math.floor( /* TODO(BinaryExpression): typeSet.length / 2 */ TODO)
+					middle := Math.floor(typeSet.length / 2)
 					result = getIntersectionType( /* TODO(ArrayLiteralExpression): [getIntersectionType(typeSet.slice(0, middle), flags), getIntersectionType(typeSet.slice(middle), flags)] */ TODO, flags, aliasSymbol, aliasTypeArguments)
 				} else {
 					if !checkCrossProductUnion(typeSet) {
@@ -12425,12 +12433,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for i := 0; i < count; i++ {
 			constituents := types.slice()
 			n := i
-			for j := /* TODO(BinaryExpression): types.length - 1 */ TODO; j >= 0; j-- {
+			for j := types.length - 1; j >= 0; j-- {
 				if types[j].flags & TypeFlagsUnion {
 					sourceTypes := (types[j]).types
 					length := sourceTypes.length
 					constituents[j] = sourceTypes[ /* TODO(BinaryExpression): n % length */ TODO]
-					n = Math.floor( /* TODO(BinaryExpression): n / length */ TODO)
+					n = Math.floor(n / length)
 				}
 			}
 			t := getIntersectionType(constituents, flags)
@@ -12445,7 +12453,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getConstituentCountOfTypes := func(types []Type) number {
 		return reduceLeft(types, func(n /* TODO inferred type number */ TODO, t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type number */ TODO {
-			return /* TODO(BinaryExpression): n + getConstituentCount(t) */ TODO
+			return n + getConstituentCount(t)
 		}, 0)
 	}
 	getTypeFromIntersectionTypeNode := func(node IntersectionTypeNode) Type {
@@ -12643,17 +12651,17 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				t := types[i]
 				if t.flags & (TypeFlagsLiteral | TypeFlagsNull | TypeFlagsUndefined) {
 					text += getTemplateStringForType(t) || ""
-					text += texts[ /* TODO(BinaryExpression): i + 1 */ TODO]
+					text += texts[i+1]
 				} else if t.flags & TypeFlagsTemplateLiteral {
 					text += (t).texts[0]
 					if !addSpans((t).texts, (t).types) {
 						return false
 					}
-					text += texts[ /* TODO(BinaryExpression): i + 1 */ TODO]
+					text += texts[i+1]
 				} else if isGenericIndexType(t) || isPatternLiteralPlaceholderType(t) {
 					newTypes.push(t)
 					newTexts.push(text)
-					text = texts[ /* TODO(BinaryExpression): i + 1 */ TODO]
+					text = texts[i+1]
 				} else {
 					return false
 				}
@@ -12680,9 +12688,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		case IntrinsicTypeKindLowercase:
 			return str.toLowerCase()
 		case IntrinsicTypeKindCapitalize:
-			return /* TODO(BinaryExpression): str.charAt(0).toUpperCase() + str.slice(1) */ TODO
+			return str.charAt(0).toUpperCase() + str.slice(1)
 		case IntrinsicTypeKindUncapitalize:
-			return /* TODO(BinaryExpression): str.charAt(0).toLowerCase() + str.slice(1) */ TODO
+			return str.charAt(0).toLowerCase() + str.slice(1)
 		}
 		return str
 	}
@@ -12858,7 +12866,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if noImplicitAny && !(accessFlags & AccessFlagsSuppressNoImplicitAnyError) {
 					if propName != nil && typeHasStaticProperty(propName, objectType) {
 						typeName := typeToString(objectType)
-						error(accessExpression, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_to_access_the_static_member_2_instead, propName, typeName /* TODO(BinaryExpression): typeName + "[" + getTextOfNode(accessExpression.argumentExpression) + "]" */, TODO)
+						error(accessExpression, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_to_access_the_static_member_2_instead, propName, typeName, typeName+"["+getTextOfNode(accessExpression.argumentExpression)+"]")
 					} else if getIndexTypeOfType(objectType, numberType) {
 						error(accessExpression.argumentExpression, Diagnostics.Element_implicitly_has_an_any_type_because_index_expression_is_not_of_type_number)
 					} else {
@@ -12874,10 +12882,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							} else {
 								var errorInfo *DiagnosticMessageChain
 								if indexType.flags & TypeFlagsEnumLiteral {
-									errorInfo = chainDiagnosticMessages(nil, Diagnostics.Property_0_does_not_exist_on_type_1 /* TODO(BinaryExpression): "[" + typeToString(indexType) + "]" */, TODO, typeToString(objectType))
+									errorInfo = chainDiagnosticMessages(nil, Diagnostics.Property_0_does_not_exist_on_type_1, "["+typeToString(indexType)+"]", typeToString(objectType))
 								} else if indexType.flags & TypeFlagsUniqueESSymbol {
 									symbolName := getFullyQualifiedName((indexType).symbol, accessExpression)
-									errorInfo = chainDiagnosticMessages(nil, Diagnostics.Property_0_does_not_exist_on_type_1 /* TODO(BinaryExpression): "[" + symbolName + "]" */, TODO, typeToString(objectType))
+									errorInfo = chainDiagnosticMessages(nil, Diagnostics.Property_0_does_not_exist_on_type_1, "["+symbolName+"]", typeToString(objectType))
 								} else if indexType.flags & TypeFlagsStringLiteral {
 									errorInfo = chainDiagnosticMessages(nil, Diagnostics.Property_0_does_not_exist_on_type_1, (indexType).value, typeToString(objectType))
 								} else if indexType.flags & TypeFlagsNumberLiteral {
@@ -12903,7 +12911,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if accessNode {
 			indexNode := getIndexNodeForAccessExpression(accessNode)
 			if indexNode.kind != SyntaxKindBigIntLiteral && indexType.flags&(TypeFlagsStringLiteral|TypeFlagsNumberLiteral) {
-				error(indexNode, Diagnostics.Property_0_does_not_exist_on_type_1 /* TODO(BinaryExpression): "" + (indexType as StringLiteralType | NumberLiteralType).value */, TODO, typeToString(objectType))
+				error(indexNode, Diagnostics.Property_0_does_not_exist_on_type_1, ""+(indexType).value, typeToString(objectType))
 			} else if indexType.flags & (TypeFlagsString | TypeFlagsNumber) {
 				error(indexNode, Diagnostics.Type_0_has_no_matching_index_signature_for_type_1, typeToString(objectType), typeToString(indexType))
 			} else {
@@ -13087,7 +13095,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return objectType
 			}
 			persistentAccessFlags := accessFlags & AccessFlagsPersistent
-			id := /* TODO(BinaryExpression): objectType.id + "," + indexType.id + "," + persistentAccessFlags + getAliasId(aliasSymbol, aliasTypeArguments) */ TODO
+			id := objectType.id + "," + indexType.id + "," + persistentAccessFlags + getAliasId(aliasSymbol, aliasTypeArguments)
 			type_ := indexedAccessTypes.get(id)
 			if !type_ {
 				indexedAccessTypes.set(id /* TODO(BinaryExpression): type = createIndexedAccessType(objectType, indexType, persistentAccessFlags, aliasSymbol, aliasTypeArguments) */, TODO)
@@ -13469,9 +13477,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if left.flags & TypeFlagsIntersection {
 				types := (left).types
-				lastLeft := types[ /* TODO(BinaryExpression): types.length - 1 */ TODO]
+				lastLeft := types[types.length-1]
 				if isNonGenericObjectType(lastLeft) && isNonGenericObjectType(right) {
-					return getIntersectionType(concatenate(types.slice(0 /* TODO(BinaryExpression): types.length - 1 */, TODO) /* TODO(ArrayLiteralExpression): [getSpreadType(lastLeft, right, symbol, objectFlags, readonly)] */, TODO))
+					return getIntersectionType(concatenate(types.slice(0, types.length-1) /* TODO(ArrayLiteralExpression): [getSpreadType(lastLeft, right, symbol, objectFlags, readonly)] */, TODO))
 				}
 			}
 			return getIntersectionType( /* TODO(ArrayLiteralExpression): [left, right] */ TODO)
@@ -13954,10 +13962,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			})
 			newAliasSymbol := aliasSymbol || type_.aliasSymbol
 			newAliasTypeArguments := /* TODO(ConditionalExpression): aliasSymbol ? aliasTypeArguments : instantiateTypes(type.aliasTypeArguments, mapper) */ TODO
-			id := /* TODO(BinaryExpression): (type.objectFlags & ObjectFlags.SingleSignatureType ? "S" : "") + getTypeListId(typeArguments) + getAliasId(newAliasSymbol, newAliasTypeArguments) */ TODO
+			id := ( /* TODO(ConditionalExpression): type.objectFlags & ObjectFlags.SingleSignatureType ? "S" : "" */ TODO) + getTypeListId(typeArguments) + getAliasId(newAliasSymbol, newAliasTypeArguments)
 			if !target.instantiations {
 				target.instantiations = make(map[string]Type)
-				target.instantiations.set( /* TODO(BinaryExpression): getTypeListId(typeParameters) + getAliasId(target.aliasSymbol, target.aliasTypeArguments) */ TODO, target)
+				target.instantiations.set(getTypeListId(typeParameters)+getAliasId(target.aliasSymbol, target.aliasTypeArguments), target)
 			}
 			result := target.instantiations.get(id)
 			if !result {
@@ -14121,7 +14129,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			typeArguments := map_(root.outerTypeParameters, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TypeParameter */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 				return getMappedType(t, mapper)
 			})
-			id := /* TODO(BinaryExpression): (forConstraint ? "C" : "") + getTypeListId(typeArguments) + getAliasId(aliasSymbol, aliasTypeArguments) */ TODO
+			id := ( /* TODO(ConditionalExpression): forConstraint ? "C" : "" */ TODO) + getTypeListId(typeArguments) + getAliasId(aliasSymbol, aliasTypeArguments)
 			result := root.instantiations.get(id)
 			if !result {
 				newMapper := createTypeMapper(root.outerTypeParameters, typeArguments)
@@ -14414,7 +14422,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}) {
 				var resultObj /* TODO(TypeLiteral): { errors?: Diagnostic[]; } */ any = errorOutputContainer || /* TODO(ObjectLiteralExpression): {} */ TODO
 				checkTypeAssignableTo(source, target, node, headMessage, containingMessageChain, resultObj)
-				diagnostic := resultObj.errors[ /* TODO(BinaryExpression): resultObj.errors!.length - 1 */ TODO]
+				diagnostic := resultObj.errors[resultObj.errors.length-1]
 				addRelatedInfo(diagnostic, createDiagnosticForNode(node /* TODO(ConditionalExpression): signatures === constructSignatures ? Diagnostics.Did_you_mean_to_use_new_with_this_expression : Diagnostics.Did_you_mean_to_call_this_expression */, TODO))
 				return true
 			}
@@ -14448,10 +14456,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			checkTypeRelatedTo(sourceReturn, targetReturn, relation, returnExpression, nil, containingMessageChain, resultObj)
 			if resultObj.errors {
 				if target.symbol && length(target.symbol.declarations) {
-					addRelatedInfo(resultObj.errors[ /* TODO(BinaryExpression): resultObj.errors.length - 1 */ TODO], createDiagnosticForNode(target.symbol.declarations[0], Diagnostics.The_expected_type_comes_from_the_return_type_of_this_signature))
+					addRelatedInfo(resultObj.errors[resultObj.errors.length-1], createDiagnosticForNode(target.symbol.declarations[0], Diagnostics.The_expected_type_comes_from_the_return_type_of_this_signature))
 				}
 				if (getFunctionFlags(node)&FunctionFlagsAsync) == 0 && !getTypeOfPropertyOfType(sourceReturn, "then") && checkTypeRelatedTo(createPromiseType(sourceReturn), targetReturn, relation, nil) {
-					addRelatedInfo(resultObj.errors[ /* TODO(BinaryExpression): resultObj.errors.length - 1 */ TODO], createDiagnosticForNode(node, Diagnostics.Did_you_mean_to_mark_this_function_as_async))
+					addRelatedInfo(resultObj.errors[resultObj.errors.length-1], createDiagnosticForNode(node, Diagnostics.Did_you_mean_to_mark_this_function_as_async))
 				}
 				return true
 			}
@@ -14511,7 +14519,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						}
 					}
 					if resultObj.errors {
-						reportedDiag := resultObj.errors[ /* TODO(BinaryExpression): resultObj.errors.length - 1 */ TODO]
+						reportedDiag := resultObj.errors[resultObj.errors.length-1]
 						propertyName := /* TODO(ConditionalExpression): isTypeUsableAsPropertyName(nameType) ? getPropertyNameFromType(nameType) : undefined */ TODO
 						targetProp := /* TODO(ConditionalExpression): propertyName !== undefined ? getPropertyOfType(target, propertyName) : undefined */ TODO
 						issuedElaboration := false
@@ -14601,7 +14609,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		memberOffset := 0
 		for i := 0; i < node.children.length; i++ {
 			child := node.children[i]
-			nameType := getNumberLiteralType( /* TODO(BinaryExpression): i - memberOffset */ TODO)
+			nameType := getNumberLiteralType(i - memberOffset)
 			elem := getElaborationElementForJsxChild(child, nameType, getInvalidTextDiagnostic)
 			if elem {
 				yield(elem)
@@ -14708,7 +14716,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return
 		}
 		for i := 0; i < len; i++ {
-			if isTupleLikeType(target) && !getPropertyOfType(target, ( /* TODO(BinaryExpression): "" + i */ TODO)) {
+			if isTupleLikeType(target) && !getPropertyOfType(target, (""+i)) {
 				continue
 			}
 			elem := node.elements[i]
@@ -14951,7 +14959,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if sourceSymbol.escapedName != targetSymbol.escapedName || !(sourceSymbol.flags & SymbolFlagsRegularEnum) || !(targetSymbol.flags & SymbolFlagsRegularEnum) {
 			return false
 		}
-		id := /* TODO(BinaryExpression): getSymbolId(sourceSymbol) + "," + getSymbolId(targetSymbol) */ TODO
+		id := getSymbolId(sourceSymbol) + "," + getSymbolId(targetSymbol)
 		entry := enumRelation.get(id)
 		if entry != nil && !(entry&RelationComparisonResultFailed && errorReporter) {
 			return !!(entry & RelationComparisonResultSucceeded)
@@ -15247,12 +15255,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if path.indexOf("new ") == 0 {
 						path = /* TODO(TemplateExpression): `(${path})` */ TODO
 					}
-					str := /* TODO(BinaryExpression): "" + args[0] */ TODO
+					str := "" + args[0]
 					if path.length == 0 {
 						path = /* TODO(TemplateExpression): `${str}` */ TODO
 					} else if isIdentifierText(str, getEmitScriptTarget(compilerOptions)) {
 						path = /* TODO(TemplateExpression): `${path}.${str}` */ TODO
-					} else if str[0] == "[" && str[ /* TODO(BinaryExpression): str.length - 1 */ TODO] == "]" {
+					} else if str[0] == "[" && str[str.length-1] == "]" {
 						path = /* TODO(TemplateExpression): `${path}${str}` */ TODO
 					} else {
 						path = /* TODO(TemplateExpression): `${path}[${str}]` */ TODO
@@ -15558,7 +15566,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				sourceSize := sourceUnionOrIntersection.types.length
 				targetSize := targetUnionOrIntersection.types.length
-				if /* TODO(BinaryExpression): sourceSize * targetSize */ TODO > 1e6 {
+				if sourceSize*targetSize > 1e6 {
 					tracing.instant(tracing.Phase.CheckTypes, "traceUnionsOrIntersectionsTooLarge_DepthLimit" /* TODO(ObjectLiteralExpression): { sourceId: source.id, sourceSize, targetId: target.id, targetSize, pos: errorNode?.pos, end: errorNode?.end, } */, TODO)
 				}
 			}
@@ -15742,7 +15750,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			len := sourceTypes.length
 			for i := 0; i < len; i++ {
-				related := isRelatedTo(sourceTypes[i], target, RecursionFlagsSource, reportErrors && i == /* TODO(BinaryExpression): len - 1 */ TODO, nil, intersectionState)
+				related := isRelatedTo(sourceTypes[i], target, RecursionFlagsSource, reportErrors && i == len-1, nil, intersectionState)
 				if related {
 					return related
 				}
@@ -16365,7 +16373,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return 0
 				}
 				return reduceLeft(info, func(value /* TODO inferred type number */ TODO, chain /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DiagnosticMessageChain */ TODO) /* TODO inferred type number */ TODO {
-					return /* TODO(BinaryExpression): value + 1 + countMessageChainBreadth(chain.next) */ TODO
+					return value + 1 + countMessageChainBreadth(chain.next)
 				}, 0)
 			}
 			relateVariances := func(sourceTypeArguments /* TODO(TypeOperator): readonly Type[] */ any, targetTypeArguments /* TODO(TypeOperator): readonly Type[] */ any, variances []VarianceFlags, intersectionState IntersectionState) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Ternary | undefined */ TODO {
@@ -16552,7 +16560,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if props.length > 5 {
 					reportError(Diagnostics.Type_0_is_missing_the_following_properties_from_type_1_Colon_2_and_3_more, typeToString(source), typeToString(target), map_(props.slice(0, 4), func(p /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol */ TODO) /* TODO inferred type string */ TODO {
 						return symbolToString(p)
-					}).join(", "), /* TODO(BinaryExpression): props.length - 4 */ TODO)
+					}).join(", "), props.length-4)
 				} else {
 					reportError(Diagnostics.Type_0_is_missing_the_following_properties_from_type_1_Colon_2, typeToString(source), typeToString(target), map_(props, func(p /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol */ TODO) /* TODO inferred type string */ TODO {
 						return symbolToString(p)
@@ -16608,7 +16616,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					canExcludeDiscriminants := !!excludedProperties
 					for sourcePosition := 0; sourcePosition < sourceArity; sourcePosition++ {
 						sourceFlags := /* TODO(ConditionalExpression): isTupleType(source) ? source.target.elementFlags[sourcePosition] : ElementFlags.Rest */ TODO
-						sourcePositionFromEnd := /* TODO(BinaryExpression): sourceArity - 1 - sourcePosition */ TODO
+						sourcePositionFromEnd := sourceArity - 1 - sourcePosition
 						targetPosition := /* TODO(ConditionalExpression): targetHasRestElement && sourcePosition >= targetStartCount ? targetArity - 1 - Math.min(sourcePositionFromEnd, targetEndCount) : sourcePosition */ TODO
 						targetFlags := target.target.elementFlags[targetPosition]
 						if targetFlags&ElementFlagsVariadic && !(sourceFlags & ElementFlagsVariadic) {
@@ -16633,7 +16641,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							if sourceFlags&ElementFlagsVariable || targetFlags&ElementFlagsVariable {
 								canExcludeDiscriminants = false
 							}
-							if canExcludeDiscriminants && excludedProperties.has(( /* TODO(BinaryExpression): "" + sourcePosition */ TODO)) {
+							if canExcludeDiscriminants && excludedProperties.has(("" + sourcePosition)) {
 								continue
 							}
 						}
@@ -16643,8 +16651,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						related := isRelatedTo(sourceType, targetCheckType, RecursionFlagsBoth, reportErrors, nil, intersectionState)
 						if !related {
 							if reportErrors && (targetArity > 1 || sourceArity > 1) {
-								if targetHasRestElement && sourcePosition >= targetStartCount && sourcePositionFromEnd >= targetEndCount && targetStartCount != /* TODO(BinaryExpression): sourceArity - targetEndCount - 1 */ TODO {
-									reportIncompatibleError(Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target, targetStartCount /* TODO(BinaryExpression): sourceArity - targetEndCount - 1 */, TODO, targetPosition)
+								if targetHasRestElement && sourcePosition >= targetStartCount && sourcePositionFromEnd >= targetEndCount && targetStartCount != sourceArity-targetEndCount-1 {
+									reportIncompatibleError(Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target, targetStartCount, sourceArity-targetEndCount-1, targetPosition)
 								} else {
 									reportIncompatibleError(Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target, sourcePosition, targetPosition)
 								}
@@ -17123,7 +17131,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		targetId := getTypeReferenceId(target, 0)
 		return /* TODO(TemplateExpression): `${constraintMarker}${sourceId},${targetId}${postFix}` */ TODO
 		getTypeReferenceId := func(type_ TypeReference, depth /* TODO inferred type number */ TODO /*  = 0 */) /* TODO inferred type string */ TODO {
-			result := /* TODO(BinaryExpression): "" + type.target.id */ TODO
+			result := "" + type_.target.id
 			for _, t := range getTypeArguments(type_) {
 				if t.flags & TypeFlagsTypeParameter {
 					if ignoreConstraints || isUnconstrainedTypeParameter(t) {
@@ -17132,15 +17140,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							index = typeParameters.length
 							typeParameters.push(t)
 						}
-						result += /* TODO(BinaryExpression): "=" + index */ TODO
+						result += "=" + index
 						continue
 					}
 					constraintMarker = "*"
 				} else if depth < 4 && isTypeReferenceWithGenericArguments(t) {
-					result += /* TODO(BinaryExpression): "<" + getTypeReferenceId(t as TypeReference, depth + 1) + ">" */ TODO
+					result += "<" + getTypeReferenceId(t, depth+1) + ">"
 					continue
 				}
-				result += /* TODO(BinaryExpression): "-" + t.id */ TODO
+				result += "-" + t.id
 			}
 			return result
 		}
@@ -17458,7 +17466,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return isArrayLikeType(type_) || isTupleLikeType(type_)
 	}
 	getTupleElementType := func(type_ Type, index number) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type | undefined */ TODO {
-		propType := getTypeOfPropertyOfType(type_ /* TODO(BinaryExpression): "" + index */, TODO)
+		propType := getTypeOfPropertyOfType(type_, ""+index)
 		if propType {
 			return propType
 		}
@@ -17549,7 +17557,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return restType && createArrayType(restType)
 	}
 	getElementTypeOfSliceOfTupleType := func(type_ TupleTypeReference, index number, endSkipCount /* TODO inferred type number */ TODO /*  = 0 */, writing /* TODO inferred type boolean */ TODO /*  = false */, noReductions /* TODO inferred type boolean */ TODO /*  = false */) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type | undefined */ TODO {
-		length := /* TODO(BinaryExpression): getTypeReferenceArity(type) - endSkipCount */ TODO
+		length := getTypeReferenceArity(type_) - endSkipCount
 		if index < length {
 			typeArguments := getTypeArguments(type_)
 			var elementTypes []Type = /* TODO(ArrayLiteralExpression): [] */ TODO
@@ -17822,8 +17830,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if isIdentifier(param.name) {
 				originalKeywordKind := identifierToKeywordKind(param.name)
 				if (isCallSignatureDeclaration(param.parent) || isMethodSignature(param.parent) || isFunctionTypeNode(param.parent)) && param.parent.parameters.includes(param) && (resolveName(param, param.name.escapedText, SymbolFlagsType, nil, true) || originalKeywordKind && isTypeNodeKind(originalKeywordKind)) {
-					newName := /* TODO(BinaryExpression): "arg" + param.parent.parameters.indexOf(param) */ TODO
-					typeName := /* TODO(BinaryExpression): declarationNameToString(param.name) + (param.dotDotDotToken ? "[]" : "") */ TODO
+					newName := "arg" + param.parent.parameters.indexOf(param)
+					typeName := declarationNameToString(param.name) + ( /* TODO(ConditionalExpression): param.dotDotDotToken ? "[]" : "" */ TODO)
 					errorOrSuggestion(noImplicitAny, declaration, Diagnostics.Parameter_has_a_name_but_no_type_Did_you_mean_0_Colon_1, newName, typeName)
 					return
 				}
@@ -18013,7 +18021,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	isTypeParameterAtTopLevel := func(type_ Type, tp TypeParameter, depth /* TODO inferred type number */ TODO /*  = 0 */) bool {
 		return !!(type_ == tp || type_.flags&TypeFlagsUnionOrIntersection && some((type_).types, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type boolean */ TODO {
 			return isTypeParameterAtTopLevel(t, tp, depth)
-		}) || depth < 3 && type_.flags&TypeFlagsConditional && (isTypeParameterAtTopLevel(getTrueTypeFromConditionalType(type_), tp /* TODO(BinaryExpression): depth + 1 */, TODO) || isTypeParameterAtTopLevel(getFalseTypeFromConditionalType(type_), tp /* TODO(BinaryExpression): depth + 1 */, TODO)))
+		}) || depth < 3 && type_.flags&TypeFlagsConditional && (isTypeParameterAtTopLevel(getTrueTypeFromConditionalType(type_), tp, depth+1) || isTypeParameterAtTopLevel(getFalseTypeFromConditionalType(type_), tp, depth+1)))
 	}
 	isTypeParameterAtTopLevelInReturnType := func(signature Signature, typeParameter TypeParameter) /* TODO inferred type boolean */ TODO {
 		typePredicate := getTypePredicateOfSignature(signature)
@@ -18038,7 +18046,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return createAnonymousType(nil, members, emptyArray, emptyArray, indexInfos)
 	}
 	inferTypeForHomomorphicMappedType := func(source Type, target MappedType, constraint IndexType) *Type {
-		cacheKey := /* TODO(BinaryExpression): source.id + "," + target.id + "," + constraint.id */ TODO
+		cacheKey := source.id + "," + target.id + "," + constraint.id
 		if reverseHomomorphicMappedCache.has(cacheKey) {
 			return reverseHomomorphicMappedCache.get(cacheKey)
 		}
@@ -18095,7 +18103,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return getTypeFromInference(inference) || unknownType
 	}
 	inferReverseMappedType := func(source Type, target MappedType, constraint IndexType) *Type {
-		cacheKey := /* TODO(BinaryExpression): source.id + "," + target.id + "," + constraint.id */ TODO
+		cacheKey := source.id + "," + target.id + "," + constraint.id
 		if reverseMappedCache.has(cacheKey) {
 			return reverseMappedCache.get(cacheKey) || unknownType
 		}
@@ -18162,18 +18170,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	templateLiteralTypesDefinitelyUnrelated := func(source TemplateLiteralType, target TemplateLiteralType) /* TODO inferred type boolean */ TODO {
 		sourceStart := source.texts[0]
 		targetStart := target.texts[0]
-		sourceEnd := source.texts[ /* TODO(BinaryExpression): source.texts.length - 1 */ TODO]
-		targetEnd := target.texts[ /* TODO(BinaryExpression): target.texts.length - 1 */ TODO]
+		sourceEnd := source.texts[source.texts.length-1]
+		targetEnd := target.texts[target.texts.length-1]
 		startLen := Math.min(sourceStart.length, targetStart.length)
 		endLen := Math.min(sourceEnd.length, targetEnd.length)
-		return sourceStart.slice(0, startLen) != targetStart.slice(0, startLen) || sourceEnd.slice( /* TODO(BinaryExpression): sourceEnd.length - endLen */ TODO) != targetEnd.slice( /* TODO(BinaryExpression): targetEnd.length - endLen */ TODO)
+		return sourceStart.slice(0, startLen) != targetStart.slice(0, startLen) || sourceEnd.slice(sourceEnd.length-endLen) != targetEnd.slice(targetEnd.length-endLen)
 	}
 	isValidNumberString := func(s string, roundTripOnly bool) bool {
 		if s == "" {
 			return false
 		}
 		n := +s
-		return isFinite(n) && (!roundTripOnly || /* TODO(BinaryExpression): "" + n */ TODO == s)
+		return isFinite(n) && (!roundTripOnly || ""+n == s)
 	}
 	parseBigIntLiteralType := func(text string) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").BigIntLiteralType */ TODO {
 		return getBigIntLiteralType(parseValidBigInt(text))
@@ -18230,17 +18238,17 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return /* TODO(ConditionalExpression): type.flags & (TypeFlags.Any | TypeFlags.StringLike) ? type : getTemplateLiteralType(["", ""], [type]) */ TODO
 	}
 	inferFromLiteralPartsToTemplateLiteral := func(sourceTexts []string, sourceTypes []Type, target TemplateLiteralType) /* TODO(ArrayType): Type[] */ any {
-		lastSourceIndex := /* TODO(BinaryExpression): sourceTexts.length - 1 */ TODO
+		lastSourceIndex := sourceTexts.length - 1
 		sourceStartText := sourceTexts[0]
 		sourceEndText := sourceTexts[lastSourceIndex]
 		targetTexts := target.texts
-		lastTargetIndex := /* TODO(BinaryExpression): targetTexts.length - 1 */ TODO
+		lastTargetIndex := targetTexts.length - 1
 		targetStartText := targetTexts[0]
 		targetEndText := targetTexts[lastTargetIndex]
-		if lastSourceIndex == 0 && sourceStartText.length < /* TODO(BinaryExpression): targetStartText.length + targetEndText.length */ TODO || !sourceStartText.startsWith(targetStartText) || !sourceEndText.endsWith(targetEndText) {
+		if lastSourceIndex == 0 && sourceStartText.length < targetStartText.length+targetEndText.length || !sourceStartText.startsWith(targetStartText) || !sourceEndText.endsWith(targetEndText) {
 			return nil
 		}
-		remainingEndText := sourceEndText.slice(0 /* TODO(BinaryExpression): sourceEndText.length - targetEndText.length */, TODO)
+		remainingEndText := sourceEndText.slice(0, sourceEndText.length-targetEndText.length)
 		var matches []Type = /* TODO(ArrayLiteralExpression): [] */ TODO
 		seg := 0
 		pos := targetStartText.length
@@ -18263,9 +18271,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				addMatch(s, p)
 				pos += delim.length
 			} else if pos < getSourceText(seg).length {
-				addMatch(seg /* TODO(BinaryExpression): pos + 1 */, TODO)
+				addMatch(seg, pos+1)
 			} else if seg < lastSourceIndex {
-				addMatch( /* TODO(BinaryExpression): seg + 1 */ TODO, 0)
+				addMatch(seg+1, 0)
 			} else {
 				return nil
 			}
@@ -18468,7 +18476,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			priority = savePriority
 		}
 		invokeOnce := func(source Source, target Target, action func(source Source, target Target)) {
-			key := /* TODO(BinaryExpression): source.id + "," + target.id */ TODO
+			key := source.id + "," + target.id
 			status := visited && visited.get(key)
 			if status != nil {
 				inferencePriority = Math.min(inferencePriority, status)
@@ -18737,42 +18745,42 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						for i := 0; i < startLength; i++ {
 							inferFromTypes(getTypeArguments(source)[i], elementTypes[i])
 						}
-						if !isTupleType(source) || /* TODO(BinaryExpression): sourceArity - startLength - endLength */ TODO == 1 && source.target.elementFlags[startLength]&ElementFlagsRest {
+						if !isTupleType(source) || sourceArity-startLength-endLength == 1 && source.target.elementFlags[startLength]&ElementFlagsRest {
 							restType := getTypeArguments(source)[startLength]
-							for i := startLength; i < /* TODO(BinaryExpression): targetArity - endLength */ TODO; i++ {
+							for i := startLength; i < targetArity-endLength; i++ {
 								inferFromTypes( /* TODO(ConditionalExpression): elementFlags[i] & ElementFlags.Variadic ? createArrayType(restType) : restType */ TODO, elementTypes[i])
 							}
 						} else {
-							middleLength := /* TODO(BinaryExpression): targetArity - startLength - endLength */ TODO
+							middleLength := targetArity - startLength - endLength
 							if middleLength == 2 {
-								if elementFlags[startLength] & elementFlags[ /* TODO(BinaryExpression): startLength + 1 */ TODO] & ElementFlagsVariadic {
+								if elementFlags[startLength] & elementFlags[startLength+1] & ElementFlagsVariadic {
 									targetInfo := getInferenceInfoForType(elementTypes[startLength])
 									if targetInfo && targetInfo.impliedArity != nil {
-										inferFromTypes(sliceTupleType(source, startLength /* TODO(BinaryExpression): endLength + sourceArity - targetInfo.impliedArity */, TODO), elementTypes[startLength])
-										inferFromTypes(sliceTupleType(source /* TODO(BinaryExpression): startLength + targetInfo.impliedArity */, TODO, endLength), elementTypes[ /* TODO(BinaryExpression): startLength + 1 */ TODO])
+										inferFromTypes(sliceTupleType(source, startLength, endLength+sourceArity-targetInfo.impliedArity), elementTypes[startLength])
+										inferFromTypes(sliceTupleType(source, startLength+targetInfo.impliedArity, endLength), elementTypes[startLength+1])
 									}
-								} else if elementFlags[startLength]&ElementFlagsVariadic && elementFlags[ /* TODO(BinaryExpression): startLength + 1 */ TODO]&ElementFlagsRest {
+								} else if elementFlags[startLength]&ElementFlagsVariadic && elementFlags[startLength+1]&ElementFlagsRest {
 									param := getInferenceInfoForType(elementTypes[startLength]).typeParameter
 									constraint := param && getBaseConstraintOfType(param)
 									if constraint && isTupleType(constraint) && !(constraint.target.combinedFlags & ElementFlagsVariable) {
 										impliedArity := constraint.target.fixedLength
-										inferFromTypes(sliceTupleType(source, startLength /* TODO(BinaryExpression): sourceArity - (startLength + impliedArity) */, TODO), elementTypes[startLength])
-										inferFromTypes(getElementTypeOfSliceOfTupleType(source /* TODO(BinaryExpression): startLength + impliedArity */, TODO, endLength), elementTypes[ /* TODO(BinaryExpression): startLength + 1 */ TODO])
+										inferFromTypes(sliceTupleType(source, startLength, sourceArity-(startLength+impliedArity)), elementTypes[startLength])
+										inferFromTypes(getElementTypeOfSliceOfTupleType(source, startLength+impliedArity, endLength), elementTypes[startLength+1])
 									}
-								} else if elementFlags[startLength]&ElementFlagsRest && elementFlags[ /* TODO(BinaryExpression): startLength + 1 */ TODO]&ElementFlagsVariadic {
-									param := getInferenceInfoForType(elementTypes[ /* TODO(BinaryExpression): startLength + 1 */ TODO]).typeParameter
+								} else if elementFlags[startLength]&ElementFlagsRest && elementFlags[startLength+1]&ElementFlagsVariadic {
+									param := getInferenceInfoForType(elementTypes[startLength+1]).typeParameter
 									constraint := param && getBaseConstraintOfType(param)
 									if constraint && isTupleType(constraint) && !(constraint.target.combinedFlags & ElementFlagsVariable) {
 										impliedArity := constraint.target.fixedLength
-										endIndex := /* TODO(BinaryExpression): sourceArity - getEndElementCount(target.target, ElementFlags.Fixed) */ TODO
-										startIndex := /* TODO(BinaryExpression): endIndex - impliedArity */ TODO
+										endIndex := sourceArity - getEndElementCount(target.target, ElementFlagsFixed)
+										startIndex := endIndex - impliedArity
 										trailingSlice := createTupleType(getTypeArguments(source).slice(startIndex, endIndex), source.target.elementFlags.slice(startIndex, endIndex), false, source.target.labeledElementDeclarations && source.target.labeledElementDeclarations.slice(startIndex, endIndex))
-										inferFromTypes(getElementTypeOfSliceOfTupleType(source, startLength /* TODO(BinaryExpression): endLength + impliedArity */, TODO), elementTypes[startLength])
-										inferFromTypes(trailingSlice, elementTypes[ /* TODO(BinaryExpression): startLength + 1 */ TODO])
+										inferFromTypes(getElementTypeOfSliceOfTupleType(source, startLength, endLength+impliedArity), elementTypes[startLength])
+										inferFromTypes(trailingSlice, elementTypes[startLength+1])
 									}
 								}
 							} else if middleLength == 1 && elementFlags[startLength]&ElementFlagsVariadic {
-								endsInOptional := target.target.elementFlags[ /* TODO(BinaryExpression): targetArity - 1 */ TODO] & ElementFlagsOptional
+								endsInOptional := target.target.elementFlags[targetArity-1] & ElementFlagsOptional
 								sourceSlice := sliceTupleType(source, startLength, endLength)
 								inferWithPriority(sourceSlice, elementTypes[startLength] /* TODO(ConditionalExpression): endsInOptional ? InferencePriority.SpeculativeTuple : 0 */, TODO)
 							} else if middleLength == 1 && elementFlags[startLength]&ElementFlagsRest {
@@ -18783,7 +18791,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							}
 						}
 						for i := 0; i < endLength; i++ {
-							inferFromTypes(getTypeArguments(source)[ /* TODO(BinaryExpression): sourceArity - i - 1 */ TODO], elementTypes[ /* TODO(BinaryExpression): targetArity - i - 1 */ TODO])
+							inferFromTypes(getTypeArguments(source)[sourceArity-i-1], elementTypes[targetArity-i-1])
 						}
 						return
 					}
@@ -18814,7 +18822,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				targetSignatures := getSignaturesOfType(target, kind)
 				targetLen := targetSignatures.length
 				for i := 0; i < targetLen; i++ {
-					sourceIndex := Math.max( /* TODO(BinaryExpression): sourceLen - targetLen + i */ TODO, 0)
+					sourceIndex := Math.max(sourceLen-targetLen+i, 0)
 					inferFromSignature(getBaseSignature(sourceSignatures[sourceIndex]), getErasedSignature(targetSignatures[i]))
 				}
 			}
@@ -19143,7 +19151,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return /* TODO(ConditionalExpression): name ? escapeLeadingUnderscores(name) : undefined */ TODO
 		}
 		if isParameter(access) {
-			return ( /* TODO(BinaryExpression): "" + access.parent.parameters.indexOf(access) */ TODO)
+			return ("" + access.parent.parameters.indexOf(access))
 		}
 		return nil
 	}
@@ -19658,7 +19666,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				originFiltered := filter(originTypes, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO) /* TODO inferred type boolean */ TODO {
 					return !!(t.flags & TypeFlagsUnion) || f(t)
 				})
-				if /* TODO(BinaryExpression): originTypes.length - originFiltered.length */ TODO == /* TODO(BinaryExpression): types.length - filtered.length */ TODO {
+				if originTypes.length-originFiltered.length == types.length-filtered.length {
 					if originFiltered.length == 1 {
 						return originFiltered[0]
 					}
@@ -21064,7 +21072,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				symbol := resolveEntityName(name, SymbolFlagsValue, true, true)
 				if symbol && isParameterOrMutableLocalVariable(symbol) {
 					sign := /* TODO(ConditionalExpression): symbol.lastAssignmentPos !== undefined && symbol.lastAssignmentPos < 0 ? -1 : 1 */ TODO
-					symbol.lastAssignmentPos = /* TODO(BinaryExpression): sign * Number.MAX_VALUE */ TODO
+					symbol.lastAssignmentPos = sign * Number.MAX_VALUE
 				}
 			}
 			return
@@ -21509,7 +21517,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						restType := getReducedApparentType(instantiateType(getTypeOfSymbol(contextualSignature.parameters[0]), getInferenceContext(func_).nonFixingMapper))
 						if restType.flags&TypeFlagsUnion && everyType(restType, isTupleType) && !some(func_.parameters, isSomeSymbolAssigned) {
 							narrowedType := getFlowTypeOfReference(func_, restType, restType, nil, location.flowNode)
-							index := /* TODO(BinaryExpression): func.parameters.indexOf(declaration) - (getThisParameter(func) ? 1 : 0) */ TODO
+							index := func_.parameters.indexOf(declaration) - ( /* TODO(ConditionalExpression): getThisParameter(func) ? 1 : 0 */ TODO)
 							return getIndexedAccessType(narrowedType, getNumberLiteralType(index))
 						}
 					}
@@ -22105,7 +22113,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		contextualSignature := getContextualSignature(func_)
 		if contextualSignature {
-			index := /* TODO(BinaryExpression): func.parameters.indexOf(parameter) - (getThisParameter(func) ? 1 : 0) */ TODO
+			index := func_.parameters.indexOf(parameter) - ( /* TODO(ConditionalExpression): getThisParameter(func) ? 1 : 0 */ TODO)
 			return /* TODO(ConditionalExpression): parameter.dotDotDotToken && lastOrUndefined(func.parameters) === parameter ? getRestTypeAtPosition(contextualSignature, index) : tryGetTypeAtPosition(contextualSignature, index) */ TODO
 		}
 	}
@@ -22291,7 +22299,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if isJsxOpeningLikeElement(callTarget) && argIndex == 0 {
 			return getEffectiveFirstArgumentForJsxSignature(signature, callTarget)
 		}
-		restIndex := /* TODO(BinaryExpression): signature.parameters.length - 1 */ TODO
+		restIndex := signature.parameters.length - 1
 		return /* TODO(ConditionalExpression): signatureHasRestParameter(signature) && argIndex >= restIndex ? getIndexedAccessType(getTypeOfSymbol(signature.parameters[restIndex]), getNumberLiteralType(argIndex - restIndex), AccessFlags.Contextual) : getTypeAtPosition(signature, argIndex) */ TODO
 	}
 	getContextualTypeForDecorator := func(decorator Decorator) *Type {
@@ -22607,11 +22615,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				offset := /* TODO(ConditionalExpression): length !== undefined && (lastSpreadIndex === undefined || index > lastSpreadIndex) ? length - index : 0 */ TODO
 				fixedEndLength := /* TODO(ConditionalExpression): offset > 0 && (t.target.combinedFlags & ElementFlags.Variable) ? getEndElementCount(t.target, ElementFlags.Fixed) : 0 */ TODO
 				if offset > 0 && offset <= fixedEndLength {
-					return getTypeArguments(t)[ /* TODO(BinaryExpression): getTypeReferenceArity(t) - offset */ TODO]
+					return getTypeArguments(t)[getTypeReferenceArity(t)-offset]
 				}
 				return getElementTypeOfSliceOfTupleType(t /* TODO(ConditionalExpression): firstSpreadIndex === undefined ? t.target.fixedLength : Math.min(t.target.fixedLength, firstSpreadIndex) */, TODO /* TODO(ConditionalExpression): length === undefined || lastSpreadIndex === undefined ? fixedEndLength : Math.min(fixedEndLength, length - lastSpreadIndex) */, TODO, false, true)
 			}
-			return (!firstSpreadIndex || index < firstSpreadIndex) && getTypeOfPropertyOfContextualType(t /* TODO(BinaryExpression): "" + index */, TODO) || getIteratedTypeOrElementType(IterationUseElement, t, undefinedType, nil, false)
+			return (!firstSpreadIndex || index < firstSpreadIndex) && getTypeOfPropertyOfContextualType(t, ""+index) || getIteratedTypeOrElementType(IterationUseElement, t, undefinedType, nil, false)
 		}, true)
 	}
 	getContextualTypeForConditionalOperand := func(node Expression, contextFlags *ContextFlags) *Type {
@@ -22846,7 +22854,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		contextualTypeCount--
 	}
 	findContextualNode := func(node Node, includeCaches bool) /* TODO inferred type number */ TODO {
-		for i := /* TODO(BinaryExpression): contextualTypeCount - 1 */ TODO; i >= 0; i-- {
+		for i := contextualTypeCount - 1; i >= 0; i-- {
 			if node == contextualTypeNodes[i] && (includeCaches || !contextualIsCache[i]) {
 				return i
 			}
@@ -22862,7 +22870,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		inferenceContextCount--
 	}
 	getInferenceContext := func(node Node) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").InferenceContext | undefined */ TODO {
-		for i := /* TODO(BinaryExpression): inferenceContextCount - 1 */ TODO; i >= 0; i-- {
+		for i := inferenceContextCount - 1; i >= 0; i-- {
 			if isNodeDescendantOf(node, inferenceContextNodes[i]) {
 				return inferenceContexts[i]
 			}
@@ -23003,7 +23011,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				shorterParamType = instantiateType(shorterParamType, mapper)
 			}
 			unionParamType := getUnionType( /* TODO(ArrayLiteralExpression): [longestParamType, shorterParamType] */ TODO)
-			isRestParam := eitherHasEffectiveRest && !needsExtraRestElement && i == ( /* TODO(BinaryExpression): longestCount - 1 */ TODO)
+			isRestParam := eitherHasEffectiveRest && !needsExtraRestElement && i == (longestCount-1)
 			isOptional := i >= getMinArgumentCount(longest) && i >= getMinArgumentCount(shorter)
 			leftName := /* TODO(ConditionalExpression): i >= leftCount ? undefined : getParameterNameAtPosition(left, i) */ TODO
 			rightName := /* TODO(ConditionalExpression): i >= rightCount ? undefined : getParameterNameAtPosition(right, i) */ TODO
@@ -23111,7 +23119,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					diagnostics.add(lastError)
 				}
 			})
-			scanner.setText(sourceFile.text, node.pos /* TODO(BinaryExpression): node.end - node.pos */, TODO)
+			scanner.setText(sourceFile.text, node.pos, node.end-node.pos)
 			/* TODO(TryStatement): try { scanner.scan(); Debug.assert(scanner.reScanSlashToken(/*reportErrors* / true) === SyntaxKind.RegularExpressionLiteral, "Expected scanner to rescan RegularExpressionLiteral"); return !!lastError; } finally { scanner.setText(""); scanner.setOnError(/*onError* / undefined); } */
 		}
 		return false
@@ -23642,7 +23650,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					links.jsxFlags |= JsxFlagsIntrinsicIndexedElement
 					return /* TODO(BinaryExpression): links.resolvedSymbol = intrinsicElementsType.symbol */ TODO
 				}
-				error(node, Diagnostics.Property_0_does_not_exist_on_type_1, intrinsicTagNameToString(node.tagName) /* TODO(BinaryExpression): "JSX." + JsxNames.IntrinsicElements */, TODO)
+				error(node, Diagnostics.Property_0_does_not_exist_on_type_1, intrinsicTagNameToString(node.tagName), "JSX."+JsxNames.IntrinsicElements)
 				return /* TODO(BinaryExpression): links.resolvedSymbol = unknownSymbol */ TODO
 			} else {
 				if noImplicitAny {
@@ -23739,7 +23747,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		} else if elementType.flags & TypeFlagsStringLiteral {
 			intrinsicType := getIntrinsicAttributesTypeFromStringLiteralType(elementType, caller)
 			if !intrinsicType {
-				error(caller, Diagnostics.Property_0_does_not_exist_on_type_1, (elementType).value /* TODO(BinaryExpression): "JSX." + JsxNames.IntrinsicElements */, TODO)
+				error(caller, Diagnostics.Property_0_does_not_exist_on_type_1, (elementType).value, "JSX."+JsxNames.IntrinsicElements)
 				return emptyArray
 			} else {
 				fakeSignature := createSignatureForJSXIntrinsic(caller, intrinsicType)
@@ -24464,7 +24472,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if typeHasStaticProperty(propNode.escapedText, containingType) {
 			propName := declarationNameToString(propNode)
 			typeName := typeToString(containingType)
-			errorInfo = chainDiagnosticMessages(errorInfo, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_to_access_the_static_member_2_instead, propName, typeName /* TODO(BinaryExpression): typeName + "." + propName */, TODO)
+			errorInfo = chainDiagnosticMessages(errorInfo, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_to_access_the_static_member_2_instead, propName, typeName, typeName+"."+propName)
 		} else {
 			promisedType := getPromisedTypeOfPromise(containingType)
 			if promisedType && getPropertyOfType(promisedType, propNode.escapedText) {
@@ -24594,7 +24602,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if suggestion == nil {
 			suggestion = suggestedMethod
 		} else {
-			suggestion += /* TODO(BinaryExpression): "." + suggestedMethod */ TODO
+			suggestion += "." + suggestedMethod
 		}
 		return suggestion
 	}
@@ -24784,7 +24792,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			parent := signature.declaration && signature.declaration.parent
 			if !lastSymbol || symbol == lastSymbol {
 				if lastParent && parent == lastParent {
-					index = /* TODO(BinaryExpression): index! + 1 */ TODO
+					index = index + 1
 				} else {
 					lastParent = parent
 					index = cutoffIndex
@@ -24989,8 +24997,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getSpreadArgumentType := func(args []Expression, index number, argCount number, restType Type, context *InferenceContext, checkMode CheckMode) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ TODO {
 		inConstContext := isConstTypeVariable(restType)
-		if index >= /* TODO(BinaryExpression): argCount - 1 */ TODO {
-			arg := args[ /* TODO(BinaryExpression): argCount - 1 */ TODO]
+		if index >= argCount-1 {
+			arg := args[argCount-1]
 			if isSpreadArgument(arg) {
 				spreadType := /* TODO(ConditionalExpression): arg.kind === SyntaxKind.SyntheticExpression ? (arg as SyntheticExpression).type : checkExpressionWithContextualType((arg as SpreadElement).expression, restType, context, checkMode) */ TODO
 				if isArrayLikeType(spreadType) {
@@ -25185,7 +25193,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		if restType {
 			spreadType := getSpreadArgumentType(args, argCount, args.length, restType, nil, checkMode)
-			restArgCount := /* TODO(BinaryExpression): args.length - argCount */ TODO
+			restArgCount := args.length - argCount
 			errorNode := /* TODO(ConditionalExpression): !reportErrors ? undefined : restArgCount === 0 ? node : restArgCount === 1 ? getEffectiveCheckNode(args[argCount]) : setTextRangePosEnd(createSyntheticExpression(node, spreadType), args[argCount].pos, args[args.length - 1].end) */ TODO
 			if !checkTypeRelatedTo(spreadType, restType, relation, errorNode, headMessage, nil, errorOutputContainer) {
 				Debug.assert(!reportErrors || !!errorOutputContainer.errors, "rest parameter should have errors when reporting errors")
@@ -25499,7 +25507,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if candidatesForArgumentError {
 				if candidatesForArgumentError.length == 1 || candidatesForArgumentError.length > 3 {
-					last := candidatesForArgumentError[ /* TODO(BinaryExpression): candidatesForArgumentError.length - 1 */ TODO]
+					last := candidatesForArgumentError[candidatesForArgumentError.length-1]
 					var chain *DiagnosticMessageChain
 					if candidatesForArgumentError.length > 3 {
 						chain = chainDiagnosticMessages(chain, Diagnostics.The_last_overload_gave_the_following_error)
@@ -25530,7 +25538,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					i := 0
 					for _, c := range candidatesForArgumentError {
 						chain := func() /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DiagnosticMessageChain */ TODO {
-							return chainDiagnosticMessages(nil, Diagnostics.Overload_0_of_1_2_gave_the_following_error /* TODO(BinaryExpression): i + 1 */, TODO, candidates.length, signatureToString(c))
+							return chainDiagnosticMessages(nil, Diagnostics.Overload_0_of_1_2_gave_the_following_error, i+1, candidates.length, signatureToString(c))
 						}
 						diags := getSignatureApplicabilityError(node, args, c, assignableRelation, CheckModeNormal, true, chain, nil)
 						if diags {
@@ -25814,7 +25822,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				var relatedInformation *DiagnosticRelatedInformation
 				if node.arguments.length == 1 {
 					text := getSourceFileOfNode(node).text
-					if isLineBreak(text.charCodeAt( /* TODO(BinaryExpression): skipTrivia(text, node.expression.end, /*stopAfterLineBreak* / true) - 1 */ TODO)) {
+					if isLineBreak(text.charCodeAt(skipTrivia(text, node.expression.end, true) - 1)) {
 						relatedInformation = createDiagnosticForNode(node.expression, Diagnostics.Are_you_missing_a_semicolon)
 					}
 				}
@@ -26749,14 +26757,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if node.dotDotDotToken {
 				elements := node.name.elements
 				lastElement := tryCast(lastOrUndefined(elements), isBindingElement)
-				elementCount := /* TODO(BinaryExpression): elements.length - (lastElement?.dotDotDotToken ? 1 : 0) */ TODO
+				elementCount := elements.length - ( /* TODO(ConditionalExpression): lastElement?.dotDotDotToken ? 1 : 0 */ TODO)
 				if index < elementCount {
 					element := elements[index]
 					if isBindingElement(element) {
 						return getTupleElementLabelFromBindingElement(element, index, elementFlags)
 					}
 				} else if lastElement.dotDotDotToken {
-					return getTupleElementLabelFromBindingElement(lastElement /* TODO(BinaryExpression): index - elementCount */, TODO, elementFlags)
+					return getTupleElementLabelFromBindingElement(lastElement, index-elementCount, elementFlags)
 				}
 			}
 			break
@@ -26774,7 +26782,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return d.name.escapedText
 	}
 	getParameterNameAtPosition := func(signature Signature, pos number, overrideRestType Type) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").__String */ TODO {
-		paramCount := /* TODO(BinaryExpression): signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0) */ TODO
+		paramCount := signature.parameters.length - ( /* TODO(ConditionalExpression): signatureHasRestParameter(signature) ? 1 : 0 */ TODO)
 		if pos < paramCount {
 			return signature.parameters[pos].escapedName
 		}
@@ -26782,7 +26790,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		restType := overrideRestType || getTypeOfSymbol(restParameter)
 		if isTupleType(restType) {
 			tupleType := (restType).target
-			index := /* TODO(BinaryExpression): pos - paramCount */ TODO
+			index := pos - paramCount
 			associatedName := tupleType.labeledElementDeclarations[index]
 			elementFlags := tupleType.elementFlags[index]
 			return getTupleElementLabel(associatedName, index, elementFlags, restParameter)
@@ -26793,7 +26801,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if signature.declaration.kind == SyntaxKindJSDocFunctionType {
 			return nil
 		}
-		paramCount := /* TODO(BinaryExpression): signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0) */ TODO
+		paramCount := signature.parameters.length - ( /* TODO(ConditionalExpression): signatureHasRestParameter(signature) ? 1 : 0 */ TODO)
 		if pos < paramCount {
 			param := signature.parameters[pos]
 			paramIdent := getParameterDeclarationIdentifier(param)
@@ -26807,7 +26815,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		restType := getTypeOfSymbol(restParameter)
 		if isTupleType(restType) {
 			associatedNames := ((restType).target).labeledElementDeclarations
-			index := /* TODO(BinaryExpression): pos - paramCount */ TODO
+			index := pos - paramCount
 			associatedName := associatedNames[index]
 			isRestTupleElement := !!associatedName.dotDotDotToken
 			if associatedName {
@@ -26828,7 +26836,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return d.kind == SyntaxKindNamedTupleMember || (isParameter(d) && d.name && isIdentifier(d.name))
 	}
 	getNameableDeclarationAtPosition := func(signature Signature, pos number) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ParameterDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").NamedTupleMember | undefined */ TODO {
-		paramCount := /* TODO(BinaryExpression): signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0) */ TODO
+		paramCount := signature.parameters.length - ( /* TODO(ConditionalExpression): signatureHasRestParameter(signature) ? 1 : 0 */ TODO)
 		if pos < paramCount {
 			decl := signature.parameters[pos].valueDeclaration
 			return /* TODO(ConditionalExpression): decl && isValidDeclarationForTupleLabel(decl) ? decl : undefined */ TODO
@@ -26837,7 +26845,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		restType := getTypeOfSymbol(restParameter)
 		if isTupleType(restType) {
 			associatedNames := ((restType).target).labeledElementDeclarations
-			index := /* TODO(BinaryExpression): pos - paramCount */ TODO
+			index := pos - paramCount
 			return associatedNames && associatedNames[index]
 		}
 		return /* TODO(ConditionalExpression): restParameter.valueDeclaration && isValidDeclarationForTupleLabel(restParameter.valueDeclaration) ? restParameter.valueDeclaration : undefined */ TODO
@@ -26846,13 +26854,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return tryGetTypeAtPosition(signature, pos) || anyType
 	}
 	tryGetTypeAtPosition := func(signature Signature, pos number) *Type {
-		paramCount := /* TODO(BinaryExpression): signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0) */ TODO
+		paramCount := signature.parameters.length - ( /* TODO(ConditionalExpression): signatureHasRestParameter(signature) ? 1 : 0 */ TODO)
 		if pos < paramCount {
 			return getTypeOfParameter(signature.parameters[pos])
 		}
 		if signatureHasRestParameter(signature) {
 			restType := getTypeOfSymbol(signature.parameters[paramCount])
-			index := /* TODO(BinaryExpression): pos - paramCount */ TODO
+			index := pos - paramCount
 			if !isTupleType(restType) || restType.target.combinedFlags&ElementFlagsVariable || index < restType.target.fixedLength {
 				return getIndexedAccessType(restType, getNumberLiteralType(index))
 			}
@@ -26863,14 +26871,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		parameterCount := getParameterCount(source)
 		minArgumentCount := getMinArgumentCount(source)
 		restType := getEffectiveRestType(source)
-		if restType && pos >= /* TODO(BinaryExpression): parameterCount - 1 */ TODO {
+		if restType && pos >= parameterCount-1 {
 			return /* TODO(ConditionalExpression): pos === parameterCount - 1 ? restType : createArrayType(getIndexedAccessType(restType, numberType)) */ TODO
 		}
 		types := /* TODO(ArrayLiteralExpression): [] */ TODO
 		flags := /* TODO(ArrayLiteralExpression): [] */ TODO
 		names := /* TODO(ArrayLiteralExpression): [] */ TODO
 		for i := pos; i < parameterCount; i++ {
-			if !restType || i < /* TODO(BinaryExpression): parameterCount - 1 */ TODO {
+			if !restType || i < parameterCount-1 {
 				types.push(getTypeAtPosition(source, i))
 				flags.push( /* TODO(ConditionalExpression): i < minArgumentCount ? ElementFlags.Required : ElementFlags.Optional */ TODO)
 			} else {
@@ -26889,9 +26897,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getParameterCount := func(signature Signature) /* TODO inferred type number */ TODO {
 		length := signature.parameters.length
 		if signatureHasRestParameter(signature) {
-			restType := getTypeOfSymbol(signature.parameters[ /* TODO(BinaryExpression): length - 1 */ TODO])
+			restType := getTypeOfSymbol(signature.parameters[length-1])
 			if isTupleType(restType) {
-				return /* TODO(BinaryExpression): length + restType.target.fixedLength - (restType.target.combinedFlags & ElementFlags.Variable ? 0 : 1) */ TODO
+				return length + restType.target.fixedLength - ( /* TODO(ConditionalExpression): restType.target.combinedFlags & ElementFlags.Variable ? 0 : 1 */ TODO)
 			}
 		}
 		return length
@@ -26902,14 +26910,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if voidIsNonOptional || signature.resolvedMinArgumentCount == nil {
 			var minArgumentCount /* TODO(NumberKeyword): number */ any
 			if signatureHasRestParameter(signature) {
-				restType := getTypeOfSymbol(signature.parameters[ /* TODO(BinaryExpression): signature.parameters.length - 1 */ TODO])
+				restType := getTypeOfSymbol(signature.parameters[signature.parameters.length-1])
 				if isTupleType(restType) {
 					firstOptionalIndex := findIndex(restType.target.elementFlags, func(f /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ElementFlags */ TODO) /* TODO inferred type boolean */ TODO {
 						return !(f & ElementFlagsRequired)
 					})
 					requiredCount := /* TODO(ConditionalExpression): firstOptionalIndex < 0 ? restType.target.fixedLength : firstOptionalIndex */ TODO
 					if requiredCount > 0 {
-						minArgumentCount = /* TODO(BinaryExpression): signature.parameters.length - 1 + requiredCount */ TODO
+						minArgumentCount = signature.parameters.length - 1 + requiredCount
 					}
 				}
 			}
@@ -26922,7 +26930,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if voidIsNonOptional {
 				return minArgumentCount
 			}
-			for i := /* TODO(BinaryExpression): minArgumentCount - 1 */ TODO; i >= 0; i-- {
+			for i := minArgumentCount - 1; i >= 0; i-- {
 				type_ := getTypeAtPosition(signature, i)
 				if filterType(type_, acceptsVoid).flags & TypeFlagsNever {
 					break
@@ -26935,14 +26943,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	hasEffectiveRestParameter := func(signature Signature) /* TODO inferred type boolean */ TODO {
 		if signatureHasRestParameter(signature) {
-			restType := getTypeOfSymbol(signature.parameters[ /* TODO(BinaryExpression): signature.parameters.length - 1 */ TODO])
+			restType := getTypeOfSymbol(signature.parameters[signature.parameters.length-1])
 			return !isTupleType(restType) || !!(restType.target.combinedFlags & ElementFlagsVariable)
 		}
 		return false
 	}
 	getEffectiveRestType := func(signature Signature) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type | undefined */ TODO {
 		if signatureHasRestParameter(signature) {
-			restType := getTypeOfSymbol(signature.parameters[ /* TODO(BinaryExpression): signature.parameters.length - 1 */ TODO])
+			restType := getTypeOfSymbol(signature.parameters[signature.parameters.length-1])
 			if !isTupleType(restType) {
 				return /* TODO(ConditionalExpression): isTypeAny(restType) ? anyArrayType : restType */ TODO
 			}
@@ -26963,7 +26971,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return /* TODO(ConditionalExpression): signature.parameters.length > 0 ? getTypeAtPosition(signature, 0) : fallbackType */ TODO
 	}
 	inferFromAnnotatedParameters := func(signature Signature, context Signature, inferenceContext InferenceContext) {
-		len := /* TODO(BinaryExpression): signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0) */ TODO
+		len := signature.parameters.length - ( /* TODO(ConditionalExpression): signatureHasRestParameter(signature) ? 1 : 0 */ TODO)
 		for i := 0; i < len; i++ {
 			declaration := signature.parameters[i].valueDeclaration
 			typeNode := getEffectiveTypeAnnotationNode(declaration)
@@ -26991,7 +26999,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				assignParameterType(signature.thisParameter, getTypeOfSymbol(context.thisParameter))
 			}
 		}
-		len := /* TODO(BinaryExpression): signature.parameters.length - (signatureHasRestParameter(signature) ? 1 : 0) */ TODO
+		len := signature.parameters.length - ( /* TODO(ConditionalExpression): signatureHasRestParameter(signature) ? 1 : 0 */ TODO)
 		for i := 0; i < len; i++ {
 			parameter := signature.parameters[i]
 			declaration := parameter.valueDeclaration
@@ -28047,7 +28055,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			type_ := getFlowTypeOfDestructuring(property, elementType)
 			return checkDestructuringAssignment( /* TODO(ConditionalExpression): property.kind === SyntaxKind.ShorthandPropertyAssignment ? property : property.initializer */ TODO, type_)
 		} else if property.kind == SyntaxKindSpreadAssignment {
-			if propertyIndex < /* TODO(BinaryExpression): properties.length - 1 */ TODO {
+			if propertyIndex < properties.length-1 {
 				error(property, Diagnostics.A_rest_element_must_be_last_in_a_destructuring_pattern)
 			} else {
 				if languageVersion < LanguageFeatureMinimumTargetObjectSpreadRest {
@@ -28100,7 +28108,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				return checkDestructuringAssignment(element, elementType, checkMode)
 			}
-			if elementIndex < /* TODO(BinaryExpression): elements.length - 1 */ TODO {
+			if elementIndex < elements.length-1 {
 				error(element, Diagnostics.A_rest_element_must_be_last_in_a_destructuring_pattern)
 			} else {
 				restExpression := (element).expression
@@ -28336,10 +28344,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			state.typeStack[state.stackIndex] = type_
 		}
 		getLastResult := func(state WorkArea) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type | undefined */ TODO {
-			return state.typeStack[ /* TODO(BinaryExpression): state.stackIndex + 1 */ TODO]
+			return state.typeStack[state.stackIndex+1]
 		}
 		setLastResult := func(state WorkArea, type_ *Type) {
-			state.typeStack[ /* TODO(BinaryExpression): state.stackIndex + 1 */ TODO] = type_
+			state.typeStack[state.stackIndex+1] = type_
 		}
 	}
 	checkNullishCoalesceOperands := func(node BinaryExpression) {
@@ -29018,7 +29026,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		elementFlags := type_.target.elementFlags.slice()
 		for i := getTypeReferenceArity(type_); i < patternElements.length; i++ {
 			e := patternElements[i]
-			if i < /* TODO(BinaryExpression): patternElements.length - 1 */ TODO || !(e.kind == SyntaxKindBindingElement && e.dotDotDotToken) {
+			if i < patternElements.length-1 || !(e.kind == SyntaxKindBindingElement && e.dotDotDotToken) {
 				elementTypes.push( /* TODO(ConditionalExpression): !isOmittedExpression(e) && hasDefaultValue(e) ? getTypeFromBindingElement(e, /*includePatternInType* / false, /*reportErrors* / false) : anyType */ TODO)
 				elementFlags.push(ElementFlagsOptional)
 				if !isOmittedExpression(e) && !hasDefaultValue(e) {
@@ -29187,12 +29195,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getUniqueTypeParameterName := func(typeParameters []TypeParameter, baseName __String) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").__String */ TODO {
 		len := (baseName).length
-		for len > 1 && (baseName).charCodeAt( /* TODO(BinaryExpression): len - 1 */ TODO) >= CharacterCodes_0 && (baseName).charCodeAt( /* TODO(BinaryExpression): len - 1 */ TODO) <= CharacterCodes_9 {
+		for len > 1 && (baseName).charCodeAt(len-1) >= CharacterCodes_0 && (baseName).charCodeAt(len-1) <= CharacterCodes_9 {
 			len--
 		}
 		s := (baseName).slice(0, len)
 		for index := 1; true; index++ {
-			augmentedName := /* TODO(BinaryExpression): s + index */ TODO
+			augmentedName := s + index
 			if !hasTypeParameterByName(typeParameters, augmentedName) {
 				return augmentedName
 			}
@@ -29511,7 +29519,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		TODO_IDENTIFIER := node
 		if typePredicate.kind != TypePredicateKindThis && typePredicate.kind != TypePredicateKindAssertsThis {
 			if typePredicate.parameterIndex >= 0 {
-				if signatureHasRestParameter(signature) && typePredicate.parameterIndex == /* TODO(BinaryExpression): signature.parameters.length - 1 */ TODO {
+				if signatureHasRestParameter(signature) && typePredicate.parameterIndex == signature.parameters.length-1 {
 					error(parameterName, Diagnostics.A_type_predicate_cannot_reference_a_rest_parameter)
 				} else {
 					if typePredicate.type_ {
@@ -31269,7 +31277,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					range_ := /* TODO(ConditionalExpression): isJSDocTemplateTag(parent) // Whole @template tag ? rangeOfNode(parent) // Include the `<>` in the error message : rangeOfTypeParameters(sourceFile, parent.typeParameters!) */ TODO
 					only := parent.typeParameters.length == 1
 					var messageAndArg DiagnosticAndArguments = /* TODO(ConditionalExpression): only ? [Diagnostics._0_is_declared_but_its_value_is_never_read, name] : [Diagnostics.All_type_parameters_are_unused] */ TODO
-					addDiagnostic(typeParameter, UnusedKindParameter, createFileDiagnostic(sourceFile, range_.pos /* TODO(BinaryExpression): range.end - range.pos */, TODO /* TODO(SpreadElement): ...messageAndArg */, TODO))
+					addDiagnostic(typeParameter, UnusedKindParameter, createFileDiagnostic(sourceFile, range_.pos, range_.end-range_.pos /* TODO(SpreadElement): ...messageAndArg */, TODO))
 				}
 			} else {
 				addDiagnostic(typeParameter, UnusedKindParameter, createDiagnosticForNode(typeParameter, Diagnostics._0_is_declared_but_its_value_is_never_read, name))
@@ -31346,7 +31354,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		})
 		unusedImports.forEach(func(TODO_IDENTIFIER /* TODO inferred type [import("/home/jabaile/work/TypeScript/src/compiler/types").ImportClause, ImportedDeclaration[]] */ TODO) {
 			importDecl := importClause.parent
-			nDeclarations := /* TODO(BinaryExpression): (importClause.name ? 1 : 0) + (importClause.namedBindings ? (importClause.namedBindings.kind === SyntaxKind.NamespaceImport ? 1 : importClause.namedBindings.elements.length) : 0) */ TODO
+			nDeclarations := ( /* TODO(ConditionalExpression): importClause.name ? 1 : 0 */ TODO) + ( /* TODO(ConditionalExpression): importClause.namedBindings ? (importClause.namedBindings.kind === SyntaxKind.NamespaceImport ? 1 : importClause.namedBindings.elements.length) : 0 */ TODO)
 			if nDeclarations == unuseds.length {
 				addDiagnostic(importDecl, UnusedKindLocal /* TODO(ConditionalExpression): unuseds.length === 1 ? createDiagnosticForNode(importDecl, Diagnostics._0_is_declared_but_its_value_is_never_read, idText(first(unuseds).name!)) : createDiagnosticForNode(importDecl, Diagnostics.All_imports_in_import_declaration_are_unused) */, TODO)
 			} else {
@@ -32544,7 +32552,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if !hasParseDiagnostics(sourceFile) {
 			start := getSpanOfTokenAtPosition(sourceFile, node.pos).start
 			end := node.statement.pos
-			grammarErrorAtPos(sourceFile, start /* TODO(BinaryExpression): end - start */, TODO, Diagnostics.The_with_statement_is_not_supported_All_symbols_in_a_with_block_will_have_type_any)
+			grammarErrorAtPos(sourceFile, start, end-start, Diagnostics.The_with_statement_is_not_supported_All_symbols_in_a_with_block_will_have_type_any)
 		}
 	}
 	checkSwitchStatement := func(node SwitchStatement) {
@@ -32752,7 +32760,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		})
 		containsArguments := containsArgumentsReference(node)
 		if containsArguments {
-			lastJSDocParamIndex := /* TODO(BinaryExpression): jsdocParameters.length - 1 */ TODO
+			lastJSDocParamIndex := jsdocParameters.length - 1
 			lastJSDocParam := jsdocParameters[lastJSDocParamIndex]
 			if isJs && lastJSDocParam && isIdentifier(lastJSDocParam.name) && lastJSDocParam.typeExpression && lastJSDocParam.typeExpression.type_ && !parameters.has(lastJSDocParam.name.escapedText) && !excludedParameters.has(lastJSDocParamIndex) && !isArrayType(getTypeFromTypeNode(lastJSDocParam.typeExpression.type_)) {
 				error(lastJSDocParam.name, Diagnostics.JSDoc_param_tag_has_name_0_but_there_is_no_parameter_with_that_name_It_would_match_arguments_if_it_had_an_array_type, idText(lastJSDocParam.name))
@@ -33185,7 +33193,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				missedProperties := map_(memberInfo.missedProperties.slice(0, 4), func(prop /* TODO inferred type string */ TODO) /* TODO inferred type string */ TODO {
 					return /* TODO(TemplateExpression): `'${prop}'` */ TODO
 				}).join(", ")
-				remainingMissedProperties := /* TODO(BinaryExpression): length(memberInfo.missedProperties) - 4 */ TODO
+				remainingMissedProperties := length(memberInfo.missedProperties) - 4
 				if isClassExpression(errorNode) {
 					error(errorNode, Diagnostics.Non_abstract_class_expression_is_missing_implementations_for_the_following_members_of_0_Colon_1_and_2_more, memberInfo.baseTypeName, missedProperties, remainingMissedProperties)
 				} else {
@@ -36687,15 +36695,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	checkGrammarForDisallowedTrailingComma := func(list *NodeArray[Node], diag /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DiagnosticMessage */ TODO /*  = Diagnostics.Trailing_comma_not_allowed */) bool {
 		if list && list.hasTrailingComma {
-			return grammarErrorAtPos(list[0] /* TODO(BinaryExpression): list.end - ",".length */, TODO, ",".length, diag)
+			return grammarErrorAtPos(list[0], list.end-",".length, ",".length, diag)
 		}
 		return false
 	}
 	checkGrammarTypeParameterList := func(typeParameters *NodeArray[TypeParameterDeclaration], file SourceFile) bool {
 		if typeParameters && typeParameters.length == 0 {
-			start := /* TODO(BinaryExpression): typeParameters.pos - "<".length */ TODO
-			end := /* TODO(BinaryExpression): skipTrivia(file.text, typeParameters.end) + ">".length */ TODO
-			return grammarErrorAtPos(file, start /* TODO(BinaryExpression): end - start */, TODO, Diagnostics.Type_parameter_list_cannot_be_empty)
+			start := typeParameters.pos - "<".length
+			end := skipTrivia(file.text, typeParameters.end) + ">".length
+			return grammarErrorAtPos(file, start, end-start, Diagnostics.Type_parameter_list_cannot_be_empty)
 		}
 		return false
 	}
@@ -36705,7 +36713,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for i := 0; i < parameterCount; i++ {
 			parameter := parameters[i]
 			if parameter.dotDotDotToken {
-				if i != ( /* TODO(BinaryExpression): parameterCount - 1 */ TODO) {
+				if i != (parameterCount - 1) {
 					return grammarErrorOnNode(parameter.dotDotDotToken, Diagnostics.A_rest_parameter_must_be_last_in_a_parameter_list)
 				}
 				if !(parameter.flags & NodeFlagsAmbient) {
@@ -36818,9 +36826,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	checkGrammarForAtLeastOneTypeArgument := func(node Node, typeArguments *NodeArray[TypeNode]) bool {
 		if typeArguments && typeArguments.length == 0 {
 			sourceFile := getSourceFileOfNode(node)
-			start := /* TODO(BinaryExpression): typeArguments.pos - "<".length */ TODO
-			end := /* TODO(BinaryExpression): skipTrivia(sourceFile.text, typeArguments.end) + ">".length */ TODO
-			return grammarErrorAtPos(sourceFile, start /* TODO(BinaryExpression): end - start */, TODO, Diagnostics.Type_argument_list_cannot_be_empty)
+			start := typeArguments.pos - "<".length
+			end := skipTrivia(sourceFile.text, typeArguments.end) + ">".length
+			return grammarErrorAtPos(sourceFile, start, end-start, Diagnostics.Type_argument_list_cannot_be_empty)
 		}
 		return false
 	}
@@ -36982,7 +36990,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				currentKind = DeclarationMeaningSetAccessor
 				break
 			default:
-				Debug.assertNever(prop /* TODO(BinaryExpression): "Unexpected syntax kind:" + (prop as Node).kind */, TODO)
+				Debug.assertNever(prop, "Unexpected syntax kind:"+(prop).kind)
 			}
 			if !inDestructuring {
 				effectiveName := getEffectivePropertyNameForPropertyNameNode(name)
@@ -37129,7 +37137,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return grammarErrorOnNode(accessor.name, Diagnostics.Private_identifiers_are_only_available_when_targeting_ECMAScript_2015_and_higher)
 			}
 			if accessor.body == nil && !hasSyntacticModifier(accessor, ModifierFlagsAbstract) {
-				return grammarErrorAtPos(accessor /* TODO(BinaryExpression): accessor.end - 1 */, TODO, ";".length, Diagnostics._0_expected, "{")
+				return grammarErrorAtPos(accessor, accessor.end-1, ";".length, Diagnostics._0_expected, "{")
 			}
 		}
 		if accessor.body {
@@ -37233,7 +37241,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if checkGrammarForInvalidExclamationToken(node.exclamationToken, Diagnostics.A_definite_assignment_assertion_is_not_permitted_in_this_context) {
 					return true
 				} else if node.body == nil {
-					return grammarErrorAtPos(node /* TODO(BinaryExpression): node.end - 1 */, TODO, ";".length, Diagnostics._0_expected, "{")
+					return grammarErrorAtPos(node, node.end-1, ";".length, Diagnostics._0_expected, "{")
 				}
 			}
 			if checkGrammarForGenerator(node) {
@@ -37304,7 +37312,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		if node.dotDotDotToken && node.initializer {
-			return grammarErrorAtPos(node /* TODO(BinaryExpression): node.initializer.pos - 1 */, TODO, 1, Diagnostics.A_rest_element_cannot_have_an_initializer)
+			return grammarErrorAtPos(node, node.initializer.pos-1, 1, Diagnostics.A_rest_element_cannot_have_an_initializer)
 		}
 	}
 	isStringOrNumberLiteralExpression := func(expr Expression) /* TODO inferred type boolean */ TODO {
@@ -37405,7 +37413,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return true
 		}
 		if !declarationList.declarations.length {
-			return grammarErrorAtPos(declarationList, declarations.pos /* TODO(BinaryExpression): declarations.end - declarations.pos */, TODO, Diagnostics.Variable_declaration_list_cannot_be_empty)
+			return grammarErrorAtPos(declarationList, declarations.pos, declarations.end-declarations.pos, Diagnostics.Variable_declaration_list_cannot_be_empty)
 		}
 		blockScopeFlags := declarationList.flags & NodeFlagsBlockScoped
 		if (blockScopeFlags == NodeFlagsUsing || blockScopeFlags == NodeFlagsAwaitUsing) && isForInStatement(declarationList.parent) {
@@ -37502,7 +37510,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		range_ := node.typeParameters || jsdocTypeParameters && firstOrUndefined(jsdocTypeParameters)
 		if range_ {
 			pos := /* TODO(ConditionalExpression): range.pos === range.end ? range.pos : skipTrivia(getSourceFileOfNode(node).text, range.pos) */ TODO
-			return grammarErrorAtPos(node, pos /* TODO(BinaryExpression): range.end - pos */, TODO, Diagnostics.Type_parameters_cannot_appear_on_a_constructor_declaration)
+			return grammarErrorAtPos(node, pos, range_.end-pos, Diagnostics.Type_parameters_cannot_appear_on_a_constructor_declaration)
 		}
 	}
 	checkGrammarConstructorTypeAnnotation := func(node ConstructorDeclaration) /* TODO inferred type boolean | undefined */ TODO {
@@ -37598,7 +37606,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return
 		}
 		value := +node.text
-		if value <= /* TODO(BinaryExpression): 2 ** 53 - 1 */ TODO {
+		if value <= /* TODO(BinaryExpression): 2 ** 53 */ TODO-1 {
 			return
 		}
 		addErrorOrSuggestion(false, createDiagnosticForNode(node, Diagnostics.Numeric_literals_with_absolute_values_equal_to_2_53_or_greater_are_too_large_to_be_represented_accurately_as_integers))

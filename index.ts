@@ -237,6 +237,10 @@ function visitExpression(node: Expression): void {
             case ts.SyntaxKind.GreaterThanToken:
             case ts.SyntaxKind.AmpersandToken:
             case ts.SyntaxKind.BarToken:
+            case ts.SyntaxKind.MinusToken:
+            case ts.SyntaxKind.PlusToken:
+            case ts.SyntaxKind.AsteriskToken:
+            case ts.SyntaxKind.SlashToken:
                 tok = ts.tokenToString(op.getKind());
                 break;
             case ts.SyntaxKind.EqualsEqualsEqualsToken:
