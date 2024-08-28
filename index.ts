@@ -1,4 +1,4 @@
-import assert, { notDeepEqual } from "assert";
+import assert from "assert";
 import CodeBlockWriter from "code-block-writer";
 import { execa } from "execa";
 import path from "path";
@@ -48,10 +48,12 @@ function asComment(text: string) {
 const todoCounts = new Map<string, number>();
 
 function writeTodoNode(node: Node) {
+    const nodeKind = Node.isTypeNode(node) ? "TypeNode" : "Node";
     const kindName = node.getKindName();
-    const count = todoCounts.get(kindName) || 0;
-    todoCounts.set(kindName, count + 1);
-    writer.write(asComment(`TODO(${kindName}): ${node.getText()}`));
+    const todoName = `${nodeKind} ${kindName}`;
+    const count = todoCounts.get(todoName) || 0;
+    todoCounts.set(todoName, count + 1);
+    writer.write(asComment(`TODO(${todoName}): ${node.getText()}`));
 }
 
 function writeType(node: Type): void {
