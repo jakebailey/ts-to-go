@@ -6,17 +6,20 @@ import {
     ArrowFunction,
     BinaryExpression,
     Block,
+    BodyableNode,
     ConditionalExpression,
     Expression,
     ExpressionStatement,
     FunctionDeclaration,
     IfStatement,
+    MethodDeclaration,
     Node,
     Project,
     Statement,
     ts,
     Type,
     TypeNode,
+    TypeParameteredNode,
 } from "ts-morph";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
@@ -417,6 +420,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         writer.indent(() => {
             const properties = node.getProperties();
             for (const prop of properties) {
+                writeLeadingComments(prop);
                 if (Node.isShorthandPropertyAssignment(prop)) {
                     writer.write(`"${getNameOfNamed(prop)}": ${getNameOfNamed(prop)}`);
                     writer.write(",");
@@ -426,10 +430,19 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
                     visitExpression(prop.getInitializerOrThrow());
                     writer.write(",");
                 }
+                else if (Node.isMethodDeclaration(prop)) {
+                    writer.write(`"${getNameOfNamed(prop)}": func`);
+                    writeTypeParameters(prop);
+                    writeFunctionParametersAndReturn(prop);
+                    writeBody(prop);
+                    writer.write(",");
+                }
                 else {
                     writeTodoNode(prop);
                 }
-                writer.newLine();
+                writer.newLineIfLastNot();
+                writeTrailingComments(prop);
+                writer.newLineIfLastNot();
             }
         });
         writer.write("}");
@@ -642,7 +655,27 @@ function visitExpressionStatement(node: ExpressionStatement) {
     writer.newLine();
 }
 
-function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction) {
+function writeTypeParameters(node: TypeParameteredNode) {
+    const typeParameters = node.getTypeParameters();
+    if (typeParameters.length > 0) {
+        writer.write("[");
+
+        for (let i = 0; i < typeParameters.length; i++) {
+            const typeParameter = typeParameters[i];
+            writer.write(getNameOfNamed(typeParameter));
+            const constraint = typeParameter.getConstraint();
+            if (constraint) {
+                writer.write(" ");
+                visitTypeNode(constraint);
+            }
+            writer.conditionalWrite(i < typeParameters.length - 1, ", ");
+        }
+
+        writer.write("]");
+    }
+}
+
+function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction | MethodDeclaration) {
     writer.write("(");
     const params = node.getParameters();
     for (let i = 0; i < params.length; i++) {
@@ -674,6 +707,16 @@ function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunct
             writeType(ret);
         }
     }
+}
+
+function writeBody(node: BodyableNode) {
+    writer.write(" {");
+    writer.indent(() => {
+        const body = node.getBodyOrThrow();
+        assert(Node.isBlock(body));
+        visitBlock(body);
+    });
+    writer.write("}");
 }
 
 function visitBlock(node: Block) {
@@ -714,25 +757,7 @@ function visitStatement2(node: Statement) {
 
     if (Node.isTypeAliasDeclaration(node)) {
         writer.write(`type ${getNameOfNamed(node)}`);
-
-        const typeParameters = node.getTypeParameters();
-        if (typeParameters.length > 0) {
-            writer.write("[");
-
-            for (let i = 0; i < typeParameters.length; i++) {
-                const typeParameter = typeParameters[i];
-                writer.write(getNameOfNamed(typeParameter));
-                const constraint = typeParameter.getConstraint();
-                if (constraint) {
-                    writer.write(" ");
-                    visitTypeNode(constraint);
-                }
-                writer.conditionalWrite(i < typeParameters.length - 1, ", ");
-            }
-
-            writer.write("]");
-        }
-
+        writeTypeParameters(node);
         writer.write(" ");
         visitTypeNode(node.getTypeNodeOrThrow());
 
@@ -760,41 +785,16 @@ function visitStatement2(node: Statement) {
         }
 
         writeFunctionParametersAndReturn(node);
-
-        writer.write(" {");
-        writer.indent(() => {
-            const body = node.getBodyOrThrow();
-            assert(Node.isBlock(body));
-            visitBlock(body);
-        });
-        writer.write("}");
+        writeBody(node);
 
         writer.newLine();
         return;
     }
 
     if (Node.isInterfaceDeclaration(node)) {
-        writer.write(`type ${getNameOfNamed(node)} struct`);
-
-        const typeParameters = node.getTypeParameters();
-        if (typeParameters.length > 0) {
-            writer.write("[");
-
-            for (let i = 0; i < typeParameters.length; i++) {
-                const typeParameter = typeParameters[i];
-                writer.write(getNameOfNamed(typeParameter));
-                const constraint = typeParameter.getConstraint();
-                if (constraint) {
-                    writer.write(" ");
-                    visitTypeNode(constraint);
-                }
-                writer.conditionalWrite(i < typeParameters.length - 1, ", ");
-            }
-
-            writer.write("]");
-        }
-
-        writer.write(" {");
+        writer.write(`type ${getNameOfNamed(node)}`);
+        writeTypeParameters(node);
+        writer.write(" struct {");
         writer.indent(() => {
             const members = node.getMembers();
             for (const member of members) {
@@ -898,6 +898,7 @@ function visitStatement2(node: Statement) {
 
             for (let i = 0; i < members.length; i++) {
                 const member = members[i];
+                writeLeadingComments(member);
                 const memberName = nameMapping.get(getNameOfNamed(member))!;
                 writer.write(`${memberName} `);
                 const initializer = member.getInitializer();
@@ -913,7 +914,9 @@ function visitStatement2(node: Statement) {
 
                     writer.write(`${enumName} = ${initializerText}`);
                 }
-                writer.newLine();
+                writer.newLineIfLastNot();
+                writeTrailingComments(member);
+                writer.newLineIfLastNot();
             }
         });
         writer.writeLine(")");

@@ -43,6 +43,7 @@ const (
 	IterationUseSpreadFlag               IterationUse = 1 << 5
 	IterationUseDestructuringFlag        IterationUse = 1 << 6
 	IterationUsePossiblyOutOfBounds      IterationUse = 1 << 7
+	// Spread, Destructuring, Array element assignment
 	IterationUseElement                  IterationUse = IterationUseAllowsSyncIterablesFlag
 	IterationUseSpread                   IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseSpreadFlag
 	IterationUseDestructuring            IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseDestructuringFlag
@@ -90,35 +91,38 @@ const (
 type TypeFacts int32
 
 const (
-	TypeFactsNone                      TypeFacts = 0
-	TypeFactsTypeofEQString            TypeFacts = 1 << 0
-	TypeFactsTypeofEQNumber            TypeFacts = 1 << 1
-	TypeFactsTypeofEQBigInt            TypeFacts = 1 << 2
-	TypeFactsTypeofEQBoolean           TypeFacts = 1 << 3
-	TypeFactsTypeofEQSymbol            TypeFacts = 1 << 4
-	TypeFactsTypeofEQObject            TypeFacts = 1 << 5
-	TypeFactsTypeofEQFunction          TypeFacts = 1 << 6
-	TypeFactsTypeofEQHostObject        TypeFacts = 1 << 7
-	TypeFactsTypeofNEString            TypeFacts = 1 << 8
-	TypeFactsTypeofNENumber            TypeFacts = 1 << 9
-	TypeFactsTypeofNEBigInt            TypeFacts = 1 << 10
-	TypeFactsTypeofNEBoolean           TypeFacts = 1 << 11
-	TypeFactsTypeofNESymbol            TypeFacts = 1 << 12
-	TypeFactsTypeofNEObject            TypeFacts = 1 << 13
-	TypeFactsTypeofNEFunction          TypeFacts = 1 << 14
-	TypeFactsTypeofNEHostObject        TypeFacts = 1 << 15
-	TypeFactsEQUndefined               TypeFacts = 1 << 16
-	TypeFactsEQNull                    TypeFacts = 1 << 17
-	TypeFactsEQUndefinedOrNull         TypeFacts = 1 << 18
-	TypeFactsNEUndefined               TypeFacts = 1 << 19
-	TypeFactsNENull                    TypeFacts = 1 << 20
-	TypeFactsNEUndefinedOrNull         TypeFacts = 1 << 21
-	TypeFactsTruthy                    TypeFacts = 1 << 22
-	TypeFactsFalsy                     TypeFacts = 1 << 23
-	TypeFactsIsUndefined               TypeFacts = 1 << 24
-	TypeFactsIsNull                    TypeFacts = 1 << 25
-	TypeFactsIsUndefinedOrNull         TypeFacts = TypeFactsIsUndefined | TypeFactsIsNull
-	TypeFactsAll                       TypeFacts = (1 << 27) - 1
+	TypeFactsNone               TypeFacts = 0
+	TypeFactsTypeofEQString     TypeFacts = 1 << 0
+	TypeFactsTypeofEQNumber     TypeFacts = 1 << 1
+	TypeFactsTypeofEQBigInt     TypeFacts = 1 << 2
+	TypeFactsTypeofEQBoolean    TypeFacts = 1 << 3
+	TypeFactsTypeofEQSymbol     TypeFacts = 1 << 4
+	TypeFactsTypeofEQObject     TypeFacts = 1 << 5
+	TypeFactsTypeofEQFunction   TypeFacts = 1 << 6
+	TypeFactsTypeofEQHostObject TypeFacts = 1 << 7
+	TypeFactsTypeofNEString     TypeFacts = 1 << 8
+	TypeFactsTypeofNENumber     TypeFacts = 1 << 9
+	TypeFactsTypeofNEBigInt     TypeFacts = 1 << 10
+	TypeFactsTypeofNEBoolean    TypeFacts = 1 << 11
+	TypeFactsTypeofNESymbol     TypeFacts = 1 << 12
+	TypeFactsTypeofNEObject     TypeFacts = 1 << 13
+	TypeFactsTypeofNEFunction   TypeFacts = 1 << 14
+	TypeFactsTypeofNEHostObject TypeFacts = 1 << 15
+	TypeFactsEQUndefined        TypeFacts = 1 << 16
+	TypeFactsEQNull             TypeFacts = 1 << 17
+	TypeFactsEQUndefinedOrNull  TypeFacts = 1 << 18
+	TypeFactsNEUndefined        TypeFacts = 1 << 19
+	TypeFactsNENull             TypeFacts = 1 << 20
+	TypeFactsNEUndefinedOrNull  TypeFacts = 1 << 21
+	TypeFactsTruthy             TypeFacts = 1 << 22
+	TypeFactsFalsy              TypeFacts = 1 << 23
+	TypeFactsIsUndefined        TypeFacts = 1 << 24
+	TypeFactsIsNull             TypeFacts = 1 << 25
+	TypeFactsIsUndefinedOrNull  TypeFacts = TypeFactsIsUndefined | TypeFactsIsNull
+	TypeFactsAll                TypeFacts = (1 << 27) - 1
+	// The following members encode facts about particular kinds of types for use in the getTypeFacts function.
+	// The presence of a particular fact means that the given test is true for some (and possibly all) values
+	// of that kind of type.
 	TypeFactsBaseStringStrictFacts     TypeFacts = TypeFactsTypeofEQString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
 	TypeFactsBaseStringFacts           TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
 	TypeFactsStringStrictFacts         TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsTruthy | TypeFactsFalsy
@@ -164,8 +168,9 @@ const (
 	TypeFactsEmptyObjectFacts          TypeFacts = TypeFactsAll & ~TypeFactsTypeFactsIsUndefinedOrNull
 	TypeFactsUnknownFacts              TypeFacts = TypeFactsAll & ~TypeFactsTypeFactsIsUndefinedOrNull
 	TypeFactsAllTypeofNE               TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsNEUndefined
-	TypeFactsOrFactsMask               TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofNEObject
-	TypeFactsAndFactsMask              TypeFacts = TypeFactsAll & ~TypeFactsOrFactsMask
+	// Masks
+	TypeFactsOrFactsMask  TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofNEObject
+	TypeFactsAndFactsMask TypeFacts = TypeFactsAll & ~TypeFactsOrFactsMask
 )
 
 var typeofNEFacts ReadonlyMap[string, TypeFacts] = NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -205,7 +210,9 @@ const (
 	CheckModeSkipGenericFunctions CheckMode = 1 << 3
 	CheckModeIsForSignatureHelp   CheckMode = 1 << 4
 	CheckModeRestBindingElement   CheckMode = 1 << 5
-	CheckModeTypeOnly             CheckMode = 1 << 6
+	//   e.g. in `const { a, ...rest } = foo`, when checking the type of `foo` to determine the type of `rest`,
+	//   we need to preserve generic types instead of substituting them for constraints
+	CheckModeTypeOnly CheckMode = 1 << 6
 )
 
 /** @internal */
@@ -419,7 +426,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		"isExpandoFunctionDeclaration":    isExpandoFunctionDeclaration,
 		"getAllAccessorDeclarations":      getAllAccessorDeclarationsForDeclaration,
 		"requiresAddingImplicitUndefined": requiresAddingImplicitUndefined,
-		/* TODO(TS-TO-GO) Node MethodDeclaration: isUndefinedIdentifierExpression(node: Identifier) { Debug.assert(isExpressionNode(node)); return getSymbolAtLocation(node) === undefinedSymbol; } */
+		"isUndefinedIdentifierExpression": func(node Identifier) /* TODO(TS-TO-GO) inferred type boolean */ any {
+			Debug.assert(isExpressionNode(node))
+			return getSymbolAtLocation(node) == undefinedSymbol
+		},
 		"isDefinitelyReferenceToGlobalSymbolObject": isDefinitelyReferenceToGlobalSymbolObject,
 	})
 	evaluate := createEvaluator(map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -666,7 +676,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return nil
 			}
 		},
-		/* TODO(TS-TO-GO) Node MethodDeclaration: getExportSymbolOfSymbol(symbol) { return getMergedSymbol(symbol.exportSymbol || symbol); } */
+		"getExportSymbolOfSymbol": func(symbol /* TODO(TS-TO-GO) inferred type Symbol */ any) /* TODO(TS-TO-GO) inferred type Symbol */ any {
+			return getMergedSymbol(symbol.exportSymbol || symbol)
+		},
 		"getTypeAtLocation": func(nodeIn /* TODO(TS-TO-GO) inferred type Node */ any) /* TODO(TS-TO-GO) inferred type Type */ any {
 			node := getParseTreeNode(nodeIn)
 			// TODO(TS-TO-GO): converted from conditional expression
@@ -932,7 +944,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return nil
 			}
 		},
-		/* TODO(TS-TO-GO) Node MethodDeclaration: resolveName(name, location, meaning, excludeGlobals) { return resolveName(location, escapeLeadingUnderscores(name), meaning, /*nameNotFoundMessage* / undefined, /*isUse* / false, excludeGlobals); } */
+		"resolveName": func(name /* TODO(TS-TO-GO) inferred type string */ any, location /* TODO(TS-TO-GO) inferred type Node | undefined */ any, meaning /* TODO(TS-TO-GO) inferred type SymbolFlags */ any, excludeGlobals /* TODO(TS-TO-GO) inferred type boolean */ any) /* TODO(TS-TO-GO) inferred type Symbol | undefined */ any {
+			return resolveName(location, escapeLeadingUnderscores(name), meaning, nil, false, excludeGlobals)
+		},
 		"getJsxNamespace": func(n /* TODO(TS-TO-GO) inferred type Node | undefined */ any) /* TODO(TS-TO-GO) inferred type string */ any {
 			return unescapeLeadingUnderscores(getJsxNamespace(n))
 		},
@@ -3718,7 +3732,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return symbol && symbol.valueDeclaration
 		}
 	}
-	getDeclarationOfJSPrototypeContainer := func(symbol Symbol) /* TODO(TS-TO-GO) inferred type Declaration | Expression | undefined */ any {
+	getDeclarationOfJSPrototypeContainer := func(symbol Symbol) /* TODO(TS-TO-GO) inferred type Expression | Declaration | undefined */ any {
 		decl := symbol.parent.valueDeclaration
 		if !decl {
 			return nil
@@ -7957,12 +7971,35 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				oldEncounteredError := context.encounteredError
 				context.tracker = NewSymbolTrackerImpl(context, map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					/* TODO(TS-TO-GO) Node SpreadAssignment: ...oldTracker.inner */
-					/* TODO(TS-TO-GO) Node MethodDeclaration: reportCyclicStructureError() { markError(() => oldTracker.reportCyclicStructureError()); } */
-					/* TODO(TS-TO-GO) Node MethodDeclaration: reportInaccessibleThisError() { markError(() => oldTracker.reportInaccessibleThisError()); } */
-					/* TODO(TS-TO-GO) Node MethodDeclaration: reportInaccessibleUniqueSymbolError() { markError(() => oldTracker.reportInaccessibleUniqueSymbolError()); } */
-					/* TODO(TS-TO-GO) Node MethodDeclaration: reportLikelyUnsafeImportRequiredError(specifier) { markError(() => oldTracker.reportLikelyUnsafeImportRequiredError(specifier)); } */
-					/* TODO(TS-TO-GO) Node MethodDeclaration: reportNonSerializableProperty(name) { markError(() => oldTracker.reportNonSerializableProperty(name)); } */
-					/* TODO(TS-TO-GO) Node MethodDeclaration: trackSymbol(sym, decl, meaning) { (trackedSymbols ??= []).push([sym, decl, meaning]); return false; } */
+					"reportCyclicStructureError": func() {
+						markError(func() {
+							return oldTracker.reportCyclicStructureError()
+						})
+					},
+					"reportInaccessibleThisError": func() {
+						markError(func() {
+							return oldTracker.reportInaccessibleThisError()
+						})
+					},
+					"reportInaccessibleUniqueSymbolError": func() {
+						markError(func() {
+							return oldTracker.reportInaccessibleUniqueSymbolError()
+						})
+					},
+					"reportLikelyUnsafeImportRequiredError": func(specifier /* TODO(TS-TO-GO) inferred type string */ any) {
+						markError(func() {
+							return oldTracker.reportLikelyUnsafeImportRequiredError(specifier)
+						})
+					},
+					"reportNonSerializableProperty": func(name /* TODO(TS-TO-GO) inferred type string */ any) {
+						markError(func() {
+							return oldTracker.reportNonSerializableProperty(name)
+						})
+					},
+					"trackSymbol": func(sym /* TODO(TS-TO-GO) inferred type Symbol */ any, decl /* TODO(TS-TO-GO) inferred type Node | undefined */ any, meaning /* TODO(TS-TO-GO) inferred type SymbolFlags */ any) /* TODO(TS-TO-GO) inferred type false */ any {
+						( /* TODO(TS-TO-GO) Node BinaryExpression: trackedSymbols ??= [] */ TODO).push([]any{sym, decl, meaning})
+						return false
+					},
 					"moduleResolverHost": context.tracker.moduleResolverHost,
 				}, context.tracker.moduleResolverHost)
 				return map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -10213,7 +10250,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			propName := getDestructuringPropertyName(node)
 			if propName {
 				literal := setTextRangeWorker(parseNodeFactory.createStringLiteral(propName), node)
-				var lhsExpr /* TODO(TS-TO-GO) inferred type PropertyAccessExpression | Identifier | ElementAccessExpression | FunctionExpression | ParenthesizedExpression | MetaProperty | ThisExpression | SuperExpression */ any
+				var lhsExpr /* TODO(TS-TO-GO) inferred type Identifier | PropertyAccessExpression | ElementAccessExpression | FunctionExpression | ParenthesizedExpression | MetaProperty | ThisExpression | SuperExpression */ any
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case isLeftHandSideExpression(parentAccess):
