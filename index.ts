@@ -43,6 +43,19 @@ writer.newLine();
 writer.writeLine("package output");
 writer.newLine();
 
+writer.writeLine("func cond[C comparable, T any](cond C, a T, b T) T {");
+writer.indent(() => {
+    writer.writeLine("var zero C");
+    writer.writeLine("if cond != zero {");
+    writer.indent(() => {
+        writer.writeLine("return a");
+    });
+    writer.writeLine("}");
+    writer.writeLine("return b");
+});
+writer.writeLine("}");
+writer.newLine();
+
 function asComment(text: string) {
     text = text.replaceAll("*/", "* /");
     text = text.replace(/\r?\n\s+/gm, " ");
@@ -429,6 +442,18 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             }
         });
         writer.write("}");
+    }
+    else if (Node.isConditionalExpression(node)) {
+        const cond = node.getCondition();
+        const whenTrue = node.getWhenTrue();
+        const whenFalse = node.getWhenFalse();
+        writer.write("cond(");
+        visitExpression(cond);
+        writer.write(", ");
+        visitExpression(whenTrue);
+        writer.write(", ");
+        visitExpression(whenFalse);
+        writer.write(")");
     }
     else {
         writeTodoNode(node);
