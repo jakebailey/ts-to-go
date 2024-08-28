@@ -5,6 +5,7 @@ import path from "path";
 import {
     ArrowFunction,
     Block,
+    ConditionalExpression,
     Expression,
     ExpressionStatement,
     FunctionDeclaration,
@@ -154,6 +155,15 @@ function visitTypeNode(type: TypeNode): void {
         writer.write(` any`);
     }
 }
+
+// function isConditionalExpressionLadder(node: ConditionalExpression) {
+//     const left = node.getWhenTrue();
+//     const right = node.getWhenFalse();
+//     if (Node.isConditionalExpression(left)) {
+//         return isConditionalExpressionLadder(left);
+//     }
+//     return !Node.isConditionalExpression(right);
+// }
 
 function visitExpression(node: Expression): void {
     if (Node.isRegularExpressionLiteral(node)) {
@@ -438,51 +448,50 @@ function visitIfStatement(node: IfStatement) {
         writer.write("}");
     }
 }
-
 function visitExpressionStatement(node: ExpressionStatement) {
-    // Handling expressions separately so we _don't_ handle side effect expressions in writeExpression
     const expression = node.getExpression();
-    if (Node.isCallExpression(expression)) {
-        visitExpression(expression);
-        writer.newLine();
+    visitExpressionForStatement(expression);
+    writer.newLine();
+}
+
+function visitExpressionForStatement(node: Expression) {
+    // Handling expressions separately so we _don't_ handle side effect expressions in writeExpression
+    if (Node.isCallExpression(node)) {
+        visitExpression(node);
         return;
     }
-    if (Node.isBinaryExpression(expression)) {
-        const op = expression.getOperatorToken();
+    if (Node.isBinaryExpression(node)) {
+        const op = node.getOperatorToken();
         const tokenStr = ts.tokenToString(op.getKind());
         if (tokenStr?.endsWith("=") && !tokenStr.startsWith("?") && tokenStr !== "||=") {
-            const left = expression.getLeft();
-            const right = expression.getRight();
+            const left = node.getLeft();
+            const right = node.getRight();
             visitExpression(left);
             writer.write(` ${tokenStr} `);
             visitExpression(right);
-            writer.newLine();
             return;
         }
     }
-    if (Node.isPostfixUnaryExpression(expression)) {
-        const tokenStr = ts.tokenToString(expression.getOperatorToken());
+    if (Node.isPostfixUnaryExpression(node)) {
+        const tokenStr = ts.tokenToString(node.getOperatorToken());
         if (tokenStr) {
-            visitExpression(expression.getOperand());
+            visitExpression(node.getOperand());
             writer.write(tokenStr);
-            writer.newLine();
             return;
         }
     }
-    if (Node.isVoidExpression(expression)) {
-        visitExpression(expression.getExpression());
-        writer.newLine();
+    if (Node.isVoidExpression(node)) {
+        visitExpression(node.getExpression());
         return;
     }
-    if (Node.isYieldExpression(expression)) {
+    if (Node.isYieldExpression(node)) {
         writer.write("yield(");
-        visitExpression(expression.getExpressionOrThrow());
+        visitExpression(node.getExpressionOrThrow());
         writer.write(")");
-        writer.newLine();
         return;
     }
 
-    writeTodoNode(expression);
+    writeTodoNode(node);
 }
 
 function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction) {
@@ -800,7 +809,41 @@ function visitStatement(node: Statement) {
     }
 
     if (Node.isForStatement(node)) {
+        writer.write("for ");
         const initializer = node.getInitializer();
+        if (initializer) {
+            if (Node.isVariableDeclarationList(initializer)) {
+                const declarations = initializer.getDeclarations();
+                if (declarations.length > 1) {
+                    writeTodoNode(initializer);
+                }
+                else {
+                    const declaration = declarations[0];
+                    writer.write(`${getNameOfNamed(declaration)} := `);
+                    visitExpression(declaration.getInitializerOrThrow());
+                }
+            }
+            else {
+                writeTodoNode(initializer);
+            }
+        }
+        writer.write("; ");
+        const condition = node.getCondition();
+        if (condition) {
+            visitExpression(condition);
+        }
+        writer.write("; ");
+        const incrementor = node.getIncrementor();
+        if (incrementor) {
+            visitExpressionForStatement(incrementor);
+        }
+        writer.write(" {");
+        writer.indent(() => {
+            visitStatement(node.getStatement());
+        });
+        writer.write("}");
+        writer.newLineIfLastNot();
+        return;
     }
 
     if (Node.isWhileStatement(node)) {
@@ -893,9 +936,9 @@ const outFile = Bun.file("output.go.txt");
 
 await Bun.write(outFile, writer.toString());
 
-const formatted = await execa("gofmt", ["output.go.txt"], { reject: false });
+const formatted = await execa("gofmt", ["-w", "output.go.txt"], { reject: false });
 if (formatted.exitCode === 0) {
-    await Bun.write(outFile, formatted.stdout);
+    // await Bun.write(outFile, formatted.stdout);
     console.log("All good!");
 }
 else {
