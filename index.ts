@@ -165,7 +165,7 @@ function visitTypeNode(type: TypeNode): void {
     }
 }
 
-function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sideEffect: string) {
+function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sideEffect: () => void) {
     writer.writeLine("// converted from conditional expression");
     writer.write("switch {");
 
@@ -184,7 +184,7 @@ function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sid
                 writeConditionalExpressionAsSwitchCase(whenTrue, sideEffect);
             }
             else {
-                writer.write(sideEffect);
+                sideEffect();
                 visitExpression(whenTrue);
             }
         });
@@ -195,7 +195,7 @@ function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sid
     writer.newLine();
     writer.write("default:");
     writer.indent(() => {
-        writer.write(sideEffect);
+        sideEffect();
         visitExpression(ladder);
     });
     writer.newLine();
@@ -316,7 +316,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             else {
                 assert(Node.isExpression(body));
                 if (Node.isConditionalExpression(body)) {
-                    writeConditionalExpressionAsSwitchCase(body, "return ");
+                    writeConditionalExpressionAsSwitchCase(body, () => writer.write("return "));
                 }
                 else {
                     writer.write("return ");
@@ -457,7 +457,7 @@ function isAssignmentOperator(kind: ts.SyntaxKind): boolean {
 
 function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
     const op = node.getOperatorToken();
-    let tok;
+    let tok: string;
     switch (op.getKind()) {
         case ts.SyntaxKind.AmpersandAmpersandToken:
         case ts.SyntaxKind.BarBarToken:
@@ -471,7 +471,7 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
         case ts.SyntaxKind.PlusToken:
         case ts.SyntaxKind.AsteriskToken:
         case ts.SyntaxKind.SlashToken:
-            tok = ts.tokenToString(op.getKind());
+            tok = ts.tokenToString(op.getKind())!;
             break;
         case ts.SyntaxKind.EqualsEqualsEqualsToken:
             tok = "==";
@@ -480,15 +480,19 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
             tok = "!=";
             break;
         default:
-            if (isStatement) {
-                if (isAssignmentOperator(op.getKind())) {
-                    tok = ts.tokenToString(op.getKind());
-                }
-                else {
-                    writeTodoNode(node);
-                    writer.write(` TODO`);
+            if (isStatement && isAssignmentOperator(op.getKind())) {
+                tok = ts.tokenToString(op.getKind())!;
+
+                const left = node.getLeft();
+                const right = node.getRight();
+                if (Node.isConditionalExpression(right)) {
+                    writeConditionalExpressionAsSwitchCase(right, () => {
+                        visitExpression(left);
+                        writer.write(` ${tok} `);
+                    });
                     return;
                 }
+
                 break;
             }
 
@@ -770,7 +774,10 @@ function visitStatement(node: Statement) {
                 else {
                     writeType(declaration.getType());
                 }
-                writeConditionalExpressionAsSwitchCase(initializer, `${getNameOfNamed(declaration)} = `);
+                writeConditionalExpressionAsSwitchCase(
+                    initializer,
+                    () => writer.write(`${getNameOfNamed(declaration)} = `),
+                );
             }
             else if (isGlobal) {
                 writer.write(`var ${getNameOfNamed(declaration)}`);
@@ -873,7 +880,7 @@ function visitStatement(node: Statement) {
 
         const expression = node.getExpression();
         if (Node.isConditionalExpression(expression)) {
-            writeConditionalExpressionAsSwitchCase(expression, "return ");
+            writeConditionalExpressionAsSwitchCase(expression, () => writer.write("return "));
             return;
         }
 
