@@ -339,35 +339,28 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
     }
     else if (Node.isNewExpression(node)) {
         const expression = node.getExpression();
-        if (Node.isIdentifier(expression) && node.getArguments().length === 0) {
+        if (Node.isIdentifier(expression)) {
+            const name = sanitizeName(expression.getText());
+            writer.write(`New${name}`);
             const typeArguments = node.getTypeArguments();
-            const name = expression.getText();
-            if (name === "Map") {
-                if (typeArguments.length === 2) {
-                    writer.write("make(map[");
-                    visitTypeNode(typeArguments[0]);
-                    writer.write("]");
-                    visitTypeNode(typeArguments[1]);
-                    writer.write(")");
+            if (typeArguments.length > 0) {
+                writer.write("[");
+                for (let i = 0; i < typeArguments.length; i++) {
+                    visitTypeNode(typeArguments[i]);
+                    writer.conditionalWrite(i < typeArguments.length - 1, ", ");
                 }
-                else {
-                    writeTodoNode(node);
-                    writer.write(` make(map[any]any)`);
-                }
-                return;
+                writer.write("]");
             }
-            else if (name === "Set") {
-                if (typeArguments.length === 1) {
-                    writer.write("make(map[");
-                    visitTypeNode(typeArguments[0]);
-                    writer.write("]struct{})");
-                }
-                else {
-                    writeTodoNode(node);
-                    writer.write(` make(map[any]struct{})`);
-                }
-                return;
+            writer.write("(");
+            const args = node.getArguments();
+            for (let i = 0; i < args.length; i++) {
+                const arg = args[i];
+                assert(Node.isExpression(arg));
+                visitExpression(arg);
+                writer.conditionalWrite(i < args.length - 1, ", ");
             }
+            writer.write(")");
+            return;
         }
         writeTodoNode(node);
         writer.write(` TODO`);
