@@ -161,7 +161,7 @@ function visitTypeNode(type: TypeNode): void {
     }
 }
 
-function writeConditionalExpressionForReturn(node: ConditionalExpression) {
+function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sideEffect: string) {
     writer.writeLine("// converted from conditional expression");
     writer.write("switch {");
 
@@ -177,10 +177,10 @@ function writeConditionalExpressionForReturn(node: ConditionalExpression) {
         writer.write(":");
         writer.indent(() => {
             if (Node.isConditionalExpression(whenTrue)) {
-                writeConditionalExpressionForReturn(whenTrue);
+                writeConditionalExpressionAsSwitchCase(whenTrue, sideEffect);
             }
             else {
-                writer.write("return ");
+                writer.write(sideEffect);
                 visitExpression(whenTrue);
             }
         });
@@ -191,7 +191,7 @@ function writeConditionalExpressionForReturn(node: ConditionalExpression) {
     writer.newLine();
     writer.write("default:");
     writer.indent(() => {
-        writer.write("return ");
+        writer.write(sideEffect);
         visitExpression(ladder);
     });
     writer.newLine();
@@ -753,6 +753,9 @@ function visitStatement(node: Statement) {
             const typeNode = declaration.getTypeNode();
             const initializer = declaration.getInitializer();
 
+            // if (!isGlobal && Node.isConditionalExpression(initializer)) {
+            // }
+
             if (isGlobal) {
                 writer.write(`var ${getNameOfNamed(declaration)}`);
                 if (typeNode) {
@@ -854,7 +857,7 @@ function visitStatement(node: Statement) {
 
         const expression = node.getExpression();
         if (Node.isConditionalExpression(expression)) {
-            writeConditionalExpressionForReturn(expression);
+            writeConditionalExpressionAsSwitchCase(expression, "return ");
             return;
         }
 
@@ -1053,4 +1056,4 @@ else {
 
 const totalTodo = [...todoCounts.values()].reduce((a, b) => a + b, 0);
 console.log(`Total TODOs: ${totalTodo}`);
-console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}: ${v}`).join("\n"));
+console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join("\n"));
