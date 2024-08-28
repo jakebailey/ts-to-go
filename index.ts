@@ -51,6 +51,8 @@ function asComment(text: string) {
 
 const todoCounts = new Map<string, number>();
 
+let tmp = 0;
+
 function writeTodoNode(node: Node) {
     const nodeKind = Node.isTypeNode(node) ? "TypeNode" : "Node";
     const kindName = node.getKindName();
@@ -313,8 +315,13 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             }
             else {
                 assert(Node.isExpression(body));
-                writer.write("return ");
-                visitExpression(body);
+                if (Node.isConditionalExpression(body)) {
+                    writeConditionalExpressionAsSwitchCase(body, "return ");
+                }
+                else {
+                    writer.write("return ");
+                    visitExpression(body);
+                }
             }
         });
         writer.write("}");

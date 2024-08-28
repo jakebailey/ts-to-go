@@ -807,10 +807,22 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return booleanType
 		},
 		"getFalseType": func(fresh /* TODO inferred type unknown */ any) /* TODO inferred type FreshableIntrinsicType */ any {
-			return /* TODO(Node ConditionalExpression): fresh ? falseType : regularFalseType */ TODO
+			// converted from conditional expression
+			switch {
+			case fresh:
+				return falseType
+			default:
+				return regularFalseType
+			}
 		},
 		"getTrueType": func(fresh /* TODO inferred type unknown */ any) /* TODO inferred type FreshableIntrinsicType */ any {
-			return /* TODO(Node ConditionalExpression): fresh ? trueType : regularTrueType */ TODO
+			// converted from conditional expression
+			switch {
+			case fresh:
+				return trueType
+			default:
+				return regularTrueType
+			}
 		},
 		"getVoidType": func() /* TODO inferred type IntrinsicType */ any {
 			return voidType
@@ -860,7 +872,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		"getSuggestedSymbolForNonexistentClassMember": getSuggestedSymbolForNonexistentClassMember,
 		"getBaseConstraintOfType":                     getBaseConstraintOfType,
 		"getDefaultFromTypeParameter": func(type_ /* TODO inferred type Type */ any) /* TODO inferred type Type | undefined */ any {
-			return /* TODO(Node ConditionalExpression): type && type.flags & TypeFlags.TypeParameter ? getDefaultFromTypeParameter(type as TypeParameter) : undefined */ TODO
+			// converted from conditional expression
+			switch {
+			case type_ && type_.flags&TypeFlagsTypeParameter:
+				return getDefaultFromTypeParameter(type_)
+			default:
+				return nil
+			}
 		},
 		/* TODO(Node MethodDeclaration): resolveName(name, location, meaning, excludeGlobals) { return resolveName(location, escapeLeadingUnderscores(name), meaning, /*nameNotFoundMessage* / undefined, /*isUse* / false, excludeGlobals); } */
 		"getJsxNamespace": func(n /* TODO inferred type Node | undefined */ any) /* TODO inferred type string */ any {
@@ -1077,18 +1095,36 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	templateConstraintType := getUnionType([] /* TODO inferred type Type */ any{stringType, numberType, booleanType, bigintType, nullType, undefinedType})
 	numericStringType := getTemplateLiteralType([] /* TODO inferred type string */ any{"", ""}, [] /* TODO inferred type IntrinsicType */ any{numberType})
 	var restrictiveMapper TypeMapper = makeFunctionTypeMapper(func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-		return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.TypeParameter ? getRestrictiveTypeParameter(t as TypeParameter) : t */ TODO
+		// converted from conditional expression
+		switch {
+		case t.flags & TypeFlagsTypeParameter:
+			return getRestrictiveTypeParameter(t)
+		default:
+			return t
+		}
 	}, func() /* TODO inferred type string */ any {
 		return "(restrictive mapper)"
 	})
 	var permissiveMapper TypeMapper = makeFunctionTypeMapper(func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-		return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.TypeParameter ? wildcardType : t */ TODO
+		// converted from conditional expression
+		switch {
+		case t.flags & TypeFlagsTypeParameter:
+			return wildcardType
+		default:
+			return t
+		}
 	}, func() /* TODO inferred type string */ any {
 		return "(permissive mapper)"
 	})
 	uniqueLiteralType := createIntrinsicType(TypeFlagsNever, "never", nil, "unique literal")
 	var uniqueLiteralMapper TypeMapper = makeFunctionTypeMapper(func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-		return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.TypeParameter ? uniqueLiteralType : t */ TODO
+		// converted from conditional expression
+		switch {
+		case t.flags & TypeFlagsTypeParameter:
+			return uniqueLiteralType
+		default:
+			return t
+		}
 	}, func() /* TODO inferred type string */ any {
 		return "(unique literal mapper)"
 	})
@@ -1949,14 +1985,28 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return !isImmediatelyUsedInInitializerOfBlockScopedVariable(declaration, usage)
 			} else if isClassLike(declaration) {
 				container := findAncestor(usage, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-					return /* TODO(Node ConditionalExpression): n === declaration ? "quit" : isComputedPropertyName(n) ? n.parent.parent === declaration : !legacyDecorators && isDecorator(n) && (n.parent === declaration || isMethodDeclaration(n.parent) && n.parent.parent === declaration || isGetOrSetAccessorDeclaration(n.parent) && n.parent.parent === declaration || isPropertyDeclaration(n.parent) && n.parent.parent === declaration || isParameter(n.parent) && n.parent.parent.parent === declaration) */ TODO
+					// converted from conditional expression
+					switch {
+					case n == declaration:
+						return "quit"
+					case isComputedPropertyName(n):
+						return n.parent.parent == declaration
+					default:
+						return !legacyDecorators && isDecorator(n) && (n.parent == declaration || isMethodDeclaration(n.parent) && n.parent.parent == declaration || isGetOrSetAccessorDeclaration(n.parent) && n.parent.parent == declaration || isPropertyDeclaration(n.parent) && n.parent.parent == declaration || isParameter(n.parent) && n.parent.parent.parent == declaration)
+					}
 				})
 				if !container {
 					return true
 				}
 				if !legacyDecorators && isDecorator(container) {
 					return !!findAncestor(usage, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-						return /* TODO(Node ConditionalExpression): n === container ? "quit" : isFunctionLike(n) && !getImmediatelyInvokedFunctionExpression(n) */ TODO
+						// converted from conditional expression
+						switch {
+						case n == container:
+							return "quit"
+						default:
+							return isFunctionLike(n) && !getImmediatelyInvokedFunctionExpression(n)
+						}
 					})
 				}
 				return false
@@ -2350,7 +2400,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	maybeMappedType := func(node Node, symbol Symbol) /* TODO inferred type boolean */ any {
 		container := findAncestor(node.parent, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): isComputedPropertyName(n) || isPropertySignature(n) ? false : isTypeLiteralNode(n) || "quit" */ TODO
+			// converted from conditional expression
+			switch {
+			case isComputedPropertyName(n) || isPropertySignature(n):
+				return false
+			default:
+				return isTypeLiteralNode(n) || "quit"
+			}
 		})
 		if container && container.members.length == 1 {
 			type_ := getDeclaredTypeOfSymbol(symbol)
@@ -3281,7 +3337,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getAssignmentDeclarationLocation := func(node TypeReferenceNode) Node {
 		typeAlias := findAncestor(node, func(node /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): !(isJSDocNode(node) || node.flags & NodeFlags.JSDoc) ? "quit" : isJSDocTypeAlias(node) */ TODO
+			// converted from conditional expression
+			switch {
+			case !(isJSDocNode(node) || node.flags&NodeFlagsJSDoc):
+				return "quit"
+			default:
+				return isJSDocTypeAlias(node)
+			}
 		})
 		if typeAlias {
 			return
@@ -3952,7 +4014,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return nil
 		}
 		containers := mapDefined(candidates, func(candidate /* TODO inferred type Symbol */ any) /* TODO inferred type Symbol | undefined */ any {
-			return /* TODO(Node ConditionalExpression): getAliasForSymbolInContainer(candidate, symbol) ? candidate : undefined */ TODO
+			// converted from conditional expression
+			switch {
+			case getAliasForSymbolInContainer(candidate, symbol):
+				return candidate
+			default:
+				return nil
+			}
 		})
 		var bestContainers []Symbol = [] /* TODO inferred type never */ any{}
 		var alternativeContainers []Symbol = [] /* TODO inferred type never */ any{}
@@ -6218,7 +6286,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					parents := getContainersOfSymbol( /* TODO(Node ConditionalExpression): accessibleSymbolChain ? accessibleSymbolChain[0] : symbol */ TODO, context.enclosingDeclaration, meaning)
 					if length(parents) {
 						parentSpecifiers = parents.map_(func(symbol /* TODO inferred type Symbol */ any) /* TODO inferred type string | undefined */ any {
-							return /* TODO(Node ConditionalExpression): some(symbol.declarations, hasNonGlobalAugmentationExternalModuleSymbol) ? getSpecifierForModuleSymbol(symbol, context) : undefined */ TODO
+							// converted from conditional expression
+							switch {
+							case some(symbol.declarations, hasNonGlobalAugmentationExternalModuleSymbol):
+								return getSpecifierForModuleSymbol(symbol, context)
+							default:
+								return nil
+							}
 						})
 						indices := parents.map_(func(_ /* TODO inferred type Symbol */ any, i /* TODO inferred type number */ any) /* TODO inferred type number */ any {
 							return i
@@ -7210,7 +7284,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if isJSDocConstructSignature(node) {
 						var newTypeNode *TypeNode
 						return factory.createConstructorTypeNode(nil, visitNodes(node.typeParameters, visitExistingNodeTreeSymbols, isTypeParameterDeclaration), mapDefined(node.parameters, func(p /* TODO inferred type ParameterDeclaration */ any, i /* TODO inferred type number */ any) /* TODO inferred type ParameterDeclaration | undefined */ any {
-							return /* TODO(Node ConditionalExpression): p.name && isIdentifier(p.name) && p.name.escapedText === "new" ? (newTypeNode = p.type, undefined) : factory.createParameterDeclaration( /*modifiers* / undefined, getEffectiveDotDotDotForParameter(p), setTextRange(context, factory.createIdentifier(getNameForJSDocFunctionParameter(p, i)), p), factory.cloneNode(p.questionToken), visitNode(p.type, visitExistingNodeTreeSymbols, isTypeNode), /*initializer* / undefined, ) */ TODO
+							// converted from conditional expression
+							switch {
+							case p.name && isIdentifier(p.name) && p.name.escapedText == "new":
+								return ( /* TODO(Node BinaryExpression): newTypeNode = p.type, undefined */ TODO)
+							default:
+								return factory.createParameterDeclaration(nil, getEffectiveDotDotDotForParameter(p), setTextRange(context, factory.createIdentifier(getNameForJSDocFunctionParameter(p, i)), p), factory.cloneNode(p.questionToken), visitNode(p.type_, visitExistingNodeTreeSymbols, isTypeNode), nil)
+							}
 						}), visitNode(newTypeNode || node.type_, visitExistingNodeTreeSymbols, isTypeNode) || factory.createKeywordTypeNode(SyntaxKindAnyKeyword))
 					} else {
 						return factory.createFunctionTypeNode(visitNodes(node.typeParameters, visitExistingNodeTreeSymbols, isTypeParameterDeclaration), map_(node.parameters, func(p /* TODO inferred type ParameterDeclaration */ any, i /* TODO inferred type number */ any) /* TODO inferred type ParameterDeclaration */ any {
@@ -7548,7 +7628,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				})
 				if length(reexports) > 1 {
 					groups := group(reexports, func(decl /* TODO inferred type ExportDeclaration */ any) /* TODO inferred type string */ any {
-						return /* TODO(Node ConditionalExpression): isStringLiteral(decl.moduleSpecifier!) ? ">" + decl.moduleSpecifier.text : ">" */ TODO
+						// converted from conditional expression
+						switch {
+						case isStringLiteral(decl.moduleSpecifier):
+							return ">" + decl.moduleSpecifier.text
+						default:
+							return ">"
+						}
 					})
 					if groups.length != reexports.length {
 						for _, group := range groups {
@@ -7884,7 +7970,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			serializeModule := func(symbol Symbol, symbolName string, modifierFlags ModifierFlags) {
 				members := getNamespaceMembersForSerialization(symbol)
 				locationMap := arrayToMultiMap(members, func(m /* TODO inferred type Symbol */ any) /* TODO inferred type "real" | "merged" */ any {
-					return /* TODO(Node ConditionalExpression): m.parent && m.parent === symbol ? "real" : "merged" */ TODO
+					// converted from conditional expression
+					switch {
+					case m.parent && m.parent == symbol:
+						return "real"
+					default:
+						return "merged"
+					}
 				})
 				realMembers := locationMap.get("real") || emptyArray
 				mergedMembers := locationMap.get("merged") || emptyArray
@@ -7962,7 +8054,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			serializeAsNamespaceDeclaration := func(props []Symbol, localName string, modifierFlags ModifierFlags, suppressNewPrivateContext bool) {
 				if length(props) {
 					localVsRemoteMap := arrayToMultiMap(props, func(p /* TODO inferred type Symbol */ any) /* TODO inferred type "local" | "remote" */ any {
-						return /* TODO(Node ConditionalExpression): !length(p.declarations) || some(p.declarations, d => getSourceFileOfNode(d) === getSourceFileOfNode(context.enclosingDeclaration!)) ? "local" : "remote" */ TODO
+						// converted from conditional expression
+						switch {
+						case !length(p.declarations) || some(p.declarations, func(d /* TODO inferred type Declaration */ any) /* TODO inferred type boolean */ any {
+							return getSourceFileOfNode(d) == getSourceFileOfNode(context.enclosingDeclaration)
+						}):
+							return "local"
+						default:
+							return "remote"
+						}
 					})
 					localProps := localVsRemoteMap.get("local") || emptyArray
 					fakespace := parseNodeFactory.createModuleDeclaration(nil, factory.createIdentifier(localName), factory.createModuleBlock([] /* TODO inferred type never */ any{}), NodeFlagsNamespace)
@@ -7985,7 +8085,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					declarations := results
 					results = oldResults
 					defaultReplaced := map_(declarations, func(d /* TODO inferred type Statement */ any) /* TODO inferred type Statement */ any {
-						return /* TODO(Node ConditionalExpression): isExportAssignment(d) && !d.isExportEquals && isIdentifier(d.expression) ? factory.createExportDeclaration( /*modifiers* / undefined, /*isTypeOnly* / false, factory.createNamedExports([factory.createExportSpecifier(/*isTypeOnly* / false, d.expression, factory.createIdentifier(InternalSymbolName.Default))]), ) : d */ TODO
+						// converted from conditional expression
+						switch {
+						case isExportAssignment(d) && !d.isExportEquals && isIdentifier(d.expression):
+							return factory.createExportDeclaration(nil, false, factory.createNamedExports([] /* TODO inferred type ExportSpecifier */ any{factory.createExportSpecifier(false, d.expression, factory.createIdentifier(InternalSymbolNameDefault))}))
+						default:
+							return d
+						}
 					})
 					var exportModifierStripped /* TODO inferred type Statement[] */ any
 					// converted from conditional expression
@@ -8611,7 +8717,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		if symbol.declarations && symbol.declarations.length {
 			declaration := firstDefined(symbol.declarations, func(d /* TODO inferred type Declaration */ any) /* TODO inferred type Declaration | undefined */ any {
-				return /* TODO(Node ConditionalExpression): getNameOfDeclaration(d) ? d : undefined */ TODO
+				// converted from conditional expression
+				switch {
+				case getNameOfDeclaration(d):
+					return d
+				default:
+					return nil
+				}
 			})
 			name := declaration && getNameOfDeclaration(declaration)
 			if declaration && name {
@@ -8975,7 +9087,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch {
 		case someType(type_, isGenericTypeWithUndefinedConstraint):
 			typeOrConstraint = mapType(type_, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.Instantiable ? getBaseConstraintOrType(t) : t */ TODO
+				// converted from conditional expression
+				switch {
+				case t.flags & TypeFlagsInstantiable:
+					return getBaseConstraintOrType(t)
+				default:
+					return t
+				}
 			})
 		default:
 			typeOrConstraint = type_
@@ -9101,7 +9219,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			index := pattern.elements.indexOf(declaration)
 			if declaration.dotDotDotToken {
 				baseConstraint := mapType(parentType, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-					return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.InstantiableNonPrimitive ? getBaseConstraintOrType(t) : t */ TODO
+					// converted from conditional expression
+					switch {
+					case t.flags & TypeFlagsInstantiableNonPrimitive:
+						return getBaseConstraintOrType(t)
+					default:
+						return t
+					}
 				})
 				type_ = /* TODO(Node ConditionalExpression): everyType(baseConstraint, isTupleType) ? mapType(baseConstraint, t => sliceTupleType(t as TupleTypeReference, index)) : createArrayType(elementType) */ TODO
 			} else if isArrayLikeType(parentType) {
@@ -9736,13 +9860,27 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		elementTypes := map_(elements, func(e /* TODO inferred type BindingElement | OmittedExpression */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): isOmittedExpression(e) ? anyType : getTypeFromBindingElement(e, includePatternInType, reportErrors) */ TODO
+			// converted from conditional expression
+			switch {
+			case isOmittedExpression(e):
+				return anyType
+			default:
+				return getTypeFromBindingElement(e, includePatternInType, reportErrors)
+			}
 		})
 		minLength := findLastIndex(elements, func(e /* TODO inferred type BindingElement | OmittedExpression */ any) /* TODO inferred type boolean */ any {
 			return !(e == restElement || isOmittedExpression(e) || hasDefaultValue(e))
 		}, elements.length-1) + 1
 		elementFlags := map_(elements, func(e /* TODO inferred type BindingElement | OmittedExpression */ any, i /* TODO inferred type number */ any) /* TODO inferred type ElementFlags.Required | ElementFlags.Optional | ElementFlags.Rest */ any {
-			return /* TODO(Node ConditionalExpression): e === restElement ? ElementFlags.Rest : i >= minLength ? ElementFlags.Optional : ElementFlags.Required */ TODO
+			// converted from conditional expression
+			switch {
+			case e == restElement:
+				return ElementFlagsRest
+			case i >= minLength:
+				return ElementFlagsOptional
+			default:
+				return ElementFlagsRequired
+			}
 		})
 		result := createTupleType(elementTypes, elementFlags)
 		if includePatternInType {
@@ -10101,7 +10239,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			targetSymbol := resolveAlias(symbol)
 			exportSymbol := symbol.declarations && getTargetOfAliasDeclaration(getDeclarationOfAliasSymbol(symbol), true)
 			declaredType := firstDefined(exportSymbol. /*?*/ declarations, func(d /* TODO inferred type Declaration */ any) /* TODO inferred type Type | undefined */ any {
-				return /* TODO(Node ConditionalExpression): isExportAssignment(d) ? tryGetTypeFromEffectiveTypeNode(d) : undefined */ TODO
+				// converted from conditional expression
+				switch {
+				case isExportAssignment(d):
+					return tryGetTypeFromEffectiveTypeNode(d)
+				default:
+					return nil
+				}
 			})
 			/* TODO(Node BinaryExpression): links.type ??= exportSymbol?.declarations && isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations!.length ? getFlowTypeFromCommonJSExport(exportSymbol) : isDuplicatedCommonJSExport(symbol.declarations) ? autoType : declaredType ? declaredType : getSymbolFlags(targetSymbol) & SymbolFlags.Value ? getTypeOfSymbol(targetSymbol) : errorType */ TODO
 			if !popTypeResolution() {
@@ -10350,7 +10494,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				switch {
 				case (node).tags:
 					return appendTypeParameters(outerTypeParameters, flatMap((node).tags, func(t /* TODO inferred type JSDocTag */ any) /* TODO inferred type NodeArray<TypeParameterDeclaration> | undefined */ any {
-						return /* TODO(Node ConditionalExpression): isJSDocTemplateTag(t) ? t.typeParameters : undefined */ TODO
+						// converted from conditional expression
+						switch {
+						case isJSDocTemplateTag(t):
+							return t.typeParameters
+						default:
+							return nil
+						}
 					}))
 				default:
 					return outerTypeParameters
@@ -10431,7 +10581,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		signatures := getConstructorsForTypeArguments(type_, typeArgumentNodes, location)
 		typeArguments := map_(typeArgumentNodes, getTypeFromTypeNode)
 		return sameMap(signatures, func(sig /* TODO inferred type Signature */ any) /* TODO inferred type Signature */ any {
-			return /* TODO(Node ConditionalExpression): some(sig.typeParameters) ? getSignatureInstantiation(sig, typeArguments, isInJSFile(location)) : sig */ TODO
+			// converted from conditional expression
+			switch {
+			case some(sig.typeParameters):
+				return getSignatureInstantiation(sig, typeArguments, isInJSFile(location))
+			default:
+				return sig
+			}
 		})
 	}
 	getBaseConstructorTypeOfClass := func(type_ InterfaceType) Type {
@@ -10533,7 +10689,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTupleBaseType := func(type_ TupleType) /* TODO inferred type ObjectType */ any {
 		elementTypes := sameMap(type_.typeParameters, func(t /* TODO inferred type TypeParameter */ any, i /* TODO inferred type number */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): type.elementFlags[i] & ElementFlags.Variadic ? getIndexedAccessType(t, numberType) : t */ TODO
+			// converted from conditional expression
+			switch {
+			case type_.elementFlags[i] & ElementFlagsVariadic:
+				return getIndexedAccessType(t, numberType)
+			default:
+				return t
+			}
 		})
 		return createArrayType(getUnionType(elementTypes || emptyArray), type_.readonly)
 	}
@@ -11643,7 +11805,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	resolveUnionTypeMembers := func(type_ UnionType) {
 		callSignatures := getUnionSignatures(map_(type_.types, func(t /* TODO inferred type Type */ any) /* TODO inferred type readonly Signature[] */ any {
-			return /* TODO(Node ConditionalExpression): t === globalFunctionType ? [unknownSignature] : getSignaturesOfType(t, SignatureKind.Call) */ TODO
+			// converted from conditional expression
+			switch {
+			case t == globalFunctionType:
+				return [] /* TODO inferred type Signature */ any{unknownSignature}
+			default:
+				return getSignaturesOfType(t, SignatureKindCall)
+			}
 		}))
 		constructSignatures := getUnionSignatures(map_(type_.types, func(t /* TODO inferred type Type */ any) /* TODO inferred type readonly Signature[] */ any {
 			return getSignaturesOfType(t, SignatureKindConstruct)
@@ -11811,7 +11979,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if symbol.flags & SymbolFlagsFunction {
 				constructSignatures = addRange(constructSignatures.slice(), mapDefined(type_.callSignatures, func(sig /* TODO inferred type Signature */ any) /* TODO inferred type Signature | undefined */ any {
-					return /* TODO(Node ConditionalExpression): isJSConstructor(sig.declaration) ? createSignature(sig.declaration, sig.typeParameters, sig.thisParameter, sig.parameters, classType, /*resolvedTypePredicate* / undefined, sig.minArgumentCount, sig.flags & SignatureFlags.PropagatingFlags) : undefined */ TODO
+					// converted from conditional expression
+					switch {
+					case isJSConstructor(sig.declaration):
+						return createSignature(sig.declaration, sig.typeParameters, sig.thisParameter, sig.parameters, classType, nil, sig.minArgumentCount, sig.flags&SignatureFlagsPropagatingFlags)
+					default:
+						return nil
+					}
 				}))
 			}
 			if !constructSignatures.length {
@@ -12781,7 +12955,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					} else if prop != singleProp {
 						isInstantiation := (getTargetSymbol(prop) || prop) == (getTargetSymbol(singleProp) || singleProp)
 						if isInstantiation && compareProperties(singleProp, prop, func(a /* TODO inferred type Type */ any, b /* TODO inferred type Type */ any) /* TODO inferred type Ternary.False | Ternary.True */ any {
-							return /* TODO(Node ConditionalExpression): a === b ? Ternary.True : Ternary.False */ TODO
+							// converted from conditional expression
+							switch {
+							case a == b:
+								return TernaryTrue
+							default:
+								return TernaryFalse
+							}
 						}) == TernaryTrue {
 							mergedInstantiations = !!singleProp.parent && !!length(getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(singleProp.parent))
 						} else {
@@ -13414,7 +13594,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			lastParamTags = getJSDocTags(declaration).filter(isJSDocParameterTag)
 		}
 		lastParamVariadicType := firstDefined(lastParamTags, func(p /* TODO inferred type JSDocParameterTag */ any) /* TODO inferred type JSDocVariadicType | undefined */ any {
-			return /* TODO(Node ConditionalExpression): p.typeExpression && isJSDocVariadicType(p.typeExpression.type) ? p.typeExpression.type : undefined */ TODO
+			// converted from conditional expression
+			switch {
+			case p.typeExpression && isJSDocVariadicType(p.typeExpression.type_):
+				return p.typeExpression.type_
+			default:
+				return nil
+			}
 		})
 		syntheticArgsSymbol := createSymbol(SymbolFlagsVariable, "args", CheckFlagsRestParameter)
 		if lastParamVariadicType {
@@ -13718,7 +13904,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypeParametersForMapper := func(signature Signature) /* TODO inferred type readonly Type[] | undefined */ any {
 		return sameMap(signature.typeParameters, func(tp /* TODO inferred type TypeParameter */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): tp.mapper ? instantiateType(tp, tp.mapper) : tp */ TODO
+			// converted from conditional expression
+			switch {
+			case tp.mapper:
+				return instantiateType(tp, tp.mapper)
+			default:
+				return tp
+			}
 		})
 	}
 	createSignatureTypeMapper := func(signature Signature, typeArguments *[]Type) TypeMapper {
@@ -13747,7 +13939,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	createCanonicalSignature := func(signature Signature) /* TODO inferred type Signature */ any {
 		return getSignatureInstantiation(signature, map_(signature.typeParameters, func(tp /* TODO inferred type TypeParameter */ any) /* TODO inferred type TypeParameter */ any {
-			return /* TODO(Node ConditionalExpression): tp.target && !getConstraintOfTypeParameter(tp.target) ? tp.target : tp */ TODO
+			// converted from conditional expression
+			switch {
+			case tp.target && !getConstraintOfTypeParameter(tp.target):
+				return tp.target
+			default:
+				return tp
+			}
 		}), isInJSFile(signature.declaration))
 	}
 	getImplementationSignature := func(signature Signature) /* TODO inferred type Signature */ any {
@@ -14998,7 +15196,17 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		key := map_(elementFlags, func(f /* TODO inferred type ElementFlags */ any) /* TODO inferred type "*" | "?" | "#" | "." */ any {
-			return /* TODO(Node ConditionalExpression): f & ElementFlags.Required ? "#" : f & ElementFlags.Optional ? "?" : f & ElementFlags.Rest ? "." : "*" */ TODO
+			// converted from conditional expression
+			switch {
+			case f & ElementFlagsRequired:
+				return "#"
+			case f & ElementFlagsOptional:
+				return "?"
+			case f & ElementFlagsRest:
+				return "."
+			default:
+				return "*"
+			}
 		}).join() + ( /* TODO(Node ConditionalExpression): readonly ? "R" : "" */ TODO) + ( /* TODO(Node ConditionalExpression): some(namedMemberDeclarations, node => !!node) ? "," + map(namedMemberDeclarations, node => node ? getNodeId(node) : "_").join(",") : "" */ TODO)
 		type_ := tupleTypes.get(key)
 		if !type_ {
@@ -15085,7 +15293,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				// converted from conditional expression
 				switch {
 				case checkCrossProductUnion(map_(elementTypes, func(t /* TODO inferred type Type */ any, i /* TODO inferred type number */ any) /* TODO inferred type Type */ any {
-					return /* TODO(Node ConditionalExpression): target.elementFlags[i] & ElementFlags.Variadic ? t : unknownType */ TODO
+					// converted from conditional expression
+					switch {
+					case target.elementFlags[i] & ElementFlagsVariadic:
+						return t
+					default:
+						return unknownType
+					}
 				})):
 					return mapType(elementTypes[unionIndex], func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
 						return createNormalizedTupleType(target, replaceElement(elementTypes, unionIndex, t))
@@ -15132,7 +15346,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		if firstRestIndex >= 0 && firstRestIndex < lastOptionalOrRestIndex {
 			expandedTypes[firstRestIndex] = getUnionType(sameMap(expandedTypes.slice(firstRestIndex, lastOptionalOrRestIndex+1), func(t /* TODO inferred type Type */ any, i /* TODO inferred type number */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): expandedFlags[firstRestIndex + i] & ElementFlags.Variadic ? getIndexedAccessType(t, numberType) : t */ TODO
+				// converted from conditional expression
+				switch {
+				case expandedFlags[firstRestIndex+i] & ElementFlagsVariadic:
+					return getIndexedAccessType(t, numberType)
+				default:
+					return t
+				}
 			}))
 			expandedTypes.splice(firstRestIndex+1, lastOptionalOrRestIndex-firstRestIndex)
 			expandedFlags.splice(firstRestIndex+1, lastOptionalOrRestIndex-firstRestIndex)
@@ -15295,7 +15515,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if hasEmptyObject || source.flags&TypeFlagsStructuredOrInstantiable {
 				if source.flags&TypeFlagsTypeParameter && getBaseConstraintOrType(source).flags&TypeFlagsUnion {
 					if isTypeRelatedTo(source, getUnionType(map_(types, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-						return /* TODO(Node ConditionalExpression): t === source ? neverType : t */ TODO
+						// converted from conditional expression
+						switch {
+						case t == source:
+							return neverType
+						default:
+							return t
+						}
 					})), strictSubtypeRelation) {
 						orderedRemoveItemAt(types, i)
 					}
@@ -15963,7 +16189,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getCrossProductUnionSize := func(types []Type) /* TODO inferred type number */ any {
 		return reduceLeft(types, func(n /* TODO inferred type number */ any, t /* TODO inferred type Type */ any) /* TODO inferred type number */ any {
-			return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.Union ? n * (t as UnionType).types.length : t.flags & TypeFlags.Never ? 0 : n */ TODO
+			// converted from conditional expression
+			switch {
+			case t.flags & TypeFlagsUnion:
+				return n * (t).types.length
+			case t.flags & TypeFlagsNever:
+				return 0
+			default:
+				return n
+			}
 		}, 1)
 	}
 	checkCrossProductUnion := func(types []Type) /* TODO inferred type boolean */ any {
@@ -16181,7 +16415,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return getLiteralTypeFromProperty(prop, include)
 		})
 		indexKeyTypes := map_(getIndexInfosOfType(type_), func(info /* TODO inferred type IndexInfo */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): info !== enumNumberIndexInfo && isKeyTypeIncluded(info.keyType, include) ? info.keyType === stringType && include & TypeFlags.Number ? stringOrNumberType : info.keyType : neverType */ TODO
+			// converted from conditional expression
+			switch {
+			case info != enumNumberIndexInfo && isKeyTypeIncluded(info.keyType, include):
+				// converted from conditional expression
+				switch {
+				case info.keyType == stringType && include&TypeFlagsNumber:
+					return stringOrNumberType
+				default:
+					return info.keyType
+				}
+			default:
+				return neverType
+			}
 		})
 		return getUnionType(concatenate(propertyTypes, indexKeyTypes), UnionReductionLiteral, nil, nil, origin)
 	}
@@ -18216,11 +18462,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch {
 		case modifiers & MappedTypeModifiersIncludeOptional:
 			newElementFlags = map_(elementFlags, func(f /* TODO inferred type ElementFlags */ any) /* TODO inferred type ElementFlags */ any {
-				return /* TODO(Node ConditionalExpression): f & ElementFlags.Required ? ElementFlags.Optional : f */ TODO
+				// converted from conditional expression
+				switch {
+				case f & ElementFlagsRequired:
+					return ElementFlagsOptional
+				default:
+					return f
+				}
 			})
 		case modifiers & MappedTypeModifiersExcludeOptional:
 			newElementFlags = map_(elementFlags, func(f /* TODO inferred type ElementFlags */ any) /* TODO inferred type ElementFlags */ any {
-				return /* TODO(Node ConditionalExpression): f & ElementFlags.Optional ? ElementFlags.Required : f */ TODO
+				// converted from conditional expression
+				switch {
+				case f & ElementFlagsOptional:
+					return ElementFlagsRequired
+				default:
+					return f
+				}
 			})
 		default:
 			newElementFlags = elementFlags
@@ -19686,7 +19944,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getNormalizedTupleType := func(type_ TupleTypeReference, writing bool) Type {
 		elements := getElementTypes(type_)
 		normalizedElements := sameMap(elements, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.Simplifiable ? getSimplifiedType(t, writing) : t */ TODO
+			// converted from conditional expression
+			switch {
+			case t.flags & TypeFlagsSimplifiable:
+				return getSimplifiedType(t, writing)
+			default:
+				return t
+			}
 		})
 		// converted from conditional expression
 		switch {
@@ -20315,7 +20579,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if relation == comparableRelation && target.flags&TypeFlagsPrimitive {
 				constraints := sameMap((source).types, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-					return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.Instantiable ? getBaseConstraintOfType(t) || unknownType : t */ TODO
+					// converted from conditional expression
+					switch {
+					case t.flags & TypeFlagsInstantiable:
+						return getBaseConstraintOfType(t) || unknownType
+					default:
+						return t
+					}
 				})
 				if constraints != (source).types {
 					source = getIntersectionType(constraints)
@@ -21820,7 +22090,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	discriminateTypeByDiscriminableItems := func(target UnionType, discriminators [] /* TODO(TypeNode TupleType): [() => Type, __String] */ any, related func(source Type, target Type) /* TODO(TypeNode UnionType): boolean | Ternary */ any) /* TODO inferred type Type */ any {
 		types := target.types
 		var include []Ternary = types.map_(func(t /* TODO inferred type Type */ any) /* TODO inferred type Ternary.False | Ternary.True */ any {
-			return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.Primitive ? Ternary.False : Ternary.True */ TODO
+			// converted from conditional expression
+			switch {
+			case t.flags & TypeFlagsPrimitive:
+				return TernaryFalse
+			default:
+				return TernaryTrue
+			}
 		})
 		for _, TODO_IDENTIFIER := range discriminators {
 			matched := false
@@ -21933,7 +22209,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					unreliable := false
 					oldHandler := outofbandVarianceMarkerHandler
 					outofbandVarianceMarkerHandler = func(onlyUnreliable /* TODO inferred type boolean */ any) /* TODO inferred type boolean */ any {
-						return /* TODO(Node ConditionalExpression): onlyUnreliable ? unreliable = true : unmeasurable = true */ TODO
+						// converted from conditional expression
+						switch {
+						case onlyUnreliable:
+							return /* TODO(Node BinaryExpression): unreliable = true */ TODO
+						default:
+							return /* TODO(Node BinaryExpression): unmeasurable = true */ TODO
+						}
 					}
 					typeWithSuper := createMarkerType(symbol, tp, markerSuperType)
 					typeWithSub := createMarkerType(symbol, tp, markerSubType)
@@ -22100,14 +22382,26 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isValidOverrideOf := func(sourceProp Symbol, targetProp Symbol) /* TODO inferred type boolean */ any {
 		return !forEachProperty(targetProp, func(tp /* TODO inferred type Symbol */ any) /* TODO inferred type boolean */ any {
-			return /* TODO(Node ConditionalExpression): getDeclarationModifierFlagsFromSymbol(tp) & ModifierFlags.Protected ? !isPropertyInClassDerivedFrom(sourceProp, getDeclaringClass(tp)) : false */ TODO
+			// converted from conditional expression
+			switch {
+			case getDeclarationModifierFlagsFromSymbol(tp) & ModifierFlagsProtected:
+				return !isPropertyInClassDerivedFrom(sourceProp, getDeclaringClass(tp))
+			default:
+				return false
+			}
 		})
 	}
 	isClassDerivedFromDeclaringClasses := func(checkClass T, prop Symbol, writing bool) /* TODO inferred type T | undefined */ any {
 		// converted from conditional expression
 		switch {
 		case forEachProperty(prop, func(p /* TODO inferred type Symbol */ any) /* TODO inferred type boolean */ any {
-			return /* TODO(Node ConditionalExpression): getDeclarationModifierFlagsFromSymbol(p, writing) & ModifierFlags.Protected ? !hasBaseType(checkClass, getDeclaringClass(p)) : false */ TODO
+			// converted from conditional expression
+			switch {
+			case getDeclarationModifierFlagsFromSymbol(p, writing) & ModifierFlagsProtected:
+				return !hasBaseType(checkClass, getDeclaringClass(p))
+			default:
+				return false
+			}
 		}):
 			return nil
 		default:
@@ -22336,7 +22630,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			superTypeOrUnion = getUnionType(primaryTypes)
 		default:
 			superTypeOrUnion = reduceLeft(primaryTypes, func(s /* TODO inferred type Type */ any, t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): isTypeSubtypeOf(s, t) ? t : s */ TODO
+				// converted from conditional expression
+				switch {
+				case isTypeSubtypeOf(s, t):
+					return t
+				default:
+					return s
+				}
 			})
 		}
 		// converted from conditional expression
@@ -22349,7 +22649,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getCommonSubtype := func(types []Type) /* TODO inferred type Type */ any {
 		return reduceLeft(types, func(s /* TODO inferred type Type */ any, t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): isTypeSubtypeOf(t, s) ? t : s */ TODO
+			// converted from conditional expression
+			switch {
+			case isTypeSubtypeOf(t, s):
+				return t
+			default:
+				return s
+			}
 		})
 	}
 	isArrayType := func(type_ Type) /* TODO(TypeNode TypePredicate): type is TypeReference */ any {
@@ -22950,7 +23256,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else if type_.flags & TypeFlagsUnion {
 				unionContext := context || createWideningContext(nil, nil, (type_).types)
 				widenedTypes := sameMap((type_).types, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-					return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.Nullable ? t : getWidenedTypeWithContext(t, unionContext) */ TODO
+					// converted from conditional expression
+					switch {
+					case t.flags & TypeFlagsNullable:
+						return t
+					default:
+						return getWidenedTypeWithContext(t, unionContext)
+					}
 				})
 				result = getUnionType(widenedTypes /* TODO(Node ConditionalExpression): some(widenedTypes, isEmptyObjectType) ? UnionReduction.Subtype : UnionReduction.Literal */, TODO)
 			} else if type_.flags & TypeFlagsIntersection {
@@ -23257,7 +23569,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if type_.aliasSymbol && !type_.aliasTypeArguments {
 			declaration := getDeclarationOfKind(type_.aliasSymbol, SyntaxKindTypeAliasDeclaration)
 			return !!(declaration && findAncestor(declaration.parent, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-				return /* TODO(Node ConditionalExpression): n.kind === SyntaxKind.SourceFile ? true : n.kind === SyntaxKind.ModuleDeclaration ? false : "quit" */ TODO
+				// converted from conditional expression
+				switch {
+				case n.kind == SyntaxKindSourceFile:
+					return true
+				case n.kind == SyntaxKindModuleDeclaration:
+					return false
+				default:
+					return "quit"
+				}
 			}))
 		}
 		return false
@@ -23341,7 +23661,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch {
 			case getMappedTypeModifiers(target) & MappedTypeModifiersIncludeOptional:
 				elementFlags = sameMap(source.target.elementFlags, func(f /* TODO inferred type ElementFlags */ any) /* TODO inferred type ElementFlags */ any {
-					return /* TODO(Node ConditionalExpression): f & ElementFlags.Optional ? ElementFlags.Required : f */ TODO
+					// converted from conditional expression
+					switch {
+					case f & ElementFlagsOptional:
+						return ElementFlagsRequired
+					default:
+						return f
+					}
 				})
 			default:
 				elementFlags = source.target.elementFlags
@@ -23932,7 +24258,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if typeVariableCount == 1 && !inferenceCircularity {
 					unmatched := flatMap(sources, func(s /* TODO inferred type Type */ any, i /* TODO inferred type number */ any) /* TODO inferred type Type | undefined */ any {
-						return /* TODO(Node ConditionalExpression): matched[i] ? undefined : s */ TODO
+						// converted from conditional expression
+						switch {
+						case matched[i]:
+							return nil
+						default:
+							return s
+						}
 					})
 					if unmatched.length {
 						inferFromTypes(getUnionType(unmatched), nakedTypeVariable)
@@ -23982,7 +24314,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				propTypes := map_(getPropertiesOfType(source), getTypeOfSymbol)
 				indexTypes := map_(getIndexInfosOfType(source), func(info /* TODO inferred type IndexInfo */ any) /* TODO inferred type Type */ any {
-					return /* TODO(Node ConditionalExpression): info !== enumNumberIndexInfo ? info.type : neverType */ TODO
+					// converted from conditional expression
+					switch {
+					case info != enumNumberIndexInfo:
+						return info.type_
+					default:
+						return neverType
+					}
 				})
 				inferFromTypes(getUnionType(concatenate(propTypes, indexTypes)), getTemplateTypeFromMappedType(target))
 				return true
@@ -24047,7 +24385,73 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 									allTypeFlags &= ~TypeFlagsBigIntLike
 								}
 								matchingType := reduceLeft(constraintTypes, func(left /* TODO inferred type Type */ any, right /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-									return /* TODO(Node ConditionalExpression): !(right.flags & allTypeFlags) ? left : left.flags & TypeFlags.String ? left : right.flags & TypeFlags.String ? source : left.flags & TypeFlags.TemplateLiteral ? left : right.flags & TypeFlags.TemplateLiteral && isTypeMatchedByTemplateLiteralType(source, right as TemplateLiteralType) ? source : left.flags & TypeFlags.StringMapping ? left : right.flags & TypeFlags.StringMapping && str === applyStringMapping(right.symbol, str) ? source : left.flags & TypeFlags.StringLiteral ? left : right.flags & TypeFlags.StringLiteral && (right as StringLiteralType).value === str ? right : left.flags & TypeFlags.Number ? left : right.flags & TypeFlags.Number ? getNumberLiteralType(+str) : left.flags & TypeFlags.Enum ? left : right.flags & TypeFlags.Enum ? getNumberLiteralType(+str) : left.flags & TypeFlags.NumberLiteral ? left : right.flags & TypeFlags.NumberLiteral && (right as NumberLiteralType).value === +str ? right : left.flags & TypeFlags.BigInt ? left : right.flags & TypeFlags.BigInt ? parseBigIntLiteralType(str) : left.flags & TypeFlags.BigIntLiteral ? left : right.flags & TypeFlags.BigIntLiteral && pseudoBigIntToString((right as BigIntLiteralType).value) === str ? right : left.flags & TypeFlags.Boolean ? left : right.flags & TypeFlags.Boolean ? str === "true" ? trueType : str === "false" ? falseType : booleanType : left.flags & TypeFlags.BooleanLiteral ? left : right.flags & TypeFlags.BooleanLiteral && (right as IntrinsicType).intrinsicName === str ? right : left.flags & TypeFlags.Undefined ? left : right.flags & TypeFlags.Undefined && (right as IntrinsicType).intrinsicName === str ? right : left.flags & TypeFlags.Null ? left : right.flags & TypeFlags.Null && (right as IntrinsicType).intrinsicName === str ? right : left */ TODO
+									// converted from conditional expression
+									switch {
+									case !(right.flags & allTypeFlags):
+										return left
+									case left.flags & TypeFlagsString:
+										return left
+									case right.flags & TypeFlagsString:
+										return source
+									case left.flags & TypeFlagsTemplateLiteral:
+										return left
+									case right.flags&TypeFlagsTemplateLiteral && isTypeMatchedByTemplateLiteralType(source, right):
+										return source
+									case left.flags & TypeFlagsStringMapping:
+										return left
+									case right.flags&TypeFlagsStringMapping && str == applyStringMapping(right.symbol, str):
+										return source
+									case left.flags & TypeFlagsStringLiteral:
+										return left
+									case right.flags&TypeFlagsStringLiteral && (right).value == str:
+										return right
+									case left.flags & TypeFlagsNumber:
+										return left
+									case right.flags & TypeFlagsNumber:
+										return getNumberLiteralType(+str)
+									case left.flags & TypeFlagsEnum:
+										return left
+									case right.flags & TypeFlagsEnum:
+										return getNumberLiteralType(+str)
+									case left.flags & TypeFlagsNumberLiteral:
+										return left
+									case right.flags&TypeFlagsNumberLiteral && (right).value == +str:
+										return right
+									case left.flags & TypeFlagsBigInt:
+										return left
+									case right.flags & TypeFlagsBigInt:
+										return parseBigIntLiteralType(str)
+									case left.flags & TypeFlagsBigIntLiteral:
+										return left
+									case right.flags&TypeFlagsBigIntLiteral && pseudoBigIntToString((right).value) == str:
+										return right
+									case left.flags & TypeFlagsBoolean:
+										return left
+									case right.flags & TypeFlagsBoolean:
+										// converted from conditional expression
+										switch {
+										case str == "true":
+											return trueType
+										case str == "false":
+											return falseType
+										default:
+											return booleanType
+										}
+									case left.flags & TypeFlagsBooleanLiteral:
+										return left
+									case right.flags&TypeFlagsBooleanLiteral && (right).intrinsicName == str:
+										return right
+									case left.flags & TypeFlagsUndefined:
+										return left
+									case right.flags&TypeFlagsUndefined && (right).intrinsicName == str:
+										return right
+									case left.flags & TypeFlagsNull:
+										return left
+									case right.flags&TypeFlagsNull && (right).intrinsicName == str:
+										return right
+									default:
+										return left
+									}
 								}, neverType)
 								if !(matchingType.flags & TypeFlagsNever) {
 									inferFromTypes(matchingType, target)
@@ -24773,7 +25177,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		if unionType.keyPropertyName == nil {
 			keyPropertyName := forEach(types, func(t /* TODO inferred type Type */ any) /* TODO inferred type (string & { __escapedIdentifier: void; }) | (void & { __escapedIdentifier: void; }) | InternalSymbolName | undefined */ any {
-				return /* TODO(Node ConditionalExpression): t.flags & (TypeFlags.Object | TypeFlags.InstantiableNonPrimitive) ? forEach(getPropertiesOfType(t), p => isUnitType(getTypeOfSymbol(p)) ? p.escapedName : undefined) : undefined */ TODO
+				// converted from conditional expression
+				switch {
+				case t.flags & (TypeFlagsObject | TypeFlagsInstantiableNonPrimitive):
+					return forEach(getPropertiesOfType(t), func(p /* TODO inferred type Symbol */ any) /* TODO inferred type __String | undefined */ any {
+						// converted from conditional expression
+						switch {
+						case isUnitType(getTypeOfSymbol(p)):
+							return p.escapedName
+						default:
+							return nil
+						}
+					})
+				default:
+					return nil
+				}
 			})
 			mapByKeyProperty := keyPropertyName && mapTypesByKeyProperty(types, keyPropertyName)
 			unionType.keyPropertyName = /* TODO(Node ConditionalExpression): mapByKeyProperty ? keyPropertyName : "" as __String */ TODO
@@ -25105,7 +25523,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				fallthrough // TODO: merge cases
 			case TypeFactsTruthy:
 				return mapType(reduced, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-					return /* TODO(Node ConditionalExpression): hasTypeFacts(t, TypeFacts.EQUndefinedOrNull) ? getGlobalNonNullableTypeInstantiation(t) : t */ TODO
+					// converted from conditional expression
+					switch {
+					case hasTypeFacts(t, TypeFactsEQUndefinedOrNull):
+						return getGlobalNonNullableTypeInstantiation(t)
+					default:
+						return t
+					}
 				})
 			}
 		}
@@ -25118,7 +25542,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		emptyAndOtherUnion := getUnionType([] /* TODO inferred type Type */ any{emptyObjectType, otherType})
 		return mapType(type_, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-			return /* TODO(Node ConditionalExpression): hasTypeFacts(t, targetFacts) ? getIntersectionType([t, !(facts & otherIncludesFacts) && hasTypeFacts(t, otherFacts) ? emptyAndOtherUnion : emptyObjectType]) : t */ TODO
+			// converted from conditional expression
+			switch {
+			case hasTypeFacts(t, targetFacts):
+				return getIntersectionType([] /* TODO inferred type Type */ any{t /* TODO(Node ConditionalExpression): !(facts & otherIncludesFacts) && hasTypeFacts(t, otherFacts) ? emptyAndOtherUnion : emptyObjectType */, TODO})
+			default:
+				return t
+			}
 		})
 	}
 	recombineUnknownType := func(type_ Type) /* TODO inferred type Type */ any {
@@ -25493,7 +25923,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	replacePrimitivesWithLiterals := func(typeWithPrimitives Type, typeWithLiterals Type) /* TODO inferred type Type */ any {
 		if maybeTypeOfKind(typeWithPrimitives, TypeFlagsString|TypeFlagsTemplateLiteral|TypeFlagsNumber|TypeFlagsBigInt) && maybeTypeOfKind(typeWithLiterals, TypeFlagsStringLiteral|TypeFlagsTemplateLiteral|TypeFlagsStringMapping|TypeFlagsNumberLiteral|TypeFlagsBigIntLiteral) {
 			return mapType(typeWithPrimitives, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): t.flags & TypeFlags.String ? extractTypesOfKind(typeWithLiterals, TypeFlags.String | TypeFlags.StringLiteral | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) : isPatternLiteralType(t) && !maybeTypeOfKind(typeWithLiterals, TypeFlags.String | TypeFlags.TemplateLiteral | TypeFlags.StringMapping) ? extractTypesOfKind(typeWithLiterals, TypeFlags.StringLiteral) : t.flags & TypeFlags.Number ? extractTypesOfKind(typeWithLiterals, TypeFlags.Number | TypeFlags.NumberLiteral) : t.flags & TypeFlags.BigInt ? extractTypesOfKind(typeWithLiterals, TypeFlags.BigInt | TypeFlags.BigIntLiteral) : t */ TODO
+				// converted from conditional expression
+				switch {
+				case t.flags & TypeFlagsString:
+					return extractTypesOfKind(typeWithLiterals, TypeFlagsString|TypeFlagsStringLiteral|TypeFlagsTemplateLiteral|TypeFlagsStringMapping)
+				case isPatternLiteralType(t) && !maybeTypeOfKind(typeWithLiterals, TypeFlagsString|TypeFlagsTemplateLiteral|TypeFlagsStringMapping):
+					return extractTypesOfKind(typeWithLiterals, TypeFlagsStringLiteral)
+				case t.flags & TypeFlagsNumber:
+					return extractTypesOfKind(typeWithLiterals, TypeFlagsNumber|TypeFlagsNumberLiteral)
+				case t.flags & TypeFlagsBigInt:
+					return extractTypesOfKind(typeWithLiterals, TypeFlagsBigInt|TypeFlagsBigIntLiteral)
+				default:
+					return t
+				}
 			})
 		}
 		return typeWithPrimitives
@@ -26751,7 +27193,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		narrowTypeByTypeFacts := func(type_ Type, impliedType Type, facts TypeFacts) /* TODO inferred type Type */ any {
 			return mapType(type_, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): isTypeRelatedTo(t, impliedType, strictSubtypeRelation) ? hasTypeFacts(t, facts) ? t : neverType : // We next check if the consituent is a supertype of the implied type. If so, we substitute the implied // type. This handles top types like `unknown` and `{}`, and supertypes like `{ toString(): string }`. isTypeSubtypeOf(impliedType, t) ? impliedType : // Neither the constituent nor the implied type is a subtype of the other, however their domains may still // overlap. For example, an unconstrained type parameter and type `string`. If the type facts indicate // possible overlap, we form an intersection. Otherwise, we eliminate the constituent. hasTypeFacts(t, facts) ? getIntersectionType([t, impliedType]) : neverType */ TODO
+				// converted from conditional expression
+				switch {
+				case isTypeRelatedTo(t, impliedType, strictSubtypeRelation):
+					// converted from conditional expression
+					switch {
+					case hasTypeFacts(t, facts):
+						return t
+					default:
+						return neverType
+					}
+				case isTypeSubtypeOf(impliedType, t):
+					return impliedType
+				case hasTypeFacts(t, facts):
+					return getIntersectionType([] /* TODO inferred type Type */ any{t, impliedType})
+				default:
+					return neverType
+				}
 			})
 		}
 		narrowTypeBySwitchOnTypeOf := func(type_ Type, TODO_IDENTIFIER FlowSwitchClauseData) Type {
@@ -26771,7 +27229,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			clauseWitnesses := witnesses.slice(clauseStart, clauseEnd)
 			return getUnionType(map_(clauseWitnesses, func(text /* TODO inferred type string | undefined */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): text ? narrowTypeByTypeName(type, text) : neverType */ TODO
+				// converted from conditional expression
+				switch {
+				case text:
+					return narrowTypeByTypeName(type_, text)
+				default:
+					return neverType
+				}
 			}))
 		}
 		narrowTypeBySwitchOnTrue := func(type_ Type, TODO_IDENTIFIER FlowSwitchClauseData) Type {
@@ -26796,7 +27260,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			clauses := switchStatement.caseBlock.clauses.slice(clauseStart, clauseEnd)
 			return getUnionType(map_(clauses, func(clause /* TODO inferred type CaseOrDefaultClause */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): clause.kind === SyntaxKind.CaseClause ? narrowType(type, clause.expression, /*assumeTrue* / true) : neverType */ TODO
+				// converted from conditional expression
+				switch {
+				case clause.kind == SyntaxKindCaseClause:
+					return narrowType(type_, clause.expression, true)
+				default:
+					return neverType
+				}
 			}))
 		}
 		isMatchingConstructorReference := func(expr Expression) /* TODO inferred type boolean */ any {
@@ -26935,7 +27405,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				switch {
 				case directlyRelated.flags & TypeFlagsNever:
 					return mapType(type_, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-						return /* TODO(Node ConditionalExpression): maybeTypeOfKind(t, TypeFlags.Instantiable) && isRelated(c, getBaseConstraintOfType(t) || unknownType) ? getIntersectionType([t, c]) : neverType */ TODO
+						// converted from conditional expression
+						switch {
+						case maybeTypeOfKind(t, TypeFlagsInstantiable) && isRelated(c, getBaseConstraintOfType(t) || unknownType):
+							return getIntersectionType([] /* TODO inferred type Type */ any{t, c})
+						default:
+							return neverType
+						}
 					})
 				default:
 					return directlyRelated
@@ -27886,17 +28362,35 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isInsideFunctionOrInstancePropertyInitializer := func(node Node, threshold Node) bool {
 		return !!findAncestor(node, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): n === threshold ? "quit" : isFunctionLike(n) || ( n.parent && isPropertyDeclaration(n.parent) && !hasStaticModifier(n.parent) && n.parent.initializer === n ) */ TODO
+			// converted from conditional expression
+			switch {
+			case n == threshold:
+				return "quit"
+			default:
+				return isFunctionLike(n) || (n.parent && isPropertyDeclaration(n.parent) && !hasStaticModifier(n.parent) && n.parent.initializer == n)
+			}
 		})
 	}
 	getPartOfForStatementContainingNode := func(node Node, container ForStatement) /* TODO inferred type Node | undefined */ any {
 		return findAncestor(node, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): n === container ? "quit" : n === container.initializer || n === container.condition || n === container.incrementor || n === container.statement */ TODO
+			// converted from conditional expression
+			switch {
+			case n == container:
+				return "quit"
+			default:
+				return n == container.initializer || n == container.condition || n == container.incrementor || n == container.statement
+			}
 		})
 	}
 	getEnclosingIterationStatement := func(node Node) Node {
 		return findAncestor(node, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): (!n || nodeStartsNewLexicalEnvironment(n)) ? "quit" : isIterationStatement(n, /*lookInLabeledStatements* / false) */ TODO
+			// converted from conditional expression
+			switch {
+			case (!n || nodeStartsNewLexicalEnvironment(n)):
+				return "quit"
+			default:
+				return isIterationStatement(n, false)
+			}
 		})
 	}
 	checkNestedBlockScopedBinding := func(node Identifier, symbol Symbol) {
@@ -27960,7 +28454,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return false
 		}
 		return !!findAncestor(current, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): n === container ? "quit" : n === container.statement */ TODO
+			// converted from conditional expression
+			switch {
+			case n == container:
+				return "quit"
+			default:
+				return n == container.statement
+			}
 		})
 	}
 	captureLexicalThis := func(node Node, container Node) {
@@ -28143,7 +28643,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isInConstructorArgumentInitializer := func(node Node, constructorDecl Node) bool {
 		return !!findAncestor(node, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-			return /* TODO(Node ConditionalExpression): isFunctionLikeDeclaration(n) ? "quit" : n.kind === SyntaxKind.Parameter && n.parent === constructorDecl */ TODO
+			// converted from conditional expression
+			switch {
+			case isFunctionLikeDeclaration(n):
+				return "quit"
+			default:
+				return n.kind == SyntaxKindParameter && n.parent == constructorDecl
+			}
 		})
 	}
 	checkSuperExpression := func(node Node) Type {
@@ -28167,7 +28673,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var nodeCheckFlag NodeCheckFlags = 0
 		if !container || !isLegalUsageOfSuperExpression(container) {
 			current := findAncestor(node, func(n /* TODO inferred type Node */ any) /* TODO inferred type boolean | "quit" */ any {
-				return /* TODO(Node ConditionalExpression): n === container ? "quit" : n.kind === SyntaxKind.ComputedPropertyName */ TODO
+				// converted from conditional expression
+				switch {
+				case n == container:
+					return "quit"
+				default:
+					return n.kind == SyntaxKindComputedPropertyName
+				}
 			})
 			if current && current.kind == SyntaxKindComputedPropertyName {
 				error(node, Diagnostics.super_cannot_be_referenced_in_a_computed_property_name)
@@ -29106,7 +29618,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		instantiatedType := instantiateContextualType(contextualType, node, contextFlags)
 		if instantiatedType && !(contextFlags && contextFlags&ContextFlagsNoConstraints && instantiatedType.flags&TypeFlagsTypeVariable) {
 			apparentType := mapType(instantiatedType, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): getObjectFlags(t) & ObjectFlags.Mapped ? t : getApparentType(t) */ TODO
+				// converted from conditional expression
+				switch {
+				case getObjectFlags(t) & ObjectFlagsMapped:
+					return t
+				default:
+					return getApparentType(t)
+				}
 			}, true)
 			// converted from conditional expression
 			switch {
@@ -29420,7 +29938,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch {
 		case getStrictOptionValue(compilerOptions, "noImplicitAny"):
 			return reduceLeft(signatures, func(left *Signature, right /* TODO inferred type Signature | undefined */ any) /* TODO inferred type Signature | undefined */ any {
-				return /* TODO(Node ConditionalExpression): left === right || !left ? left : compareTypeParametersIdentical(left.typeParameters, right!.typeParameters) ? combineSignaturesOfIntersectionMembers(left, right!) : undefined */ TODO
+				// converted from conditional expression
+				switch {
+				case left == right || !left:
+					return left
+				case compareTypeParametersIdentical(left.typeParameters, right.typeParameters):
+					return combineSignaturesOfIntersectionMembers(left, right)
+				default:
+					return nil
+				}
 			})
 		default:
 			return nil
@@ -29998,7 +30524,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				hasComputedNumberProperty = false
 			}
 			return mapType(spread, func(t /* TODO inferred type Type */ any) /* TODO inferred type Type */ any {
-				return /* TODO(Node ConditionalExpression): t === emptyObjectType ? createObjectLiteralType() : t */ TODO
+				// converted from conditional expression
+				switch {
+				case t == emptyObjectType:
+					return createObjectLiteralType()
+				default:
+					return t
+				}
 			})
 		}
 		return createObjectLiteralType()
@@ -31355,7 +31887,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var candidates []Symbol
 		if symbols == globals {
 			primitives := mapDefined([] /* TODO inferred type string */ any{"string", "number", "boolean", "object", "bigint", "symbol"}, func(s /* TODO inferred type string */ any) /* TODO inferred type Symbol | undefined */ any {
-				return /* TODO(Node ConditionalExpression): symbols.has((s.charAt(0).toUpperCase() + s.slice(1)) as __String) ? createSymbol(SymbolFlags.TypeAlias, s as __String) as Symbol : undefined */ TODO
+				// converted from conditional expression
+				switch {
+				case symbols.has((s.charAt(0).toUpperCase() + s.slice(1))):
+					return createSymbol(SymbolFlagsTypeAlias, s)
+				default:
+					return nil
+				}
 			})
 			candidates = primitives.concat(arrayFrom(symbols.values()))
 		} else {
@@ -32769,7 +33307,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var parameters []Symbol = [] /* TODO inferred type never */ any{}
 		for i := 0; i < maxNonRestParam; i++ {
 			symbols := mapDefined(candidates, func(s /* TODO inferred type Signature */ any) /* TODO inferred type Symbol | undefined */ any {
-				return /* TODO(Node ConditionalExpression): signatureHasRestParameter(s) ? i < s.parameters.length - 1 ? s.parameters[i] : last(s.parameters) : i < s.parameters.length ? s.parameters[i] : undefined */ TODO
+				// converted from conditional expression
+				switch {
+				case signatureHasRestParameter(s):
+					// converted from conditional expression
+					switch {
+					case i < s.parameters.length-1:
+						return s.parameters[i]
+					default:
+						return last(s.parameters)
+					}
+				case i < s.parameters.length:
+					return s.parameters[i]
+				default:
+					return nil
+				}
 			})
 			Debug.assert(symbols.length != 0)
 			parameters.push(createCombinedSymbolFromTypes(symbols, mapDefined(candidates, func(candidate /* TODO inferred type Signature */ any) /* TODO inferred type Type | undefined */ any {
@@ -32777,7 +33329,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			})))
 		}
 		restParameterSymbols := mapDefined(candidates, func(c /* TODO inferred type Signature */ any) /* TODO inferred type Symbol | undefined */ any {
-			return /* TODO(Node ConditionalExpression): signatureHasRestParameter(c) ? last(c.parameters) : undefined */ TODO
+			// converted from conditional expression
+			switch {
+			case signatureHasRestParameter(c):
+				return last(c.parameters)
+			default:
+				return nil
+			}
 		})
 		flags := SignatureFlagsIsSignatureCandidateForOverloadFailure
 		if restParameterSymbols.length != 0 {
@@ -38596,7 +39154,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			headMessage := Diagnostics.Type_0_is_not_a_valid_async_function_return_type_in_ES5_because_it_does_not_refer_to_a_Promise_compatible_constructor_value
 			errorInfo := func() /* TODO inferred type DiagnosticMessageChain | undefined */ any {
-				return /* TODO(Node ConditionalExpression): returnTypeNode === returnTypeErrorLocation ? undefined : chainDiagnosticMessages(/*details* / undefined, Diagnostics.The_return_type_of_an_async_function_or_method_must_be_the_global_Promise_T_type) */ TODO
+				// converted from conditional expression
+				switch {
+				case returnTypeNode == returnTypeErrorLocation:
+					return nil
+				default:
+					return chainDiagnosticMessages(nil, Diagnostics.The_return_type_of_an_async_function_or_method_must_be_the_global_Promise_T_type)
+				}
 			}
 			if !checkTypeAssignableTo(promiseConstructorType, globalPromiseConstructorLikeType, returnTypeErrorLocation, headMessage, errorInfo) {
 				return
