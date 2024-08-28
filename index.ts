@@ -241,11 +241,11 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
     }
     else if (Node.isAsExpression(node)) {
         visitExpression(node.getExpression());
-        // writer.write(` /* as */ ${todo(node.getTypeNodeOrThrow())}`);
+        writer.write(` ${asComment("as " + node.getTypeNodeOrThrow().getText())}`);
     }
     else if (Node.isNonNullExpression(node)) {
         visitExpression(node.getExpression());
-        // writer.write(`/*!*/`);
+        // writer.write("/* TODO(TS-TO-GO): was ! */");
     }
     else if (Node.isIdentifier(node) || node.getText() === "this") {
         if (node.getText() === "undefined") {
