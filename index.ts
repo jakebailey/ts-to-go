@@ -4,6 +4,7 @@ import { execa } from "execa";
 import path from "path";
 import {
     ArrowFunction,
+    BinaryExpression,
     Block,
     ConditionalExpression,
     Expression,
@@ -165,7 +166,7 @@ function visitTypeNode(type: TypeNode): void {
 //     return !Node.isConditionalExpression(right);
 // }
 
-function visitExpression(node: Expression): void {
+function visitExpression(node: Expression, inStatement?: boolean): void {
     if (Node.isRegularExpressionLiteral(node)) {
         const re = node.getLiteralValue();
         let source = re.source.replaceAll("`", "\\`");
@@ -217,8 +218,15 @@ function visitExpression(node: Expression): void {
         writer.write(")");
     }
     else if (Node.isPrefixUnaryExpression(node)) {
-        writer.write(ts.tokenToString(node.getOperatorToken())!);
-        visitExpression(node.getOperand());
+        const token = ts.tokenToString(node.getOperatorToken())!;
+        if (inStatement && (token === "++" || token === "--")) {
+            visitExpression(node.getOperand());
+            writer.write(token);
+        }
+        else {
+            writer.write(token);
+            visitExpression(node.getOperand());
+        }
     }
     else if (Node.isParenthesizedExpression(node)) {
         writer.write("(");
@@ -226,38 +234,7 @@ function visitExpression(node: Expression): void {
         writer.write(")");
     }
     else if (Node.isBinaryExpression(node)) {
-        const op = node.getOperatorToken();
-        let tok;
-        switch (op.getKind()) {
-            case ts.SyntaxKind.AmpersandAmpersandToken:
-            case ts.SyntaxKind.BarBarToken:
-            case ts.SyntaxKind.LessThanEqualsToken:
-            case ts.SyntaxKind.LessThanToken:
-            case ts.SyntaxKind.GreaterThanEqualsToken:
-            case ts.SyntaxKind.GreaterThanToken:
-            case ts.SyntaxKind.AmpersandToken:
-            case ts.SyntaxKind.BarToken:
-            case ts.SyntaxKind.MinusToken:
-            case ts.SyntaxKind.PlusToken:
-            case ts.SyntaxKind.AsteriskToken:
-            case ts.SyntaxKind.SlashToken:
-                tok = ts.tokenToString(op.getKind());
-                break;
-            case ts.SyntaxKind.EqualsEqualsEqualsToken:
-                tok = "==";
-                break;
-            case ts.SyntaxKind.ExclamationEqualsEqualsToken:
-                tok = "!=";
-                break;
-            default:
-                writeTodoNode(node);
-                writer.write(` TODO`);
-                return;
-        }
-
-        visitExpression(node.getLeft());
-        writer.write(` ${tok} `);
-        visitExpression(node.getRight());
+        writeBinaryExpression(node, inStatement);
     }
     else if (Node.isTrueLiteral(node)) {
         writer.write("true");
@@ -279,6 +256,9 @@ function visitExpression(node: Expression): void {
         }
 
         visitExpression(node.getExpression());
+        if (node.hasQuestionDotToken()) {
+            writer.write("/*?*/");
+        }
         writer.write(`.${sanitizeName(node.getName())}`);
     }
     else if (Node.isElementAccessExpression(node)) {
@@ -339,6 +319,24 @@ function visitExpression(node: Expression): void {
         writeTodoNode(node);
         writer.write(` TODO`);
     }
+    else if (Node.isVoidExpression(node)) {
+        visitExpression(node.getExpression());
+        return;
+    }
+    else if (Node.isYieldExpression(node)) {
+        writer.write("yield(");
+        visitExpression(node.getExpressionOrThrow());
+        writer.write(")");
+        return;
+    }
+    else if (Node.isPostfixUnaryExpression(node)) {
+        const tokenStr = ts.tokenToString(node.getOperatorToken());
+        if (tokenStr) {
+            visitExpression(node.getOperand());
+            writer.write(tokenStr);
+            return;
+        }
+    }
     // else if (Node.isObjectLiteralExpression(node)) {
     //     writer.write("map[any]any{");
     //     writer.indent(() => {
@@ -365,6 +363,64 @@ function visitExpression(node: Expression): void {
         writeTodoNode(node);
         writer.write(` TODO`);
     }
+}
+
+function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
+    const op = node.getOperatorToken();
+    let tok;
+    switch (op.getKind()) {
+        case ts.SyntaxKind.AmpersandAmpersandToken:
+        case ts.SyntaxKind.BarBarToken:
+        case ts.SyntaxKind.LessThanEqualsToken:
+        case ts.SyntaxKind.LessThanToken:
+        case ts.SyntaxKind.GreaterThanEqualsToken:
+        case ts.SyntaxKind.GreaterThanToken:
+        case ts.SyntaxKind.AmpersandToken:
+        case ts.SyntaxKind.BarToken:
+        case ts.SyntaxKind.MinusToken:
+        case ts.SyntaxKind.PlusToken:
+        case ts.SyntaxKind.AsteriskToken:
+        case ts.SyntaxKind.SlashToken:
+            tok = ts.tokenToString(op.getKind());
+            break;
+        case ts.SyntaxKind.EqualsEqualsEqualsToken:
+            tok = "==";
+            break;
+        case ts.SyntaxKind.ExclamationEqualsEqualsToken:
+            tok = "!=";
+            break;
+        default:
+            if (isStatement) {
+                switch (op.getKind()) {
+                    case ts.SyntaxKind.EqualsToken:
+                    case ts.SyntaxKind.BarEqualsToken:
+                    case ts.SyntaxKind.AmpersandEqualsToken:
+                    case ts.SyntaxKind.PlusEqualsToken:
+                    case ts.SyntaxKind.MinusEqualsToken:
+                    case ts.SyntaxKind.AsteriskEqualsToken:
+                    case ts.SyntaxKind.SlashEqualsToken:
+                    case ts.SyntaxKind.PercentEqualsToken:
+                    case ts.SyntaxKind.CaretEqualsToken:
+                    case ts.SyntaxKind.LessThanLessThanEqualsToken:
+                    case ts.SyntaxKind.GreaterThanGreaterThanEqualsToken:
+                        tok = ts.tokenToString(op.getKind());
+                        break;
+                    default:
+                        writeTodoNode(node);
+                        writer.write(` TODO`);
+                        return;
+                }
+                break;
+            }
+
+            writeTodoNode(node);
+            writer.write(` TODO`);
+            return;
+    }
+
+    visitExpression(node.getLeft());
+    writer.write(` ${tok} `);
+    visitExpression(node.getRight());
 }
 
 function sanitizeName(name: string | undefined) {
@@ -411,6 +467,7 @@ function getNameOfNamed(node: { getName(): string | undefined; }) {
 function visitIfStatement(node: IfStatement) {
     writer.write("if ");
     visitExpression(node.getExpression());
+
     writer.write(" {");
     writer.indent(() => {
         const thenStatement = node.getThenStatement();
@@ -454,48 +511,8 @@ function visitIfStatement(node: IfStatement) {
 }
 function visitExpressionStatement(node: ExpressionStatement) {
     const expression = node.getExpression();
-    visitExpressionForStatement(expression);
+    visitExpression(expression, true);
     writer.newLine();
-}
-
-function visitExpressionForStatement(node: Expression) {
-    // Handling expressions separately so we _don't_ handle side effect expressions in writeExpression
-    if (Node.isCallExpression(node)) {
-        visitExpression(node);
-        return;
-    }
-    if (Node.isBinaryExpression(node)) {
-        const op = node.getOperatorToken();
-        const tokenStr = ts.tokenToString(op.getKind());
-        if (tokenStr?.endsWith("=") && !tokenStr.startsWith("?") && tokenStr !== "||=") {
-            const left = node.getLeft();
-            const right = node.getRight();
-            visitExpression(left);
-            writer.write(` ${tokenStr} `);
-            visitExpression(right);
-            return;
-        }
-    }
-    if (Node.isPostfixUnaryExpression(node)) {
-        const tokenStr = ts.tokenToString(node.getOperatorToken());
-        if (tokenStr) {
-            visitExpression(node.getOperand());
-            writer.write(tokenStr);
-            return;
-        }
-    }
-    if (Node.isVoidExpression(node)) {
-        visitExpression(node.getExpression());
-        return;
-    }
-    if (Node.isYieldExpression(node)) {
-        writer.write("yield(");
-        visitExpression(node.getExpressionOrThrow());
-        writer.write(")");
-        return;
-    }
-
-    writeTodoNode(node);
 }
 
 function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction) {
@@ -839,7 +856,7 @@ function visitStatement(node: Statement) {
         writer.write("; ");
         const incrementor = node.getIncrementor();
         if (incrementor) {
-            visitExpressionForStatement(incrementor);
+            visitExpression(incrementor, true);
         }
         writer.write(" {");
         writer.indent(() => {
