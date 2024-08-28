@@ -734,7 +734,7 @@ function visitStatement(node: Statement) {
         });
         writer.write("}");
 
-        writer.newLineIfLastNot();
+        writer.newLine();
         return;
     }
 
