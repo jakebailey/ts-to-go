@@ -15087,7 +15087,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if item != mapped {
 					result := /* TODO(Node ConditionalExpression): i === 0 ? [] : items.slice(0, i) */ TODO
 					result.push(mapped)
-					for ; /* TODO(Node PostfixUnaryExpression): i++ */ i < items.length; i++ {
+					for i++; i < items.length; i++ {
 						result.push(instantiator(items[i], mapper))
 					}
 					return result

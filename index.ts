@@ -905,7 +905,7 @@ function visitStatement(node: Statement) {
                 }
             }
             else {
-                writeTodoNode(initializer);
+                visitExpression(initializer, true);
             }
         }
         writer.write("; ");
