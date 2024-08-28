@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert, { notDeepEqual } from "assert";
 import CodeBlockWriter from "code-block-writer";
 import { execa } from "execa";
 import path from "path";
@@ -39,7 +39,7 @@ writer.newLine();
 
 function asComment(text: string) {
     text = text.replaceAll("*/", "* /");
-    text = text.replace(/\r?\n/g, " ");
+    text = text.replace(/\r?\n\s+/gm, " ");
     return `/* ${text} */`;
 }
 
@@ -556,9 +556,12 @@ function visitStatement(node: Statement) {
     }
 
     if (Node.isFunctionDeclaration(node)) {
-        const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
+        if (!node.hasBody()) {
+            writer.write(asComment(`OVERLOAD: ${node.getText()}`));
+            return;
+        }
 
-        writer.conditionalWrite(!node.hasBody(), "// OVERLOAD: ");
+        const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
 
         if (!isGlobal) {
             writer.write(`${getNameOfNamed(node)} := func`);
@@ -569,15 +572,13 @@ function visitStatement(node: Statement) {
 
         writeFunctionParametersAndReturn(node);
 
-        if (node.hasBody()) {
-            writer.write(" {");
-            writer.indent(() => {
-                const body = node.getBodyOrThrow();
-                assert(Node.isBlock(body));
-                visitBlock(body);
-            });
-            writer.write("}");
-        }
+        writer.write(" {");
+        writer.indent(() => {
+            const body = node.getBodyOrThrow();
+            assert(Node.isBlock(body));
+            visitBlock(body);
+        });
+        writer.write("}");
 
         writer.newLineIfLastNot();
         return;
@@ -865,6 +866,9 @@ function visitStatement(node: Statement) {
 sourceFile.forEachChild(node => {
     if (Node.isStatement(node)) {
         return visitStatement(node);
+    }
+    if (node.getKindName() === "EndOfFileToken") {
+        return;
     }
     writeTodoNode(node);
 });
