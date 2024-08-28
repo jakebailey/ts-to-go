@@ -469,8 +469,20 @@ function visitExpressionStatement(node: ExpressionStatement) {
             return;
         }
     }
+    if (Node.isVoidExpression(expression)) {
+        visitExpression(expression.getExpression());
+        writer.newLine();
+        return;
+    }
+    if (Node.isYieldExpression(expression)) {
+        writer.write("yield(");
+        visitExpression(expression.getExpressionOrThrow());
+        writer.write(")");
+        writer.newLine();
+        return;
+    }
 
-    writeTodoNode(node);
+    writeTodoNode(expression);
 }
 
 function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction) {
@@ -562,6 +574,10 @@ function visitStatement(node: Statement) {
         }
 
         const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
+
+        if (node.isGenerator()) {
+            writer.writeLine("// TODO: was generator");
+        }
 
         if (!isGlobal) {
             writer.write(`${getNameOfNamed(node)} := func`);

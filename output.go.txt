@@ -1979,7 +1979,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if localSymbol {
 			exportedEqualsSymbol := exports.get(InternalSymbolNameExportEquals)
 			if exportedEqualsSymbol {
-				/* TODO(ExpressionStatement): getSymbolIfSameReference(exportedEqualsSymbol, localSymbol) ? reportInvalidImportEqualsExportMember(node, name, declarationName, moduleName) : error(name, Diagnostics.Module_0_has_no_exported_member_1, moduleName, declarationName); */
+				/* TODO(ConditionalExpression): getSymbolIfSameReference(exportedEqualsSymbol, localSymbol) ? reportInvalidImportEqualsExportMember(node, name, declarationName, moduleName) : error(name, Diagnostics.Module_0_has_no_exported_member_1, moduleName, declarationName) */
 			} else {
 				exportedSymbol := /* TODO(ConditionalExpression): exports ? find(symbolsToArray(exports), symbol => !!getSymbolIfSameReference(symbol, localSymbol)) : undefined */ TODO
 				diagnostic := /* TODO(ConditionalExpression): exportedSymbol ? error(name, Diagnostics.Module_0_declares_1_locally_but_it_is_exported_as_2, moduleName, declarationName, symbolToString(exportedSymbol)) : error(name, Diagnostics.Module_0_declares_1_locally_but_it_is_not_exported, moduleName, declarationName) */ TODO
@@ -2773,7 +2773,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				extendExportSymbols(symbols, nestedSymbols)
 			}
 			if exportStar.isTypeOnly {
-				/* TODO(ExpressionStatement): typeOnlyExportStarMap ??= new Map(); */
+				/* TODO(BinaryExpression): typeOnlyExportStarMap ??= new Map() */
 				symbols.forEach(func(_ /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol */ TODO, escapedName /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").__String */ TODO) /* TODO inferred type Map<import("/home/jabaile/work/TypeScript/src/compiler/types").__String, import("/home/jabaile/work/TypeScript/src/compiler/types").ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: import("/home/jabaile/work/TypeScript/src/compiler/types").Expression; }> */ TODO {
 					return typeOnlyExportStarMap.set(escapedName, exportStar)
 				})
@@ -3901,7 +3901,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				links := context.enclosingDeclaration && getNodeLinks(context.enclosingDeclaration)
 				key := /* TODO(TemplateExpression): `${getTypeId(type)}|${context.flags}|${context.internalFlags}` */ TODO
 				if links {
-					/* TODO(ExpressionStatement): links.serializedTypes ||= new Map(); */
+					/* TODO(BinaryExpression): links.serializedTypes ||= new Map() */
 				}
 				cachedResult := links.serializedTypes.get(key)
 				if cachedResult {
@@ -4243,7 +4243,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				propertyTypeNode = createElidedInformationPlaceholder(context)
 			} else {
 				if propertyIsReverseMapped {
-					/* TODO(ExpressionStatement): context.reverseMappedStack ||= []; */
+					/* TODO(BinaryExpression): context.reverseMappedStack ||= [] */
 					context.reverseMappedStack.push(propertySymbol)
 				}
 				propertyTypeNode = /* TODO(ConditionalExpression): propertyType ? serializeTypeForDeclaration(context, /*declaration* / undefined, propertyType, propertySymbol) : factory.createKeywordTypeNode(SyntaxKind.AnyKeyword) */ TODO
@@ -4697,7 +4697,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				TODO_IDENTIFIER := context.tracker
 				specifierCompilerOptions := /* TODO(ConditionalExpression): isBundle ? { ...compilerOptions, baseUrl: moduleResolverHost.getCommonSourceDirectory() } : compilerOptions */ TODO
 				specifier = first(moduleSpecifiers.getModuleSpecifiers(symbol, checker, specifierCompilerOptions, contextFile, moduleResolverHost /* TODO(ObjectLiteralExpression): { importModuleSpecifierPreference: isBundle ? "non-relative" : "project-relative", importModuleSpecifierEnding: isBundle ? "minimal" : resolutionMode === ModuleKind.ESNext ? "js" : undefined, } */, TODO /* TODO(ObjectLiteralExpression): { overrideImportMode } */, TODO))
-				/* TODO(ExpressionStatement): links.specifierCache ??= new Map(); */
+				/* TODO(BinaryExpression): links.specifierCache ??= new Map() */
 				links.specifierCache.set(cacheKey, specifier)
 			}
 			return specifier
@@ -5027,7 +5027,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if !isTypeReferenceNode(existing) {
 				return true
 			}
-			/* TODO(ExpressionStatement): void getTypeFromTypeReference(existing); */
+			getTypeFromTypeReference(existing)
 			symbol := getNodeLinks(existing).resolvedSymbol
 			existingTarget := symbol && getDeclaredTypeOfSymbol(symbol)
 			if !existingTarget || existingTarget != (type_).target {
@@ -5196,7 +5196,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		canReuseTypeNode := func(context NodeBuilderContext, existing TypeNode) /* TODO inferred type number | boolean */ TODO {
 			if isInJSFile(existing) {
 				if isLiteralImportTypeNode(existing) {
-					/* TODO(ExpressionStatement): void getTypeFromImportTypeNode(existing); */
+					getTypeFromImportTypeNode(existing)
 					nodeSymbol := getNodeLinks(existing).resolvedSymbol
 					return (!nodeSymbol || !((!existing.isTypeOf && !(nodeSymbol.flags & SymbolFlagsType)) || !(length(existing.typeArguments) >= getMinTypeArgumentCount(getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(nodeSymbol)))))
 				}
@@ -5623,7 +5623,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			context.tracker = /* TODO(NewExpression): new SymbolTrackerImpl(context, tracker, oldcontext.tracker.moduleResolverHost) */ TODO
 			forEachEntry(symbolTable, func(symbol /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Symbol */ TODO, name /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").__String */ TODO) {
 				baseName := unescapeLeadingUnderscores(name)
-				/* TODO(ExpressionStatement): void getInternalSymbolName(symbol, baseName); */
+				getInternalSymbolName(symbol, baseName)
 			})
 			addingDeclare := !context.bundled
 			exportEquals := symbolTable.get(InternalSymbolNameExportEquals)
@@ -5762,7 +5762,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			}
 			serializeSymbol := func(symbol Symbol, isPrivate bool, propertyAsAlias bool) {
-				/* TODO(ExpressionStatement): void getPropertiesOfType(getTypeOfSymbol(symbol)); */
+				getPropertiesOfType(getTypeOfSymbol(symbol))
 				visitedSym := getMergedSymbol(symbol)
 				if visitedSymbols.has(getSymbolId(visitedSym)) {
 					return
@@ -6063,7 +6063,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							return cleanup(nil)
 						}
 						var introducesError bool
-						/* TODO(ExpressionStatement): ({ introducesError, node: expr } = trackExistingEntityName(expr, context)); */
+						/* TODO(ParenthesizedExpression): ({ introducesError, node: expr } = trackExistingEntityName(expr, context)) */
 						if introducesError {
 							return cleanup(nil)
 						}
@@ -7676,7 +7676,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				type_ = anyType
 			}
-			/* TODO(ExpressionStatement): links.type ??= type; */
+			/* TODO(BinaryExpression): links.type ??= type */
 		}
 		return links.type_
 	}
@@ -7694,7 +7694,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				writeType = anyType
 			}
-			/* TODO(ExpressionStatement): links.writeType ??= writeType || getTypeOfAccessors(symbol); */
+			/* TODO(BinaryExpression): links.writeType ??= writeType || getTypeOfAccessors(symbol) */
 		}
 		return links.writeType
 	}
@@ -7761,7 +7761,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			declaredType := firstDefined(exportSymbol.declarations, func(d /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Declaration */ TODO) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type | undefined */ TODO {
 				return /* TODO(ConditionalExpression): isExportAssignment(d) ? tryGetTypeFromEffectiveTypeNode(d) : undefined */ TODO
 			})
-			/* TODO(ExpressionStatement): links.type ??= exportSymbol?.declarations && isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations!.length ? getFlowTypeFromCommonJSExport(exportSymbol) : isDuplicatedCommonJSExport(symbol.declarations) ? autoType : declaredType ? declaredType : getSymbolFlags(targetSymbol) & SymbolFlags.Value ? getTypeOfSymbol(targetSymbol) : errorType; */
+			/* TODO(BinaryExpression): links.type ??= exportSymbol?.declarations && isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations!.length ? getFlowTypeFromCommonJSExport(exportSymbol) : isDuplicatedCommonJSExport(symbol.declarations) ? autoType : declaredType ? declaredType : getSymbolFlags(targetSymbol) & SymbolFlags.Value ? getTypeOfSymbol(targetSymbol) : errorType */
 			if !popTypeResolution() {
 				reportCircularityError( /* TODO(BinaryExpression): exportSymbol ?? symbol */ TODO)
 				return /* TODO(BinaryExpression): links.type ??= errorType */ TODO
@@ -8078,7 +8078,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				return /* TODO(BinaryExpression): type.resolvedBaseConstructorType ??= errorType */ TODO
 			}
-			/* TODO(ExpressionStatement): type.resolvedBaseConstructorType ??= baseConstructorType; */
+			/* TODO(BinaryExpression): type.resolvedBaseConstructorType ??= baseConstructorType */
 		}
 		return type_.resolvedBaseConstructorType
 	}
@@ -8305,7 +8305,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					error( /* TODO(ConditionalExpression): isNamedDeclaration(declaration) ? declaration.name || declaration : declaration */ TODO, Diagnostics.Type_alias_0_circularly_references_itself, symbolToString(symbol))
 				}
 			}
-			/* TODO(ExpressionStatement): links.declaredType ??= type; */
+			/* TODO(BinaryExpression): links.declaredType ??= type */
 		}
 		return links.declaredType
 	}
@@ -9255,7 +9255,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				error(currentNode, Diagnostics.Type_of_property_0_circularly_references_itself_in_mapped_type_1, symbolToString(symbol), typeToString(mappedType))
 				type_ = errorType
 			}
-			/* TODO(ExpressionStatement): symbol.links.type ??= type; */
+			/* TODO(BinaryExpression): symbol.links.type ??= type */
 		}
 		return symbol.links.type_
 	}
@@ -9583,7 +9583,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					result = circularConstraintType
 				}
-				/* TODO(ExpressionStatement): t.immediateBaseConstraint ??= result || noConstraintType; */
+				/* TODO(BinaryExpression): t.immediateBaseConstraint ??= result || noConstraintType */
 			}
 			return t.immediateBaseConstraint
 		}
@@ -9741,7 +9741,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				modifiers := /* TODO(ConditionalExpression): prop ? getDeclarationModifierFlagsFromSymbol(prop) : 0 */ TODO
 				if prop {
 					if prop.flags & SymbolFlagsClassMember {
-						/* TODO(ExpressionStatement): optionalFlag ??= isUnion ? SymbolFlags.None : SymbolFlags.Optional; */
+						/* TODO(BinaryExpression): optionalFlag ??= isUnion ? SymbolFlags.None : SymbolFlags.Optional */
 						if isUnion {
 							optionalFlag |= prop.flags & SymbolFlagsOptional
 						} else {
@@ -10370,7 +10370,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				type_ = anyType
 			}
-			/* TODO(ExpressionStatement): signature.resolvedReturnType ??= type; */
+			/* TODO(BinaryExpression): signature.resolvedReturnType ??= type */
 		}
 		return signature.resolvedReturnType
 	}
@@ -10500,7 +10500,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				type_.symbol.declarations = /* TODO(ArrayLiteralExpression): [signature.declaration] */ TODO
 				type_.symbol.valueDeclaration = signature.declaration
 			}
-			/* TODO(ExpressionStatement): outerTypeParameters ||= signature.declaration && getOuterTypeParameters(signature.declaration, /*includeThisTypes* / true); */
+			/* TODO(BinaryExpression): outerTypeParameters ||= signature.declaration && getOuterTypeParameters(signature.declaration, /*includeThisTypes* / true) */
 			type_.outerTypeParameters = outerTypeParameters
 			type_.members = emptySymbols
 			type_.properties = emptyArray
@@ -10700,9 +10700,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			node := type_.node
 			typeArguments := /* TODO(ConditionalExpression): !node ? emptyArray : node.kind === SyntaxKind.TypeReference ? concatenate(type.target.outerTypeParameters, getEffectiveTypeArguments(node, type.target.localTypeParameters!)) : node.kind === SyntaxKind.ArrayType ? [getTypeFromTypeNode(node.elementType)] : map(node.elements, getTypeFromTypeNode) */ TODO
 			if popTypeResolution() {
-				/* TODO(ExpressionStatement): type.resolvedTypeArguments ??= type.mapper ? instantiateTypes(typeArguments, type.mapper) : typeArguments; */
+				/* TODO(BinaryExpression): type.resolvedTypeArguments ??= type.mapper ? instantiateTypes(typeArguments, type.mapper) : typeArguments */
 			} else {
-				/* TODO(ExpressionStatement): type.resolvedTypeArguments ??= concatenate(type.target.outerTypeParameters, type.target.localTypeParameters?.map(() => errorType) || emptyArray); */
+				/* TODO(BinaryExpression): type.resolvedTypeArguments ??= concatenate(type.target.outerTypeParameters, type.target.localTypeParameters?.map(() => errorType) || emptyArray) */
 				error(type_.node || currentNode /* TODO(ConditionalExpression): type.target.symbol ? Diagnostics.Type_arguments_for_0_circularly_reference_themselves : Diagnostics.Tuple_type_arguments_circularly_reference_themselves */, TODO, type_.target.symbol && symbolToString(type_.target.symbol))
 			}
 		}
@@ -11215,15 +11215,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return symbol && getTypeOfGlobalSymbol(symbol, arity)
 	}
 	getGlobalExtractSymbol := func() *Symbol {
-		/* TODO(ExpressionStatement): deferredGlobalExtractSymbol ||= getGlobalTypeAliasSymbol("Extract" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol; */
+		/* TODO(BinaryExpression): deferredGlobalExtractSymbol ||= getGlobalTypeAliasSymbol("Extract" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
 		return /* TODO(ConditionalExpression): deferredGlobalExtractSymbol === unknownSymbol ? undefined : deferredGlobalExtractSymbol */ TODO
 	}
 	getGlobalOmitSymbol := func() *Symbol {
-		/* TODO(ExpressionStatement): deferredGlobalOmitSymbol ||= getGlobalTypeAliasSymbol("Omit" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol; */
+		/* TODO(BinaryExpression): deferredGlobalOmitSymbol ||= getGlobalTypeAliasSymbol("Omit" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
 		return /* TODO(ConditionalExpression): deferredGlobalOmitSymbol === unknownSymbol ? undefined : deferredGlobalOmitSymbol */ TODO
 	}
 	getGlobalAwaitedSymbol := func(reportErrors bool) *Symbol {
-		/* TODO(ExpressionStatement): deferredGlobalAwaitedSymbol ||= getGlobalTypeAliasSymbol("Awaited" as __String, /*arity* / 1, reportErrors) || (reportErrors ? unknownSymbol : undefined); */
+		/* TODO(BinaryExpression): deferredGlobalAwaitedSymbol ||= getGlobalTypeAliasSymbol("Awaited" as __String, /*arity* / 1, reportErrors) || (reportErrors ? unknownSymbol : undefined) */
 		return /* TODO(ConditionalExpression): deferredGlobalAwaitedSymbol === unknownSymbol ? undefined : deferredGlobalAwaitedSymbol */ TODO
 	}
 	getGlobalBigIntType := func() /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ObjectType */ TODO {
@@ -11257,7 +11257,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return ( /* TODO(BinaryExpression): deferredGlobalNaNSymbol ||= getGlobalValueSymbol("NaN" as __String, /*reportErrors* / false) */ TODO)
 	}
 	getGlobalRecordSymbol := func() *Symbol {
-		/* TODO(ExpressionStatement): deferredGlobalRecordSymbol ||= getGlobalTypeAliasSymbol("Record" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol; */
+		/* TODO(BinaryExpression): deferredGlobalRecordSymbol ||= getGlobalTypeAliasSymbol("Record" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
 		return /* TODO(ConditionalExpression): deferredGlobalRecordSymbol === unknownSymbol ? undefined : deferredGlobalRecordSymbol */ TODO
 	}
 	createTypeFromGenericGlobalType := func(genericGlobalType GenericType, typeArguments []Type) ObjectType {
@@ -14202,6 +14202,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		/* TODO(ForStatement): for (let status = iterator.next(); !status.done; status = iterator.next()) { const { errorNode: prop, innerExpression: next, nameType, errorMessage } = status.value; let targetPropType = iterationType; const targetIndexedPropType = tupleOrArrayLikeTargetParts !== neverType ? getBestMatchIndexedAccessTypeOrUndefined(source, tupleOrArrayLikeTargetParts, nameType) : undefined; if (targetIndexedPropType && !(targetIndexedPropType.flags & TypeFlags.IndexedAccess)) { // Don't elaborate on indexes on generic variables targetPropType = iterationType ? getUnionType([iterationType, targetIndexedPropType]) : targetIndexedPropType; } if (!targetPropType) continue; let sourcePropType = getIndexedAccessTypeOrUndefined(source, nameType); if (!sourcePropType) continue; const propName = getPropertyNameFromIndex(nameType, /*accessNode* / undefined); if (!checkTypeRelatedTo(sourcePropType, targetPropType, relation, /*errorNode* / undefined)) { const elaborated = next && elaborateError(next, sourcePropType, targetPropType, relation, /*headMessage* / undefined, containingMessageChain, errorOutputContainer); reportedError = true; if (!elaborated) { // Issue error on the prop itself, since the prop couldn't elaborate the error const resultObj: { errors?: Diagnostic[]; } = errorOutputContainer || {}; // Use the expression type, if available const specificSource = next ? checkExpressionForMutableLocationWithContextualType(next, sourcePropType) : sourcePropType; if (exactOptionalPropertyTypes && isExactOptionalPropertyMismatch(specificSource, targetPropType)) { const diag = createDiagnosticForNode(prop, Diagnostics.Type_0_is_not_assignable_to_type_1_with_exactOptionalPropertyTypes_Colon_true_Consider_adding_undefined_to_the_type_of_the_target, typeToString(specificSource), typeToString(targetPropType)); diagnostics.add(diag); resultObj.errors = [diag]; } else { const targetIsOptional = !!(propName && (getPropertyOfType(tupleOrArrayLikeTargetParts, propName) || unknownSymbol).flags & SymbolFlags.Optional); const sourceIsOptional = !!(propName && (getPropertyOfType(source, propName) || unknownSymbol).flags & SymbolFlags.Optional); targetPropType = removeMissingType(targetPropType, targetIsOptional); sourcePropType = removeMissingType(sourcePropType, targetIsOptional && sourceIsOptional); const result = checkTypeRelatedTo(specificSource, targetPropType, relation, prop, errorMessage, containingMessageChain, resultObj); if (result && specificSource !== sourcePropType) { // If for whatever reason the expression type doesn't yield an error, make sure we still issue an error on the sourcePropType checkTypeRelatedTo(sourcePropType, targetPropType, relation, prop, errorMessage, containingMessageChain, resultObj); } } } } } */
 		return reportedError
 	}
+	// TODO: was generator
 	generateJsxAttributes := func(node JsxAttributes) ElaborationIterator {
 		if !length(node.properties) {
 			return
@@ -14210,9 +14211,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if isJsxSpreadAttribute(prop) || isHyphenatedJsxName(getTextOfJsxAttributeName(prop.name)) {
 				continue
 			}
-			/* TODO(ExpressionStatement): yield { errorNode: prop.name, innerExpression: prop.initializer, nameType: getStringLiteralType(getTextOfJsxAttributeName(prop.name)) }; */
+			yield( /* TODO(ObjectLiteralExpression): { errorNode: prop.name, innerExpression: prop.initializer, nameType: getStringLiteralType(getTextOfJsxAttributeName(prop.name)) } */ TODO)
 		}
 	}
+	// TODO: was generator
 	generateJsxChildren := func(node JsxElement, getInvalidTextDiagnostic func() DiagnosticMessage) ElaborationIterator {
 		if !length(node.children) {
 			return
@@ -14311,6 +14313,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return invalidTextDiagnostic
 		}
 	}
+	// TODO: was generator
 	generateLimitedTupleElements := func(node ArrayLiteralExpression, target Type) ElaborationIterator {
 		len := length(node.elements)
 		if !len {
@@ -14333,6 +14336,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return false
 	}
+	// TODO: was generator
 	generateObjectLiteralElements := func(node ObjectLiteralExpression) ElaborationIterator {
 		if !length(node.properties) {
 			return
@@ -14353,10 +14357,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			case SyntaxKindMethodDeclaration:
 				fallthrough // TODO: merge cases
 			case SyntaxKindShorthandPropertyAssignment:
-				/* TODO(ExpressionStatement): yield { errorNode: prop.name, innerExpression: undefined, nameType: type }; */
+				yield( /* TODO(ObjectLiteralExpression): { errorNode: prop.name, innerExpression: undefined, nameType: type } */ TODO)
 				break
 			case SyntaxKindPropertyAssignment:
-				/* TODO(ExpressionStatement): yield { errorNode: prop.name, innerExpression: prop.initializer, nameType: type, errorMessage: isComputedNonLiteralName(prop.name) ? Diagnostics.Type_of_computed_property_s_value_is_0_which_is_not_assignable_to_type_1 : undefined }; */
+				yield( /* TODO(ObjectLiteralExpression): { errorNode: prop.name, innerExpression: prop.initializer, nameType: type, errorMessage: isComputedNonLiteralName(prop.name) ? Diagnostics.Type_of_computed_property_s_value_is_0_which_is_not_assignable_to_type_1 : undefined } */ TODO)
 				break
 			default:
 				Debug.assertNever(prop)
@@ -14410,7 +14414,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		sourceRestType := getNonArrayRestType(source)
 		targetRestType := getNonArrayRestType(target)
 		if sourceRestType || targetRestType {
-			/* TODO(ExpressionStatement): void instantiateType(sourceRestType || targetRestType, reportUnreliableMarkers); */
+			instantiateType(sourceRestType || targetRestType, reportUnreliableMarkers)
 		}
 		kind := /* TODO(ConditionalExpression): target.declaration ? target.declaration.kind : SyntaxKind.Unknown */ TODO
 		strictVariance := !(checkMode & SignatureCheckModeCallback) && strictFunctionTypes && kind != SyntaxKindMethodDeclaration && kind != SyntaxKindMethodSignature && kind != SyntaxKindConstructor
@@ -14708,8 +14712,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		hasInstantiable := false
 		hasNullableOrEmpty := false
 		for _, t := range type_.types {
-			/* TODO(ExpressionStatement): hasInstantiable ||= !!(t.flags & TypeFlags.Instantiable); */
-			/* TODO(ExpressionStatement): hasNullableOrEmpty ||= !!(t.flags & TypeFlags.Nullable) || isEmptyAnonymousObjectType(t); */
+			/* TODO(BinaryExpression): hasInstantiable ||= !!(t.flags & TypeFlags.Instantiable) */
+			/* TODO(BinaryExpression): hasNullableOrEmpty ||= !!(t.flags & TypeFlags.Nullable) || isEmptyAnonymousObjectType(t) */
 			if hasInstantiable && hasNullableOrEmpty {
 				return true
 			}
@@ -16774,7 +16778,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for _, t := range types {
 			if !(t.flags & TypeFlagsNever) {
 				baseType := getBaseTypeOfLiteralType(t)
-				/* TODO(ExpressionStatement): commonBaseType ??= baseType; */
+				/* TODO(BinaryExpression): commonBaseType ??= baseType */
 				if baseType == t || baseType != commonBaseType {
 					return false
 				}
@@ -17182,12 +17186,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					errorReported = true
 				} else {
 					for _, t := range (type_).types {
-						/* TODO(ExpressionStatement): errorReported ||= reportWideningErrorsInType(t); */
+						/* TODO(BinaryExpression): errorReported ||= reportWideningErrorsInType(t) */
 					}
 				}
 			} else if isArrayOrTupleType(type_) {
 				for _, t := range getTypeArguments(type_) {
-					/* TODO(ExpressionStatement): errorReported ||= reportWideningErrorsInType(t); */
+					/* TODO(BinaryExpression): errorReported ||= reportWideningErrorsInType(t) */
 				}
 			} else if isObjectLiteralType(type_) {
 				for _, p := range getPropertiesOfObjectType(type_) {
@@ -17522,6 +17526,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		reverseMappedCache.set(cacheKey, type_)
 		return type_
 	}
+	// TODO: was generator
 	getUnmatchedProperties := func(source Type, target Type, requireOptionalProperties bool, matchDiscriminantProperties bool) IterableIterator[Symbol] {
 		properties := getPropertiesOfType(target)
 		for _, targetProp := range properties {
@@ -17531,13 +17536,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if requireOptionalProperties || !(targetProp.flags&SymbolFlagsOptional || getCheckFlags(targetProp)&CheckFlagsPartial) {
 				sourceProp := getPropertyOfType(source, targetProp.escapedName)
 				if !sourceProp {
-					/* TODO(ExpressionStatement): yield targetProp; */
+					yield(targetProp)
 				} else if matchDiscriminantProperties {
 					targetType := getTypeOfSymbol(targetProp)
 					if targetType.flags & TypeFlagsUnit {
 						sourceType := getTypeOfSymbol(sourceProp)
 						if !(sourceType.flags&TypeFlagsAny || getRegularTypeOfLiteralType(sourceType) == getRegularTypeOfLiteralType(targetType)) {
-							/* TODO(ExpressionStatement): yield targetProp; */
+							yield(targetProp)
 						}
 					}
 				}
@@ -19012,7 +19017,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		changed := false
 		for _, t := range types {
 			mapped := /* TODO(ConditionalExpression): t.flags & TypeFlags.Union ? mapType(t, mapper, noReductions) : mapper(t) */ TODO
-			/* TODO(ExpressionStatement): changed ||= t !== mapped; */
+			/* TODO(BinaryExpression): changed ||= t !== mapped */
 			if mapped {
 				if !mappedTypes {
 					mappedTypes = /* TODO(ArrayLiteralExpression): [mapped] */ TODO
@@ -20422,7 +20427,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				reportCircularityError(declaration.symbol)
 				return true
 			}
-			/* TODO(ExpressionStatement): links.parameterInitializerContainsUndefined ??= containsUndefined; */
+			/* TODO(BinaryExpression): links.parameterInitializerContainsUndefined ??= containsUndefined */
 		}
 		return links.parameterInitializerContainsUndefined
 	}
@@ -21140,7 +21145,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if isJSConstructor(container) {
 					thisType = (getDeclaredTypeOfSymbol(getMergedSymbol(container.symbol))).thisType
 				}
-				/* TODO(ExpressionStatement): thisType ||= getContextualThisParameterType(container); */
+				/* TODO(BinaryExpression): thisType ||= getContextualThisParameterType(container) */
 			}
 			if thisType {
 				return getFlowTypeOfReference(node, thisType)
@@ -21699,7 +21704,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if kind != AssignmentDeclarationKindModuleExports {
 				valueDeclaration = /* TODO(ConditionalExpression): canHaveSymbol(binaryExpression.left) ? binaryExpression.left.symbol?.valueDeclaration : undefined */ TODO
 			}
-			/* TODO(ExpressionStatement): valueDeclaration ||= binaryExpression.symbol?.valueDeclaration; */
+			/* TODO(BinaryExpression): valueDeclaration ||= binaryExpression.symbol?.valueDeclaration */
 			annotated := valueDeclaration && getEffectiveTypeAnnotationNode(valueDeclaration)
 			return /* TODO(ConditionalExpression): annotated ? getTypeFromTypeNode(annotated) : undefined */ TODO
 		case AssignmentDeclarationKindObjectDefinePropertyValue:
@@ -22349,7 +22354,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		sourceFile := getSourceFileOfNode(node)
 		if !hasParseDiagnostics(sourceFile) && !node.isUnterminated {
 			var lastError *DiagnosticWithLocation
-			/* TODO(ExpressionStatement): scanner ??= createScanner(ScriptTarget.ESNext, /*skipTrivia* / true); */
+			/* TODO(BinaryExpression): scanner ??= createScanner(ScriptTarget.ESNext, /*skipTrivia* / true) */
 			scanner.setScriptTarget(sourceFile.languageVersion)
 			scanner.setLanguageVariant(sourceFile.languageVariant)
 			scanner.setOnError(func(message /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DiagnosticMessage */ TODO, length /* TODO inferred type number */ TODO, arg0 /* TODO inferred type any */ TODO) {
@@ -25679,9 +25684,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			hasSignatures := false
 			hasApplicableSignature := false
 			result := getInstantiatedTypePart(type_)
-			/* TODO(ExpressionStatement): hasSomeApplicableSignature ||= hasApplicableSignature; */
+			/* TODO(BinaryExpression): hasSomeApplicableSignature ||= hasApplicableSignature */
 			if hasSignatures && !hasApplicableSignature {
-				/* TODO(ExpressionStatement): nonApplicableType ??= type; */
+				/* TODO(BinaryExpression): nonApplicableType ??= type */
 			}
 			return result
 			getInstantiatedTypePart := func(type_ Type) Type {
@@ -25689,8 +25694,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					resolved := resolveStructuredTypeMembers(type_)
 					callSignatures := getInstantiatedSignatures(resolved.callSignatures)
 					constructSignatures := getInstantiatedSignatures(resolved.constructSignatures)
-					/* TODO(ExpressionStatement): hasSignatures ||= resolved.callSignatures.length !== 0 || resolved.constructSignatures.length !== 0; */
-					/* TODO(ExpressionStatement): hasApplicableSignature ||= callSignatures.length !== 0 || constructSignatures.length !== 0; */
+					/* TODO(BinaryExpression): hasSignatures ||= resolved.callSignatures.length !== 0 || resolved.constructSignatures.length !== 0 */
+					/* TODO(BinaryExpression): hasApplicableSignature ||= callSignatures.length !== 0 || constructSignatures.length !== 0 */
 					if callSignatures != resolved.callSignatures || constructSignatures != resolved.constructSignatures {
 						result := createAnonymousType(createSymbol(SymbolFlagsNone, InternalSymbolNameInstantiationExpression), resolved.members, callSignatures, constructSignatures, resolved.indexInfos)
 						result.objectFlags |= ObjectFlagsInstantiationExpressionType
@@ -26625,7 +26630,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 								instantiatedContextualSignature = instantiateSignature(contextualSignature, inferenceContext.nonFixingMapper)
 							}
 						}
-						/* TODO(ExpressionStatement): instantiatedContextualSignature ||= inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature; */
+						/* TODO(BinaryExpression): instantiatedContextualSignature ||= inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature */
 						assignContextualParameterTypes(signature, instantiatedContextualSignature)
 					} else {
 						assignNonContextualParameterTypes(signature)
@@ -26804,7 +26809,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !hasParseDiagnostics(sourceFile) {
 					var span *TextSpan
 					if !isEffectiveExternalModule(sourceFile, compilerOptions) {
-						/* TODO(ExpressionStatement): span ??= getSpanOfTokenAtPosition(sourceFile, node.pos); */
+						/* TODO(BinaryExpression): span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */
 						message := /* TODO(ConditionalExpression): isAwaitExpression(node) ? Diagnostics.await_expressions_are_only_allowed_at_the_top_level_of_a_file_when_that_file_is_a_module_but_this_file_has_no_imports_or_exports_Consider_adding_an_empty_export_to_make_this_file_a_module : Diagnostics.await_using_statements_are_only_allowed_at_the_top_level_of_a_file_when_that_file_is_a_module_but_this_file_has_no_imports_or_exports_Consider_adding_an_empty_export_to_make_this_file_a_module */ TODO
 						diagnostic := createFileDiagnostic(sourceFile, span.start, span.length, message)
 						diagnostics.add(diagnostic)
@@ -26815,7 +26820,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						fallthrough // TODO: merge cases
 					case ModuleKindNodeNext:
 						if sourceFile.impliedNodeFormat == ModuleKindCommonJS {
-							/* TODO(ExpressionStatement): span ??= getSpanOfTokenAtPosition(sourceFile, node.pos); */
+							/* TODO(BinaryExpression): span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */
 							diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, Diagnostics.The_current_file_is_a_CommonJS_module_and_cannot_use_await_at_the_top_level))
 							hasError = true
 							break
@@ -26833,7 +26838,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						}
 						fallthrough
 					default:
-						/* TODO(ExpressionStatement): span ??= getSpanOfTokenAtPosition(sourceFile, node.pos); */
+						/* TODO(BinaryExpression): span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */
 						message := /* TODO(ConditionalExpression): isAwaitExpression(node) ? Diagnostics.Top_level_await_expressions_are_only_allowed_when_the_module_option_is_set_to_es2022_esnext_system_node16_nodenext_or_preserve_and_the_target_option_is_set_to_es2017_or_higher : Diagnostics.Top_level_await_using_statements_are_only_allowed_when_the_module_option_is_set_to_es2022_esnext_system_node16_nodenext_or_preserve_and_the_target_option_is_set_to_es2017_or_higher */ TODO
 						diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message))
 						hasError = true
@@ -31301,7 +31306,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			iterationTypes = nil
 			noCache = true
 		}
-		/* TODO(ExpressionStatement): iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache); */
+		/* TODO(BinaryExpression): iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache) */
 		return /* TODO(ConditionalExpression): iterationTypes === noIterationTypes ? undefined : iterationTypes */ TODO
 	}
 	getIterationTypesOfIteratorCached := func(type_ Type, resolver IterationTypesResolver) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").IterationTypes | undefined */ TODO {
@@ -31368,7 +31373,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if errorNode {
 				diagnostic := /* TODO(ConditionalExpression): methodName === "next" ? resolver.mustHaveANextMethodDiagnostic : resolver.mustBeAMethodDiagnostic */ TODO
 				if errorOutputContainer {
-					/* TODO(ExpressionStatement): errorOutputContainer.errors ??= []; */
+					/* TODO(BinaryExpression): errorOutputContainer.errors ??= [] */
 					errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, diagnostic, methodName))
 				} else {
 					error(errorNode, diagnostic, methodName)
@@ -31413,7 +31418,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if iterationTypes == noIterationTypes {
 			if errorNode {
 				if errorOutputContainer {
-					/* TODO(ExpressionStatement): errorOutputContainer.errors ??= []; */
+					/* TODO(BinaryExpression): errorOutputContainer.errors ??= [] */
 					errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, resolver.mustHaveAValueDiagnostic, methodName))
 				} else {
 					error(errorNode, resolver.mustHaveAValueDiagnostic, methodName)
@@ -32018,7 +32023,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if prop && !baseProp && memberHasOverrideModifier {
 				if errorNode {
 					suggestion := getSuggestedSymbolForNonexistentClassMember(symbolName(member), baseType)
-					/* TODO(ExpressionStatement): suggestion ? error( errorNode, isJs ? Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1 : Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1, baseClassName, symbolToString(suggestion), ) : error( errorNode, isJs ? Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_it_is_not_declared_in_the_base_class_0 : Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0, baseClassName, ); */
+					/* TODO(ConditionalExpression): suggestion ? error( errorNode, isJs ? Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1 : Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0_Did_you_mean_1, baseClassName, symbolToString(suggestion), ) : error( errorNode, isJs ? Diagnostics.This_member_cannot_have_a_JSDoc_comment_with_an_override_tag_because_it_is_not_declared_in_the_base_class_0 : Diagnostics.This_member_cannot_have_an_override_modifier_because_it_is_not_declared_in_the_base_class_0, baseClassName, ) */
 				}
 				return MemberOverrideStatusHasInvalidOverride
 			} else if prop && baseProp.declarations && compilerOptions.noImplicitOverride && !nodeInAmbientContext {
@@ -32874,7 +32879,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 			} else if noUncheckedSideEffectImports && !importClause {
-				/* TODO(ExpressionStatement): void resolveExternalModuleName(node, node.moduleSpecifier); */
+				resolveExternalModuleName(node, node.moduleSpecifier)
 			}
 		}
 		checkImportAttributes(node)
@@ -33411,7 +33416,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		enclosingFile := getSourceFileOfNode(node)
 		links := getNodeLinks(enclosingFile)
 		if !(links.flags & NodeCheckFlagsTypeChecked) {
-			/* TODO(ExpressionStatement): links.deferredNodes ||= new Set(); */
+			/* TODO(BinaryExpression): links.deferredNodes ||= new Set() */
 			links.deferredNodes.add(node)
 		} else {
 			Debug.assert(!links.deferredNodes, "A type-checked file should have no deferred nodes.")
@@ -33491,7 +33496,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		beforeMark := /* TODO(ConditionalExpression): nodesToCheck ? "beforeCheckNodes" : "beforeCheck" */ TODO
 		afterMark := /* TODO(ConditionalExpression): nodesToCheck ? "afterCheckNodes" : "afterCheck" */ TODO
 		performance.mark(beforeMark)
-		/* TODO(ExpressionStatement): nodesToCheck ? checkSourceFileNodesWorker(node, nodesToCheck) : checkSourceFileWorker(node); */
+		/* TODO(ConditionalExpression): nodesToCheck ? checkSourceFileNodesWorker(node, nodesToCheck) : checkSourceFileWorker(node) */
 		performance.mark(afterMark)
 		performance.measure("Check", beforeMark, afterMark)
 		tracing.pop()
@@ -34417,7 +34422,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		container := getSourceFileOfNode(symbol.valueDeclaration)
 		fileSymbol := container && getSymbolOfDeclaration(container)
-		/* TODO(ExpressionStatement): void resolveExternalModuleSymbol(fileSymbol); */
+		resolveExternalModuleSymbol(fileSymbol)
 		target := getExportSymbolOfValueSymbolIfExported(resolveAlias(symbol))
 		if target == unknownSymbol {
 			return !excludeTypeOnlyValues || !getTypeOnlyAliasDeclaration(symbol)
@@ -34665,7 +34670,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return getEnumMemberValue(node).value
 		}
 		if !getNodeLinks(node).resolvedSymbol {
-			/* TODO(ExpressionStatement): void checkExpressionCached(node); */
+			checkExpressionCached(node)
 		}
 		symbol := getNodeLinks(node).resolvedSymbol || ( /* TODO(ConditionalExpression): isEntityNameExpression(node) ? resolveEntityName(node, SymbolFlags.Value, /*ignoreErrors* / true) : undefined */ TODO)
 		if symbol && (symbol.flags & SymbolFlagsEnumMember) {
@@ -34697,11 +34702,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		valueSymbol := resolveEntityName(typeName, SymbolFlagsValue, true, true, location)
 		resolvedValueSymbol := /* TODO(ConditionalExpression): valueSymbol && valueSymbol.flags & SymbolFlags.Alias ? resolveAlias(valueSymbol) : valueSymbol */ TODO
-		/* TODO(ExpressionStatement): isTypeOnly ||= !!(valueSymbol && getTypeOnlyAliasDeclaration(valueSymbol, SymbolFlags.Value)); */
+		/* TODO(BinaryExpression): isTypeOnly ||= !!(valueSymbol && getTypeOnlyAliasDeclaration(valueSymbol, SymbolFlags.Value)) */
 		typeSymbol := resolveEntityName(typeName, SymbolFlagsType, true, true, location)
 		resolvedTypeSymbol := /* TODO(ConditionalExpression): typeSymbol && typeSymbol.flags & SymbolFlags.Alias ? resolveAlias(typeSymbol) : typeSymbol */ TODO
 		if !valueSymbol {
-			/* TODO(ExpressionStatement): isTypeOnly ||= !!(typeSymbol && getTypeOnlyAliasDeclaration(typeSymbol, SymbolFlags.Type)); */
+			/* TODO(BinaryExpression): isTypeOnly ||= !!(typeSymbol && getTypeOnlyAliasDeclaration(typeSymbol, SymbolFlags.Type)) */
 		}
 		if resolvedValueSymbol && resolvedValueSymbol == resolvedTypeSymbol {
 			globalPromiseSymbol := getGlobalPromiseConstructorSymbol(false)
@@ -35107,7 +35112,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				helpersModule := resolveHelpersModule(sourceFile, location)
 				if helpersModule != unknownSymbol {
 					links := getSymbolLinks(helpersModule)
-					/* TODO(ExpressionStatement): links.requestedExternalEmitHelpers ??= 0 as ExternalEmitHelpers; */
+					/* TODO(BinaryExpression): links.requestedExternalEmitHelpers ??= 0 as ExternalEmitHelpers */
 					if (links.requestedExternalEmitHelpers & helpers) != helpers {
 						uncheckedHelpers := helpers & ~links.requestedExternalEmitHelpers
 						/* TODO(ForStatement): for (let helper = ExternalEmitHelpers.FirstEmitHelper; helper <= ExternalEmitHelpers.LastEmitHelper; helper <<= 1) { if (uncheckedHelpers & helper) { for (const name of getHelperNames(helper)) { const symbol = resolveSymbol(getSymbol(getExportsOfModule(helpersModule), escapeLeadingUnderscores(name), SymbolFlags.Value)); if (!symbol) { error(location, Diagnostics.This_syntax_requires_an_imported_helper_named_1_which_does_not_exist_in_0_Consider_upgrading_your_version_of_0, externalHelpersModuleNameText, name); } else if (helper & ExternalEmitHelpers.ClassPrivateFieldGet) { if (!some(getSignaturesOfSymbol(symbol), signature => getParameterCount(signature) > 3)) { error(location, Diagnostics.This_syntax_requires_an_imported_helper_named_1_with_2_parameters_which_is_not_compatible_with_the_one_in_0_Consider_upgrading_your_version_of_0, externalHelpersModuleNameText, name, 4); } } else if (helper & ExternalEmitHelpers.ClassPrivateFieldSet) { if (!some(getSignaturesOfSymbol(symbol), signature => getParameterCount(signature) > 4)) { error(location, Diagnostics.This_syntax_requires_an_imported_helper_named_1_with_2_parameters_which_is_not_compatible_with_the_one_in_0_Consider_upgrading_your_version_of_0, externalHelpersModuleNameText, name, 5); } } else if (helper & ExternalEmitHelpers.SpreadArray) { if (!some(getSignaturesOfSymbol(symbol), signature => getParameterCount(signature) > 2)) { error(location, Diagnostics.This_syntax_requires_an_imported_helper_named_1_with_2_parameters_which_is_not_compatible_with_the_one_in_0_Consider_upgrading_your_version_of_0, externalHelpersModuleNameText, name, 3); } } } } } */
@@ -35229,7 +35234,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if flags & ModifierFlagsExport {
 					sawExportBeforeDecorators = true
 				}
-				/* TODO(ExpressionStatement): firstDecorator ??= modifier; */
+				/* TODO(BinaryExpression): firstDecorator ??= modifier */
 			} else {
 				if modifier.kind != SyntaxKindReadonlyKeyword {
 					if node.kind == SyntaxKindPropertySignature || node.kind == SyntaxKindMethodSignature {
