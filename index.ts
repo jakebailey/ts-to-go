@@ -157,14 +157,14 @@ function visitTypeNode(type: TypeNode): void {
     }
 }
 
-// function isConditionalExpressionLadder(node: ConditionalExpression) {
-//     const left = node.getWhenTrue();
-//     const right = node.getWhenFalse();
-//     if (Node.isConditionalExpression(left)) {
-//         return isConditionalExpressionLadder(left);
-//     }
-//     return !Node.isConditionalExpression(right);
-// }
+function isConditionalExpressionLadder(node: ConditionalExpression): boolean {
+    const whenTrue = node.getWhenTrue();
+    const whenFalse = node.getWhenFalse();
+    if (Node.isConditionalExpression(whenTrue)) {
+        return false;
+    }
+    return !Node.isConditionalExpression(whenFalse) || isConditionalExpressionLadder(whenFalse);
+}
 
 function visitExpression(node: Expression, inStatement?: boolean): void {
     if (Node.isRegularExpressionLiteral(node)) {
@@ -781,8 +781,42 @@ function visitStatement(node: Statement) {
 
     if (Node.isReturnStatement(node)) {
         writer.newLineIfLastNot();
-        writer.write("return");
+
         const expression = node.getExpression();
+        if (Node.isConditionalExpression(expression) && isConditionalExpressionLadder(expression)) {
+            writer.writeLine("// converted from conditional expression");
+            writer.write("switch {");
+
+            let ladder: Expression = expression;
+            while (Node.isConditionalExpression(ladder)) {
+                const cond = ladder.getCondition();
+                const whenTrue = ladder.getWhenTrue();
+                const whenFalse = ladder.getWhenFalse();
+
+                writer.newLine();
+                writer.write("case ");
+                visitExpression(cond);
+                writer.write(":");
+                writer.indent(() => {
+                    writer.write("return ");
+                    visitExpression(whenTrue);
+                });
+
+                ladder = whenFalse;
+            }
+
+            writer.newLine();
+            writer.write("default:");
+            writer.indent(() => {
+                writer.write("return ");
+                visitExpression(ladder);
+            });
+            writer.newLine();
+            writer.write("}");
+            return;
+        }
+
+        writer.write("return");
         if (expression) {
             writer.write(" ");
             visitExpression(expression);
