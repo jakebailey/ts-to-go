@@ -196,10 +196,6 @@ function writeConditionalExpressionForReturn(node: ConditionalExpression) {
 }
 
 function visitExpression(node: Expression, inStatement?: boolean): void {
-    while (Node.isParenthesizedExpression(node)) {
-        node = node.getExpression();
-    }
-
     if (Node.isRegularExpressionLiteral(node)) {
         const re = node.getLiteralValue();
         let source = re.source.replaceAll("`", "\\`");
