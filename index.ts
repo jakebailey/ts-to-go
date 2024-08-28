@@ -1017,4 +1017,7 @@ if (formatted.exitCode === 0) {
 else {
     console.log(formatted.stderr);
 }
+
+const totalTodo = [...todoCounts.values()].reduce((a, b) => a + b, 0);
+console.log(`Total TODOs: ${totalTodo}`);
 console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}: ${v}`).join("\n"));
