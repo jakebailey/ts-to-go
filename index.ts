@@ -394,6 +394,25 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
     }
 }
 
+function isAssignmentOperator(kind: ts.SyntaxKind): boolean {
+    switch (kind) {
+        case ts.SyntaxKind.EqualsToken:
+        case ts.SyntaxKind.BarEqualsToken:
+        case ts.SyntaxKind.AmpersandEqualsToken:
+        case ts.SyntaxKind.PlusEqualsToken:
+        case ts.SyntaxKind.MinusEqualsToken:
+        case ts.SyntaxKind.AsteriskEqualsToken:
+        case ts.SyntaxKind.SlashEqualsToken:
+        case ts.SyntaxKind.PercentEqualsToken:
+        case ts.SyntaxKind.CaretEqualsToken:
+        case ts.SyntaxKind.LessThanLessThanEqualsToken:
+        case ts.SyntaxKind.GreaterThanGreaterThanEqualsToken:
+            return true;
+        default:
+            return false;
+    }
+}
+
 function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
     const op = node.getOperatorToken();
     let tok;
@@ -420,24 +439,13 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
             break;
         default:
             if (isStatement) {
-                switch (op.getKind()) {
-                    case ts.SyntaxKind.EqualsToken:
-                    case ts.SyntaxKind.BarEqualsToken:
-                    case ts.SyntaxKind.AmpersandEqualsToken:
-                    case ts.SyntaxKind.PlusEqualsToken:
-                    case ts.SyntaxKind.MinusEqualsToken:
-                    case ts.SyntaxKind.AsteriskEqualsToken:
-                    case ts.SyntaxKind.SlashEqualsToken:
-                    case ts.SyntaxKind.PercentEqualsToken:
-                    case ts.SyntaxKind.CaretEqualsToken:
-                    case ts.SyntaxKind.LessThanLessThanEqualsToken:
-                    case ts.SyntaxKind.GreaterThanGreaterThanEqualsToken:
-                        tok = ts.tokenToString(op.getKind());
-                        break;
-                    default:
-                        writeTodoNode(node);
-                        writer.write(` TODO`);
-                        return;
+                if (isAssignmentOperator(op.getKind())) {
+                    tok = ts.tokenToString(op.getKind());
+                }
+                else {
+                    writeTodoNode(node);
+                    writer.write(` TODO`);
+                    return;
                 }
                 break;
             }
@@ -814,6 +822,15 @@ function visitStatement(node: Statement) {
         const expression = node.getExpression();
         if (Node.isConditionalExpression(expression)) {
             writeConditionalExpressionForReturn(expression);
+            return;
+        }
+
+        if (Node.isBinaryExpression(expression) && isAssignmentOperator(expression.getOperatorToken().getKind())) {
+            writeBinaryExpression(expression, true);
+            writer.newLine();
+            writer.write("return ");
+            visitExpression(expression.getLeft());
+            writer.newLine();
             return;
         }
 
