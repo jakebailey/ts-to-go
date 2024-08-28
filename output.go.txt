@@ -2542,7 +2542,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							if ext == ExtensionTs || ext == ExtensionJs || ext == ExtensionTsx || ext == ExtensionJsx {
 								diagnosticDetails = createModeMismatchDetails(currentSourceFile)
 							}
-							diagnostics.add(createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(errorNode), errorNode, chainDiagnosticMessages(diagnosticDetails, Diagnostics.The_current_file_is_a_CommonJS_module_whose_imports_will_produce_require_calls_however_the_referenced_file_is_an_ECMAScript_module_and_cannot_be_imported_with_require_Consider_writing_a_dynamic_import_0_call_instead, moduleReference)))
+							message := /* TODO(Node ConditionalExpression): overrideHost?.kind === SyntaxKind.ImportDeclaration && overrideHost.importClause?.isTypeOnly ? Diagnostics.Type_only_import_of_an_ECMAScript_module_from_a_CommonJS_module_must_have_a_resolution_mode_attribute : overrideHost?.kind === SyntaxKind.ImportType ? Diagnostics.Type_import_of_an_ECMAScript_module_from_a_CommonJS_module_must_have_a_resolution_mode_attribute : Diagnostics.The_current_file_is_a_CommonJS_module_whose_imports_will_produce_require_calls_however_the_referenced_file_is_an_ECMAScript_module_and_cannot_be_imported_with_require_Consider_writing_a_dynamic_import_0_call_instead */ TODO
+							diagnostics.add(createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(errorNode), errorNode, chainDiagnosticMessages(diagnosticDetails, message, moduleReference)))
 						}
 					}
 				}
@@ -12947,37 +12948,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	removeStringLiteralsMatchedByTemplateLiterals := func(types []Type) {
-		patterns := filter(types, isPatternLiteralType)
-		templateLiterals := filter(patterns, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType | import("/home/jabaile/work/TypeScript/src/compiler/types").StringMappingType */ any) /* TODO inferred type boolean */ any {
-			return !!(t.flags & TypeFlagsTemplateLiteral)
-		})
-		estimatedCount := templateLiterals.length * countWhere(types, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Type */ any) /* TODO inferred type boolean */ any {
-			return !!(t.flags & TypeFlagsStringLiteral)
-		})
-		if estimatedCount > 0 {
-			trie := createPrefixSuffixTrie()
-			forEach(templateLiterals, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType */ any) {
-				prefix := t.texts[0]
-				suffix := t.texts[t.texts.length-1]
-				trie.set(prefix, suffix, func(templates /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType[] | undefined */ any) /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType[] */ any {
-					return append(templates, t)
-				})
-			})
-			i := types.length
-			/* TODO(Node LabeledStatement): outer: while (i > 0) { i--; const t = types[i]; if (!(t.flags & TypeFlags.StringLiteral)) continue; const text = (t as StringLiteralType).value; for (const templates of trie.iterateAllMatches(text)) { if (some(templates, template => isTypeMatchedByTemplateLiteralOrStringMapping(t, template))) { orderedRemoveItemAt(types, i); continue outer; } } } */
-			patterns = filter(patterns, func(t /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType | import("/home/jabaile/work/TypeScript/src/compiler/types").StringMappingType */ any) /* TODO inferred type boolean */ any {
-				return !!(t.flags & TypeFlagsStringMapping)
-			})
-		}
-		if patterns.length {
+		templates := filter(types, isPatternLiteralType)
+		if templates.length {
 			i := types.length
 			for i > 0 {
 				i--
 				t := types[i]
-				if !(t.flags & TypeFlagsStringLiteral) {
-					continue
-				}
-				if some(patterns, func(template /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType | import("/home/jabaile/work/TypeScript/src/compiler/types").StringMappingType */ any) /* TODO inferred type boolean */ any {
+				if t.flags&TypeFlagsStringLiteral && some(templates, func(template /* TODO inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralType | import("/home/jabaile/work/TypeScript/src/compiler/types").StringMappingType */ any) /* TODO inferred type boolean */ any {
 					return isTypeMatchedByTemplateLiteralOrStringMapping(t, template)
 				}) {
 					orderedRemoveItemAt(types, i)
@@ -31303,6 +31280,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		case SyntaxKindPropertyAccessExpression:
 			fallthrough // TODO: merge cases
 		case SyntaxKindYieldExpression:
+			fallthrough // TODO: merge cases
+		case SyntaxKindThisKeyword:
 			return PredicateSemanticsSometimes
 		case SyntaxKindBinaryExpression:
 			switch (node).operatorToken.kind {
