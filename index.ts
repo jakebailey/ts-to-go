@@ -43,7 +43,7 @@ writer.newLine();
 writer.writeLine("package output");
 writer.newLine();
 
-writer.writeLine("func cond[C comparable, T any](cond C, a T, b T) T {");
+writer.writeLine("func __COND__[C comparable, T any](cond C, a T, b T) T {");
 writer.indent(() => {
     writer.writeLine("var zero C");
     writer.writeLine("if cond != zero {");
@@ -447,7 +447,8 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         const cond = node.getCondition();
         const whenTrue = node.getWhenTrue();
         const whenFalse = node.getWhenFalse();
-        writer.write("cond(");
+        // TODO: this causes side effects; should these be funcs?
+        writer.write("__COND__(");
         visitExpression(cond);
         writer.write(", ");
         visitExpression(whenTrue);
