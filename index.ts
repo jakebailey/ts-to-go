@@ -91,6 +91,7 @@ function isInterfaceTypeName(name: string) {
         case "Type":
         case "CancellationToken":
         case "any":
+        case "unknown":
         case "void":
             return true;
         default:
@@ -110,6 +111,8 @@ function typeStringToGo(text: string): string {
         case "object":
             return "any";
         case "{}":
+            return "any";
+        case "unknown":
             return "any";
     }
 

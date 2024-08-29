@@ -869,7 +869,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		"getBooleanType": func() Type {
 			return booleanType
 		},
-		"getFalseType": func(fresh unknown) FreshableIntrinsicType {
+		"getFalseType": func(fresh any) FreshableIntrinsicType {
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case fresh:
@@ -878,7 +878,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return regularFalseType
 			}
 		},
-		"getTrueType": func(fresh unknown) FreshableIntrinsicType {
+		"getTrueType": func(fresh any) FreshableIntrinsicType {
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case fresh:
