@@ -4275,7 +4275,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				// Add non-type-only names before checking if we've visited this module,
 				// because we might have visited it via an 'export type *', and visiting
 				// again with 'export *' will override the type-onlyness of its exports.
-				symbol.exports.forEach(func(_ Symbol, name __String) /* TODO(TS-TO-GO) inferred type Set<__String> */ any {
+				symbol.exports.forEach(func(_ Symbol, name __String) Set[__String] {
 					return nonTypeOnlyNames.add(name)
 				})
 			}
@@ -14861,7 +14861,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return property
 	}
-	getCommonDeclarationsOfSymbols := func(symbols Iterable[Symbol]) /* TODO(TS-TO-GO) inferred type Set<Node> */ any {
+	getCommonDeclarationsOfSymbols := func(symbols Iterable[Symbol]) Set[Node] {
 		var commonDeclarations *Set[Node]
 		for _, symbol := range symbols {
 			if !symbol.declarations {
