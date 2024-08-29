@@ -274,8 +274,17 @@ function visitTypeNode(type: TypeNode): void {
     }
 }
 
+function writeConditionalExpression(node: ConditionalExpression, sideEffect: () => void) {
+    if (Node.isConditionalExpression(node.getWhenTrue()) || Node.isConditionalExpression(node.getWhenFalse())) {
+        writeConditionalExpressionAsSwitchCase(node, sideEffect);
+    }
+    else {
+        writeConditionalExpressionAsIfElse(node, sideEffect);
+    }
+}
+
 function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sideEffect: () => void) {
-    writer.writeLine("// TODO(TS-TO-GO): converted from conditional expression");
+    writer.newLineIfLastNot();
     writer.write("switch {");
 
     let ladder: Expression = node;
@@ -290,7 +299,7 @@ function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sid
         writer.write(":");
         writer.indent(() => {
             if (Node.isConditionalExpression(whenTrue)) {
-                writeConditionalExpressionAsSwitchCase(whenTrue, sideEffect);
+                writeConditionalExpression(whenTrue, sideEffect);
             }
             else {
                 sideEffect();
@@ -310,6 +319,27 @@ function writeConditionalExpressionAsSwitchCase(node: ConditionalExpression, sid
     writer.newLine();
     writer.write("}");
     return;
+}
+
+function writeConditionalExpressionAsIfElse(node: ConditionalExpression, sideEffect: () => void) {
+    const cond = node.getCondition();
+    const whenTrue = node.getWhenTrue();
+    const whenFalse = node.getWhenFalse();
+
+    writer.newLineIfLastNot();
+    writer.write("if ");
+    visitExpression(cond);
+    writer.write(" {");
+    writer.indent(() => {
+        sideEffect();
+        visitExpression(whenTrue);
+    });
+    writer.write("} else {");
+    writer.indent(() => {
+        sideEffect();
+        visitExpression(whenFalse);
+    });
+    writer.write("}");
 }
 
 function visitExpression(node: Expression, inStatement?: boolean): void {
@@ -453,7 +483,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             else {
                 assert(Node.isExpression(body));
                 if (Node.isConditionalExpression(body)) {
-                    writeConditionalExpressionAsSwitchCase(body, () => writer.write("return "));
+                    writeConditionalExpression(body, () => writer.write("return "));
                 }
                 else {
                     writer.write("return ");
@@ -665,7 +695,7 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
                 const left = node.getLeft();
                 const right = node.getRight();
                 if (Node.isConditionalExpression(right)) {
-                    writeConditionalExpressionAsSwitchCase(right, () => {
+                    writeConditionalExpression(right, () => {
                         visitExpression(left);
                         writer.write(` ${tok} `);
                     });
@@ -968,7 +998,7 @@ function visitStatement2(node: Statement) {
                 else {
                     writeType(declaration, declaration.getType());
                 }
-                writeConditionalExpressionAsSwitchCase(
+                writeConditionalExpression(
                     initializer,
                     () => writer.write(`${getNameOfNamed(declaration)} = `),
                 );
@@ -1114,7 +1144,7 @@ function visitStatement2(node: Statement) {
 
         const expression = node.getExpression();
         if (Node.isConditionalExpression(expression)) {
-            writeConditionalExpressionAsSwitchCase(expression, () => writer.write("return "));
+            writeConditionalExpression(expression, () => writer.write("return "));
             return;
         }
 
