@@ -3221,8 +3221,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return (symbol.flags&(SymbolFlagsAlias|excludes)) == SymbolFlagsAlias || !!(symbol.flags&SymbolFlagsAlias && symbol.flags&SymbolFlagsAssignment)
 	}
-	/* TODO(TS-TO-GO): function resolveSymbol(symbol: Symbol, dontResolveAlias?: boolean): Symbol; */
-	/* TODO(TS-TO-GO): function resolveSymbol(symbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined; */
+	/* OVERLOAD: function resolveSymbol(symbol: Symbol, dontResolveAlias?: boolean): Symbol; */
+	/* OVERLOAD: function resolveSymbol(symbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined; */
 	resolveSymbol := func(symbol Symbol, dontResolveAlias bool) Symbol {
 		if !dontResolveAlias && isNonLocalAlias(symbol) {
 			return resolveAlias(symbol)
@@ -3856,8 +3856,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		errorOrSuggestion(isError, errorNode, chainDiagnosticMessages(errorInfo, Diagnostics.Could_not_find_a_declaration_file_for_module_0_1_implicitly_has_an_any_type, moduleReference, resolvedFileName))
 	}
-	/* TODO(TS-TO-GO): function resolveExternalModuleSymbol(moduleSymbol: Symbol, dontResolveAlias?: boolean): Symbol; */
-	/* TODO(TS-TO-GO): function resolveExternalModuleSymbol(moduleSymbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined; */
+	/* OVERLOAD: function resolveExternalModuleSymbol(moduleSymbol: Symbol, dontResolveAlias?: boolean): Symbol; */
+	/* OVERLOAD: function resolveExternalModuleSymbol(moduleSymbol: Symbol | undefined, dontResolveAlias?: boolean): Symbol | undefined; */
 	resolveExternalModuleSymbol := func(moduleSymbol Symbol, dontResolveAlias bool) Symbol {
 		if moduleSymbol. /* TODO(TS-TO-GO): was ? */ exports {
 			exportEquals := resolveSymbol(moduleSymbol.exports.get(InternalSymbolNameExportEquals), dontResolveAlias)
@@ -4156,8 +4156,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return symbols
 		}
 	}
-	/* TODO(TS-TO-GO): function getMergedSymbol(symbol: Symbol): Symbol; */
-	/* TODO(TS-TO-GO): function getMergedSymbol(symbol: Symbol | undefined): Symbol | undefined; */
+	/* OVERLOAD: function getMergedSymbol(symbol: Symbol): Symbol; */
+	/* OVERLOAD: function getMergedSymbol(symbol: Symbol | undefined): Symbol | undefined; */
 	getMergedSymbol := func(symbol Symbol) Symbol {
 		var merged Symbol
 		if symbol && symbol.mergeId && ( /* TODO(TS-TO-GO) Node BinaryExpression: merged = mergedSymbols[symbol.mergeId] */ TODO) {
@@ -4373,8 +4373,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return s1
 		}
 	}
-	/* TODO(TS-TO-GO): function getExportSymbolOfValueSymbolIfExported(symbol: Symbol): Symbol; */
-	/* TODO(TS-TO-GO): function getExportSymbolOfValueSymbolIfExported(symbol: Symbol | undefined): Symbol | undefined; */
+	/* OVERLOAD: function getExportSymbolOfValueSymbolIfExported(symbol: Symbol): Symbol; */
+	/* OVERLOAD: function getExportSymbolOfValueSymbolIfExported(symbol: Symbol | undefined): Symbol | undefined; */
 	getExportSymbolOfValueSymbolIfExported := func(symbol Symbol) Symbol {
 		return getMergedSymbol(symbol && (symbol.flags&SymbolFlagsExportValue) != 0 && symbol.exportSymbol || symbol)
 	}
@@ -5105,8 +5105,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				})
 			},
 		}
-		/* TODO(TS-TO-GO): function getTypeFromTypeNode(context: NodeBuilderContext, node: TypeNode, noMappedTypes?: false): Type; */
-		/* TODO(TS-TO-GO): function getTypeFromTypeNode(context: NodeBuilderContext, node: TypeNode, noMappedTypes: true): Type | undefined; */
+		/* OVERLOAD: function getTypeFromTypeNode(context: NodeBuilderContext, node: TypeNode, noMappedTypes?: false): Type; */
+		/* OVERLOAD: function getTypeFromTypeNode(context: NodeBuilderContext, node: TypeNode, noMappedTypes: true): Type | undefined; */
 		getTypeFromTypeNode := func(context NodeBuilderContext, node TypeNode, noMappedTypes bool) Type {
 			type_ := getTypeFromTypeNodeWithoutContext(node)
 			if !context.mapper {
@@ -7147,8 +7147,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			return result
 		}
-		/* TODO(TS-TO-GO): function symbolToName(symbol: Symbol, context: NodeBuilderContext, meaning: SymbolFlags, expectsIdentifier: true): Identifier; */
-		/* TODO(TS-TO-GO): function symbolToName(symbol: Symbol, context: NodeBuilderContext, meaning: SymbolFlags, expectsIdentifier: false): EntityName; */
+		/* OVERLOAD: function symbolToName(symbol: Symbol, context: NodeBuilderContext, meaning: SymbolFlags, expectsIdentifier: true): Identifier; */
+		/* OVERLOAD: function symbolToName(symbol: Symbol, context: NodeBuilderContext, meaning: SymbolFlags, expectsIdentifier: false): EntityName; */
 		symbolToName := func(symbol Symbol, context NodeBuilderContext, meaning SymbolFlags, expectsIdentifier bool) EntityName {
 			chain := lookupSymbolChain(symbol, context, meaning)
 			if expectsIdentifier && chain.length != 1 && !context.encounteredError && !(context.flags & NodeBuilderFlagsAllowQualifiedNameInPlaceOfIdentifier) {
@@ -8006,8 +8006,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				return visitEachChild(node, visitExistingNodeTreeSymbols)
-				/* TODO(TS-TO-GO): function visitEachChild<T extends Node>(node: T, visitor: Visitor): T; */
-				/* TODO(TS-TO-GO): function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor): T | undefined; */
+				/* OVERLOAD: function visitEachChild<T extends Node>(node: T, visitor: Visitor): T; */
+				/* OVERLOAD: function visitEachChild<T extends Node>(node: T | undefined, visitor: Visitor): T | undefined; */
 				visitEachChild := func(node *T, visitor Visitor) *T {
 					nonlocalNode := !context.enclosingFile || context.enclosingFile != getSourceFileOfNode(node)
 					return visitEachChildWorker(node, visitor /*context*/, nil, __COND__(nonlocalNode, visitNodesWithoutCopyingPositions, nil))
@@ -9156,8 +9156,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return getNonMissingTypeOfSymbol(p) == getWriteTypeOfSymbol(p)
 				})
 			}
-			/* TODO(TS-TO-GO): function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: true, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | AccessorDeclaration | (T | AccessorDeclaration)[]; */
-			/* TODO(TS-TO-GO): function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: false, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | T[]; */
+			/* OVERLOAD: function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: true, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | AccessorDeclaration | (T | AccessorDeclaration)[]; */
+			/* OVERLOAD: function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: false, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | T[]; */
 			makeSerializePropertySymbol := func(createProperty func(modifiers *[]Modifier, name /* TODO(TS-TO-GO) TypeNode UnionType: string | PropertyName */ any, questionOrExclamationToken *QuestionToken, type_ *TypeNode, initializer Expression) T, methodKind /* TODO(TS-TO-GO) TypeNode IndexedAccessType: SignatureDeclaration["kind"] */ any, useAccessors bool) func(p Symbol, isStatic bool, baseType Type) /* TODO(TS-TO-GO) TypeNode UnionType: T | AccessorDeclaration | (T | AccessorDeclaration)[] */ any {
 				return func /* serializePropertySymbol */ (p Symbol, isStatic bool, baseType Type) /* TODO(TS-TO-GO) TypeNode UnionType: T | AccessorDeclaration | (T | AccessorDeclaration)[] */ any {
 					modifierFlags := getDeclarationModifierFlagsFromSymbol(p)
@@ -12890,8 +12890,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		indexInfos := getUnionIndexInfos(type_.types)
 		setStructuredTypeMembers(type_, emptySymbols, callSignatures, constructSignatures, indexInfos)
 	}
-	/* TODO(TS-TO-GO): function intersectTypes(type1: Type, type2: Type): Type; */
-	/* TODO(TS-TO-GO): function intersectTypes(type1: Type | undefined, type2: Type | undefined): Type | undefined; */
+	/* OVERLOAD: function intersectTypes(type1: Type, type2: Type): Type; */
+	/* OVERLOAD: function intersectTypes(type1: Type | undefined, type2: Type | undefined): Type | undefined; */
 	intersectTypes := func(type1 Type, type2 Type) Type {
 		switch {
 		case !type1:
@@ -14664,8 +14664,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 * @param typeParameters The requested type parameters.
 	 * @param minTypeArgumentCount The minimum number of required type arguments.
 	 */
-	/* TODO(TS-TO-GO): function fillMissingTypeArguments(typeArguments: readonly Type[], typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean): Type[]; */
-	/* TODO(TS-TO-GO): function fillMissingTypeArguments(typeArguments: readonly Type[] | undefined, typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean): Type[] | undefined; */
+	/* OVERLOAD: function fillMissingTypeArguments(typeArguments: readonly Type[], typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean): Type[]; */
+	/* OVERLOAD: function fillMissingTypeArguments(typeArguments: readonly Type[] | undefined, typeParameters: readonly TypeParameter[] | undefined, minTypeArgumentCount: number, isJavaScriptImplicitAny: boolean): Type[] | undefined; */
 	fillMissingTypeArguments := func(typeArguments *[]Type, typeParameters *[]TypeParameter, minTypeArgumentCount number, isJavaScriptImplicitAny bool) *[]Type {
 		numTypeParameters := length(typeParameters)
 		if !numTypeParameters {
@@ -16070,10 +16070,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		// Don't track references for global symbols anyway, so value if `isReference` is arbitrary
 		return resolveName(nil, name, meaning, diagnostic /*isUse*/, false /*excludeGlobals*/, false)
 	}
-	/* TODO(TS-TO-GO): function getGlobalType(name: __String, arity: 0, reportErrors: true): ObjectType; */
-	/* TODO(TS-TO-GO): function getGlobalType(name: __String, arity: 0, reportErrors: boolean): ObjectType | undefined; */
-	/* TODO(TS-TO-GO): function getGlobalType(name: __String, arity: number, reportErrors: true): GenericType; */
-	/* TODO(TS-TO-GO): function getGlobalType(name: __String, arity: number, reportErrors: boolean): GenericType | undefined; */
+	/* OVERLOAD: function getGlobalType(name: __String, arity: 0, reportErrors: true): ObjectType; */
+	/* OVERLOAD: function getGlobalType(name: __String, arity: 0, reportErrors: boolean): ObjectType | undefined; */
+	/* OVERLOAD: function getGlobalType(name: __String, arity: number, reportErrors: true): GenericType; */
+	/* OVERLOAD: function getGlobalType(name: __String, arity: number, reportErrors: boolean): GenericType | undefined; */
 	getGlobalType := func(name __String, arity number, reportErrors bool) *ObjectType {
 		symbol := getGlobalTypeSymbol(name, reportErrors)
 		if symbol || reportErrors {
@@ -16082,8 +16082,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return nil
 		}
 	}
-	/* TODO(TS-TO-GO): function getGlobalBuiltinTypes(typeNames: readonly string[], arity: 0): ObjectType[]; */
-	/* TODO(TS-TO-GO): function getGlobalBuiltinTypes(typeNames: readonly string[], arity: number): GenericType[]; */
+	/* OVERLOAD: function getGlobalBuiltinTypes(typeNames: readonly string[], arity: 0): ObjectType[]; */
+	/* OVERLOAD: function getGlobalBuiltinTypes(typeNames: readonly string[], arity: number): GenericType[]; */
 	getGlobalBuiltinTypes := func(typeNames []string, arity number) []Type {
 		var types *[]Type
 		for _, typeName := range typeNames {
@@ -19469,8 +19469,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return errorType
 		}
 	}
-	/* TODO(TS-TO-GO): function instantiateList<T>(items: readonly T[], mapper: TypeMapper, instantiator: (item: T, mapper: TypeMapper) => T): readonly T[]; */
-	/* TODO(TS-TO-GO): function instantiateList<T>(items: readonly T[] | undefined, mapper: TypeMapper, instantiator: (item: T, mapper: TypeMapper) => T): readonly T[] | undefined; */
+	/* OVERLOAD: function instantiateList<T>(items: readonly T[], mapper: TypeMapper, instantiator: (item: T, mapper: TypeMapper) => T): readonly T[]; */
+	/* OVERLOAD: function instantiateList<T>(items: readonly T[] | undefined, mapper: TypeMapper, instantiator: (item: T, mapper: TypeMapper) => T): readonly T[] | undefined; */
 	instantiateList := func(items *[]T, mapper TypeMapper, instantiator func(item T, mapper TypeMapper) T) *[]T {
 		if items && items.length {
 			for i := 0; i < items.length; i++ {
@@ -19493,8 +19493,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return items
 	}
-	/* TODO(TS-TO-GO): function instantiateTypes(types: readonly Type[], mapper: TypeMapper): readonly Type[]; */
-	/* TODO(TS-TO-GO): function instantiateTypes(types: readonly Type[] | undefined, mapper: TypeMapper): readonly Type[] | undefined; */
+	/* OVERLOAD: function instantiateTypes(types: readonly Type[], mapper: TypeMapper): readonly Type[]; */
+	/* OVERLOAD: function instantiateTypes(types: readonly Type[] | undefined, mapper: TypeMapper): readonly Type[] | undefined; */
 	instantiateTypes := func(types *[]Type, mapper TypeMapper) *[]Type {
 		return instantiateList(types, mapper, instantiateType)
 	}
@@ -20087,8 +20087,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return type_
 	}
-	/* TODO(TS-TO-GO): function instantiateType(type: Type, mapper: TypeMapper | undefined): Type; */
-	/* TODO(TS-TO-GO): function instantiateType(type: Type | undefined, mapper: TypeMapper | undefined): Type | undefined; */
+	/* OVERLOAD: function instantiateType(type: Type, mapper: TypeMapper | undefined): Type; */
+	/* OVERLOAD: function instantiateType(type: Type | undefined, mapper: TypeMapper | undefined): Type | undefined; */
 	instantiateType := func(type_ Type, mapper *TypeMapper) Type {
 		if type_ && mapper {
 			return instantiateTypeWithAlias(type_, mapper /*aliasSymbol*/, nil /*aliasTypeArguments*/, nil)
@@ -28055,8 +28055,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	// Apply a mapping function to a type and return the resulting type. If the source type
 	// is a union type, the mapping function is applied to each constituent type and a union
 	// of the resulting types is returned.
-	/* TODO(TS-TO-GO): function mapType(type: Type, mapper: (t: Type) => Type, noReductions?: boolean): Type; */
-	/* TODO(TS-TO-GO): function mapType(type: Type, mapper: (t: Type) => Type | undefined, noReductions?: boolean): Type | undefined; */
+	/* OVERLOAD: function mapType(type: Type, mapper: (t: Type) => Type, noReductions?: boolean): Type; */
+	/* OVERLOAD: function mapType(type: Type, mapper: (t: Type) => Type | undefined, noReductions?: boolean): Type | undefined; */
 	mapType := func(type_ Type, mapper func(t Type) Type, noReductions bool) Type {
 		if type_.flags & TypeFlagsNever {
 			return type_
@@ -30121,15 +30121,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 * @param propSymbol The optional symbol of the property we're looking up - this is used for property accesses when `const enum`s do not count as references (no `isolatedModules`, no `preserveConstEnums` + export). It will be calculated if not provided.
 	 * @param parentType The optional type of the parent of the LHS of the property access - this will be recalculated if not provided (but is costly).
 	 */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: PropertyAccessExpression | QualifiedName, hint: ReferenceHint.Property, propSymbol: Symbol | undefined, parentType: Type): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: Identifier, hint: ReferenceHint.Identifier): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: ExportAssignment, hint: ReferenceHint.ExportAssignment): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: JsxOpeningLikeElement | JsxOpeningFragment, hint: ReferenceHint.Jsx): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: FunctionLikeDeclaration | MethodSignature, hint: ReferenceHint.AsyncFunction): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: ImportEqualsDeclaration, hint: ReferenceHint.ExportImportEquals): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: ExportSpecifier, hint: ReferenceHint.ExportSpecifier): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: HasDecorators, hint: ReferenceHint.Decorator): void; */
-	/* TODO(TS-TO-GO): function markLinkedReferences(location: Node, hint: ReferenceHint.Unspecified, propSymbol?: Symbol, parentType?: Type): void; */
+	/* OVERLOAD: function markLinkedReferences(location: PropertyAccessExpression | QualifiedName, hint: ReferenceHint.Property, propSymbol: Symbol | undefined, parentType: Type): void; */
+	/* OVERLOAD: function markLinkedReferences(location: Identifier, hint: ReferenceHint.Identifier): void; */
+	/* OVERLOAD: function markLinkedReferences(location: ExportAssignment, hint: ReferenceHint.ExportAssignment): void; */
+	/* OVERLOAD: function markLinkedReferences(location: JsxOpeningLikeElement | JsxOpeningFragment, hint: ReferenceHint.Jsx): void; */
+	/* OVERLOAD: function markLinkedReferences(location: FunctionLikeDeclaration | MethodSignature, hint: ReferenceHint.AsyncFunction): void; */
+	/* OVERLOAD: function markLinkedReferences(location: ImportEqualsDeclaration, hint: ReferenceHint.ExportImportEquals): void; */
+	/* OVERLOAD: function markLinkedReferences(location: ExportSpecifier, hint: ReferenceHint.ExportSpecifier): void; */
+	/* OVERLOAD: function markLinkedReferences(location: HasDecorators, hint: ReferenceHint.Decorator): void; */
+	/* OVERLOAD: function markLinkedReferences(location: Node, hint: ReferenceHint.Unspecified, propSymbol?: Symbol, parentType?: Type): void; */
 	markLinkedReferences := func(location Node, hint ReferenceHint, propSymbol Symbol, parentType Type) {
 		if !canCollectSymbolAliasAccessabilityData {
 			return
@@ -37717,8 +37717,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return __TEMPLATE__("arg_", index) /* as __String */
 	}
-	/* TODO(TS-TO-GO): function getTupleElementLabel(d: ParameterDeclaration | NamedTupleMember): __String; */
-	/* TODO(TS-TO-GO): function getTupleElementLabel(d: ParameterDeclaration | NamedTupleMember | undefined, index: number, elementFlags: ElementFlags, restSymbol?: Symbol): __String; */
+	/* OVERLOAD: function getTupleElementLabel(d: ParameterDeclaration | NamedTupleMember): __String; */
+	/* OVERLOAD: function getTupleElementLabel(d: ParameterDeclaration | NamedTupleMember | undefined, index: number, elementFlags: ElementFlags, restSymbol?: Symbol): __String; */
 	getTupleElementLabel := func(d /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | NamedTupleMember | undefined */ any, index number /*  = 0 */, elementFlags ElementFlags /*  = ElementFlags.Fixed */, restSymbol Symbol) __String {
 		if !d {
 			restParameter := tryCast(restSymbol. /* TODO(TS-TO-GO): was ? */ valueDeclaration, isParameter)
@@ -43215,8 +43215,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			error(node, Diagnostics.An_accessibility_modifier_cannot_be_used_with_a_private_identifier)
 		}
 	}
-	/* TODO(TS-TO-GO): function getIdentifierFromEntityNameExpression(node: Identifier | PropertyAccessExpression): Identifier | PrivateIdentifier; */
-	/* TODO(TS-TO-GO): function getIdentifierFromEntityNameExpression(node: Expression): Identifier | PrivateIdentifier | undefined; */
+	/* OVERLOAD: function getIdentifierFromEntityNameExpression(node: Identifier | PropertyAccessExpression): Identifier | PrivateIdentifier; */
+	/* OVERLOAD: function getIdentifierFromEntityNameExpression(node: Expression): Identifier | PrivateIdentifier | undefined; */
 	getIdentifierFromEntityNameExpression := func(node Expression) /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | undefined */ any {
 		switch node.kind {
 		case SyntaxKindIdentifier:

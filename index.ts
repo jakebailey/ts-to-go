@@ -931,7 +931,7 @@ function visitStatement2(node: Statement) {
 
     if (Node.isFunctionDeclaration(node)) {
         if (!node.hasBody()) {
-            writer.write(asComment(`TODO(TS-TO-GO): ${node.getText()}`));
+            writer.write(asComment(`OVERLOAD: ${node.getText()}`));
             return;
         }
 
