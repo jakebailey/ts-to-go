@@ -7,6 +7,7 @@ import {
     BinaryExpression,
     Block,
     BodyableNode,
+    type CaseOrDefaultClause,
     ConditionalExpression,
     Expression,
     ExpressionStatement,
@@ -1286,38 +1287,99 @@ function visitStatement2(node: Statement) {
         visitExpression(node.getExpression());
         writer.write(" {");
         const clauses = node.getClauses();
-        for (let i = 0; i < clauses.length; i++) {
-            const clause = clauses[i];
-            const isLast = i === clauses.length - 1;
-            // writer.write(todo(clause));
-            writer.newLineIfLastNot();
 
-            const statements = clause.getStatements();
-            const lastStatement = statements.at(-1);
-            const fallsThrough = !isLast &&
-                (!lastStatement ||
-                    (!Node.isBreakStatement(lastStatement) && !Node.isReturnStatement(lastStatement)));
+        function groupClauses() {
+            // Group clauses into:
+            // - Zero or more clauses with no statements followed by one non-empty case clause
+            // - Default clauses
+            // Groups should consist of (start, end] indices
 
-            if (Node.isCaseClause(clause)) {
-                writer.write("case ");
-                const expression = clause.getExpression();
-                visitExpression(expression);
+            let groups: [number, number][] = [];
+
+            let start = 0;
+
+            while (start < clauses.length) {
+                const first = clauses[start];
+                if (Node.isDefaultClause(first)) {
+                    groups.push([start, start + 1]);
+                    start++;
+                    continue;
+                }
+
+                const found = clauses.findIndex(
+                    (clause, i) => i >= start && (Node.isDefaultClause(clause) || clause.getStatements().length > 0),
+                );
+                if (found === -1) {
+                    groups.push([start, start + 1]);
+                    start++;
+                    continue;
+                }
+
+                if (Node.isDefaultClause(clauses[found])) {
+                    groups.push([start, found]);
+                    start = found;
+                }
+                else {
+                    groups.push([start, found + 1]);
+                    start = found + 1;
+                }
+            }
+
+            return groups;
+        }
+
+        for (const [start, end] of groupClauses()) {
+            function writeColonAndCaseBody(clause: CaseOrDefaultClause, idx: number) {
+                const isLastClause = idx === clauses.length - 1;
+                let statementsOfClause = clause.getStatements();
+                const lastStatementOfClause = statementsOfClause.at(-1);
+                if (lastStatementOfClause?.isKind(ts.SyntaxKind.BreakStatement)) {
+                    statementsOfClause = statementsOfClause.slice(0, -1);
+                }
+
+                const fallsThrough = !isLastClause
+                    && !lastStatementOfClause?.isKind(ts.SyntaxKind.BreakStatement)
+                    && !lastStatementOfClause?.isKind(ts.SyntaxKind.ReturnStatement);
+
                 writer.write(":");
+                writer.indent(() => {
+                    for (const statement of statementsOfClause) {
+                        visitStatement(statement);
+                    }
+                    if (fallsThrough) {
+                        writer.newLineIfLastNot();
+                        writer.writeLine("fallthrough");
+                    }
+                });
+            }
+
+            const startingClause = clauses[start];
+            if (Node.isCaseClause(startingClause)) {
+                writer.newLineIfLastNot();
+                writer.write("case ");
+                for (let i = start; i < end; i++) {
+                    const isLastInGroup = i === end - 1;
+
+                    const clause = clauses[i];
+                    assert(Node.isCaseClause(clause));
+                    const expression = clause.getExpression();
+                    visitExpression(expression);
+                    if (isLastInGroup) {
+                        writeColonAndCaseBody(clause, i);
+                    }
+                    else {
+                        writer.write(",");
+                        writer.newLine();
+                    }
+                }
             }
             else {
-                writer.write("default: ");
+                writer.newLineIfLastNot();
+                writer.write("default");
+                writeColonAndCaseBody(startingClause, start);
             }
-
-            writer.indent(() => {
-                for (const statement of statements) {
-                    visitStatement(statement);
-                }
-                if (fallsThrough) {
-                    writer.newLineIfLastNot();
-                    writer.writeLine(`fallthrough${!lastStatement ? " // TODO(TS-TO-GO): merge cases" : ""}`);
-                }
-            });
         }
+
         writer.write("}");
         writer.newLineIfLastNot();
         return;

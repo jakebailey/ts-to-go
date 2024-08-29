@@ -2154,15 +2154,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return false
 		isImmediatelyUsedInInitializerOfBlockScopedVariable := func(declaration VariableDeclaration, usage Node) bool {
 			switch declaration.parent.parent.kind {
-			case SyntaxKindVariableStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForOfStatement:
+			case SyntaxKindVariableStatement,
+				SyntaxKindForStatement,
+				SyntaxKindForOfStatement:
 				if isSameScopeDescendentOf(usage, declaration, declContainer) {
 					return true
 				}
-				break
 			}
 			// ForIn/ForOf case - use site should not be used in expression part
 			grandparent := declaration.parent.parent
@@ -2231,11 +2228,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				case SyntaxKindBlock:
 					switch node.parent.kind {
-					case SyntaxKindGetAccessor:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindMethodDeclaration:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindSetAccessor:
+					case SyntaxKindGetAccessor,
+						SyntaxKindMethodDeclaration,
+						SyntaxKindSetAccessor:
 						return true
 					default:
 						return false
@@ -2453,9 +2448,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 */
 	getEntityNameForExtendingInterface := func(node Node) *EntityNameExpression {
 		switch node.kind {
-		case SyntaxKindIdentifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAccessExpression:
+		case SyntaxKindIdentifier,
+			SyntaxKindPropertyAccessExpression:
 			if node.parent {
 				return getEntityNameForExtendingInterface(node.parent)
 			} else {
@@ -2562,17 +2556,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isES2015OrLaterConstructorName := func(n __String) bool {
 		switch n {
-		case "Promise":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Symbol":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Map":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "WeakMap":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Set":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "WeakSet":
+		case "Promise",
+			"Symbol",
+			"Map",
+			"WeakMap",
+			"Set",
+			"WeakSet":
 			return true
 		}
 		return false
@@ -3175,9 +3164,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTargetOfAliasDeclaration := func(node Declaration, dontRecursivelyResolve bool /*  = false */) Symbol {
 		switch node.kind {
-		case SyntaxKindImportEqualsDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindVariableDeclaration:
+		case SyntaxKindImportEqualsDeclaration,
+			SyntaxKindVariableDeclaration:
 			return getTargetOfImportEqualsDeclaration(node /* as ImportEqualsDeclaration | VariableDeclaration */, dontRecursivelyResolve)
 		case SyntaxKindImportClause:
 			return getTargetOfImportClause(node /* as ImportClause */, dontRecursivelyResolve)
@@ -3185,15 +3173,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return getTargetOfNamespaceImport(node /* as NamespaceImport */, dontRecursivelyResolve)
 		case SyntaxKindNamespaceExport:
 			return getTargetOfNamespaceExport(node /* as NamespaceExport */, dontRecursivelyResolve)
-		case SyntaxKindImportSpecifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBindingElement:
+		case SyntaxKindImportSpecifier,
+			SyntaxKindBindingElement:
 			return getTargetOfImportSpecifier(node /* as ImportSpecifier | BindingElement */, dontRecursivelyResolve)
 		case SyntaxKindExportSpecifier:
 			return getTargetOfExportSpecifier(node /* as ExportSpecifier */, SymbolFlagsValue|SymbolFlagsType|SymbolFlagsNamespace, dontRecursivelyResolve)
-		case SyntaxKindExportAssignment:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBinaryExpression:
+		case SyntaxKindExportAssignment,
+			SyntaxKindBinaryExpression:
 			return getTargetOfExportAssignment(node /* as ExportAssignment | BinaryExpression */, dontRecursivelyResolve)
 		case SyntaxKindNamespaceExportDeclaration:
 			return getTargetOfNamespaceExportDeclaration(node /* as NamespaceExportDeclaration */, dontRecursivelyResolve)
@@ -3201,9 +3187,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return resolveEntityName((node /* as ShorthandPropertyAssignment */).name, SymbolFlagsValue|SymbolFlagsType|SymbolFlagsNamespace /*ignoreErrors*/, true, dontRecursivelyResolve)
 		case SyntaxKindPropertyAssignment:
 			return getTargetOfAliasLikeExpression((node /* as PropertyAssignment */).initializer, dontRecursivelyResolve)
-		case SyntaxKindElementAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAccessExpression:
+		case SyntaxKindElementAccessExpression,
+			SyntaxKindPropertyAccessExpression:
 			return getTargetOfAccessExpression(node /* as AccessExpression */, dontRecursivelyResolve)
 		default:
 			return Debug.fail()
@@ -4507,12 +4492,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if /* TODO(TS-TO-GO) Node BinaryExpression: result = callback(sym?.exports || emptySymbols, /*ignoreQualification* / undefined, /*isLocalNameLookup* / true, location) */ TODO {
 					return result
 				}
-				break
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindInterfaceDeclaration:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindClassExpression,
+				SyntaxKindInterfaceDeclaration:
 				var table *Map[__String, Symbol]
 				(getSymbolOfDeclaration(location /* as ClassLikeDeclaration | InterfaceDeclaration */).members || emptySymbols).forEach(func(memberSymbol Symbol, key __String) {
 					if memberSymbol.flags & (SymbolFlagsType & ~SymbolFlagsAssignment) {
@@ -4522,7 +4504,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if table && ( /* TODO(TS-TO-GO) Node BinaryExpression: result = callback(table, /*ignoreQualification* / undefined, /*isLocalNameLookup* / false, location) */ TODO) {
 					return result
 				}
-				break
 			}
 		}
 		return callback(globals /*ignoreQualification*/, nil /*isLocalNameLookup*/, true)
@@ -4651,13 +4632,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if symbol.declarations && symbol.declarations.length {
 			for _, declaration := range symbol.declarations {
 				switch declaration.kind {
-				case SyntaxKindPropertyDeclaration:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindMethodDeclaration:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindGetAccessor:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindSetAccessor:
+				case SyntaxKindPropertyDeclaration,
+					SyntaxKindMethodDeclaration,
+					SyntaxKindGetAccessor,
+					SyntaxKindSetAccessor:
 					continue
 					fallthrough
 				default:
@@ -8926,13 +8904,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						break
 					}
 					Debug.failBadSyntaxKind(node.parent. /* ? */ parent || node, "Unhandled binding element grandparent kind in declaration serialization")
-					break
 				case SyntaxKindShorthandPropertyAssignment:
 					if node.parent. /* ? */ parent. /* ? */ kind == SyntaxKindBinaryExpression {
 						// module.exports = { SomeClass }
 						serializeExportSpecifier(unescapeLeadingUnderscores(symbol.escapedName), targetName)
 					}
-					break
 				case SyntaxKindVariableDeclaration:
 					if isPropertyAccessExpression((node /* as VariableDeclaration */).initializer) {
 						// const x = require('y').z
@@ -8957,10 +8933,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					isLocalImport := !(target.flags & SymbolFlagsValueModule) && !isVariableDeclaration(node)
 					addResult(factory.createImportEqualsDeclaration(nil, false, factory.createIdentifier(localName), __COND__(isLocalImport, symbolToName(target, context, SymbolFlagsAll /*expectsIdentifier*/, false), factory.createExternalModuleReference(factory.createStringLiteral(getSpecifierForModuleSymbol(target, context))))), __COND__(isLocalImport, modifierFlags, ModifierFlagsNone))
-					break
 				case SyntaxKindNamespaceExportDeclaration:
 					addResult(factory.createNamespaceExportDeclaration(idText((node /* as NamespaceExportDeclaration */).name)), ModifierFlagsNone)
-					break
 				case SyntaxKindImportClause:
 					generatedSpecifier := getSpecifierForModuleSymbol(target.parent || target, context)
 					// generate specifier (even though we're reusing and existing one) for ambient module reference include side effects
@@ -8995,7 +8969,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					fallthrough
 				case SyntaxKindNamespaceExport:
 					addResult(factory.createExportDeclaration(nil, false, factory.createNamespaceExport(factory.createIdentifier(localName)), factory.createStringLiteral(getSpecifierForModuleSymbol(target, context))), ModifierFlagsNone)
-					break
 				case SyntaxKindImportSpecifier:
 					generatedSpecifier := getSpecifierForModuleSymbol(target.parent || target, context)
 					// generate specifier (even though we're reusing and existing one) for ambient module reference include side effects
@@ -9018,21 +8991,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						}
 					}
 					serializeExportSpecifier(unescapeLeadingUnderscores(symbol.escapedName), __COND__(specifier, verbatimTargetName, targetName), __COND__(specifier && isStringLiteralLike(specifier), factory.createStringLiteral(specifier.text), nil))
-					break
 				case SyntaxKindExportAssignment:
 					serializeMaybeAliasAssignment(symbol)
-					break
-				case SyntaxKindBinaryExpression:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindPropertyAccessExpression:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindElementAccessExpression:
+				case SyntaxKindBinaryExpression,
+					SyntaxKindPropertyAccessExpression,
+					SyntaxKindElementAccessExpression:
 					if symbol.escapedName == InternalSymbolNameDefault || symbol.escapedName == InternalSymbolNameExportEquals {
 						serializeMaybeAliasAssignment(symbol)
 					} else {
 						serializeExportSpecifier(localName, targetName)
 					}
-					break
 				default:
 					return Debug.failBadSyntaxKind(node, "Unhandled alias declaration kind in symbol serializer!")
 				}
@@ -9539,11 +9507,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return declarationNameToString((declaration.parent /* as VariableDeclaration */).name)
 			}
 			switch declaration.kind {
-			case SyntaxKindClassExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindArrowFunction:
+			case SyntaxKindClassExpression,
+				SyntaxKindFunctionExpression,
+				SyntaxKindArrowFunction:
 				if context && !context.encounteredError && !(context.flags & NodeBuilderFlagsAllowAnonymousIdentifier) {
 					context.encounteredError = true
 				}
@@ -9572,11 +9538,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return false
 		determineIfDeclarationIsVisible := func() bool {
 			switch node.kind {
-			case SyntaxKindJSDocCallbackTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocTypedefTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocEnumTag:
+			case SyntaxKindJSDocCallbackTag,
+				SyntaxKindJSDocTypedefTag,
+				SyntaxKindJSDocEnumTag:
 				return !!(node.parent && node.parent.parent && node.parent.parent.parent && isSourceFile(node.parent.parent.parent))
 			case SyntaxKindBindingElement:
 				return isDeclarationVisible(node.parent.parent)
@@ -9586,19 +9550,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return false
 				}
 				fallthrough
-			case SyntaxKindModuleDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindInterfaceDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeAliasDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindEnumDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindImportEqualsDeclaration:
+			case SyntaxKindModuleDeclaration,
+				SyntaxKindClassDeclaration,
+				SyntaxKindInterfaceDeclaration,
+				SyntaxKindTypeAliasDeclaration,
+				SyntaxKindFunctionDeclaration,
+				SyntaxKindEnumDeclaration,
+				SyntaxKindImportEqualsDeclaration:
 				if isExternalModuleAugmentation(node) {
 					return true
 				}
@@ -9607,65 +9565,41 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return isGlobalSourceFile(parent)
 				}
 				return isDeclarationVisible(parent)
-			case SyntaxKindPropertyDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPropertySignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodSignature:
+			case SyntaxKindPropertyDeclaration,
+				SyntaxKindPropertySignature,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor,
+				SyntaxKindMethodDeclaration,
+				SyntaxKindMethodSignature:
 				if hasEffectiveModifier(node, ModifierFlagsPrivate|ModifierFlagsProtected) {
 					// Private/protected properties/methods are not visible
 					return false
 				}
 				fallthrough
-			case SyntaxKindConstructor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindCallSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindIndexSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindParameter:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindModuleBlock:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructorType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeLiteral:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeReference:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindArrayType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTupleType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindUnionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindIntersectionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindParenthesizedType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamedTupleMember:
+			case SyntaxKindConstructor,
+				SyntaxKindConstructSignature,
+				SyntaxKindCallSignature,
+				SyntaxKindIndexSignature,
+				SyntaxKindParameter,
+				SyntaxKindModuleBlock,
+				SyntaxKindFunctionType,
+				SyntaxKindConstructorType,
+				SyntaxKindTypeLiteral,
+				SyntaxKindTypeReference,
+				SyntaxKindArrayType,
+				SyntaxKindTupleType,
+				SyntaxKindUnionType,
+				SyntaxKindIntersectionType,
+				SyntaxKindParenthesizedType,
+				SyntaxKindNamedTupleMember:
 				return isDeclarationVisible(node.parent)
-			case SyntaxKindImportClause:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamespaceImport:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindImportSpecifier:
+			case SyntaxKindImportClause,
+				SyntaxKindNamespaceImport,
+				SyntaxKindImportSpecifier:
 				return false
-			case SyntaxKindTypeParameter:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSourceFile:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamespaceExportDeclaration:
+			case SyntaxKindTypeParameter,
+				SyntaxKindSourceFile,
+				SyntaxKindNamespaceExportDeclaration:
 				return true
 			case SyntaxKindExportAssignment:
 				return false
@@ -9784,17 +9718,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getDeclarationContainer := func(node Node) Node {
 		return findAncestor(getRootDeclaration(node), func(node Node) bool {
 			switch node.kind {
-			case SyntaxKindVariableDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindVariableDeclarationList:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindImportSpecifier:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamedImports:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamespaceImport:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindImportClause:
+			case SyntaxKindVariableDeclaration,
+				SyntaxKindVariableDeclarationList,
+				SyntaxKindImportSpecifier,
+				SyntaxKindNamedImports,
+				SyntaxKindNamespaceImport,
+				SyntaxKindImportClause:
 				return false
 			default:
 				return true
@@ -9957,9 +9886,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getParentElementAccess := func(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | PropertyAssignment | ShorthandPropertyAssignment | Expression */ any) Expression {
 		ancestor := node.parent.parent
 		switch ancestor.kind {
-		case SyntaxKindBindingElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAssignment:
+		case SyntaxKindBindingElement,
+			SyntaxKindPropertyAssignment:
 			return getSyntheticElementAccess(ancestor /* as BindingElement | PropertyAssignment */)
 		case SyntaxKindArrayLiteralExpression:
 			return getSyntheticElementAccess(node.parent /* as Expression */)
@@ -11350,45 +11278,26 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			kind := node.kind
 			switch kind {
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindInterfaceDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindCallSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructorType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocFunctionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindArrowFunction:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeAliasDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocTemplateTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocTypedefTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocEnumTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocCallbackTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMappedType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConditionalType:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindClassExpression,
+				SyntaxKindInterfaceDeclaration,
+				SyntaxKindCallSignature,
+				SyntaxKindConstructSignature,
+				SyntaxKindMethodSignature,
+				SyntaxKindFunctionType,
+				SyntaxKindConstructorType,
+				SyntaxKindJSDocFunctionType,
+				SyntaxKindFunctionDeclaration,
+				SyntaxKindMethodDeclaration,
+				SyntaxKindFunctionExpression,
+				SyntaxKindArrowFunction,
+				SyntaxKindTypeAliasDeclaration,
+				SyntaxKindJSDocTemplateTag,
+				SyntaxKindJSDocTypedefTag,
+				SyntaxKindJSDocEnumTag,
+				SyntaxKindJSDocCallbackTag,
+				SyntaxKindMappedType,
+				SyntaxKindConditionalType:
 				outerTypeParameters := getOuterTypeParameters(node, includeThisTypes)
 				if (kind == SyntaxKindFunctionExpression || kind == SyntaxKindArrowFunction || isObjectLiteralMethod(node)) && isContextSensitive(node /* as Expression | MethodDeclaration */) {
 					signature := firstOrUndefined(getSignaturesOfType(getTypeOfSymbol(getSymbolOfDeclaration(node /* as FunctionLikeDeclaration */)), SignatureKindCall))
@@ -11414,7 +11323,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if paramSymbol {
 					node = paramSymbol.valueDeclaration
 				}
-				break
 			case SyntaxKindJSDoc:
 				outerTypeParameters := getOuterTypeParameters(node, includeThisTypes)
 				if (node /* as JSDoc */).tags {
@@ -11960,29 +11868,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 */
 	isThislessType := func(node TypeNode) bool {
 		switch node.kind {
-		case SyntaxKindAnyKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindUnknownKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindStringKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNumberKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBigIntKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBooleanKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSymbolKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindObjectKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindVoidKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindUndefinedKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNeverKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindLiteralType:
+		case SyntaxKindAnyKeyword,
+			SyntaxKindUnknownKeyword,
+			SyntaxKindStringKeyword,
+			SyntaxKindNumberKeyword,
+			SyntaxKindBigIntKeyword,
+			SyntaxKindBooleanKeyword,
+			SyntaxKindSymbolKeyword,
+			SyntaxKindObjectKeyword,
+			SyntaxKindVoidKeyword,
+			SyntaxKindUndefinedKeyword,
+			SyntaxKindNeverKeyword,
+			SyntaxKindLiteralType:
 			return true
 		case SyntaxKindArrayType:
 			return isThislessType((node /* as ArrayTypeNode */).elementType)
@@ -12030,19 +11927,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			declaration := symbol.declarations[0]
 			if declaration {
 				switch declaration.kind {
-				case SyntaxKindPropertyDeclaration:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindPropertySignature:
+				case SyntaxKindPropertyDeclaration,
+					SyntaxKindPropertySignature:
 					return isThislessVariableLikeDeclaration(declaration /* as VariableLikeDeclaration */)
-				case SyntaxKindMethodDeclaration:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindMethodSignature:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindConstructor:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindGetAccessor:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindSetAccessor:
+				case SyntaxKindMethodDeclaration,
+					SyntaxKindMethodSignature,
+					SyntaxKindConstructor,
+					SyntaxKindGetAccessor,
+					SyntaxKindSetAccessor:
 					return isThislessFunctionLikeDeclaration(declaration /* as FunctionLikeDeclaration | AccessorDeclaration */)
 				}
 			}
@@ -14882,17 +14774,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch node.kind {
 			case SyntaxKindIdentifier:
 				return (node /* as Identifier */).escapedText == argumentsSymbol.escapedName && getReferencedValueSymbol(node /* as Identifier */) == argumentsSymbol
-			case SyntaxKindPropertyDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
+			case SyntaxKindPropertyDeclaration,
+				SyntaxKindMethodDeclaration,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor:
 				return (node /* as NamedDeclaration */).name.kind == SyntaxKindComputedPropertyName && traverse((node /* as NamedDeclaration */).name)
-			case SyntaxKindPropertyAccessExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindElementAccessExpression:
+			case SyntaxKindPropertyAccessExpression,
+				SyntaxKindElementAccessExpression:
 				return traverse((node /* as PropertyAccessExpression | ElementAccessExpression */).expression)
 			case SyntaxKindPropertyAssignment:
 				return traverse((node /* as PropertyAssignment */).initializer)
@@ -15901,9 +15789,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			case "Null":
 				checkNoTypeArguments(node)
 				return nullType
-			case "Function":
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case "function":
+			case "Function",
+				"function":
 				checkNoTypeArguments(node)
 				return globalFunctionType
 			case "array":
@@ -16007,11 +15894,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if declarations {
 				for _, declaration := range declarations {
 					switch declaration.kind {
-					case SyntaxKindClassDeclaration:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindInterfaceDeclaration:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindEnumDeclaration:
+					case SyntaxKindClassDeclaration,
+						SyntaxKindInterfaceDeclaration,
+						SyntaxKindEnumDeclaration:
 						return declaration
 					}
 				}
@@ -16346,25 +16231,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	isResolvedByTypeAlias := func(node Node) bool {
 		parent := node.parent
 		switch parent.kind {
-		case SyntaxKindParenthesizedType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNamedTupleMember:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeReference:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindUnionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIntersectionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIndexedAccessType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindConditionalType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeOperator:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrayType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTupleType:
+		case SyntaxKindParenthesizedType,
+			SyntaxKindNamedTupleMember,
+			SyntaxKindTypeReference,
+			SyntaxKindUnionType,
+			SyntaxKindIntersectionType,
+			SyntaxKindIndexedAccessType,
+			SyntaxKindConditionalType,
+			SyntaxKindTypeOperator,
+			SyntaxKindArrayType,
+			SyntaxKindTupleType:
 			return isResolvedByTypeAlias(parent)
 		case SyntaxKindTypeAliasDeclaration:
 			return true
@@ -16381,25 +16257,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return true
 		case SyntaxKindTypeOperator:
 			return (node /* as TypeOperatorNode */).operator != SyntaxKindUniqueKeyword && mayResolveTypeAlias((node /* as TypeOperatorNode */).type_)
-		case SyntaxKindParenthesizedType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindOptionalType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNamedTupleMember:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocOptionalType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocNullableType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocNonNullableType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocTypeExpression:
+		case SyntaxKindParenthesizedType,
+			SyntaxKindOptionalType,
+			SyntaxKindNamedTupleMember,
+			SyntaxKindJSDocOptionalType,
+			SyntaxKindJSDocNullableType,
+			SyntaxKindJSDocNonNullableType,
+			SyntaxKindJSDocTypeExpression:
 			return mayResolveTypeAlias((node /* as ParenthesizedTypeNode | OptionalTypeNode | JSDocTypeReferencingNode | NamedTupleMember */).type_)
 		case SyntaxKindRestType:
 			return (node /* as RestTypeNode */).type_.kind != SyntaxKindArrayType || mayResolveTypeAlias(((node /* as RestTypeNode */).type_ /* as ArrayTypeNode */).elementType)
-		case SyntaxKindUnionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIntersectionType:
+		case SyntaxKindUnionType,
+			SyntaxKindIntersectionType:
 			return some((node /* as UnionOrIntersectionTypeNode */).types, mayResolveTypeAlias)
 		case SyntaxKindIndexedAccessType:
 			return mayResolveTypeAlias((node /* as IndexedAccessTypeNode */).objectType) || mayResolveTypeAlias((node /* as IndexedAccessTypeNode */).indexType)
@@ -17849,17 +17718,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch node.operator {
 			case SyntaxKindKeyOfKeyword:
 				links.resolvedType = getIndexType(getTypeFromTypeNode(node.type_))
-				break
 			case SyntaxKindUniqueKeyword:
 				if node.type_.kind == SyntaxKindSymbolKeyword {
 					links.resolvedType = getESSymbolLikeTypeForNode(walkUpParenthesizedTypes(node.parent))
 				} else {
 					links.resolvedType = errorType
 				}
-				break
 			case SyntaxKindReadonlyKeyword:
 				links.resolvedType = getTypeFromTypeNode(node.type_)
-				break
 			default:
 				Debug.assertNever(node.operator)
 			}
@@ -19332,7 +19198,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return getArrayElementTypeNode((node /* as RestTypeNode | NamedTupleMember */).type_)
 				}
 			}
-			break
 		case SyntaxKindArrayType:
 			return (node /* as ArrayTypeNode */).elementType
 		}
@@ -19347,11 +19212,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypeFromTypeNodeWorker := func(node TypeNode) Type {
 		switch node.kind {
-		case SyntaxKindAnyKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocAllType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocUnknownType:
+		case SyntaxKindAnyKeyword,
+			SyntaxKindJSDocAllType,
+			SyntaxKindJSDocUnknownType:
 			return anyType
 		case SyntaxKindUnknownKeyword:
 			return unknownType
@@ -19381,9 +19244,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		case SyntaxKindIntrinsicKeyword:
 			return intrinsicMarkerType
-		case SyntaxKindThisType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindThisKeyword /* as TypeNodeSyntaxKind */ :
+		case SyntaxKindThisType,
+			SyntaxKindThisKeyword /* as TypeNodeSyntaxKind */ :
 			return getTypeFromThisTypeNode(node /* as ThisExpression | ThisTypeNode */)
 		case SyntaxKindLiteralType:
 			return getTypeFromLiteralTypeNode(node /* as LiteralTypeNode */)
@@ -19399,9 +19261,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return getTypeFromTypeReference(node /* as ExpressionWithTypeArguments */)
 		case SyntaxKindTypeQuery:
 			return getTypeFromTypeQueryNode(node /* as TypeQueryNode */)
-		case SyntaxKindArrayType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTupleType:
+		case SyntaxKindArrayType,
+			SyntaxKindTupleType:
 			return getTypeFromArrayOrTupleTypeNode(node /* as ArrayTypeNode | TupleTypeNode */)
 		case SyntaxKindOptionalType:
 			return getTypeFromOptionalTypeNode(node /* as OptionalTypeNode */)
@@ -19415,27 +19276,20 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return addOptionality(getTypeFromTypeNode((node /* as JSDocOptionalType */).type_))
 		case SyntaxKindNamedTupleMember:
 			return getTypeFromNamedTupleTypeNode(node /* as NamedTupleMember */)
-		case SyntaxKindParenthesizedType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocNonNullableType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocTypeExpression:
+		case SyntaxKindParenthesizedType,
+			SyntaxKindJSDocNonNullableType,
+			SyntaxKindJSDocTypeExpression:
 			return getTypeFromTypeNode((node /* as ParenthesizedTypeNode | JSDocTypeReferencingNode | JSDocTypeExpression | NamedTupleMember */).type_)
 		case SyntaxKindRestType:
 			return getTypeFromRestTypeNode(node /* as RestTypeNode */)
 		case SyntaxKindJSDocVariadicType:
 			return getTypeFromJSDocVariadicType(node /* as JSDocVariadicType */)
-		case SyntaxKindFunctionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindConstructorType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocTypeLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocFunctionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocSignature:
+		case SyntaxKindFunctionType,
+			SyntaxKindConstructorType,
+			SyntaxKindTypeLiteral,
+			SyntaxKindJSDocTypeLiteral,
+			SyntaxKindJSDocFunctionType,
+			SyntaxKindJSDocSignature:
 			return getTypeFromTypeLiteralOrFunctionOrConstructorTypeNode(node /* as TypeLiteralNode | FunctionOrConstructorTypeNode | JSDocTypeLiteral | JSDocFunctionType | JSDocSignature */)
 		case SyntaxKindTypeOperator:
 			return getTypeFromTypeOperatorNode(node /* as TypeOperatorNode */)
@@ -19451,11 +19305,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return getTypeFromTemplateTypeNode(node /* as TemplateLiteralTypeNode */)
 		case SyntaxKindImportType:
 			return getTypeFromImportTypeNode(node /* as ImportTypeNode */)
-		case SyntaxKindIdentifier /* as TypeNodeSyntaxKind */ :
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindQualifiedName /* as TypeNodeSyntaxKind */ :
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAccessExpression /* as TypeNodeSyntaxKind */ :
+		case SyntaxKindIdentifier, /* as TypeNodeSyntaxKind */
+			SyntaxKindQualifiedName, /* as TypeNodeSyntaxKind */
+			SyntaxKindPropertyAccessExpression /* as TypeNodeSyntaxKind */ :
 			symbol := getSymbolAtLocation(node)
 			if symbol {
 				return getDeclaredTypeOfSymbol(symbol)
@@ -19542,9 +19394,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			fallthrough
 		case TypeMapKindFunction:
 			return mapper.func_(type_)
-		case TypeMapKindComposite:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case TypeMapKindMerged:
+		case TypeMapKindComposite,
+			TypeMapKindMerged:
 			t1 := getMappedType(type_, mapper.mapper1)
 			if t1 != type_ && mapper.kind == TypeMapKindComposite {
 				return instantiateType(t1, mapper.mapper2)
@@ -19864,9 +19715,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				return true
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodSignature:
+			case SyntaxKindMethodDeclaration,
+				SyntaxKindMethodSignature:
 				return !(node /* as FunctionLikeDeclaration */).type_ && !!(node /* as FunctionLikeDeclaration */).body || some((node /* as FunctionLikeDeclaration */).typeParameters, containsReference) || some((node /* as FunctionLikeDeclaration */).parameters, containsReference) || !!(node /* as FunctionLikeDeclaration */).type_ && containsReference((node /* as FunctionLikeDeclaration */).type_)
 			}
 			return !!forEachChild(node, containsReference)
@@ -20262,13 +20112,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	isContextSensitive := func(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | MethodDeclaration | ObjectLiteralElementLike | JsxAttributeLike | JsxChild */ any) bool {
 		Debug.assert(node.kind != SyntaxKindMethodDeclaration || isObjectLiteralMethod(node))
 		switch node.kind {
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionDeclaration:
+		case SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction,
+			SyntaxKindMethodDeclaration,
+			SyntaxKindFunctionDeclaration:
 			return isContextSensitiveFunctionLikeDeclaration(node /* as FunctionExpression | ArrowFunction | MethodDeclaration */)
 		case SyntaxKindObjectLiteralExpression:
 			return some((node /* as ObjectLiteralExpression */).properties, isContextSensitive)
@@ -20451,18 +20298,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				break
 			}
 			fallthrough
-		case SyntaxKindJsxExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParenthesizedExpression:
+		case SyntaxKindJsxExpression,
+			SyntaxKindParenthesizedExpression:
 			return elaborateError((node /* as AsExpression | ParenthesizedExpression | JsxExpression */).expression, source, target, relation, headMessage, containingMessageChain, errorOutputContainer)
 		case SyntaxKindBinaryExpression:
 			switch (node /* as BinaryExpression */).operatorToken.kind {
-			case SyntaxKindEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindCommaToken:
+			case SyntaxKindEqualsToken,
+				SyntaxKindCommaToken:
 				return elaborateError((node /* as BinaryExpression */).right, source, target, relation, headMessage, containingMessageChain, errorOutputContainer)
 			}
-			break
 		case SyntaxKindObjectLiteralExpression:
 			return elaborateObjectLiteral(node /* as ObjectLiteralExpression */, source, target, relation, containingMessageChain, errorOutputContainer)
 		case SyntaxKindArrayLiteralExpression:
@@ -20765,11 +20609,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				"nameType":        nameType,
 				"errorMessage":    getInvalidTextDiagnostic(),
 			}
-		case SyntaxKindJsxElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSelfClosingElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxFragment:
+		case SyntaxKindJsxElement,
+			SyntaxKindJsxSelfClosingElement,
+			SyntaxKindJsxFragment:
 			return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"errorNode":       child,
 				"innerExpression": child,
@@ -20922,19 +20764,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				continue
 			}
 			switch prop.kind {
-			case SyntaxKindSetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindShorthandPropertyAssignment:
+			case SyntaxKindSetAccessor,
+				SyntaxKindGetAccessor,
+				SyntaxKindMethodDeclaration,
+				SyntaxKindShorthandPropertyAssignment:
 				yield(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"errorNode":       prop.name,
 					"innerExpression": nil,
 					"nameType":        type_,
 				})
-				break
 			case SyntaxKindPropertyAssignment:
 				yield(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"errorNode":       prop.name,
@@ -20942,7 +20780,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					"nameType":        type_,
 					"errorMessage":    __COND__(isComputedNonLiteralName(prop.name), Diagnostics.Type_of_computed_property_s_value_is_0_which_is_not_assignable_to_type_1, nil),
 				})
-				break
 			default:
 				Debug.assertNever(prop)
 			}
@@ -21671,13 +21508,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					break
 					fallthrough
-				case Diagnostics.Call_signature_return_types_0_and_1_are_incompatible.code:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code:
+				case Diagnostics.Call_signature_return_types_0_and_1_are_incompatible.code,
+					Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code,
+					Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code,
+					Diagnostics.Construct_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code:
 					if path.length == 0 {
 						// Don't flatten signature compatability errors at the start of a chain - instead prefer
 						// to unify (the with no arguments bit is excessive for printback) and print them back
@@ -25332,17 +25166,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		var diagnostic DiagnosticMessage
 		switch declaration.kind {
-		case SyntaxKindBinaryExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertySignature:
+		case SyntaxKindBinaryExpression,
+			SyntaxKindPropertyDeclaration,
+			SyntaxKindPropertySignature:
 			if noImplicitAny {
 				diagnostic = Diagnostics.Member_0_implicitly_has_an_1_type
 			} else {
 				diagnostic = Diagnostics.Member_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage
 			}
-			break
 		case SyntaxKindParameter:
 			param := declaration /* as ParameterDeclaration */
 			if isIdentifier(param.name) {
@@ -25366,14 +25197,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			default:
 				diagnostic = Diagnostics.Parameter_0_implicitly_has_an_1_type_but_a_better_type_may_be_inferred_from_usage
 			}
-			break
 		case SyntaxKindBindingElement:
 			diagnostic = Diagnostics.Binding_element_0_implicitly_has_an_1_type
 			if !noImplicitAny {
 				// Don't issue a suggestion for binding elements since the codefix doesn't yet support them.
 				return
 			}
-			break
 		case SyntaxKindJSDocFunctionType:
 			error(declaration, Diagnostics.Function_type_which_lacks_return_type_annotation_implicitly_has_an_0_return_type, typeAsString)
 			return
@@ -25382,19 +25211,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				error(declaration.parent.tagName, Diagnostics.This_overload_implicitly_returns_the_type_0_because_it_lacks_a_return_type_annotation, typeAsString)
 			}
 			return
-		case SyntaxKindFunctionDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodSignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
+		case SyntaxKindFunctionDeclaration,
+			SyntaxKindMethodDeclaration,
+			SyntaxKindMethodSignature,
+			SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor,
+			SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction:
 			if noImplicitAny && !(declaration /* as NamedDeclaration */).name {
 				if wideningKind == WideningKindGeneratorYield {
 					error(declaration, Diagnostics.Generator_implicitly_has_yield_type_0_because_it_does_not_yield_any_values_Consider_supplying_a_return_type_annotation, typeAsString)
@@ -25411,7 +25234,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			default:
 				diagnostic = Diagnostics._0_which_lacks_return_type_annotation_implicitly_has_an_1_return_type
 			}
-			break
 		case SyntaxKindMappedType:
 			if noImplicitAny {
 				error(declaration, Diagnostics.Mapped_object_type_implicitly_has_an_any_template_type)
@@ -27012,9 +26834,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	// EXPRESSION TYPE CHECKING
 	getCannotFindNameDiagnosticForName := func(node Identifier) DiagnosticMessage {
 		switch node.escapedText {
-		case "document":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "console":
+		case "document",
+			"console":
 			return Diagnostics.Cannot_find_name_0_Do_you_need_to_change_your_target_library_Try_changing_the_lib_compiler_option_to_include_dom
 		case "$":
 			if compilerOptions.types {
@@ -27022,25 +26843,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				return Diagnostics.Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_jQuery_Try_npm_i_save_dev_types_Slashjquery
 			}
-		case "describe":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "suite":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "it":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "test":
+		case "describe",
+			"suite",
+			"it",
+			"test":
 			if compilerOptions.types {
 				return Diagnostics.Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_a_test_runner_Try_npm_i_save_dev_types_Slashjest_or_npm_i_save_dev_types_Slashmocha_and_then_add_jest_or_mocha_to_the_types_field_in_your_tsconfig
 			} else {
 				return Diagnostics.Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_a_test_runner_Try_npm_i_save_dev_types_Slashjest_or_npm_i_save_dev_types_Slashmocha
 			}
-		case "process":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "require":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Buffer":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "module":
+		case "process",
+			"require",
+			"Buffer",
+			"module":
 			if compilerOptions.types {
 				return Diagnostics.Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_node_Try_npm_i_save_dev_types_Slashnode_and_then_add_node_to_the_types_field_in_your_tsconfig
 			} else {
@@ -27052,41 +26867,24 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				return Diagnostics.Cannot_find_name_0_Do_you_need_to_install_type_definitions_for_Bun_Try_npm_i_save_dev_types_Slashbun
 			}
-		case "Map":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Set":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Promise":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Symbol":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "WeakMap":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "WeakSet":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Iterator":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "AsyncIterator":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "SharedArrayBuffer":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Atomics":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "AsyncIterable":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "AsyncIterableIterator":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "AsyncGenerator":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "AsyncGeneratorFunction":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "BigInt":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Reflect":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "BigInt64Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "BigUint64Array":
+		case "Map",
+			"Set",
+			"Promise",
+			"Symbol",
+			"WeakMap",
+			"WeakSet",
+			"Iterator",
+			"AsyncIterator",
+			"SharedArrayBuffer",
+			"Atomics",
+			"AsyncIterable",
+			"AsyncIterableIterator",
+			"AsyncGenerator",
+			"AsyncGeneratorFunction",
+			"BigInt",
+			"Reflect",
+			"BigInt64Array",
+			"BigUint64Array":
 			return Diagnostics.Cannot_find_name_0_Do_you_need_to_change_your_target_library_Try_changing_the_lib_compiler_option_to_1_or_later
 		case "await":
 			if isCallExpression(node.parent) {
@@ -27131,16 +26929,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			fallthrough
 		case SyntaxKindThisKeyword:
 			return __TEMPLATE__("0|", __COND__(flowContainer, getNodeId(flowContainer), "-1"), "|", getTypeId(declaredType), "|", getTypeId(initialType))
-		case SyntaxKindNonNullExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParenthesizedExpression:
+		case SyntaxKindNonNullExpression,
+			SyntaxKindParenthesizedExpression:
 			return getFlowCacheKey((node /* as NonNullExpression | ParenthesizedExpression */).expression, declaredType, initialType, flowContainer)
 		case SyntaxKindQualifiedName:
 			left := getFlowCacheKey((node /* as QualifiedName */).left, declaredType, initialType, flowContainer)
 			return left && __TEMPLATE__(left, ".", (node /* as QualifiedName */).right.escapedText)
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindElementAccessExpression:
+		case SyntaxKindPropertyAccessExpression,
+			SyntaxKindElementAccessExpression:
 			propName := getAccessedPropertyName(node /* as AccessExpression */)
 			if propName != nil {
 				key := getFlowCacheKey((node /* as AccessExpression */).expression, declaredType, initialType, flowContainer)
@@ -27153,27 +26949,20 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return key && __TEMPLATE__(key, ".@", getSymbolId(symbol))
 				}
 			}
-			break
-		case SyntaxKindObjectBindingPattern:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrayBindingPattern:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodDeclaration:
+		case SyntaxKindObjectBindingPattern,
+			SyntaxKindArrayBindingPattern,
+			SyntaxKindFunctionDeclaration,
+			SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction,
+			SyntaxKindMethodDeclaration:
 			return __TEMPLATE__(getNodeId(node), "#", getTypeId(declaredType))
 		}
 		return nil
 	}
 	isMatchingReference := func(source Node, target Node) bool {
 		switch target.kind {
-		case SyntaxKindParenthesizedExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNonNullExpression:
+		case SyntaxKindParenthesizedExpression,
+			SyntaxKindNonNullExpression:
 			return isMatchingReference(source, (target /* as NonNullExpression | ParenthesizedExpression */).expression)
 		case SyntaxKindBinaryExpression:
 			return (isAssignmentExpression(target) && isMatchingReference(source, target.left)) || (isBinaryExpression(target) && target.operatorToken.kind == SyntaxKindCommaToken && isMatchingReference(source, target.right))
@@ -27181,9 +26970,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch source.kind {
 		case SyntaxKindMetaProperty:
 			return target.kind == SyntaxKindMetaProperty && (source /* as MetaProperty */).keywordToken == (target /* as MetaProperty */).keywordToken && (source /* as MetaProperty */).name.escapedText == (target /* as MetaProperty */).name.escapedText
-		case SyntaxKindIdentifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPrivateIdentifier:
+		case SyntaxKindIdentifier,
+			SyntaxKindPrivateIdentifier:
 			if isThisInTypeQuery(source) {
 				return target.kind == SyntaxKindThisKeyword
 			} else {
@@ -27193,13 +26981,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return target.kind == SyntaxKindThisKeyword
 		case SyntaxKindSuperKeyword:
 			return target.kind == SyntaxKindSuperKeyword
-		case SyntaxKindNonNullExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParenthesizedExpression:
+		case SyntaxKindNonNullExpression,
+			SyntaxKindParenthesizedExpression:
 			return isMatchingReference((source /* as NonNullExpression | ParenthesizedExpression */).expression, target)
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindElementAccessExpression:
+		case SyntaxKindPropertyAccessExpression,
+			SyntaxKindElementAccessExpression:
 			sourcePropertyName := getAccessedPropertyName(source /* as AccessExpression */)
 			if sourcePropertyName != nil {
 				var targetPropertyName *__String
@@ -27218,7 +27004,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return isMatchingReference(source.expression, target.expression)
 				}
 			}
-			break
 		case SyntaxKindQualifiedName:
 			return isAccessExpression(target) && (source /* as QualifiedName */).right.escapedText == getAccessedPropertyName(target) && isMatchingReference((source /* as QualifiedName */).left, target.expression)
 		case SyntaxKindBinaryExpression:
@@ -27718,9 +27503,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return removeNullableByIntersection(reduced, TypeFactsEQUndefined, TypeFactsEQNull, TypeFactsIsNull, nullType)
 			case TypeFactsNENull:
 				return removeNullableByIntersection(reduced, TypeFactsEQNull, TypeFactsEQUndefined, TypeFactsIsUndefined, undefinedType)
-			case TypeFactsNEUndefinedOrNull:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case TypeFactsTruthy:
+			case TypeFactsNEUndefinedOrNull,
+				TypeFactsTruthy:
 				return mapType(reduced, func(t Type) Type {
 					if hasTypeFacts(t, TypeFactsEQUndefinedOrNull) {
 						return getGlobalNonNullableTypeInstantiation(t)
@@ -27883,13 +27667,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return getReferenceCandidate((node /* as ParenthesizedExpression */).expression)
 		case SyntaxKindBinaryExpression:
 			switch (node /* as BinaryExpression */).operatorToken.kind {
-			case SyntaxKindEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBarBarEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindAmpersandAmpersandEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindQuestionQuestionEqualsToken:
+			case SyntaxKindEqualsToken,
+				SyntaxKindBarBarEqualsToken,
+				SyntaxKindAmpersandAmpersandEqualsToken,
+				SyntaxKindQuestionQuestionEqualsToken:
 				return getReferenceCandidate((node /* as BinaryExpression */).left)
 			case SyntaxKindCommaToken:
 				return getReferenceCandidate((node /* as BinaryExpression */).right)
@@ -28478,14 +28259,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				symbol := getResolvedSymbol(node /* as Identifier */)
 				return isConstantVariable(symbol) || isParameterOrMutableLocalVariable(symbol) && !isSymbolAssigned(symbol) || !!symbol.valueDeclaration && isFunctionExpression(symbol.valueDeclaration)
 			}
-			break
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindElementAccessExpression:
+		case SyntaxKindPropertyAccessExpression,
+			SyntaxKindElementAccessExpression:
 			return isConstantReference((node /* as AccessExpression */).expression) && isReadonlySymbol(getNodeLinks(node).resolvedSymbol || unknownSymbol)
-		case SyntaxKindObjectBindingPattern:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrayBindingPattern:
+		case SyntaxKindObjectBindingPattern,
+			SyntaxKindArrayBindingPattern:
 			rootDeclaration := getRootDeclaration(node.parent)
 			if isParameter(rootDeclaration) || isCatchClauseVariableDeclaration(rootDeclaration) {
 				return !isSomeSymbolAssigned(rootDeclaration)
@@ -29127,21 +28905,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		narrowTypeByBinaryExpression := func(type_ Type, expr BinaryExpression, assumeTrue bool) Type {
 			switch expr.operatorToken.kind {
-			case SyntaxKindEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBarBarEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindAmpersandAmpersandEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindQuestionQuestionEqualsToken:
+			case SyntaxKindEqualsToken,
+				SyntaxKindBarBarEqualsToken,
+				SyntaxKindAmpersandAmpersandEqualsToken,
+				SyntaxKindQuestionQuestionEqualsToken:
 				return narrowTypeByTruthiness(narrowType(type_, expr.right, assumeTrue), expr.left, assumeTrue)
-			case SyntaxKindEqualsEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExclamationEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindEqualsEqualsEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExclamationEqualsEqualsToken:
+			case SyntaxKindEqualsEqualsToken,
+				SyntaxKindExclamationEqualsToken,
+				SyntaxKindEqualsEqualsEqualsToken,
+				SyntaxKindExclamationEqualsEqualsToken:
 				operator := expr.operatorToken.kind
 				left := getReferenceCandidate(expr.left)
 				right := getReferenceCandidate(expr.right)
@@ -29184,7 +28956,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if isBooleanLiteral(left) && !isAccessExpression(right) {
 					return narrowTypeByBooleanComparison(type_, right, left, operator, assumeTrue)
 				}
-				break
 			case SyntaxKindInstanceOfKeyword:
 				return narrowTypeByInstanceof(type_, expr /* as InstanceofExpression */, assumeTrue)
 			case SyntaxKindInKeyword:
@@ -29204,7 +28975,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return narrowTypeByInKeyword(type_, leftType, assumeTrue)
 					}
 				}
-				break
 			case SyntaxKindCommaToken:
 				return narrowType(type_, expr.right, assumeTrue)
 			case SyntaxKindAmpersandAmpersandToken:
@@ -29787,19 +29557,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				fallthrough
-			case SyntaxKindThisKeyword:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSuperKeyword:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPropertyAccessExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindElementAccessExpression:
+			case SyntaxKindThisKeyword,
+				SyntaxKindSuperKeyword,
+				SyntaxKindPropertyAccessExpression,
+				SyntaxKindElementAccessExpression:
 				return narrowTypeByTruthiness(type_, expr, assumeTrue)
 			case SyntaxKindCallExpression:
 				return narrowTypeByCallExpression(type_, expr /* as CallExpression */, assumeTrue)
-			case SyntaxKindParenthesizedExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNonNullExpression:
+			case SyntaxKindParenthesizedExpression,
+				SyntaxKindNonNullExpression:
 				return narrowType(type_, (expr /* as ParenthesizedExpression | NonNullExpression */).expression, assumeTrue)
 			case SyntaxKindBinaryExpression:
 				return narrowTypeByBinaryExpression(type_, expr /* as BinaryExpression */, assumeTrue)
@@ -29807,7 +29573,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if (expr /* as PrefixUnaryExpression */).operator == SyntaxKindExclamationToken {
 					return narrowType(type_, (expr /* as PrefixUnaryExpression */).operand, !assumeTrue)
 				}
-				break
 			}
 			return type_
 		}
@@ -29953,11 +29718,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			}
 			return
-		case SyntaxKindInterfaceDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeAliasDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindEnumDeclaration:
+		case SyntaxKindInterfaceDeclaration,
+			SyntaxKindTypeAliasDeclaration,
+			SyntaxKindEnumDeclaration:
 			return
 		}
 		if isTypeNode(node) {
@@ -29972,29 +29735,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		pos := node.pos
 		for node && node.pos > declaration.pos {
 			switch node.kind {
-			case SyntaxKindVariableStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExpressionStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindIfStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindDoStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindWhileStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForInStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForOfStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindWithStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSwitchStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTryStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassDeclaration:
+			case SyntaxKindVariableStatement,
+				SyntaxKindExpressionStatement,
+				SyntaxKindIfStatement,
+				SyntaxKindDoStatement,
+				SyntaxKindWhileStatement,
+				SyntaxKindForStatement,
+				SyntaxKindForInStatement,
+				SyntaxKindForOfStatement,
+				SyntaxKindWithStatement,
+				SyntaxKindSwitchStatement,
+				SyntaxKindTryStatement,
+				SyntaxKindClassDeclaration:
 				pos = node.end
 			}
 			node = node.parent
@@ -30373,10 +30125,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						markDecoratorMedataDataTypeNodeAsReferenced(getParameterTypeNodeForDecoratorCheck(parameter))
 					}
 				}
-				break
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
+			case SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor:
 				var otherKind /* TODO(TS-TO-GO) inferred type SyntaxKind.GetAccessor | SyntaxKind.SetAccessor */ any
 				if node.kind == SyntaxKindGetAccessor {
 					otherKind = SyntaxKindSetAccessor
@@ -30385,16 +30135,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				otherAccessor := getDeclarationOfKind(getSymbolOfDeclaration(node), otherKind)
 				markDecoratorMedataDataTypeNodeAsReferenced(getAnnotatedAccessorTypeNode(node) || otherAccessor && getAnnotatedAccessorTypeNode(otherAccessor))
-				break
 			case SyntaxKindMethodDeclaration:
 				for _, parameter := range node.parameters {
 					markDecoratorMedataDataTypeNodeAsReferenced(getParameterTypeNodeForDecoratorCheck(parameter))
 				}
 				markDecoratorMedataDataTypeNodeAsReferenced(getEffectiveReturnTypeNode(node))
-				break
 			case SyntaxKindPropertyDeclaration:
 				markDecoratorMedataDataTypeNodeAsReferenced(getEffectiveTypeAnnotationNode(node))
-				break
 			case SyntaxKindParameter:
 				markDecoratorMedataDataTypeNodeAsReferenced(getParameterTypeNodeForDecoratorCheck(node))
 				containingSignature := node.parent
@@ -30402,7 +30149,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					markDecoratorMedataDataTypeNodeAsReferenced(getParameterTypeNodeForDecoratorCheck(parameter))
 				}
 				markDecoratorMedataDataTypeNodeAsReferenced(getEffectiveReturnTypeNode(containingSignature))
-				break
 			}
 		}
 	}
@@ -30995,10 +30741,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch container.kind {
 			case SyntaxKindModuleDeclaration:
 				error(node, Diagnostics.this_cannot_be_referenced_in_a_module_or_namespace_body)
-				break
 			case SyntaxKindEnumDeclaration:
 				error(node, Diagnostics.this_cannot_be_referenced_in_current_location)
-				break
 			}
 		}
 		// When targeting es6, mark that we'll need to capture `this` in its lexically bound scope.
@@ -31685,30 +31429,25 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		binaryExpression := node.parent /* as BinaryExpression */
 		TODO_IDENTIFIER := binaryExpression
 		switch operatorToken.kind {
-		case SyntaxKindEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAmpersandAmpersandEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBarBarEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindQuestionQuestionEqualsToken:
+		case SyntaxKindEqualsToken,
+			SyntaxKindAmpersandAmpersandEqualsToken,
+			SyntaxKindBarBarEqualsToken,
+			SyntaxKindQuestionQuestionEqualsToken:
 			if node == right {
 				return getContextualTypeForAssignmentDeclaration(binaryExpression)
 			} else {
 				return nil
 			}
-		case SyntaxKindBarBarToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindQuestionQuestionToken:
+		case SyntaxKindBarBarToken,
+			SyntaxKindQuestionQuestionToken:
 			type_ := getContextualType(binaryExpression, contextFlags)
 			if node == right && (type_ && type_.pattern || !type_ && !isDefaultedExpandoInitializer(binaryExpression)) {
 				return getTypeOfExpression(left)
 			} else {
 				return type_
 			}
-		case SyntaxKindAmpersandAmpersandToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindCommaToken:
+		case SyntaxKindAmpersandAmpersandToken,
+			SyntaxKindCommaToken:
 			if node == right {
 				return getContextualType(binaryExpression, contextFlags)
 			} else {
@@ -31756,9 +31495,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getContextualTypeForAssignmentDeclaration := func(binaryExpression BinaryExpression) Type {
 		kind := getAssignmentDeclarationKind(binaryExpression)
 		switch kind {
-		case AssignmentDeclarationKindNone:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindThisProperty:
+		case AssignmentDeclarationKindNone,
+			AssignmentDeclarationKindThisProperty:
 			lhsSymbol := getSymbolForExpression(binaryExpression.left)
 			decl := lhsSymbol && lhsSymbol.valueDeclaration
 			if decl && (isPropertyDeclaration(decl) || isPropertySignature(decl)) {
@@ -31804,13 +31542,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			}
 			fallthrough
-		case AssignmentDeclarationKindExportsProperty:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindPrototype:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindPrototypeProperty:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindModuleExports:
+		case AssignmentDeclarationKindExportsProperty,
+			AssignmentDeclarationKindPrototype,
+			AssignmentDeclarationKindPrototypeProperty,
+			AssignmentDeclarationKindModuleExports:
 			var valueDeclaration Declaration
 			if kind != AssignmentDeclarationKindModuleExports {
 				if canHaveSymbol(binaryExpression.left) {
@@ -31826,11 +31561,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				return nil
 			}
-		case AssignmentDeclarationKindObjectDefinePropertyValue:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindObjectDefinePropertyExports:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindObjectDefinePrototypeProperty:
+		case AssignmentDeclarationKindObjectDefinePropertyValue,
+			AssignmentDeclarationKindObjectDefinePropertyExports,
+			AssignmentDeclarationKindObjectDefinePrototypeProperty:
 			return Debug.fail("Does not apply")
 		default:
 			return Debug.assertNever(kind)
@@ -32123,29 +31856,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	// recursive (and possibly infinite) invocations of getContextualType.
 	isPossiblyDiscriminantValue := func(node Expression) bool {
 		switch node.kind {
-		case SyntaxKindStringLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNumericLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBigIntLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNoSubstitutionTemplateLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTemplateExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTrueKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFalseKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNullKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIdentifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindUndefinedKeyword:
+		case SyntaxKindStringLiteral,
+			SyntaxKindNumericLiteral,
+			SyntaxKindBigIntLiteral,
+			SyntaxKindNoSubstitutionTemplateLiteral,
+			SyntaxKindTemplateExpression,
+			SyntaxKindTrueKeyword,
+			SyntaxKindFalseKeyword,
+			SyntaxKindNullKeyword,
+			SyntaxKindIdentifier,
+			SyntaxKindUndefinedKeyword:
 			return true
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParenthesizedExpression:
+		case SyntaxKindPropertyAccessExpression,
+			SyntaxKindParenthesizedExpression:
 			return isPossiblyDiscriminantValue((node /* as PropertyAccessExpression | ParenthesizedExpression */).expression)
 		case SyntaxKindJsxExpression:
 			return !(node /* as JsxExpression */).expression || isPossiblyDiscriminantValue((node /* as JsxExpression */).expression)
@@ -32293,33 +32016,26 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		TODO_IDENTIFIER := node
 		switch parent.kind {
-		case SyntaxKindVariableDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParameter:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertySignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBindingElement:
+		case SyntaxKindVariableDeclaration,
+			SyntaxKindParameter,
+			SyntaxKindPropertyDeclaration,
+			SyntaxKindPropertySignature,
+			SyntaxKindBindingElement:
 			return getContextualTypeForInitializerExpression(node, contextFlags)
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindReturnStatement:
+		case SyntaxKindArrowFunction,
+			SyntaxKindReturnStatement:
 			return getContextualTypeForReturnExpression(node, contextFlags)
 		case SyntaxKindYieldExpression:
 			return getContextualTypeForYieldOperand(parent /* as YieldExpression */, contextFlags)
 		case SyntaxKindAwaitExpression:
 			return getContextualTypeForAwaitOperand(parent /* as AwaitExpression */, contextFlags)
-		case SyntaxKindCallExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNewExpression:
+		case SyntaxKindCallExpression,
+			SyntaxKindNewExpression:
 			return getContextualTypeForArgument(parent /* as CallExpression | NewExpression | Decorator */, node)
 		case SyntaxKindDecorator:
 			return getContextualTypeForDecorator(parent /* as Decorator */)
-		case SyntaxKindTypeAssertionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsExpression:
+		case SyntaxKindTypeAssertionExpression,
+			SyntaxKindAsExpression:
 			if isConstTypeReference((parent /* as AssertionExpression */).type_) {
 				return getContextualType(parent /* as AssertionExpression */, contextFlags)
 			} else {
@@ -32327,9 +32043,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		case SyntaxKindBinaryExpression:
 			return getContextualTypeForBinaryOperand(node, contextFlags)
-		case SyntaxKindPropertyAssignment:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindShorthandPropertyAssignment:
+		case SyntaxKindPropertyAssignment,
+			SyntaxKindShorthandPropertyAssignment:
 			return getContextualTypeForObjectLiteralElement(parent /* as PropertyAssignment | ShorthandPropertyAssignment */, contextFlags)
 		case SyntaxKindSpreadAssignment:
 			return getContextualType(parent.parent /* as ObjectLiteralExpression */, contextFlags)
@@ -32366,13 +32081,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return tryGetTypeFromEffectiveTypeNode(parent /* as ExportAssignment */)
 		case SyntaxKindJsxExpression:
 			return getContextualTypeForJsxExpression(parent /* as JsxExpression */, contextFlags)
-		case SyntaxKindJsxAttribute:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSpreadAttribute:
+		case SyntaxKindJsxAttribute,
+			SyntaxKindJsxSpreadAttribute:
 			return getContextualTypeForJsxAttribute(parent /* as JsxAttribute | JsxSpreadAttribute */, contextFlags)
-		case SyntaxKindJsxOpeningElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSelfClosingElement:
+		case SyntaxKindJsxOpeningElement,
+			SyntaxKindJsxSelfClosingElement:
 			return getContextualJsxElementAttributesType(parent /* as JsxOpeningLikeElement */, contextFlags)
 		case SyntaxKindImportAttribute:
 			return getContextualImportAttributeType(parent /* as ImportAttribute */)
@@ -32907,9 +32620,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return isNumericComputedName(name)
 		case SyntaxKindIdentifier:
 			return isNumericLiteralName(name.escapedText)
-		case SyntaxKindNumericLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindStringLiteral:
+		case SyntaxKindNumericLiteral,
+			SyntaxKindStringLiteral:
 			return isNumericLiteralName(name.text)
 		default:
 			return false
@@ -34480,37 +34192,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch node.kind {
 			case SyntaxKindPropertyDeclaration:
 				return true
-			case SyntaxKindPropertyAssignment:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSpreadAssignment:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindComputedPropertyName:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTemplateSpan:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJsxExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJsxAttribute:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJsxAttributes:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJsxSpreadAttribute:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJsxOpeningElement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExpressionWithTypeArguments:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindHeritageClause:
+			case SyntaxKindPropertyAssignment,
+				SyntaxKindMethodDeclaration,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor,
+				SyntaxKindSpreadAssignment,
+				SyntaxKindComputedPropertyName,
+				SyntaxKindTemplateSpan,
+				SyntaxKindJsxExpression,
+				SyntaxKindJsxAttribute,
+				SyntaxKindJsxAttributes,
+				SyntaxKindJsxSpreadAttribute,
+				SyntaxKindJsxOpeningElement,
+				SyntaxKindExpressionWithTypeArguments,
+				SyntaxKindHeritageClause:
 				return false
-			case SyntaxKindArrowFunction:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExpressionStatement:
+			case SyntaxKindArrowFunction,
+				SyntaxKindExpressionStatement:
 				if isBlock(node.parent) && isClassStaticBlockDeclaration(node.parent.parent) {
 					return true
 				} else {
@@ -35742,9 +35440,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 */
 	getLegacyDecoratorArgumentCount := func(node Decorator, signature Signature) /* TODO(TS-TO-GO) inferred type 1 | 3 | 2 */ any {
 		switch node.parent.kind {
-		case SyntaxKindClassDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindClassExpression:
+		case SyntaxKindClassDeclaration,
+			SyntaxKindClassExpression:
 			return 1
 		case SyntaxKindPropertyDeclaration:
 			if hasAccessorModifier(node.parent) {
@@ -35752,11 +35449,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				return 2
 			}
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
+		case SyntaxKindMethodDeclaration,
+			SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor:
 			if signature.parameters.length <= 2 {
 				return 2
 			} else {
@@ -36810,19 +36505,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 */
 	getDiagnosticHeadMessageForDecoratorResolution := func(node Decorator) DiagnosticMessage {
 		switch node.parent.kind {
-		case SyntaxKindClassDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindClassExpression:
+		case SyntaxKindClassDeclaration,
+			SyntaxKindClassExpression:
 			return Diagnostics.Unable_to_resolve_signature_of_class_decorator_when_called_as_an_expression
 		case SyntaxKindParameter:
 			return Diagnostics.Unable_to_resolve_signature_of_parameter_decorator_when_called_as_an_expression
 		case SyntaxKindPropertyDeclaration:
 			return Diagnostics.Unable_to_resolve_signature_of_property_decorator_when_called_as_an_expression
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
+		case SyntaxKindMethodDeclaration,
+			SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor:
 			return Diagnostics.Unable_to_resolve_signature_of_method_decorator_when_called_as_an_expression
 		default:
 			return Debug.fail()
@@ -36948,9 +36640,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return resolveTaggedTemplateExpression(node, candidatesOutArray, checkMode)
 		case SyntaxKindDecorator:
 			return resolveDecorator(node, candidatesOutArray, checkMode)
-		case SyntaxKindJsxOpeningElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSelfClosingElement:
+		case SyntaxKindJsxOpeningElement,
+			SyntaxKindJsxSelfClosingElement:
 			return resolveJsxOpeningLikeElement(node, candidatesOutArray, checkMode)
 		case SyntaxKindBinaryExpression:
 			return resolveInstanceofExpression(node, candidatesOutArray, checkMode)
@@ -37196,17 +36887,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getDeprecatedSuggestionNode := func(node Node) Node {
 		node = skipParentheses(node)
 		switch node.kind {
-		case SyntaxKindCallExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindDecorator:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNewExpression:
+		case SyntaxKindCallExpression,
+			SyntaxKindDecorator,
+			SyntaxKindNewExpression:
 			return getDeprecatedSuggestionNode((node /* as Decorator | CallExpression | NewExpression */).expression)
 		case SyntaxKindTaggedTemplateExpression:
 			return getDeprecatedSuggestionNode((node /* as TaggedTemplateExpression */).tag)
-		case SyntaxKindJsxOpeningElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSelfClosingElement:
+		case SyntaxKindJsxOpeningElement,
+			SyntaxKindJsxSelfClosingElement:
 			return getDeprecatedSuggestionNode((node /* as JsxOpeningLikeElement */).tagName)
 		case SyntaxKindElementAccessExpression:
 			return (node /* as ElementAccessExpression */).argumentExpression
@@ -37377,23 +37065,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isValidConstAssertionArgument := func(node Node) bool {
 		switch node.kind {
-		case SyntaxKindStringLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNoSubstitutionTemplateLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNumericLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBigIntLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTrueKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFalseKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrayLiteralExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindObjectLiteralExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTemplateExpression:
+		case SyntaxKindStringLiteral,
+			SyntaxKindNoSubstitutionTemplateLiteral,
+			SyntaxKindNumericLiteral,
+			SyntaxKindBigIntLiteral,
+			SyntaxKindTrueKeyword,
+			SyntaxKindFalseKeyword,
+			SyntaxKindArrayLiteralExpression,
+			SyntaxKindObjectLiteralExpression,
+			SyntaxKindTemplateExpression:
 			return true
 		case SyntaxKindParenthesizedExpression:
 			return isValidConstAssertionArgument((node /* as ParenthesizedExpression */).expression)
@@ -37401,9 +37081,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			op := (node /* as PrefixUnaryExpression */).operator
 			arg := (node /* as PrefixUnaryExpression */).operand
 			return op == SyntaxKindMinusToken && (arg.kind == SyntaxKindNumericLiteral || arg.kind == SyntaxKindBigIntLiteral) || op == SyntaxKindPlusToken && arg.kind == SyntaxKindNumericLiteral
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindElementAccessExpression:
+		case SyntaxKindPropertyAccessExpression,
+			SyntaxKindElementAccessExpression:
 			expr := skipParentheses((node /* as PropertyAccessExpression | ElementAccessExpression */).expression)
 			var symbol Symbol
 			if isEntityNameExpression(expr) {
@@ -37434,16 +37113,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var type_ TypeNode
 		var expression Expression
 		switch node.kind {
-		case SyntaxKindAsExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeAssertionExpression:
+		case SyntaxKindAsExpression,
+			SyntaxKindTypeAssertionExpression:
 			type_ = node.type_
 			expression = node.expression
-			break
 		case SyntaxKindParenthesizedExpression:
 			type_ = getJSDocTypeAssertionType(node)
 			expression = node.expression
-			break
 		}
 		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"type_":      type_,
@@ -38238,9 +37914,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if !links.decoratorSignature {
 			links.decoratorSignature = anySignature
 			switch parent.kind {
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassExpression:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindClassExpression:
 				// Class decorators have a `context` of `ClassDecoratorContext<Class>`, where the `Class` type
 				// argument will be the "final type" of the class after all decorators are applied.
 				node := parent /* as ClassDeclaration | ClassExpression */
@@ -38249,11 +37924,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				links.decoratorSignature = createESDecoratorCallSignature(targetType, contextType, targetType)
 				break
 				fallthrough
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
+			case SyntaxKindMethodDeclaration,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor:
 				node := parent /* as MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration */
 				if !isClassLike(node.parent) {
 					break
@@ -38360,9 +38033,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if !links.decoratorSignature {
 			links.decoratorSignature = anySignature
 			switch parent.kind {
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassExpression:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindClassExpression:
 				node := parent /* as ClassDeclaration | ClassExpression */
 				// For a class decorator, the `target` is the type of the class (e.g. the
 				// "static" or "constructor" side of the class).
@@ -38407,13 +38079,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				links.decoratorSignature = createCallSignature(nil, nil, []TransientSymbol{targetParam, keyParam, indexParam}, voidType)
 				break
 				fallthrough
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPropertyDeclaration:
+			case SyntaxKindMethodDeclaration,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor,
+				SyntaxKindPropertyDeclaration:
 				node := parent /* as MethodDeclaration | AccessorDeclaration | PropertyDeclaration */
 				if !isClassLike(node.parent) {
 					break
@@ -38797,9 +38466,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	mayReturnNever := func(func_ FunctionLikeDeclaration) bool {
 		switch func_.kind {
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
+		case SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction:
 			return true
 		case SyntaxKindMethodDeclaration:
 			return func_.parent.kind == SyntaxKindObjectLiteralExpression
@@ -38809,11 +38477,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypePredicateFromBody := func(func_ FunctionLikeDeclaration) *TypePredicate {
 		switch func_.kind {
-		case SyntaxKindConstructor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
+		case SyntaxKindConstructor,
+			SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor:
 			return nil
 		}
 		functionFlags := getFunctionFlags(func_)
@@ -39209,9 +38875,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						hasError = true
 					}
 					switch moduleKind {
-					case ModuleKindNode16:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case ModuleKindNodeNext:
+					case ModuleKindNode16,
+						ModuleKindNodeNext:
 						if sourceFile.impliedNodeFormat == ModuleKindCommonJS {
 							/* TODO(TS-TO-GO) Node BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
 							diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, Diagnostics.The_current_file_is_a_CommonJS_module_and_cannot_use_await_at_the_top_level))
@@ -39219,13 +38884,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							break
 						}
 						fallthrough
-					case ModuleKindES2022:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case ModuleKindESNext:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case ModuleKindPreserve:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case ModuleKindSystem:
+					case ModuleKindES2022,
+						ModuleKindESNext,
+						ModuleKindPreserve,
+						ModuleKindSystem:
 						if languageVersion >= ScriptTargetES2017 {
 							break
 						}
@@ -39240,7 +38902,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						}
 						diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, message))
 						hasError = true
-						break
 					}
 				}
 			} else {
@@ -39295,7 +38956,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			case SyntaxKindPlusToken:
 				return getFreshTypeOfLiteralType(getNumberLiteralType(+(node.operand /* as NumericLiteral */).text))
 			}
-			break
 		case SyntaxKindBigIntLiteral:
 			if node.operator == SyntaxKindMinusToken {
 				return getFreshTypeOfLiteralType(getBigIntLiteralType(map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -39305,11 +38965,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		switch node.operator {
-		case SyntaxKindPlusToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMinusToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTildeToken:
+		case SyntaxKindPlusToken,
+			SyntaxKindMinusToken,
+			SyntaxKindTildeToken:
 			checkNonNullType(operandType, node.operand)
 			if maybeTypeOfKindConsideringBaseConstraint(operandType, TypeFlagsESSymbolLike) {
 				error(node.operand, Diagnostics.The_0_operator_cannot_be_applied_to_type_symbol, tokenToString(node.operator))
@@ -39332,9 +38990,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			default:
 				return booleanType
 			}
-		case SyntaxKindPlusPlusToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMinusMinusToken:
+		case SyntaxKindPlusPlusToken,
+			SyntaxKindMinusMinusToken:
 			ok := checkArithmeticOperandType(node.operand, checkNonNullType(operandType, node.operand), Diagnostics.An_arithmetic_operand_must_be_of_type_any_number_bigint_or_an_enum_type)
 			if ok {
 				// run check only if former checks succeeded to avoid reporting cascading errors
@@ -39680,47 +39337,27 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	isSideEffectFree := func(node Node) bool {
 		node = skipParentheses(node)
 		switch node.kind {
-		case SyntaxKindIdentifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindStringLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindRegularExpressionLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTaggedTemplateExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTemplateExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNoSubstitutionTemplateLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNumericLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBigIntLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTrueKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFalseKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNullKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindUndefinedKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindClassExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrayLiteralExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindObjectLiteralExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeOfExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNonNullExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSelfClosingElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxElement:
+		case SyntaxKindIdentifier,
+			SyntaxKindStringLiteral,
+			SyntaxKindRegularExpressionLiteral,
+			SyntaxKindTaggedTemplateExpression,
+			SyntaxKindTemplateExpression,
+			SyntaxKindNoSubstitutionTemplateLiteral,
+			SyntaxKindNumericLiteral,
+			SyntaxKindBigIntLiteral,
+			SyntaxKindTrueKeyword,
+			SyntaxKindFalseKeyword,
+			SyntaxKindNullKeyword,
+			SyntaxKindUndefinedKeyword,
+			SyntaxKindFunctionExpression,
+			SyntaxKindClassExpression,
+			SyntaxKindArrowFunction,
+			SyntaxKindArrayLiteralExpression,
+			SyntaxKindObjectLiteralExpression,
+			SyntaxKindTypeOfExpression,
+			SyntaxKindNonNullExpression,
+			SyntaxKindJsxSelfClosingElement,
+			SyntaxKindJsxElement:
 			return true
 		case SyntaxKindConditionalExpression:
 			return isSideEffectFree((node /* as ConditionalExpression */).whenTrue) && isSideEffectFree((node /* as ConditionalExpression */).whenFalse)
@@ -39729,26 +39366,20 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return false
 			}
 			return isSideEffectFree((node /* as BinaryExpression */).left) && isSideEffectFree((node /* as BinaryExpression */).right)
-		case SyntaxKindPrefixUnaryExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPostfixUnaryExpression:
+		case SyntaxKindPrefixUnaryExpression,
+			SyntaxKindPostfixUnaryExpression:
 			switch (node /* as PrefixUnaryExpression */).operator {
-			case SyntaxKindExclamationToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPlusToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMinusToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTildeToken:
+			case SyntaxKindExclamationToken,
+				SyntaxKindPlusToken,
+				SyntaxKindMinusToken,
+				SyntaxKindTildeToken:
 				return true
 			}
 			return false
-		case SyntaxKindVoidExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeAssertionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
+		case SyntaxKindVoidExpression,
+			SyntaxKindTypeAssertionExpression,
+			SyntaxKindAsExpression:
+			fallthrough
 		default:
 			return false
 		}
@@ -39899,35 +39530,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getSyntacticNullishnessSemantics := func(node Node) PredicateSemantics {
 		node = skipOuterExpressions(node)
 		switch node.kind {
-		case SyntaxKindAwaitExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindCallExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindElementAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNewExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindYieldExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindThisKeyword:
+		case SyntaxKindAwaitExpression,
+			SyntaxKindCallExpression,
+			SyntaxKindElementAccessExpression,
+			SyntaxKindNewExpression,
+			SyntaxKindPropertyAccessExpression,
+			SyntaxKindYieldExpression,
+			SyntaxKindThisKeyword:
 			return PredicateSemanticsSometimes
 		case SyntaxKindBinaryExpression:
 			switch (node /* as BinaryExpression */).operatorToken.kind {
-			case SyntaxKindEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindQuestionQuestionToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindQuestionQuestionEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBarBarToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBarBarEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindAmpersandAmpersandToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindAmpersandAmpersandEqualsToken:
+			case SyntaxKindEqualsToken,
+				SyntaxKindQuestionQuestionToken,
+				SyntaxKindQuestionQuestionEqualsToken,
+				SyntaxKindBarBarToken,
+				SyntaxKindBarBarEqualsToken,
+				SyntaxKindAmpersandAmpersandToken,
+				SyntaxKindAmpersandAmpersandEqualsToken:
 				return PredicateSemanticsSometimes
 			}
 			return PredicateSemanticsNever
@@ -39962,49 +39581,28 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	checkBinaryLikeExpressionWorker := func(left Expression, operatorToken BinaryOperatorToken, right Expression, leftType Type, rightType Type, checkMode CheckMode, errorNode Node) Type {
 		operator := operatorToken.kind
 		switch operator {
-		case SyntaxKindAsteriskToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsteriskAsteriskToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsteriskEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsteriskAsteriskEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSlashToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSlashEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPercentToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPercentEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMinusToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMinusEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindLessThanLessThanToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindLessThanLessThanEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGreaterThanGreaterThanToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGreaterThanGreaterThanEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGreaterThanGreaterThanGreaterThanToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBarToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBarEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindCaretToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindCaretEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAmpersandToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAmpersandEqualsToken:
+		case SyntaxKindAsteriskToken,
+			SyntaxKindAsteriskAsteriskToken,
+			SyntaxKindAsteriskEqualsToken,
+			SyntaxKindAsteriskAsteriskEqualsToken,
+			SyntaxKindSlashToken,
+			SyntaxKindSlashEqualsToken,
+			SyntaxKindPercentToken,
+			SyntaxKindPercentEqualsToken,
+			SyntaxKindMinusToken,
+			SyntaxKindMinusEqualsToken,
+			SyntaxKindLessThanLessThanToken,
+			SyntaxKindLessThanLessThanEqualsToken,
+			SyntaxKindGreaterThanGreaterThanToken,
+			SyntaxKindGreaterThanGreaterThanEqualsToken,
+			SyntaxKindGreaterThanGreaterThanGreaterThanToken,
+			SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken,
+			SyntaxKindBarToken,
+			SyntaxKindBarEqualsToken,
+			SyntaxKindCaretToken,
+			SyntaxKindCaretEqualsToken,
+			SyntaxKindAmpersandToken,
+			SyntaxKindAmpersandEqualsToken:
 			if leftType == silentNeverType || rightType == silentNeverType {
 				return silentNeverType
 			}
@@ -40024,14 +39622,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					resultType = numberType
 				} else if bothAreBigIntLike(leftType, rightType) {
 					switch operator {
-					case SyntaxKindGreaterThanGreaterThanGreaterThanToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
+					case SyntaxKindGreaterThanGreaterThanGreaterThanToken,
+						SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
 						reportOperatorError()
-						break
-					case SyntaxKindAsteriskAsteriskToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindAsteriskAsteriskEqualsToken:
+					case SyntaxKindAsteriskAsteriskToken,
+						SyntaxKindAsteriskAsteriskEqualsToken:
 						if languageVersion < ScriptTargetES2016 {
 							error(errorNode, Diagnostics.Exponentiation_cannot_be_performed_on_bigint_values_unless_the_target_option_is_set_to_es2016_or_later)
 						}
@@ -40044,32 +39639,24 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if leftOk && rightOk {
 					checkAssignmentOperator(resultType)
 					switch operator {
-					case SyntaxKindLessThanLessThanToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindLessThanLessThanEqualsToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindGreaterThanGreaterThanToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindGreaterThanGreaterThanEqualsToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindGreaterThanGreaterThanGreaterThanToken:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
+					case SyntaxKindLessThanLessThanToken,
+						SyntaxKindLessThanLessThanEqualsToken,
+						SyntaxKindGreaterThanGreaterThanToken,
+						SyntaxKindGreaterThanGreaterThanEqualsToken,
+						SyntaxKindGreaterThanGreaterThanGreaterThanToken,
+						SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
 						rhsEval := evaluate(right)
 						if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof rhsEval.value */ TODO == "number" && Math.abs(rhsEval.value) >= 32 {
 							errorOrSuggestion(isEnumMember(walkUpParenthesizedExpressions(right.parent.parent)), errorNode || operatorToken, Diagnostics.This_operation_can_be_simplified_This_shift_is_identical_to_0_1_2, getTextOfNode(left), tokenToString(operator) /* TODO(TS-TO-GO) Node BinaryExpression: rhsEval.value % 32 */, TODO)
 						}
-						break
 					default:
-						break
 					}
 				}
 				return resultType
 			}
 			fallthrough
-		case SyntaxKindPlusToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPlusEqualsToken:
+		case SyntaxKindPlusToken,
+			SyntaxKindPlusEqualsToken:
 			if leftType == silentNeverType || rightType == silentNeverType {
 				return silentNeverType
 			}
@@ -40115,13 +39702,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				checkAssignmentOperator(resultType)
 			}
 			return resultType
-		case SyntaxKindLessThanToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGreaterThanToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindLessThanEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGreaterThanEqualsToken:
+		case SyntaxKindLessThanToken,
+			SyntaxKindGreaterThanToken,
+			SyntaxKindLessThanEqualsToken,
+			SyntaxKindGreaterThanEqualsToken:
 			if checkForDisallowedESSymbolOperand(operator) {
 				leftType = getBaseTypeOfLiteralTypeForComparison(checkNonNullType(leftType, left))
 				rightType = getBaseTypeOfLiteralTypeForComparison(checkNonNullType(rightType, right))
@@ -40135,13 +39719,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				})
 			}
 			return booleanType
-		case SyntaxKindEqualsEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindExclamationEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindEqualsEqualsEqualsToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindExclamationEqualsEqualsToken:
+		case SyntaxKindEqualsEqualsToken,
+			SyntaxKindExclamationEqualsToken,
+			SyntaxKindEqualsEqualsEqualsToken,
+			SyntaxKindExclamationEqualsEqualsToken:
 			if !(checkMode && checkMode&CheckModeTypeOnly) {
 				if (isLiteralExpressionOfObject(left) || isLiteralExpressionOfObject(right)) && (!isInJSFile(left) || (operator == SyntaxKindEqualsEqualsEqualsToken || operator == SyntaxKindExclamationEqualsEqualsToken)) {
 					eqType := operator == SyntaxKindEqualsEqualsToken || operator == SyntaxKindEqualsEqualsEqualsToken
@@ -40157,9 +39738,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkInstanceOfExpression(left, right, leftType, rightType, checkMode)
 		case SyntaxKindInKeyword:
 			return checkInExpression(left, right, leftType, rightType)
-		case SyntaxKindAmpersandAmpersandToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAmpersandAmpersandEqualsToken:
+		case SyntaxKindAmpersandAmpersandToken,
+			SyntaxKindAmpersandAmpersandEqualsToken:
 			var resultType Type
 			if hasTypeFacts(leftType, TypeFactsTruthy) {
 				resultType = getUnionType([]Type{extractDefinitelyFalsyTypes(__COND__(strictNullChecks, leftType, getBaseTypeOfLiteralType(rightType))), rightType})
@@ -40171,9 +39751,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			return resultType
 			fallthrough
-		case SyntaxKindBarBarToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBarBarEqualsToken:
+		case SyntaxKindBarBarToken,
+			SyntaxKindBarBarEqualsToken:
 			var resultType Type
 			if hasTypeFacts(leftType, TypeFactsFalsy) {
 				resultType = getUnionType([]Type{getNonNullableType(removeDefinitelyFalsyTypes(leftType)), rightType}, UnionReductionSubtype)
@@ -40185,9 +39764,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			return resultType
 			fallthrough
-		case SyntaxKindQuestionQuestionToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindQuestionQuestionEqualsToken:
+		case SyntaxKindQuestionQuestionToken,
+			SyntaxKindQuestionQuestionEqualsToken:
 			var resultType Type
 			if hasTypeFacts(leftType, TypeFactsEQUndefinedOrNull) {
 				resultType = getUnionType([]Type{getNonNullableType(leftType), rightType}, UnionReductionSubtype)
@@ -40278,17 +39856,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		getSuggestedBooleanOperator := func(operator SyntaxKind) *PunctuationSyntaxKind {
 			switch operator {
-			case SyntaxKindBarToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBarEqualsToken:
+			case SyntaxKindBarToken,
+				SyntaxKindBarEqualsToken:
 				return SyntaxKindBarBarToken
-			case SyntaxKindCaretToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindCaretEqualsToken:
+			case SyntaxKindCaretToken,
+				SyntaxKindCaretEqualsToken:
 				return SyntaxKindExclamationEqualsEqualsToken
-			case SyntaxKindAmpersandToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindAmpersandEqualsToken:
+			case SyntaxKindAmpersandToken,
+				SyntaxKindAmpersandEqualsToken:
 				return SyntaxKindAmpersandAmpersandToken
 			default:
 				return nil
@@ -40327,15 +39902,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch kind {
 			case AssignmentDeclarationKindModuleExports:
 				return true
-			case AssignmentDeclarationKindExportsProperty:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case AssignmentDeclarationKindProperty:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case AssignmentDeclarationKindPrototype:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case AssignmentDeclarationKindPrototypeProperty:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case AssignmentDeclarationKindThisProperty:
+			case AssignmentDeclarationKindExportsProperty,
+				AssignmentDeclarationKindProperty,
+				AssignmentDeclarationKindPrototype,
+				AssignmentDeclarationKindPrototypeProperty,
+				AssignmentDeclarationKindThisProperty:
 				symbol := getSymbolOfNode(left)
 				init := getAssignedExpandoInitializer(right)
 				return !!init && isObjectLiteralExpression(init) && !!symbol. /* ? */ exports. /* ? */ size
@@ -40373,13 +39944,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		tryGiveBetterPrimaryError := func(errNode Node, maybeMissingAwait bool, leftStr string, rightStr string) *Diagnostic {
 			switch operatorToken.kind {
-			case SyntaxKindEqualsEqualsEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindEqualsEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExclamationEqualsEqualsToken:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindExclamationEqualsToken:
+			case SyntaxKindEqualsEqualsEqualsToken,
+				SyntaxKindEqualsEqualsToken,
+				SyntaxKindExclamationEqualsEqualsToken,
+				SyntaxKindExclamationEqualsToken:
 				return errorAndMaybeSuggestAwait(errNode, maybeMissingAwait, Diagnostics.This_comparison_appears_to_be_unintentional_because_the_types_0_and_1_have_no_overlap, leftStr, rightStr)
 			default:
 				return nil
@@ -41025,11 +40593,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// Only bother checking on a few construct kinds.  We don't want to be excessively
 			// hitting the cancellation token on every node we check.
 			switch kind {
-			case SyntaxKindClassExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindArrowFunction:
+			case SyntaxKindClassExpression,
+				SyntaxKindFunctionExpression,
+				SyntaxKindArrowFunction:
 				cancellationToken.throwIfCancellationRequested()
 			}
 		}
@@ -41044,9 +40610,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkSuperExpression(node)
 		case SyntaxKindNullKeyword:
 			return nullWideningType
-		case SyntaxKindNoSubstitutionTemplateLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindStringLiteral:
+		case SyntaxKindNoSubstitutionTemplateLiteral,
+			SyntaxKindStringLiteral:
 			if hasSkipDirectInferenceFlag(node) {
 				return blockedStringType
 			} else {
@@ -41092,15 +40657,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkParenthesizedExpression(node /* as ParenthesizedExpression */, checkMode)
 		case SyntaxKindClassExpression:
 			return checkClassExpression(node /* as ClassExpression */)
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
+		case SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction:
 			return checkFunctionExpressionOrObjectLiteralMethod(node /* as FunctionExpression | ArrowFunction */, checkMode)
 		case SyntaxKindTypeOfExpression:
 			return checkTypeOfExpression(node /* as TypeOfExpression */)
-		case SyntaxKindTypeAssertionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsExpression:
+		case SyntaxKindTypeAssertionExpression,
+			SyntaxKindAsExpression:
 			return checkAssertion(node /* as AssertionExpression */, checkMode)
 		case SyntaxKindNonNullExpression:
 			return checkNonNullAssertion(node /* as NonNullExpression */)
@@ -41277,19 +40840,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypePredicateParent := func(node Node) *SignatureDeclaration {
 		switch node.parent.kind {
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindCallSignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodSignature:
+		case SyntaxKindArrowFunction,
+			SyntaxKindCallSignature,
+			SyntaxKindFunctionDeclaration,
+			SyntaxKindFunctionExpression,
+			SyntaxKindFunctionType,
+			SyntaxKindMethodDeclaration,
+			SyntaxKindMethodSignature:
 			parent := node.parent /* as SignatureDeclaration */
 			if node == parent.type_ {
 				return parent
@@ -41361,10 +40918,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				switch node.kind {
 				case SyntaxKindConstructSignature:
 					error(node, Diagnostics.Construct_signature_which_lacks_return_type_annotation_implicitly_has_an_any_return_type)
-					break
 				case SyntaxKindCallSignature:
 					error(node, Diagnostics.Call_signature_which_lacks_return_type_annotation_implicitly_has_an_any_return_type)
-					break
 				}
 			}
 			if returnTypeNode && returnTypeErrorLocation {
@@ -41437,16 +40992,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					switch member.kind {
 					case SyntaxKindGetAccessor:
 						addName(names, name, memberName, DeclarationMeaningGetAccessor|privateStaticFlags)
-						break
 					case SyntaxKindSetAccessor:
 						addName(names, name, memberName, DeclarationMeaningSetAccessor|privateStaticFlags)
-						break
 					case SyntaxKindPropertyDeclaration:
 						addName(names, name, memberName, DeclarationMeaningGetOrSetAccessor|privateStaticFlags)
-						break
 					case SyntaxKindMethodDeclaration:
 						addName(names, name, memberName, DeclarationMeaningMethod|privateStaticFlags)
-						break
 					}
 				}
 			}
@@ -41494,13 +41045,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if isStaticMember && memberNameNode {
 				memberName := getEffectivePropertyNameForPropertyNameNode(memberNameNode)
 				switch memberName {
-				case "name":
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case "length":
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case "caller":
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case "arguments":
+				case "name",
+					"length",
+					"caller",
+					"arguments":
 					if useDefineForClassFields {
 						break
 					}
@@ -41509,7 +41057,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					message := Diagnostics.Static_property_0_conflicts_with_built_in_property_Function_0_of_constructor_function_1
 					className := getNameOfSymbolAsWritten(getSymbolOfDeclaration(node))
 					error(memberNameNode, message, memberName, className)
-					break
 				}
 			}
 		}
@@ -41521,14 +41068,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				var memberName string
 				name := member.name
 				switch name.kind {
-				case SyntaxKindStringLiteral:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindNumericLiteral:
+				case SyntaxKindStringLiteral,
+					SyntaxKindNumericLiteral:
 					memberName = name.text
-					break
 				case SyntaxKindIdentifier:
 					memberName = idText(name)
-					break
 				default:
 					continue
 				}
@@ -42377,15 +41921,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		getDeclarationSpaces := func(decl Declaration) DeclarationSpaces {
 			d := decl /* as Node */
 			switch d.kind {
-			case SyntaxKindInterfaceDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeAliasDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocTypedefTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocCallbackTag:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindJSDocEnumTag:
+			case SyntaxKindInterfaceDeclaration,
+				SyntaxKindTypeAliasDeclaration,
+				SyntaxKindJSDocTypedefTag,
+				SyntaxKindJSDocCallbackTag,
+				SyntaxKindJSDocEnumTag:
 				return DeclarationSpacesExportType
 			case SyntaxKindModuleDeclaration:
 				if isAmbientModule(d /* as ModuleDeclaration */) || getModuleInstanceState(d /* as ModuleDeclaration */) != ModuleInstanceStateNonInstantiated {
@@ -42393,17 +41933,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else {
 					return DeclarationSpacesExportNamespace
 				}
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindEnumDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindEnumMember:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindEnumDeclaration,
+				SyntaxKindEnumMember:
 				return DeclarationSpacesExportType | DeclarationSpacesExportValue
 			case SyntaxKindSourceFile:
 				return DeclarationSpacesExportType | DeclarationSpacesExportValue | DeclarationSpacesExportNamespace
-			case SyntaxKindExportAssignment:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBinaryExpression:
+			case SyntaxKindExportAssignment,
+				SyntaxKindBinaryExpression:
 				node := d /* as ExportAssignment | BinaryExpression */
 				var expression Expression
 				if isExportAssignment(node) {
@@ -42416,30 +41953,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				d = expression
 				fallthrough
-			case SyntaxKindImportEqualsDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamespaceImport:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindImportClause:
+			case SyntaxKindImportEqualsDeclaration,
+				SyntaxKindNamespaceImport,
+				SyntaxKindImportClause:
 				result := DeclarationSpacesNone
 				target := resolveAlias(getSymbolOfDeclaration(d /* as ImportEqualsDeclaration | NamespaceImport | ImportClause | ExportAssignment | BinaryExpression */))
 				forEach(target.declarations, func(d Declaration) {
 					result |= getDeclarationSpaces(d)
 				})
 				return result
-			case SyntaxKindVariableDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBindingElement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindImportSpecifier:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindIdentifier:
+			case SyntaxKindVariableDeclaration,
+				SyntaxKindBindingElement,
+				SyntaxKindFunctionDeclaration,
+				SyntaxKindImportSpecifier,
+				SyntaxKindIdentifier:
 				return DeclarationSpacesExportValue
-			case SyntaxKindMethodSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPropertySignature:
+			case SyntaxKindMethodSignature,
+				SyntaxKindPropertySignature:
 				return DeclarationSpacesExportType
 			default:
 				return Debug.failBadSyntaxKind(d)
@@ -42953,11 +42483,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var headMessage DiagnosticMessage
 		expectedReturnType := decoratorSignature.resolvedReturnType
 		switch node.parent.kind {
-		case SyntaxKindClassDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindClassExpression:
+		case SyntaxKindClassDeclaration,
+			SyntaxKindClassExpression:
 			headMessage = Diagnostics.Decorator_function_return_type_0_is_not_assignable_to_type_1
-			break
 		case SyntaxKindPropertyDeclaration:
 			if !legacyDecorators {
 				headMessage = Diagnostics.Decorator_function_return_type_0_is_not_assignable_to_type_1
@@ -42966,14 +42494,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			fallthrough
 		case SyntaxKindParameter:
 			headMessage = Diagnostics.Decorator_function_return_type_is_0_but_is_expected_to_be_void_or_any
-			break
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
+		case SyntaxKindMethodDeclaration,
+			SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor:
 			headMessage = Diagnostics.Decorator_function_return_type_0_is_not_assignable_to_type_1
-			break
 		default:
 			return Debug.failBadSyntaxKind(node.parent)
 		}
@@ -43003,15 +42527,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getEntityNameForDecoratorMetadata := func(node *TypeNode) *EntityName {
 		if node {
 			switch node.kind {
-			case SyntaxKindIntersectionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindUnionType:
+			case SyntaxKindIntersectionType,
+				SyntaxKindUnionType:
 				return getEntityNameForDecoratorMetadataFromTypeList((node /* as UnionOrIntersectionTypeNode */).types)
 			case SyntaxKindConditionalType:
 				return getEntityNameForDecoratorMetadataFromTypeList([]TypeNode{(node /* as ConditionalTypeNode */).trueType, (node /* as ConditionalTypeNode */).falseType})
-			case SyntaxKindParenthesizedType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindNamedTupleMember:
+			case SyntaxKindParenthesizedType,
+				SyntaxKindNamedTupleMember:
 				return getEntityNameForDecoratorMetadata((node /* as ParenthesizedTypeNode */).type_)
 			case SyntaxKindTypeReference:
 				return (node /* as TypeReferenceNode */).typeName
@@ -43303,63 +42825,39 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	checkUnusedIdentifiers := func(potentiallyUnusedIdentifiers []PotentiallyUnusedIdentifier, addDiagnostic AddUnusedDiagnostic) {
 		for _, node := range potentiallyUnusedIdentifiers {
 			switch node.kind {
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassExpression:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindClassExpression:
 				checkUnusedClassMembers(node, addDiagnostic)
 				checkUnusedTypeParameters(node, addDiagnostic)
-				break
-			case SyntaxKindSourceFile:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindModuleDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindBlock:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindCaseBlock:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForInStatement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindForOfStatement:
+			case SyntaxKindSourceFile,
+				SyntaxKindModuleDeclaration,
+				SyntaxKindBlock,
+				SyntaxKindCaseBlock,
+				SyntaxKindForStatement,
+				SyntaxKindForInStatement,
+				SyntaxKindForOfStatement:
 				checkUnusedLocalsAndParameters(node, addDiagnostic)
-				break
-			case SyntaxKindConstructor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindArrowFunction:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
+			case SyntaxKindConstructor,
+				SyntaxKindFunctionExpression,
+				SyntaxKindFunctionDeclaration,
+				SyntaxKindArrowFunction,
+				SyntaxKindMethodDeclaration,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor:
 				if node.body {
 					checkUnusedLocalsAndParameters(node, addDiagnostic)
 				}
 				checkUnusedTypeParameters(node, addDiagnostic)
-				break
-			case SyntaxKindMethodSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindCallSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructorType:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeAliasDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindInterfaceDeclaration:
+			case SyntaxKindMethodSignature,
+				SyntaxKindCallSignature,
+				SyntaxKindConstructSignature,
+				SyntaxKindFunctionType,
+				SyntaxKindConstructorType,
+				SyntaxKindTypeAliasDeclaration,
+				SyntaxKindInterfaceDeclaration:
 				checkUnusedTypeParameters(node, addDiagnostic)
-				break
 			case SyntaxKindInferType:
 				checkUnusedInferTypeParameter(node, addDiagnostic)
-				break
 			default:
 				Debug.assertNever(node, "Node should not have been registered for unused identifiers check")
 			}
@@ -43381,13 +42879,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	checkUnusedClassMembers := func(node /* TODO(TS-TO-GO) TypeNode UnionType: ClassDeclaration | ClassExpression */ any, addDiagnostic AddUnusedDiagnostic) {
 		for _, member := range node.members {
 			switch member.kind {
-			case SyntaxKindMethodDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPropertyDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindGetAccessor:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSetAccessor:
+			case SyntaxKindMethodDeclaration,
+				SyntaxKindPropertyDeclaration,
+				SyntaxKindGetAccessor,
+				SyntaxKindSetAccessor:
 				if member.kind == SyntaxKindSetAccessor && member.symbol.flags&SymbolFlagsGetAccessor {
 					// Already would have reported an error on the getter.
 					break
@@ -43396,20 +42891,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !symbol.isReferenced && (hasEffectiveModifier(member, ModifierFlagsPrivate) || isNamedDeclaration(member) && isPrivateIdentifier(member.name)) && !(member.flags & NodeFlagsAmbient) {
 					addDiagnostic(member, UnusedKindLocal, createDiagnosticForNode(member.name, Diagnostics._0_is_declared_but_its_value_is_never_read, symbolToString(symbol)))
 				}
-				break
 			case SyntaxKindConstructor:
 				for _, parameter := range (member /* as ConstructorDeclaration */).parameters {
 					if !parameter.symbol.isReferenced && hasSyntacticModifier(parameter, ModifierFlagsPrivate) {
 						addDiagnostic(parameter, UnusedKindLocal, createDiagnosticForNode(parameter.name, Diagnostics.Property_0_is_declared_but_its_value_is_never_read, symbolName(parameter.symbol)))
 					}
 				}
-				break
-			case SyntaxKindIndexSignature:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindSemicolonClassElement:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassStaticBlockDeclaration:
-				break
+			case SyntaxKindIndexSignature,
+				SyntaxKindSemicolonClassElement,
+				SyntaxKindClassStaticBlockDeclaration:
 			default:
 				Debug.fail("Unexpected class member")
 			}
@@ -43595,9 +43085,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch name.kind {
 		case SyntaxKindIdentifier:
 			return idText(name)
-		case SyntaxKindArrayBindingPattern:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindObjectBindingPattern:
+		case SyntaxKindArrayBindingPattern,
+			SyntaxKindObjectBindingPattern:
 			return bindingNameText(cast(first(name.elements), isBindingElement).name)
 		default:
 			return Debug.assertNever(name)
@@ -44257,31 +43746,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return PredicateSemanticsSometimes
 			}
 			return PredicateSemanticsAlways
-		case SyntaxKindArrayLiteralExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBigIntLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindClassExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxSelfClosingElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindObjectLiteralExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindRegularExpressionLiteral:
+		case SyntaxKindArrayLiteralExpression,
+			SyntaxKindArrowFunction,
+			SyntaxKindBigIntLiteral,
+			SyntaxKindClassExpression,
+			SyntaxKindFunctionExpression,
+			SyntaxKindJsxElement,
+			SyntaxKindJsxSelfClosingElement,
+			SyntaxKindObjectLiteralExpression,
+			SyntaxKindRegularExpressionLiteral:
 			return PredicateSemanticsAlways
-		case SyntaxKindVoidExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNullKeyword:
+		case SyntaxKindVoidExpression,
+			SyntaxKindNullKeyword:
 			return PredicateSemanticsNever
-		case SyntaxKindNoSubstitutionTemplateLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindStringLiteral:
+		case SyntaxKindNoSubstitutionTemplateLiteral,
+			SyntaxKindStringLiteral:
 			if !!(node /* as StringLiteral | NoSubstitutionTemplateLiteral */).text {
 				return PredicateSemanticsAlways
 			} else {
@@ -44572,25 +44051,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isES2015OrLaterIterable := func(n __String) bool {
 		switch n {
-		case "Float32Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Float64Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Int16Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Int32Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Int8Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "NodeList":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Uint16Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Uint32Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Uint8Array":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "Uint8ClampedArray":
+		case "Float32Array",
+			"Float64Array",
+			"Int16Array",
+			"Int32Array",
+			"Int8Array",
+			"NodeList",
+			"Uint16Array",
+			"Uint32Array",
+			"Uint8Array",
+			"Uint8ClampedArray":
 			return true
 		}
 		return false
@@ -45616,27 +45086,17 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		// TS 1.0 spec (April 2014): 3.6.1
 		// The predefined type keywords are reserved and cannot be used as names of user defined types.
 		switch name.escapedText {
-		case "any":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "unknown":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "never":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "number":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "bigint":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "boolean":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "string":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "symbol":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "void":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "object":
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case "undefined":
+		case "any",
+			"unknown",
+			"never",
+			"number",
+			"bigint",
+			"boolean",
+			"string",
+			"symbol",
+			"void",
+			"object",
+			"undefined":
 			error(name, message, name.escapedText /* as string */)
 		}
 	}
@@ -46841,12 +46301,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			for _, decl := range (node /* as VariableStatement */).declarationList.declarations {
 				checkModuleAugmentationElement(decl, isGlobalAugmentation)
 			}
-			break
-		case SyntaxKindExportAssignment:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindExportDeclaration:
+		case SyntaxKindExportAssignment,
+			SyntaxKindExportDeclaration:
 			grammarErrorOnFirstToken(node, Diagnostics.Exports_and_export_assignments_are_not_permitted_in_module_augmentations)
-			break
 		case SyntaxKindImportEqualsDeclaration:
 			if isInternalModuleImportEqualsDeclaration(node) {
 				break
@@ -46854,10 +46311,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			fallthrough
 		case SyntaxKindImportDeclaration:
 			grammarErrorOnFirstToken(node, Diagnostics.Imports_are_not_permitted_in_module_augmentations_Consider_moving_them_to_the_enclosing_external_module)
-			break
-		case SyntaxKindBindingElement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindVariableDeclaration:
+		case SyntaxKindBindingElement,
+			SyntaxKindVariableDeclaration:
 			name := (node /* as VariableDeclaration | BindingElement */).name
 			if isBindingPattern(name) {
 				for _, el := range name.elements {
@@ -46867,21 +46322,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				break
 			}
 			fallthrough
-		case SyntaxKindClassDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindEnumDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindInterfaceDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindModuleDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeAliasDeclaration:
+		case SyntaxKindClassDeclaration,
+			SyntaxKindEnumDeclaration,
+			SyntaxKindFunctionDeclaration,
+			SyntaxKindInterfaceDeclaration,
+			SyntaxKindModuleDeclaration,
+			SyntaxKindTypeAliasDeclaration:
 			if isGlobalAugmentation {
 				return
 			}
-			break
 		}
 	}
 	getFirstNonModuleExportsIdentifier := func(node EntityNameOrEntityNameExpression) Identifier {
@@ -47022,11 +46471,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				isType := !(targetFlags & SymbolFlagsValue)
 				if isType || typeOnlyAlias {
 					switch node.kind {
-					case SyntaxKindImportClause:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindImportSpecifier:
-						fallthrough // TODO(TS-TO-GO): merge cases
-					case SyntaxKindImportEqualsDeclaration:
+					case SyntaxKindImportClause,
+						SyntaxKindImportSpecifier,
+						SyntaxKindImportEqualsDeclaration:
 						if compilerOptions.verbatimModuleSyntax {
 							Debug.assertIsDefined(node.name, "An ImportClause with a symbol should have a name")
 							var message DiagnosticMessage
@@ -47501,13 +46948,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// Only bother checking on a few construct kinds.  We don't want to be excessively
 			// hitting the cancellation token on every node we check.
 			switch kind {
-			case SyntaxKindModuleDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindInterfaceDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindFunctionDeclaration:
+			case SyntaxKindModuleDeclaration,
+				SyntaxKindClassDeclaration,
+				SyntaxKindInterfaceDeclaration,
+				SyntaxKindFunctionDeclaration:
 				cancellationToken.throwIfCancellationRequested()
 			}
 		}
@@ -47524,27 +46968,21 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkPropertyDeclaration(node /* as PropertyDeclaration */)
 		case SyntaxKindPropertySignature:
 			return checkPropertySignature(node /* as PropertySignature */)
-		case SyntaxKindConstructorType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindCallSignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindConstructSignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIndexSignature:
+		case SyntaxKindConstructorType,
+			SyntaxKindFunctionType,
+			SyntaxKindCallSignature,
+			SyntaxKindConstructSignature,
+			SyntaxKindIndexSignature:
 			return checkSignatureDeclaration(node /* as SignatureDeclaration */)
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodSignature:
+		case SyntaxKindMethodDeclaration,
+			SyntaxKindMethodSignature:
 			return checkMethodDeclaration(node /* as MethodDeclaration | MethodSignature */)
 		case SyntaxKindClassStaticBlockDeclaration:
 			return checkClassStaticBlockDeclaration(node /* as ClassStaticBlockDeclaration */)
 		case SyntaxKindConstructor:
 			return checkConstructorDeclaration(node /* as ConstructorDeclaration */)
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
+		case SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor:
 			return checkAccessorDeclaration(node /* as AccessorDeclaration */)
 		case SyntaxKindTypeReference:
 			return checkTypeReferenceNode(node /* as TypeReferenceNode */)
@@ -47558,15 +46996,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkArrayType(node /* as ArrayTypeNode */)
 		case SyntaxKindTupleType:
 			return checkTupleType(node /* as TupleTypeNode */)
-		case SyntaxKindUnionType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIntersectionType:
+		case SyntaxKindUnionType,
+			SyntaxKindIntersectionType:
 			return checkUnionOrIntersectionType(node /* as UnionOrIntersectionTypeNode */)
-		case SyntaxKindParenthesizedType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindOptionalType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindRestType:
+		case SyntaxKindParenthesizedType,
+			SyntaxKindOptionalType,
+			SyntaxKindRestType:
 			return checkSourceElement((node /* as ParenthesizedTypeNode | OptionalTypeNode | RestTypeNode */).type_)
 		case SyntaxKindThisType:
 			return checkThisType(node /* as ThisTypeNode */)
@@ -47586,21 +47021,17 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkJSDocAugmentsTag(node /* as JSDocAugmentsTag */)
 		case SyntaxKindJSDocImplementsTag:
 			return checkJSDocImplementsTag(node /* as JSDocImplementsTag */)
-		case SyntaxKindJSDocTypedefTag:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocCallbackTag:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocEnumTag:
+		case SyntaxKindJSDocTypedefTag,
+			SyntaxKindJSDocCallbackTag,
+			SyntaxKindJSDocEnumTag:
 			return checkJSDocTypeAliasTag(node /* as JSDocTypedefTag */)
 		case SyntaxKindJSDocTemplateTag:
 			return checkJSDocTemplateTag(node /* as JSDocTemplateTag */)
 		case SyntaxKindJSDocTypeTag:
 			return checkJSDocTypeTag(node /* as JSDocTypeTag */)
-		case SyntaxKindJSDocLink:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocLinkCode:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocLinkPlain:
+		case SyntaxKindJSDocLink,
+			SyntaxKindJSDocLinkCode,
+			SyntaxKindJSDocLinkPlain:
 			return checkJSDocLinkLikeTag(node /* as JSDocLink | JSDocLinkCode | JSDocLinkPlain */)
 		case SyntaxKindJSDocParameterTag:
 			return checkJSDocParameterTag(node /* as JSDocParameterTag */)
@@ -47609,15 +47040,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		case SyntaxKindJSDocFunctionType:
 			checkJSDocFunctionType(node /* as JSDocFunctionType */)
 			fallthrough
-		case SyntaxKindJSDocNonNullableType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocNullableType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocAllType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocUnknownType:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocTypeLiteral:
+		case SyntaxKindJSDocNonNullableType,
+			SyntaxKindJSDocNullableType,
+			SyntaxKindJSDocAllType,
+			SyntaxKindJSDocUnknownType,
+			SyntaxKindJSDocTypeLiteral:
 			checkJSDocTypeIsInJsFile(node)
 			forEachChild(node, checkSourceElement)
 			return
@@ -47626,11 +47053,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return
 		case SyntaxKindJSDocTypeExpression:
 			return checkSourceElement((node /* as JSDocTypeExpression */).type_)
-		case SyntaxKindJSDocPublicTag:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocProtectedTag:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJSDocPrivateTag:
+		case SyntaxKindJSDocPublicTag,
+			SyntaxKindJSDocProtectedTag,
+			SyntaxKindJSDocPrivateTag:
 			return checkJSDocAccessibilityModifiers(node /* as JSDocPublicTag | JSDocProtectedTag | JSDocPrivateTag */)
 		case SyntaxKindJSDocSatisfiesTag:
 			return checkJSDocSatisfiesTag(node /* as JSDocSatisfiesTag */)
@@ -47644,9 +47069,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkMappedType(node /* as MappedTypeNode */)
 		case SyntaxKindFunctionDeclaration:
 			return checkFunctionDeclaration(node /* as FunctionDeclaration */)
-		case SyntaxKindBlock:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindModuleBlock:
+		case SyntaxKindBlock,
+			SyntaxKindModuleBlock:
 			return checkBlock(node /* as Block */)
 		case SyntaxKindVariableStatement:
 			return checkVariableStatement(node /* as VariableStatement */)
@@ -47664,9 +47088,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkForInStatement(node /* as ForInStatement */)
 		case SyntaxKindForOfStatement:
 			return checkForOfStatement(node /* as ForOfStatement */)
-		case SyntaxKindContinueStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindBreakStatement:
+		case SyntaxKindContinueStatement,
+			SyntaxKindBreakStatement:
 			return checkBreakOrContinueStatement(node /* as BreakOrContinueStatement */)
 		case SyntaxKindReturnStatement:
 			return checkReturnStatement(node /* as ReturnStatement */)
@@ -47702,9 +47125,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return checkExportDeclaration(node /* as ExportDeclaration */)
 		case SyntaxKindExportAssignment:
 			return checkExportAssignment(node /* as ExportAssignment */)
-		case SyntaxKindEmptyStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindDebuggerStatement:
+		case SyntaxKindEmptyStatement,
+			SyntaxKindDebuggerStatement:
 			checkGrammarStatementInAmbientContext(node)
 			return
 		case SyntaxKindMissingDeclaration:
@@ -47837,58 +47259,38 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		currentNode = node
 		instantiationCount = 0
 		switch node.kind {
-		case SyntaxKindCallExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNewExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTaggedTemplateExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindDecorator:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindJsxOpeningElement:
+		case SyntaxKindCallExpression,
+			SyntaxKindNewExpression,
+			SyntaxKindTaggedTemplateExpression,
+			SyntaxKindDecorator,
+			SyntaxKindJsxOpeningElement:
 			resolveUntypedCall(node /* as CallLikeExpression */)
-			break
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodSignature:
+		case SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction,
+			SyntaxKindMethodDeclaration,
+			SyntaxKindMethodSignature:
 			checkFunctionExpressionOrObjectLiteralMethodDeferred(node /* as FunctionExpression */)
-			break
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
+		case SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor:
 			checkAccessorDeclaration(node /* as AccessorDeclaration */)
-			break
 		case SyntaxKindClassExpression:
 			checkClassExpressionDeferred(node /* as ClassExpression */)
-			break
 		case SyntaxKindTypeParameter:
 			checkTypeParameterDeferred(node /* as TypeParameterDeclaration */)
-			break
 		case SyntaxKindJsxSelfClosingElement:
 			checkJsxSelfClosingElementDeferred(node /* as JsxSelfClosingElement */)
-			break
 		case SyntaxKindJsxElement:
 			checkJsxElementDeferred(node /* as JsxElement */)
-			break
-		case SyntaxKindTypeAssertionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindAsExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParenthesizedExpression:
+		case SyntaxKindTypeAssertionExpression,
+			SyntaxKindAsExpression,
+			SyntaxKindParenthesizedExpression:
 			checkAssertionDeferred(node /* as AssertionExpression | JSDocTypeAssertion */)
-			break
 		case SyntaxKindVoidExpression:
 			checkExpression((node /* as VoidExpression */).expression)
-			break
 		case SyntaxKindBinaryExpression:
 			if isInstanceOfExpression(node) {
 				resolveUntypedCall(node)
 			}
-			break
 		}
 		currentNode = saveCurrentNode
 		tracing. /* ? */ pop()
@@ -48116,29 +47518,24 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					fallthrough
 				case SyntaxKindModuleDeclaration:
 					copyLocallyVisibleExportSymbols(getSymbolOfDeclaration(location /* as ModuleDeclaration | SourceFile */).exports, meaning&SymbolFlagsModuleMember)
-					break
 				case SyntaxKindEnumDeclaration:
 					copySymbols(getSymbolOfDeclaration(location /* as EnumDeclaration */).exports, meaning&SymbolFlagsEnumMember)
-					break
 				case SyntaxKindClassExpression:
 					className := (location /* as ClassExpression */).name
 					if className {
 						copySymbol((location /* as ClassExpression */).symbol, meaning)
 					}
 					fallthrough
-				case SyntaxKindClassDeclaration:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindInterfaceDeclaration:
+				case SyntaxKindClassDeclaration,
+					SyntaxKindInterfaceDeclaration:
 					if !isStaticSymbol {
 						copySymbols(getMembersOfSymbol(getSymbolOfDeclaration(location /* as ClassDeclaration | InterfaceDeclaration */)), meaning&SymbolFlagsType)
 					}
-					break
 				case SyntaxKindFunctionExpression:
 					funcName := (location /* as FunctionExpression */).name
 					if funcName {
 						copySymbol((location /* as FunctionExpression */).symbol, meaning)
 					}
-					break
 				}
 				if introducesArgumentsExoticObject(location) {
 					copySymbol(argumentsSymbol, meaning)
@@ -48252,18 +47649,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getSpecialPropertyAssignmentSymbolFromEntityName := func(entityName /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | PropertyAccessExpression */ any) Symbol {
 		specialPropertyAssignmentKind := getAssignmentDeclarationKind(entityName.parent.parent /* as BinaryExpression */)
 		switch specialPropertyAssignmentKind {
-		case AssignmentDeclarationKindExportsProperty:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindPrototypeProperty:
+		case AssignmentDeclarationKindExportsProperty,
+			AssignmentDeclarationKindPrototypeProperty:
 			return getSymbolOfNode(entityName.parent)
 		case AssignmentDeclarationKindProperty:
 			if isPropertyAccessExpression(entityName.parent) && getLeftmostAccessExpression(entityName.parent) == entityName {
 				return nil
 			}
 			fallthrough
-		case AssignmentDeclarationKindThisProperty:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case AssignmentDeclarationKindModuleExports:
+		case AssignmentDeclarationKindThisProperty,
+			AssignmentDeclarationKindModuleExports:
 			return getSymbolOfDeclaration(entityName.parent.parent /* as BinaryExpression */)
 		}
 	}
@@ -48574,13 +47969,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		switch node.kind {
-		case SyntaxKindIdentifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPrivateIdentifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindQualifiedName:
+		case SyntaxKindIdentifier,
+			SyntaxKindPrivateIdentifier,
+			SyntaxKindPropertyAccessExpression,
+			SyntaxKindQualifiedName:
 			if !isThisInTypeQuery(node) {
 				return getSymbolOfNameOrPropertyAccessExpression(node /* as EntityName | PrivateIdentifier | PropertyAccessExpression */)
 			}
@@ -48607,9 +47999,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return (constructorDeclaration.parent /* as ClassDeclaration */).symbol
 			}
 			return nil
-		case SyntaxKindStringLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNoSubstitutionTemplateLiteral:
+		case SyntaxKindStringLiteral,
+			SyntaxKindNoSubstitutionTemplateLiteral:
 			if (isExternalModuleImportEqualsDeclaration(node.parent.parent) && getExternalModuleImportEqualsDeclarationExpression(node.parent.parent) == node) || ((node.parent.kind == SyntaxKindImportDeclaration || node.parent.kind == SyntaxKindExportDeclaration) && (node.parent /* as ImportDeclaration */).moduleSpecifier == node) || (isInJSFile(node) && isJSDocImportTag(node.parent) && node.parent.moduleSpecifier == node) || ((isInJSFile(node) && isRequireCall(node.parent /*requireStringLiteralLikeArgument*/, false)) || isImportCall(node.parent)) || (isLiteralTypeNode(node.parent) && isLiteralImportTypeNode(node.parent.parent) && node.parent.parent.argument == node.parent) {
 				return resolveExternalModuleName(node, node /* as LiteralExpression */, ignoreErrors)
 			}
@@ -48632,13 +48023,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				objectType = nil
 			}
 			return objectType && getPropertyOfType(objectType, escapeLeadingUnderscores((node /* as StringLiteral | NumericLiteral */).text))
-		case SyntaxKindDefaultKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindEqualsGreaterThanToken:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindClassKeyword:
+		case SyntaxKindDefaultKeyword,
+			SyntaxKindFunctionKeyword,
+			SyntaxKindEqualsGreaterThanToken,
+			SyntaxKindClassKeyword:
 			return getSymbolOfNode(node.parent)
 		case SyntaxKindImportType:
 			if isLiteralImportTypeNode(node) {
@@ -48652,9 +48040,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				return nil
 			}
-		case SyntaxKindImportKeyword:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNewKeyword:
+		case SyntaxKindImportKeyword,
+			SyntaxKindNewKeyword:
 			if isMetaProperty(node.parent) {
 				return checkMetaPropertyKeyword(node.parent).symbol
 			} else {
@@ -48878,9 +48265,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch name.kind {
 		case SyntaxKindIdentifier:
 			return getStringLiteralType(idText(name))
-		case SyntaxKindNumericLiteral:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindStringLiteral:
+		case SyntaxKindNumericLiteral,
+			SyntaxKindStringLiteral:
 			return getStringLiteralType(name.text)
 		case SyntaxKindComputedPropertyName:
 			nameType := checkComputedPropertyName(name)
@@ -49105,13 +48491,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		switch node.kind {
 		case SyntaxKindImportEqualsDeclaration:
 			return isAliasResolvedToValue(getSymbolOfDeclaration(node /* as ImportEqualsDeclaration */))
-		case SyntaxKindImportClause:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNamespaceImport:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindImportSpecifier:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindExportSpecifier:
+		case SyntaxKindImportClause,
+			SyntaxKindNamespaceImport,
+			SyntaxKindImportSpecifier,
+			SyntaxKindExportSpecifier:
 			symbol := getSymbolOfDeclaration(node /* as ImportClause | NamespaceImport | ImportSpecifier | ExportSpecifier */)
 			return !!symbol && isAliasResolvedToValue(symbol /*excludeTypeOnlyValues*/, true)
 		case SyntaxKindExportDeclaration:
@@ -49287,31 +48670,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		// This is only the set of `NodeCheckFlags` our emitter actually looks for, not all of them
 		switch flag {
-		case NodeCheckFlagsSuperInstance:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsSuperStatic:
+		case NodeCheckFlagsSuperInstance,
+			NodeCheckFlagsSuperStatic:
 			return checkSingleSuperExpression(node)
-		case NodeCheckFlagsMethodWithSuperPropertyAccessInAsync:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsMethodWithSuperPropertyAssignmentInAsync:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsContainsSuperPropertyInStaticInitializer:
+		case NodeCheckFlagsMethodWithSuperPropertyAccessInAsync,
+			NodeCheckFlagsMethodWithSuperPropertyAssignmentInAsync,
+			NodeCheckFlagsContainsSuperPropertyInStaticInitializer:
 			return checkChildSuperExpressions(node)
-		case NodeCheckFlagsCaptureArguments:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsContainsCapturedBlockScopeBinding:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsNeedsLoopOutParameter:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsContainsConstructorReference:
+		case NodeCheckFlagsCaptureArguments,
+			NodeCheckFlagsContainsCapturedBlockScopeBinding,
+			NodeCheckFlagsNeedsLoopOutParameter,
+			NodeCheckFlagsContainsConstructorReference:
 			return checkChildIdentifiers(node)
 		case NodeCheckFlagsConstructorReference:
 			return checkSingleIdentifier(node)
-		case NodeCheckFlagsLoopWithCapturedBlockScopedBinding:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsBlockScopedBindingInLoop:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case NodeCheckFlagsCapturedBlockScopedBinding:
+		case NodeCheckFlagsLoopWithCapturedBlockScopedBinding,
+			NodeCheckFlagsBlockScopedBindingInLoop,
+			NodeCheckFlagsCapturedBlockScopedBinding:
 			return checkContainingBlockScopeBindingUses(node)
 		default:
 			return Debug.assertNever(flag, __TEMPLATE__("Unhandled node check flag calculation: ", Debug.formatNodeCheckFlags(flag)))
@@ -49406,11 +48781,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	canHaveConstantValue := func(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is EnumMember | AccessExpression */ any {
 		switch node.kind {
-		case SyntaxKindEnumMember:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAccessExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindElementAccessExpression:
+		case SyntaxKindEnumMember,
+			SyntaxKindPropertyAccessExpression,
+			SyntaxKindElementAccessExpression:
 			return true
 		}
 		return false
@@ -49691,41 +49064,24 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if symbol {
 					return filter(getExportSymbolOfValueSymbolIfExported(symbol).declarations, func(declaration Declaration) bool {
 						switch declaration.kind {
-						case SyntaxKindVariableDeclaration:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindParameter:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindBindingElement:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindPropertyDeclaration:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindPropertyAssignment:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindShorthandPropertyAssignment:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindEnumMember:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindObjectLiteralExpression:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindFunctionDeclaration:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindFunctionExpression:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindArrowFunction:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindClassDeclaration:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindClassExpression:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindEnumDeclaration:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindMethodDeclaration:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindGetAccessor:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindSetAccessor:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case SyntaxKindModuleDeclaration:
+						case SyntaxKindVariableDeclaration,
+							SyntaxKindParameter,
+							SyntaxKindBindingElement,
+							SyntaxKindPropertyDeclaration,
+							SyntaxKindPropertyAssignment,
+							SyntaxKindShorthandPropertyAssignment,
+							SyntaxKindEnumMember,
+							SyntaxKindObjectLiteralExpression,
+							SyntaxKindFunctionDeclaration,
+							SyntaxKindFunctionExpression,
+							SyntaxKindArrowFunction,
+							SyntaxKindClassDeclaration,
+							SyntaxKindClassExpression,
+							SyntaxKindEnumDeclaration,
+							SyntaxKindMethodDeclaration,
+							SyntaxKindGetAccessor,
+							SyntaxKindSetAccessor,
+							SyntaxKindModuleDeclaration:
 							return true
 						}
 						return false
@@ -50319,12 +49675,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					flags |= ModifierFlagsOverride
 					lastOverride = modifier
-					break
-				case SyntaxKindPublicKeyword:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindProtectedKeyword:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindPrivateKeyword:
+				case SyntaxKindPublicKeyword,
+					SyntaxKindProtectedKeyword,
+					SyntaxKindPrivateKeyword:
 					text := visibilityToString(modifierToFlag(modifier.kind))
 					if flags & ModifierFlagsAccessibilityModifier {
 						return grammarErrorOnNode(modifier, Diagnostics.Accessibility_modifier_already_seen)
@@ -50350,7 +49703,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return grammarErrorOnNode(modifier, Diagnostics.An_accessibility_modifier_cannot_be_used_with_a_private_identifier)
 					}
 					flags |= modifierToFlag(modifier.kind)
-					break
 				case SyntaxKindStaticKeyword:
 					if flags & ModifierFlagsStatic {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "static")
@@ -50371,7 +49723,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					flags |= ModifierFlagsStatic
 					lastStatic = modifier
-					break
 				case SyntaxKindAccessorKeyword:
 					if flags & ModifierFlagsAccessor {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "accessor")
@@ -50383,7 +49734,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return grammarErrorOnNode(modifier, Diagnostics.accessor_modifier_can_only_appear_on_a_property_declaration)
 					}
 					flags |= ModifierFlagsAccessor
-					break
 				case SyntaxKindReadonlyKeyword:
 					if flags & ModifierFlagsReadonly {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "readonly")
@@ -50394,7 +49744,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_cannot_be_used_with_1_modifier, "readonly", "accessor")
 					}
 					flags |= ModifierFlagsReadonly
-					break
 				case SyntaxKindExportKeyword:
 					if compilerOptions.verbatimModuleSyntax && !(node.flags & NodeFlagsAmbient) && node.kind != SyntaxKindTypeAliasDeclaration && node.kind != SyntaxKindInterfaceDeclaration && node.kind != SyntaxKindModuleDeclaration && node.parent.kind == SyntaxKindSourceFile && host.getEmitModuleFormatOfFile(getSourceFileOfNode(node)) == ModuleKindCommonJS {
 						return grammarErrorOnNode(modifier, Diagnostics.A_top_level_export_modifier_cannot_be_used_on_value_declarations_in_a_CommonJS_module_when_verbatimModuleSyntax_is_enabled)
@@ -50417,7 +49766,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_cannot_appear_on_an_await_using_declaration, "export")
 					}
 					flags |= ModifierFlagsExport
-					break
 				case SyntaxKindDefaultKeyword:
 					var container Node
 					if node.parent.kind == SyntaxKindSourceFile {
@@ -50437,7 +49785,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return grammarErrorOnNode(firstDecorator, Diagnostics.Decorators_are_not_valid_here)
 					}
 					flags |= ModifierFlagsDefault
-					break
 				case SyntaxKindDeclareKeyword:
 					if flags & ModifierFlagsAmbient {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "declare")
@@ -50462,7 +49809,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					flags |= ModifierFlagsAmbient
 					lastDeclare = modifier
-					break
 				case SyntaxKindAbstractKeyword:
 					if flags & ModifierFlagsAbstract {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "abstract")
@@ -50500,7 +49846,6 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_cannot_be_used_with_a_private_identifier, "abstract")
 					}
 					flags |= ModifierFlagsAbstract
-					break
 				case SyntaxKindAsyncKeyword:
 					if flags & ModifierFlagsAsync {
 						return grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "async")
@@ -50514,10 +49859,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					flags |= ModifierFlagsAsync
 					lastAsync = modifier
-					break
-				case SyntaxKindInKeyword:
-					fallthrough // TODO(TS-TO-GO): merge cases
-				case SyntaxKindOutKeyword:
+				case SyntaxKindInKeyword,
+					SyntaxKindOutKeyword:
 					var inOutFlag /* TODO(TS-TO-GO) inferred type ModifierFlags.In | ModifierFlags.Out */ any
 					if modifier.kind == SyntaxKindInKeyword {
 						inOutFlag = ModifierFlagsIn
@@ -50590,49 +49933,29 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	findFirstIllegalModifier := func(node /* TODO(TS-TO-GO) TypeNode UnionType: HasModifiers | HasIllegalModifiers */ any) *Modifier {
 		switch node.kind {
-		case SyntaxKindGetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindSetAccessor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindConstructor:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertySignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMethodSignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindIndexSignature:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindModuleDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindImportDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindImportEqualsDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindExportDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindExportAssignment:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindParameter:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindTypeParameter:
+		case SyntaxKindGetAccessor,
+			SyntaxKindSetAccessor,
+			SyntaxKindConstructor,
+			SyntaxKindPropertyDeclaration,
+			SyntaxKindPropertySignature,
+			SyntaxKindMethodDeclaration,
+			SyntaxKindMethodSignature,
+			SyntaxKindIndexSignature,
+			SyntaxKindModuleDeclaration,
+			SyntaxKindImportDeclaration,
+			SyntaxKindImportEqualsDeclaration,
+			SyntaxKindExportDeclaration,
+			SyntaxKindExportAssignment,
+			SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction,
+			SyntaxKindParameter,
+			SyntaxKindTypeParameter:
 			return nil
-		case SyntaxKindClassStaticBlockDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindPropertyAssignment:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindShorthandPropertyAssignment:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindNamespaceExportDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindMissingDeclaration:
+		case SyntaxKindClassStaticBlockDeclaration,
+			SyntaxKindPropertyAssignment,
+			SyntaxKindShorthandPropertyAssignment,
+			SyntaxKindNamespaceExportDeclaration,
+			SyntaxKindMissingDeclaration:
 			return find(node.modifiers, isModifier)
 		default:
 			if node.parent.kind == SyntaxKindModuleBlock || node.parent.kind == SyntaxKindSourceFile {
@@ -50641,15 +49964,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			switch node.kind {
 			case SyntaxKindFunctionDeclaration:
 				return findFirstModifierExcept(node, SyntaxKindAsyncKeyword)
-			case SyntaxKindClassDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindConstructorType:
+			case SyntaxKindClassDeclaration,
+				SyntaxKindConstructorType:
 				return findFirstModifierExcept(node, SyntaxKindAbstractKeyword)
-			case SyntaxKindClassExpression:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindInterfaceDeclaration:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindTypeAliasDeclaration:
+			case SyntaxKindClassExpression,
+				SyntaxKindInterfaceDeclaration,
+				SyntaxKindTypeAliasDeclaration:
 				return find(node.modifiers, isModifier)
 			case SyntaxKindVariableStatement:
 				if node.declarationList.flags & NodeFlagsUsing {
@@ -50677,13 +49997,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	checkGrammarAsyncModifier := func(node Node, asyncModifier Node) bool {
 		switch node.kind {
-		case SyntaxKindMethodDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionDeclaration:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindFunctionExpression:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindArrowFunction:
+		case SyntaxKindMethodDeclaration,
+			SyntaxKindFunctionDeclaration,
+			SyntaxKindFunctionExpression,
+			SyntaxKindArrowFunction:
 			return false
 		}
 		return grammarErrorOnNode(asyncModifier, Diagnostics._0_modifier_cannot_be_used_here, "async")
@@ -50980,9 +50297,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// and either both previous and propId.descriptor have[[Get]] fields or both previous and propId.descriptor have[[Set]] fields
 			var currentKind DeclarationMeaning
 			switch prop.kind {
-			case SyntaxKindShorthandPropertyAssignment:
-				fallthrough // TODO(TS-TO-GO): merge cases
-			case SyntaxKindPropertyAssignment:
+			case SyntaxKindShorthandPropertyAssignment,
+				SyntaxKindPropertyAssignment:
 				checkGrammarForInvalidExclamationToken(prop.exclamationToken, Diagnostics.A_definite_assignment_assertion_is_not_permitted_in_this_context)
 				checkGrammarForInvalidQuestionMark(prop.questionToken, Diagnostics.An_object_member_cannot_be_declared_optional)
 				if name.kind == SyntaxKindNumericLiteral {
@@ -50992,16 +50308,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					addErrorOrSuggestion(true, createDiagnosticForNode(name, Diagnostics.A_bigint_literal_cannot_be_used_as_a_property_name))
 				}
 				currentKind = DeclarationMeaningPropertyAssignment
-				break
 			case SyntaxKindMethodDeclaration:
 				currentKind = DeclarationMeaningMethod
-				break
 			case SyntaxKindGetAccessor:
 				currentKind = DeclarationMeaningGetAccessor
-				break
 			case SyntaxKindSetAccessor:
 				currentKind = DeclarationMeaningSetAccessor
-				break
 			default:
 				Debug.assertNever(prop, "Unexpected syntax kind:"+(prop /* as Node */).kind)
 			}
@@ -51077,28 +50389,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							diagnostics.add(createDiagnosticForNode(forInOrOfStatement.awaitModifier, Diagnostics.for_await_loops_are_only_allowed_at_the_top_level_of_a_file_when_that_file_is_a_module_but_this_file_has_no_imports_or_exports_Consider_adding_an_empty_export_to_make_this_file_a_module))
 						}
 						switch moduleKind {
-						case ModuleKindNode16:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case ModuleKindNodeNext:
+						case ModuleKindNode16,
+							ModuleKindNodeNext:
 							if sourceFile.impliedNodeFormat == ModuleKindCommonJS {
 								diagnostics.add(createDiagnosticForNode(forInOrOfStatement.awaitModifier, Diagnostics.The_current_file_is_a_CommonJS_module_and_cannot_use_await_at_the_top_level))
 								break
 							}
 							fallthrough
-						case ModuleKindES2022:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case ModuleKindESNext:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case ModuleKindPreserve:
-							fallthrough // TODO(TS-TO-GO): merge cases
-						case ModuleKindSystem:
+						case ModuleKindES2022,
+							ModuleKindESNext,
+							ModuleKindPreserve,
+							ModuleKindSystem:
 							if languageVersion >= ScriptTargetES2017 {
 								break
 							}
 							fallthrough
 						default:
 							diagnostics.add(createDiagnosticForNode(forInOrOfStatement.awaitModifier, Diagnostics.Top_level_for_await_loops_are_only_allowed_when_the_module_option_is_set_to_es2022_esnext_system_node16_nodenext_or_preserve_and_the_target_option_is_set_to_es2017_or_higher))
-							break
 						}
 					}
 				} else {
@@ -51243,17 +50550,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !(decl.parent.flags & NodeFlagsConst) {
 					return grammarErrorOnNode((parent /* as VariableDeclaration */).name, Diagnostics.A_variable_whose_type_is_a_unique_symbol_type_must_be_const)
 				}
-				break
 			case SyntaxKindPropertyDeclaration:
 				if !isStatic(parent) || !hasEffectiveReadonlyModifier(parent) {
 					return grammarErrorOnNode((parent /* as PropertyDeclaration */).name, Diagnostics.A_property_of_a_class_whose_type_is_a_unique_symbol_type_must_be_both_static_and_readonly)
 				}
-				break
 			case SyntaxKindPropertySignature:
 				if !hasSyntacticModifier(parent, ModifierFlagsReadonly) {
 					return grammarErrorOnNode((parent /* as PropertySignature */).name, Diagnostics.A_property_of_an_interface_or_type_literal_whose_type_is_a_unique_symbol_type_must_be_readonly)
 				}
-				break
 			default:
 				return grammarErrorOnNode(node, Diagnostics.unique_symbol_types_are_not_allowed_here)
 			}
@@ -51326,19 +50630,16 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					return false
 				}
-				break
 			case SyntaxKindSwitchStatement:
 				if node.kind == SyntaxKindBreakStatement && !node.label {
 					// unlabeled break within switch statement - ok
 					return false
 				}
-				break
 			default:
 				if isIterationStatement(current /*lookInLabeledStatements*/, false) && !node.label {
 					// unlabeled break or continue within iteration statement - ok
 					return false
 				}
-				break
 			}
 			current = current.parent
 		}
@@ -51501,19 +50802,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	allowLetAndConstDeclarations := func(parent Node) bool {
 		switch parent.kind {
-		case SyntaxKindIfStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindDoStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindWhileStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindWithStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindForStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindForInStatement:
-			fallthrough // TODO(TS-TO-GO): merge cases
-		case SyntaxKindForOfStatement:
+		case SyntaxKindIfStatement,
+			SyntaxKindDoStatement,
+			SyntaxKindWhileStatement,
+			SyntaxKindWithStatement,
+			SyntaxKindForStatement,
+			SyntaxKindForInStatement,
+			SyntaxKindForOfStatement:
 			return false
 		case SyntaxKindLabeledStatement:
 			return allowLetAndConstDeclarations(parent.parent)
@@ -51548,12 +50843,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if escapedText != "target" {
 				return grammarErrorOnNode(node.name, Diagnostics._0_is_not_a_valid_meta_property_for_keyword_1_Did_you_mean_2, unescapeLeadingUnderscores(node.name.escapedText), tokenToString(node.keywordToken), "target")
 			}
-			break
 		case SyntaxKindImportKeyword:
 			if escapedText != "meta" {
 				return grammarErrorOnNode(node.name, Diagnostics._0_is_not_a_valid_meta_property_for_keyword_1_Did_you_mean_2, unescapeLeadingUnderscores(node.name.escapedText), tokenToString(node.keywordToken), "meta")
 			}
-			break
 		}
 	}
 	hasParseDiagnostics := func(sourceFile SourceFile) bool {
@@ -51993,9 +51286,8 @@ func isNotOverload(declaration Declaration) bool {
 /** Like 'isDeclarationName', but returns true for LHS of `import { x as y }` or `export { x as y }`. */
 func isDeclarationNameOrImportPropertyName(name Node) bool {
 	switch name.parent.kind {
-	case SyntaxKindImportSpecifier:
-		fallthrough // TODO(TS-TO-GO): merge cases
-	case SyntaxKindExportSpecifier:
+	case SyntaxKindImportSpecifier,
+		SyntaxKindExportSpecifier:
 		return isIdentifier(name) || name.kind == SyntaxKindStringLiteral
 	default:
 		return isDeclarationName(name)
