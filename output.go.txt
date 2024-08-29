@@ -54303,10 +54303,30 @@ func isDeclarationNameOrImportPropertyName(name Node) bool {
 	}
 }
 
-/*
-	 TODO(TS-TO-GO) Node ModuleDeclaration: namespace JsxNames { export const JSX = "JSX" as __String; export const IntrinsicElements = "IntrinsicElements" as __String; export const ElementClass = "ElementClass" as __String; export const ElementAttributesPropertyNameContainer = "ElementAttributesProperty" as __String; // TODO: Deprecate and remove support export const ElementChildrenAttributeNameContainer = "ElementChildrenAttribute" as __String; export const Element = "Element" as __String; export const ElementType = "ElementType" as __String; export const IntrinsicAttributes = "IntrinsicAttributes" as __String; export const IntrinsicClassAttributes = "IntrinsicClassAttributes" as __String; export const LibraryManagedAttributes = "LibraryManagedAttributes" as __String;
-	}
-*/
+var JsxNames = struct {
+	JSX                                    __String
+	IntrinsicElements                      __String
+	ElementClass                           __String
+	ElementAttributesPropertyNameContainer __String
+	ElementChildrenAttributeNameContainer  __String
+	Element                                __String
+	ElementType                            __String
+	IntrinsicAttributes                    __String
+	IntrinsicClassAttributes               __String
+	LibraryManagedAttributes               __String
+}{
+	JSX:                                    __String("JSX"),
+	IntrinsicElements:                      __String("IntrinsicElements"),
+	ElementClass:                           __String("ElementClass"),
+	ElementAttributesPropertyNameContainer: __String("ElementAttributesProperty"),
+	ElementChildrenAttributeNameContainer:  __String("ElementChildrenAttribute"),
+	Element:                                __String("Element"),
+	ElementType:                            __String("ElementType"),
+	IntrinsicAttributes:                    __String("IntrinsicAttributes"),
+	IntrinsicClassAttributes:               __String("IntrinsicClassAttributes"),
+	LibraryManagedAttributes:               __String("LibraryManagedAttributes"),
+}
+
 func getIterationTypesKeyFromIterationTypeKind(typeKind IterationTypeKind) /* TODO(TS-TO-GO) inferred type "yieldType" | "returnType" | "nextType" */ any {
 	switch typeKind {
 	case IterationTypeKindYield:

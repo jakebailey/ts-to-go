@@ -1023,6 +1023,43 @@ function visitStatement2(node: Statement) {
     }
 
     if (Node.isModuleDeclaration(node)) {
+        if (node.getName() === "JsxNames") {
+            // Special case for JsxNames only
+            const exports = new Map<string, string>();
+
+            for (const statement of node.getStatements()) {
+                assert(Node.isVariableStatement(statement), statement.getKindName());
+                assert(statement.isExported());
+
+                const declaration = statement.getDeclarationList().getDeclarations()[0];
+
+                const name = getNameOfNamed(declaration);
+                const initializer = declaration.getInitializerOrThrow();
+                assert(Node.isAsExpression(initializer), initializer.getKindName());
+                const left = initializer.getExpression();
+                assert(Node.isStringLiteral(left), left.getKindName());
+                exports.set(name, left.getLiteralText());
+            }
+
+            writer.write("var JsxNames = struct {");
+            writer.indent(() => {
+                for (const [name, value] of exports) {
+                    writer.write(`${name} __String`);
+                    writer.newLine();
+                }
+            });
+            writer.write("} {");
+            writer.indent(() => {
+                for (const [name, value] of exports) {
+                    writer.write(`${name}: __String(${JSON.stringify(value)}),`);
+                    writer.newLine();
+                }
+            });
+            writer.write("}");
+
+            return;
+        }
+
         writeTodoNode(node);
 
         writer.newLineIfLastNot();
