@@ -451,7 +451,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
 
         visitExpression(expr);
         if (node.hasQuestionDotToken()) {
-            writer.write("/* TODO(TS-TO-GO): was ? */");
+            writer.write("/* ? */");
         }
         writer.write(`.${sanitizeName(name.getText())}`);
     }
@@ -937,15 +937,18 @@ function visitStatement2(node: Statement) {
 
         const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
 
-        if (node.isGenerator()) {
-            writer.writeLine("// TODO(TS-TO-GO): was generator");
-        }
-
         if (!isGlobal) {
             writer.write(`${getNameOfNamed(node)} := func`);
+            if (node.isGenerator()) {
+                writer.write("/* generator */");
+            }
         }
         else {
-            writer.write(`func ${getNameOfNamed(node)}`);
+            writer.write(`func `);
+            if (node.isGenerator()) {
+                writer.write("/* generator */");
+            }
+            writer.write(`${getNameOfNamed(node)}`);
         }
 
         writeFunctionParametersAndReturn(node);
@@ -1262,10 +1265,9 @@ function visitStatement2(node: Statement) {
     }
 
     if (Node.isDoStatement(node)) {
-        writer.writeLine("// TODO(TS-TO-GO): refactor do-while loop approximation");
         writer.write("for ok := true; ok; ok = ");
         visitExpression(node.getExpression());
-        writer.write(" {");
+        writer.write(" { // do-while loop");
         writer.indent(() => {
             visitStatement(node.getStatement());
         });
@@ -1334,22 +1336,30 @@ function visitStatement2(node: Statement) {
     }
 
     if (Node.isTryStatement(node)) {
-        writer.writeLine("// TODO(TS-TO-GO): try");
-        writer.write("{");
+        writer.write("{ // try");
         writer.indent(() => {
             visitStatement(node.getTryBlock());
         });
         writer.writeLine("}");
         const catchClause = node.getCatchClause();
         if (catchClause) {
-            writeTodoNode(catchClause);
+            writer.write(`// catch ${catchClause.getVariableDeclaration()?.getText() ?? ""}`);
+            writer.indent(() => {
+                visitStatement(catchClause.getBlock());
+            });
+            writer.writeLine("}");
             writer.newLineIfLastNot();
         }
         const finallyBlock = node.getFinallyBlock();
         if (finallyBlock) {
-            writeTodoNode(finallyBlock);
+            writer.write("{ // finally");
+            writer.indent(() => {
+                visitStatement(finallyBlock);
+            });
+            writer.writeLine("}");
             writer.newLineIfLastNot();
         }
+        return;
     }
 
     writeTodoNode(node);
