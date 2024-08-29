@@ -80,39 +80,60 @@ function isIdentifier(text: string) {
     return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text);
 }
 
-function writeType(host: Node, node: Type): void {
-    let text = node.getText(host);
+function typeStringToGo(text: string): string {
     text = text.replace(/import\([^)]+\)\./g, "");
     text = text.trim();
 
+    switch (text) {
+        case "any":
+            return "any";
+        case "string":
+            return "string";
+        case "number":
+            return "number";
+        case "boolean":
+            return "bool";
+        case "void":
+            return "";
+    }
+
     if (isIdentifier(text)) {
-        writer.write(text);
-        return;
+        return text;
     }
 
     const orUndefined = " | undefined";
     if (text.endsWith(orUndefined)) {
         text = text.slice(0, -orUndefined.length);
-    }
-
-    text = text.trim();
-
-    if (isIdentifier(text)) {
+        const goType = typeStringToGo(text);
         switch (text) {
             case "Node":
             case "Declaration":
-                break;
+                return "*" + goType;
             default:
-                writer.write("*");
+                return goType;
         }
-        writer.write(text);
-        return;
+    }
+
+    const bracketBracket = "[]";
+    if (text.endsWith(bracketBracket)) {
+        text = text.slice(0, -bracketBracket.length);
+        return `[]${typeStringToGo(text)}`;
+    }
+
+    const readonly = "readonly ";
+    if (text.startsWith(readonly)) {
+        text = text.slice(readonly.length);
+        return typeStringToGo(text);
     }
 
     const todoName = "Type";
     const count = todoCounts.get(todoName) || 0;
     todoCounts.set(todoName, count + 1);
-    writer.write(`${asComment("TODO(TS-TO-GO) inferred type " + text)} any`);
+    return `${asComment("TODO(TS-TO-GO) inferred type " + text)} any`;
+}
+
+function writeType(host: Node, node: Type): void {
+    writer.write(typeStringToGo(node.getText(host)));
 }
 
 function visitTypeNode(type: TypeNode): void {
