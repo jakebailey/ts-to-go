@@ -81,6 +81,23 @@ function isIdentifier(text: string) {
     return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text);
 }
 
+function isInterfaceTypeName(name: string) {
+    switch (name) {
+        case "Node":
+        case "Declaration":
+        case "Expression":
+        case "Statement":
+        case "Symbol":
+        case "Type":
+        case "CancellationToken":
+        case "any":
+        case "void":
+            return true;
+        default:
+            return false;
+    }
+}
+
 function typeStringToGo(text: string): string {
     text = text.replace(/import\([^)]+\)\./g, "");
     text = text.trim();
@@ -89,7 +106,7 @@ function typeStringToGo(text: string): string {
         case "boolean":
             return "bool";
         case "void":
-            return "";
+            return "void";
         case "object":
             return "any";
         case "{}":
@@ -104,13 +121,11 @@ function typeStringToGo(text: string): string {
     if (text.endsWith(orUndefined)) {
         text = text.slice(0, -orUndefined.length);
         const goType = typeStringToGo(text);
-        switch (text) {
-            case "Node":
-            case "Declaration":
-                return "*" + goType;
-            default:
-                return goType;
+        if (isInterfaceTypeName(goType)) {
+            return goType;
         }
+        assert(goType);
+        return "*" + goType;
     }
 
     const bracketBracket = "[]";
@@ -150,8 +165,12 @@ function typeStringToGo(text: string): string {
     return `${asComment("TODO(TS-TO-GO) inferred type " + text)} any`;
 }
 
-function writeType(host: Node, node: Type): void {
-    writer.write(typeStringToGo(node.getText(host)));
+function writeType(host: Node, node: Type, isReturn?: boolean): void {
+    const text = typeStringToGo(node.getText(host));
+    if (isReturn && text === "void") {
+        return;
+    }
+    writer.write(text);
 }
 
 function visitTypeNode(type: TypeNode): void {
@@ -228,14 +247,9 @@ function visitTypeNode(type: TypeNode): void {
                 [a, b] = [b, a];
             }
             if (Node.isUndefinedKeyword(b)) {
-                switch (a.getText()) {
-                    case "Node":
-                    case "Declaration":
-                        break;
-                    default:
-                        writer.write("*");
+                if (!isInterfaceTypeName(a.getText())) {
+                    writer.write("*");
                 }
-
                 visitTypeNode(a);
             }
             else {
@@ -811,7 +825,7 @@ function writeFunctionParametersAndReturn(
             visitTypeNode(retNode);
         }
         else {
-            writeType(node, ret);
+            writeType(node, ret, true);
         }
     }
 }
