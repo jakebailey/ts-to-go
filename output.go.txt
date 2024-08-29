@@ -947,7 +947,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				diagnostics = addRange(diagnostics, suggestionDiagnostics.getDiagnostics(file.fileName))
 				checkUnusedIdentifiers(getPotentiallyUnusedIdentifiers(file), func(containingNode Node, kind UnusedKind, diag DiagnosticWithLocation) {
 					if !containsParseError(containingNode) && !unusedIsError(kind, !!(containingNode.flags&NodeFlagsAmbient)) {
-						(diagnostics || ( /* TODO(TS-TO-GO) Node BinaryExpression: diagnostics = [] */ TODO)).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
+						(diagnostics || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: diagnostics = [] */ TODO)).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 							/* TODO(TS-TO-GO) Node SpreadAssignment: ...diag */
 							"category": DiagnosticCategorySuggestion,
 						})
@@ -1593,11 +1593,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			// Issue errors globally
 			file := getSourceFileOfNode(location)
-			addErrorOrSuggestion(isError, __COND__( /* TODO(TS-TO-GO) Node BinaryExpression: "message" in message */ TODO, createFileDiagnostic(file, 0, 0, message, args...), createDiagnosticForFileFromMessageChain(file, message)))
+			addErrorOrSuggestion(isError, __COND__( /* TODO(TS-TO-GO) InKeyword BinaryExpression: "message" in message */ TODO, createFileDiagnostic(file, 0, 0, message, args...), createDiagnosticForFileFromMessageChain(file, message)))
 			// eslint-disable-line local/no-in-operator
 			return
 		}
-		addErrorOrSuggestion(isError, __COND__( /* TODO(TS-TO-GO) Node BinaryExpression: "message" in message */ TODO, createDiagnosticForNode(location, message, args...), createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(location), location, message)))
+		addErrorOrSuggestion(isError, __COND__( /* TODO(TS-TO-GO) InKeyword BinaryExpression: "message" in message */ TODO, createDiagnosticForNode(location, message, args...), createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(location), location, message)))
 		// eslint-disable-line local/no-in-operator
 	}
 	errorAndMaybeSuggestAwait := func(location Node, maybeMissingAwait bool, message DiagnosticMessage, args DiagnosticArguments) Diagnostic {
@@ -2019,11 +2019,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return (symbol /* as TransientSymbol */).links
 		}
 		id := getSymbolId(symbol)
-		return /* TODO(TS-TO-GO) Node BinaryExpression: symbolLinks[id] ??= new SymbolLinks() */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: symbolLinks[id] ??= new SymbolLinks() */ TODO
 	}
 	getNodeLinks := func(node Node) NodeLinks {
 		nodeId := getNodeId(node)
-		return nodeLinks[nodeId] || ( /* TODO(TS-TO-GO) Node BinaryExpression: nodeLinks[nodeId] = new (NodeLinks as any)() */ TODO)
+		return nodeLinks[nodeId] || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: nodeLinks[nodeId] = new (NodeLinks as any)() */ TODO)
 	}
 	getSymbol := func(symbols SymbolTable, name __String, meaning SymbolFlags) Symbol {
 		if meaning {
@@ -3347,9 +3347,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	markSymbolOfAliasDeclarationIfTypeOnlyWorker := func(aliasDeclarationLinks SymbolLinks, target Symbol, overwriteEmpty bool) bool {
 		if target && (aliasDeclarationLinks.typeOnlyDeclaration == nil || overwriteEmpty && aliasDeclarationLinks.typeOnlyDeclaration == false) {
-			exportSymbol := /* TODO(TS-TO-GO) Node BinaryExpression: target.exports?.get(InternalSymbolName.ExportEquals) ?? target */ TODO
+			exportSymbol := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: target.exports?.get(InternalSymbolName.ExportEquals) ?? target */ TODO
 			typeOnly := exportSymbol.declarations && find(exportSymbol.declarations, isTypeOnlyImportOrExportDeclaration)
-			aliasDeclarationLinks.typeOnlyDeclaration = /* TODO(TS-TO-GO) Node BinaryExpression: typeOnly ?? getSymbolLinks(exportSymbol).typeOnlyDeclaration ?? false */ TODO
+			aliasDeclarationLinks.typeOnlyDeclaration = /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: typeOnly ?? getSymbolLinks(exportSymbol).typeOnlyDeclaration ?? false */ TODO
 		}
 		return !!aliasDeclarationLinks.typeOnlyDeclaration
 	}
@@ -4131,7 +4131,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				extendExportSymbols(symbols, nestedSymbols)
 			}
 			if exportStar. /* ? */ isTypeOnly {
-				/* TODO(TS-TO-GO) Node BinaryExpression: typeOnlyExportStarMap ??= new Map() */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: typeOnlyExportStarMap ??= new Map() */ TODO
 				symbols.forEach(func(_ Symbol, escapedName __String) Map[__String /* TODO(TS-TO-GO) inferred type ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */, any] {
 					return typeOnlyExportStarMap.set(escapedName, exportStar /* as ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */)
 				})
@@ -4143,7 +4143,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	/* OVERLOAD: function getMergedSymbol(symbol: Symbol | undefined): Symbol | undefined; */
 	getMergedSymbol := func(symbol Symbol) Symbol {
 		var merged Symbol
-		if symbol && symbol.mergeId && ( /* TODO(TS-TO-GO) Node BinaryExpression: merged = mergedSymbols[symbol.mergeId] */ TODO) {
+		if symbol && symbol.mergeId && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: merged = mergedSymbols[symbol.mergeId] */ TODO) {
 			return merged
 		} else {
 			return symbol
@@ -4178,7 +4178,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		id := getNodeId(containingFile)
 		links := getSymbolLinks(symbol)
 		var results *[]Symbol
-		if links.extendedContainersByFile && ( /* TODO(TS-TO-GO) Node BinaryExpression: results = links.extendedContainersByFile.get(id) */ TODO) {
+		if links.extendedContainersByFile && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: results = links.extendedContainersByFile.get(id) */ TODO) {
 			return results
 		}
 		if containingFile && containingFile.imports {
@@ -4200,7 +4200,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				results = append(results, resolvedModule)
 			}
 			if length(results) {
-				(links.extendedContainersByFile || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.extendedContainersByFile = new Map() */ TODO)).set(id, results)
+				(links.extendedContainersByFile || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.extendedContainersByFile = new Map() */ TODO)).set(id, results)
 				return results
 			}
 		}
@@ -4388,7 +4388,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return type_
 	}
 	checkIntrinsicName := func(name string, debug *string) {
-		key := __TEMPLATE__(name, "," /* TODO(TS-TO-GO) Node BinaryExpression: debug ?? "" */, TODO)
+		key := __TEMPLATE__(name, "," /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: debug ?? "" */, TODO)
 		if seenIntrinsicNames.has(key) {
 			Debug.fail(__TEMPLATE__("Duplicate intrinsic type name ", name, __COND__(debug, __TEMPLATE__(" (", debug, ")"), ""), "; you may need to pass a name to createIntrinsicType."))
 		}
@@ -4421,7 +4421,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var result *[]Symbol
 		members.forEach(func(symbol Symbol, id __String) {
 			if isNamedMember(symbol, id) {
-				(result || ( /* TODO(TS-TO-GO) Node BinaryExpression: result = [] */ TODO)).push(symbol)
+				(result || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = [] */ TODO)).push(symbol)
 			}
 		})
 		return result || emptyArray
@@ -4477,7 +4477,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for location := enclosingDeclaration; location; location = location.parent {
 			// Locals of a source file are not in scope (because they get merged into the global symbol table)
 			if canHaveLocals(location) && location.locals && !isGlobalSourceFile(location) {
-				if /* TODO(TS-TO-GO) Node BinaryExpression: result = callback(location.locals, /*ignoreQualification* / undefined, /*isLocalNameLookup* / true, location) */ TODO {
+				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = callback(location.locals, /*ignoreQualification* / undefined, /*isLocalNameLookup* / true, location) */ TODO {
 					return result
 				}
 			}
@@ -4489,7 +4489,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				fallthrough
 			case SyntaxKindModuleDeclaration:
 				sym := getSymbolOfDeclaration(location /* as ModuleDeclaration */)
-				if /* TODO(TS-TO-GO) Node BinaryExpression: result = callback(sym?.exports || emptySymbols, /*ignoreQualification* / undefined, /*isLocalNameLookup* / true, location) */ TODO {
+				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = callback(sym?.exports || emptySymbols, /*ignoreQualification* / undefined, /*isLocalNameLookup* / true, location) */ TODO {
 					return result
 				}
 			case SyntaxKindClassDeclaration,
@@ -4498,10 +4498,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				var table *Map[__String, Symbol]
 				(getSymbolOfDeclaration(location /* as ClassLikeDeclaration | InterfaceDeclaration */).members || emptySymbols).forEach(func(memberSymbol Symbol, key __String) {
 					if memberSymbol.flags & (SymbolFlagsType & ~SymbolFlagsAssignment) {
-						(table || ( /* TODO(TS-TO-GO) Node BinaryExpression: table = createSymbolTable() */ TODO)).set(key, memberSymbol)
+						(table || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: table = createSymbolTable() */ TODO)).set(key, memberSymbol)
 					}
 				})
-				if table && ( /* TODO(TS-TO-GO) Node BinaryExpression: result = callback(table, /*ignoreQualification* / undefined, /*isLocalNameLookup* / false, location) */ TODO) {
+				if table && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = callback(table, /*ignoreQualification* / undefined, /*isLocalNameLookup* / false, location) */ TODO) {
 					return result
 				}
 			}
@@ -4521,7 +4521,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return nil
 		}
 		links := getSymbolLinks(symbol)
-		cache := ( /* TODO(TS-TO-GO) Node BinaryExpression: links.accessibleChainCache ||= new Map() */ TODO)
+		cache := ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: links.accessibleChainCache ||= new Map() */ TODO)
 		// Go from enclosingDeclaration to the first scope we check, so the cache is keyed off the scope and thus shared more
 		firstRelevantLocation := forEachSymbolTableInScope(enclosingDeclaration, func(_ SymbolTable, __ *bool, ___ *bool, node Node) Node {
 			return node
@@ -4533,7 +4533,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		id := getSymbolId(symbol)
 		visitedSymbolTables := visitedSymbolTablesMap.get(id)
 		if !visitedSymbolTables {
-			visitedSymbolTablesMap.set(id /* TODO(TS-TO-GO) Node BinaryExpression: visitedSymbolTables = [] */, TODO)
+			visitedSymbolTablesMap.set(id /* TODO(TS-TO-GO) EqualsToken BinaryExpression: visitedSymbolTables = [] */, TODO)
 		}
 		result := forEachSymbolTableInScope(enclosingDeclaration, getAccessibleSymbolChainFromSymbolTable)
 		cache.set(key, result)
@@ -5750,7 +5750,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				links := context.enclosingDeclaration && getNodeLinks(context.enclosingDeclaration)
 				key := __TEMPLATE__(getTypeId(type_), "|", context.flags, "|", context.internalFlags)
 				if links {
-					/* TODO(TS-TO-GO) Node BinaryExpression: links.serializedTypes ||= new Map() */ TODO
+					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: links.serializedTypes ||= new Map() */ TODO
 				}
 				cachedResult := links. /* ? */ serializedTypes. /* ? */ get(key)
 				if cachedResult {
@@ -6108,7 +6108,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			depth := 3
 			return !!(getCheckFlags(propertySymbol) & CheckFlagsReverseMapped) && (contains(context.reverseMappedStack, propertySymbol /* as ReverseMappedSymbol */) || (context.reverseMappedStack[0] && !(getObjectFlags(last(context.reverseMappedStack).links.propertyType) & ObjectFlagsAnonymous)) || isDeeplyNestedReverseMappedTypeProperty())
 			isDeeplyNestedReverseMappedTypeProperty := func() bool {
-				if ( /* TODO(TS-TO-GO) Node BinaryExpression: context.reverseMappedStack?.length ?? 0 */ TODO) < depth {
+				if ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: context.reverseMappedStack?.length ?? 0 */ TODO) < depth {
 					return false
 				}
 				for i := 0; i < depth; i++ {
@@ -6193,7 +6193,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				propertyTypeNode = createElidedInformationPlaceholder(context)
 			} else {
 				if propertyIsReverseMapped {
-					/* TODO(TS-TO-GO) Node BinaryExpression: context.reverseMappedStack ||= [] */ TODO
+					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: context.reverseMappedStack ||= [] */ TODO
 					context.reverseMappedStack.push(propertySymbol /* as ReverseMappedSymbol */)
 				}
 				if propertyType {
@@ -6376,23 +6376,23 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			case kind == SyntaxKindConstructSignature:
 				node = factory.createConstructSignature(typeParameters, parameters, returnTypeNode)
 			case kind == SyntaxKindMethodSignature:
-				node = factory.createMethodSignature(modifiers /* TODO(TS-TO-GO) Node BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, options. /* ? */ questionToken, typeParameters, parameters, returnTypeNode)
+				node = factory.createMethodSignature(modifiers /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, options. /* ? */ questionToken, typeParameters, parameters, returnTypeNode)
 			case kind == SyntaxKindMethodDeclaration:
-				node = factory.createMethodDeclaration(modifiers /*asteriskToken*/, nil /* TODO(TS-TO-GO) Node BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO /*questionToken*/, nil, typeParameters, parameters, returnTypeNode /*body*/, nil)
+				node = factory.createMethodDeclaration(modifiers /*asteriskToken*/, nil /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO /*questionToken*/, nil, typeParameters, parameters, returnTypeNode /*body*/, nil)
 			case kind == SyntaxKindConstructor:
 				node = factory.createConstructorDeclaration(modifiers, parameters /*body*/, nil)
 			case kind == SyntaxKindGetAccessor:
-				node = factory.createGetAccessorDeclaration(modifiers /* TODO(TS-TO-GO) Node BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, parameters, returnTypeNode /*body*/, nil)
+				node = factory.createGetAccessorDeclaration(modifiers /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, parameters, returnTypeNode /*body*/, nil)
 			case kind == SyntaxKindSetAccessor:
-				node = factory.createSetAccessorDeclaration(modifiers /* TODO(TS-TO-GO) Node BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, parameters /*body*/, nil)
+				node = factory.createSetAccessorDeclaration(modifiers /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, parameters /*body*/, nil)
 			case kind == SyntaxKindIndexSignature:
 				node = factory.createIndexSignature(modifiers, parameters, returnTypeNode)
 			case kind == SyntaxKindJSDocFunctionType:
 				node = factory.createJSDocFunctionType(parameters, returnTypeNode)
 			case kind == SyntaxKindFunctionType:
-				node = factory.createFunctionTypeNode(typeParameters, parameters /* TODO(TS-TO-GO) Node BinaryExpression: returnTypeNode ?? factory.createTypeReferenceNode(factory.createIdentifier("")) */, TODO)
+				node = factory.createFunctionTypeNode(typeParameters, parameters /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: returnTypeNode ?? factory.createTypeReferenceNode(factory.createIdentifier("")) */, TODO)
 			case kind == SyntaxKindConstructorType:
-				node = factory.createConstructorTypeNode(modifiers, typeParameters, parameters /* TODO(TS-TO-GO) Node BinaryExpression: returnTypeNode ?? factory.createTypeReferenceNode(factory.createIdentifier("")) */, TODO)
+				node = factory.createConstructorTypeNode(modifiers, typeParameters, parameters /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: returnTypeNode ?? factory.createTypeReferenceNode(factory.createIdentifier("")) */, TODO)
 			case kind == SyntaxKindFunctionDeclaration:
 				node = factory.createFunctionDeclaration(modifiers /*asteriskToken*/, nil, __COND__(options. /* ? */ name, cast(options.name, isIdentifier), factory.createIdentifier("")), typeParameters, parameters, returnTypeNode /*body*/, nil)
 			case kind == SyntaxKindFunctionExpression:
@@ -6523,7 +6523,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if context.flags&NodeBuilderFlagsGenerateNamesForShadowedTypeParams && some(typeParameters) {
 					cleanupTypeParams = pushFakeScope("typeParams", func(add /* TODO(TS-TO-GO) inferred type (name: __String, symbol: Symbol) => void */ any) {
-						for _, typeParam := range /* TODO(TS-TO-GO) Node BinaryExpression: typeParameters ?? emptyArray */ TODO {
+						for _, typeParam := range /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: typeParameters ?? emptyArray */ TODO {
 							typeParamName := typeParameterToName(typeParam, context).escapedText
 							add(typeParamName, typeParam.symbol)
 						}
@@ -6539,7 +6539,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						existingFakeScope = context.enclosingDeclaration.parent
 					}
 					Debug.assertOptionalNode(existingFakeScope, isBlock)
-					locals := /* TODO(TS-TO-GO) Node BinaryExpression: existingFakeScope?.locals ?? createSymbolTable() */ TODO
+					locals := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: existingFakeScope?.locals ?? createSymbolTable() */ TODO
 					var newLocals *[]__String
 					var oldLocals *[] /* TODO(TS-TO-GO) TypeNode TypeLiteral: { name: __String; oldSymbol: Symbol; } */ any
 					addAll(func(name __String, symbol Symbol) {
@@ -6906,7 +6906,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}, map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"overrideImportMode": overrideImportMode,
 				}))
-				/* TODO(TS-TO-GO) Node BinaryExpression: links.specifierCache ??= new Map() */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.specifierCache ??= new Map() */ TODO
 				links.specifierCache.set(cacheKey, specifier)
 			}
 			return specifier
@@ -7356,7 +7356,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			})) {
 				context.flags |= NodeBuilderFlagsAllowUniqueESSymbolType
 			}
-			decl := /* TODO(TS-TO-GO) Node BinaryExpression: declaration ?? symbol.valueDeclaration ?? symbol.declarations?.[0] */ TODO
+			decl := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: declaration ?? symbol.valueDeclaration ?? symbol.declarations?.[0] */ TODO
 			var expr Expression
 			if decl && isDeclarationWithPossibleInnerTypeNodeReuse(decl) {
 				expr = getPossibleTypeNodeReuseExpression(decl)
@@ -7670,7 +7670,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						})
 					},
 					"trackSymbol": func(sym Symbol, decl Node, meaning SymbolFlags) false {
-						( /* TODO(TS-TO-GO) Node BinaryExpression: trackedSymbols ??= [] */ TODO).push([]any{sym, decl, meaning})
+						( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: trackedSymbols ??= [] */ TODO).push([]any{sym, decl, meaning})
 						return false
 					},
 					"moduleResolverHost": context.tracker.moduleResolverHost,
@@ -7681,11 +7681,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				markError := func(unreportedError func()) {
 					hadError = true
-					( /* TODO(TS-TO-GO) Node BinaryExpression: unreportedErrors ??= [] */ TODO).push(unreportedError)
+					( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: unreportedErrors ??= [] */ TODO).push(unreportedError)
 				}
 				startRecoveryScope := func() /* TODO(TS-TO-GO) inferred type () => void */ any {
-					trackedSymbolsTop := /* TODO(TS-TO-GO) Node BinaryExpression: trackedSymbols?.length ?? 0 */ TODO
-					unreportedErrorsTop := /* TODO(TS-TO-GO) Node BinaryExpression: unreportedErrors?.length ?? 0 */ TODO
+					trackedSymbolsTop := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: trackedSymbols?.length ?? 0 */ TODO
+					unreportedErrorsTop := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: unreportedErrors?.length ?? 0 */ TODO
 					return func() {
 						hadError = false
 						// Reset the tracked symbols to before the error
@@ -7821,7 +7821,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						var newTypeNode *TypeNode
 						return factory.createConstructorTypeNode(nil, visitNodes(node.typeParameters, visitExistingNodeTreeSymbols, isTypeParameterDeclaration), mapDefined(node.parameters, func(p ParameterDeclaration, i number) *ParameterDeclaration {
 							if p.name && isIdentifier(p.name) && p.name.escapedText == "new" {
-								return ( /* TODO(TS-TO-GO) Node BinaryExpression: newTypeNode = p.type, undefined */ TODO)
+								return ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: newTypeNode = p.type, undefined */ TODO)
 							} else {
 								return factory.createParameterDeclaration(nil, getEffectiveDotDotDotForParameter(p), setTextRange(context, factory.createIdentifier(getNameForJSDocFunctionParameter(p, i)), p), factory.cloneNode(p.questionToken), visitNode(p.type_, visitExistingNodeTreeSymbols, isTypeNode), nil)
 							}
@@ -8139,7 +8139,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					name := ns.name
 					body := ns.body
 					if length(excessExports) {
-						ns = factory.updateModuleDeclaration(ns, ns.modifiers, ns.name /* TODO(TS-TO-GO) Node BinaryExpression: body = factory.updateModuleBlock( body, factory.createNodeArray([ ...ns.body.statements, factory.createExportDeclaration( /*modifiers* / undefined, /*isTypeOnly* / false, factory.createNamedExports(map(flatMap(excessExports, e => getNamesOfDeclaration(e)), id => factory.createExportSpecifier(/*isTypeOnly* / false, /*propertyName* / undefined, id))), /*moduleSpecifier* / undefined, ), ]), ) */, TODO)
+						ns = factory.updateModuleDeclaration(ns, ns.modifiers, ns.name /* TODO(TS-TO-GO) EqualsToken BinaryExpression: body = factory.updateModuleBlock( body, factory.createNodeArray([ ...ns.body.statements, factory.createExportDeclaration( /*modifiers* / undefined, /*isTypeOnly* / false, factory.createNamedExports(map(flatMap(excessExports, e => getNamesOfDeclaration(e)), id => factory.createExportSpecifier(/*isTypeOnly* / false, /*propertyName* / undefined, id))), /*moduleSpecifier* / undefined, ), ]), ) */, TODO)
 						statements = []Statement{ /* TODO(TS-TO-GO) Node SpreadElement: ...statements.slice(0, nsIndex) */ ns /* TODO(TS-TO-GO) Node SpreadElement: ...statements.slice(nsIndex + 1) */}
 					}
 					// Pass 1: Flatten `export namespace _exports {} export = _exports;` so long as the `export=` only points at a single namespace declaration
@@ -8759,7 +8759,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							// Empty heritage clause, should be an error, but prefer emitting no heritage clauses to reemitting the empty one
 						}
 						var introducesError bool
-						( /* TODO(TS-TO-GO) Node BinaryExpression: { introducesError, node: expr } = trackExistingEntityName(expr, context) */ TODO)
+						( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: { introducesError, node: expr } = trackExistingEntityName(expr, context) */ TODO)
 						if introducesError {
 							return cleanup(nil)
 						}
@@ -9759,7 +9759,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 */
 	getTypeOfPropertyOrIndexSignatureOfType := func(type_ Type, name __String) Type {
 		var propType TODO
-		return getTypeOfPropertyOfType(type_, name) || ( /* TODO(TS-TO-GO) Node BinaryExpression: propType = getApplicableIndexInfoForName(type, name)?.type */ TODO) && addOptionality(propType /*isProperty*/, true /*isOptional*/, true)
+		return getTypeOfPropertyOfType(type_, name) || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: propType = getApplicableIndexInfoForName(type, name)?.type */ TODO) && addOptionality(propType /*isProperty*/, true /*isOptional*/, true)
 	}
 	isTypeAny := func(type_ Type) *bool {
 		return type_ && (type_.flags&TypeFlagsAny) != 0
@@ -10344,7 +10344,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						jsdocType = getAnnotatedTypeForAssignmentDeclaration(jsdocType, expression, symbol, declaration)
 					}
 					if !jsdocType {
-						(types || ( /* TODO(TS-TO-GO) Node BinaryExpression: types = [] */ TODO)).push(__COND__((isBinaryExpression(expression) || isCallExpression(expression)), getInitializerTypeFromAssignmentDeclaration(symbol, resolvedSymbol, expression, kind), neverType))
+						(types || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: types = [] */ TODO)).push(__COND__((isBinaryExpression(expression) || isCallExpression(expression)), getInitializerTypeFromAssignmentDeclaration(symbol, resolvedSymbol, expression, kind), neverType))
 					}
 				}
 				type_ = jsdocType
@@ -10364,7 +10364,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if definedInMethod {
 					propType := getTypeOfPropertyInBaseClass(symbol)
 					if propType {
-						(constructorTypes || ( /* TODO(TS-TO-GO) Node BinaryExpression: constructorTypes = [] */ TODO)).push(propType)
+						(constructorTypes || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: constructorTypes = [] */ TODO)).push(propType)
 						definedInConstructor = true
 					}
 				}
@@ -10971,7 +10971,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				type_ = anyType
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: links.type ??= type */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.type ??= type */ TODO
 		}
 		return links.type_
 	}
@@ -10981,7 +10981,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if !pushTypeResolution(symbol, TypeSystemPropertyNameWriteType) {
 				return errorType
 			}
-			setter := /* TODO(TS-TO-GO) Node BinaryExpression: getDeclarationOfKind<AccessorDeclaration>(symbol, SyntaxKind.SetAccessor) ?? tryCast(getDeclarationOfKind<PropertyDeclaration>(symbol, SyntaxKind.PropertyDeclaration), isAutoAccessorPropertyDeclaration) */ TODO
+			setter := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getDeclarationOfKind<AccessorDeclaration>(symbol, SyntaxKind.SetAccessor) ?? tryCast(getDeclarationOfKind<PropertyDeclaration>(symbol, SyntaxKind.PropertyDeclaration), isAutoAccessorPropertyDeclaration) */ TODO
 			writeType := getAnnotatedAccessorType(setter)
 			if !popTypeResolution() {
 				if getAnnotatedAccessorTypeNode(setter) {
@@ -10990,7 +10990,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				writeType = anyType
 			}
 			// Absent an explicit setter type annotation we use the read type of the accessor.
-			/* TODO(TS-TO-GO) Node BinaryExpression: links.writeType ??= writeType || getTypeOfAccessors(symbol) */
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.writeType ??= writeType || getTypeOfAccessors(symbol) */
 			TODO
 		}
 		return links.writeType
@@ -11021,7 +11021,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					links = merged.links
 				}
 			}
-			originalLinks.type_ = /* TODO(TS-TO-GO) Node BinaryExpression: links.type = getTypeOfFuncClassEnumModuleWorker(symbol) */ TODO
+			originalLinks.type_ = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.type = getTypeOfFuncClassEnumModuleWorker(symbol) */ TODO
 		}
 		return links.type_
 	}
@@ -11063,7 +11063,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypeOfEnumMember := func(symbol Symbol) Type {
 		links := getSymbolLinks(symbol)
-		return links.type_ || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.type = getDeclaredTypeOfEnumMember(symbol) */ TODO)
+		return links.type_ || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.type = getDeclaredTypeOfEnumMember(symbol) */ TODO)
 	}
 	getTypeOfAlias := func(symbol Symbol) Type {
 		links := getSymbolLinks(symbol)
@@ -11085,22 +11085,22 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// type symbol, call getDeclaredTypeOfSymbol.
 			// This check is important because without it, a call to getTypeOfSymbol could end
 			// up recursively calling getTypeOfAlias, causing a stack overflow.
-			/* TODO(TS-TO-GO) Node BinaryExpression: links.type ??= exportSymbol?.declarations && isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations!.length ? getFlowTypeFromCommonJSExport(exportSymbol) : isDuplicatedCommonJSExport(symbol.declarations) ? autoType : declaredType ? declaredType : getSymbolFlags(targetSymbol) & SymbolFlags.Value ? getTypeOfSymbol(targetSymbol) : errorType */
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.type ??= exportSymbol?.declarations && isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations!.length ? getFlowTypeFromCommonJSExport(exportSymbol) : isDuplicatedCommonJSExport(symbol.declarations) ? autoType : declaredType ? declaredType : getSymbolFlags(targetSymbol) & SymbolFlags.Value ? getTypeOfSymbol(targetSymbol) : errorType */
 			TODO
 			if !popTypeResolution() {
-				reportCircularityError( /* TODO(TS-TO-GO) Node BinaryExpression: exportSymbol ?? symbol */ TODO)
-				return /* TODO(TS-TO-GO) Node BinaryExpression: links.type ??= errorType */ TODO
+				reportCircularityError( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: exportSymbol ?? symbol */ TODO)
+				return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.type ??= errorType */ TODO
 			}
 		}
 		return links.type_
 	}
 	getTypeOfInstantiatedSymbol := func(symbol Symbol) Type {
 		links := getSymbolLinks(symbol)
-		return links.type_ || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.type = instantiateType(getTypeOfSymbol(links.target!), links.mapper) */ TODO)
+		return links.type_ || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.type = instantiateType(getTypeOfSymbol(links.target!), links.mapper) */ TODO)
 	}
 	getWriteTypeOfInstantiatedSymbol := func(symbol Symbol) Type {
 		links := getSymbolLinks(symbol)
-		return links.writeType || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.writeType = instantiateType(getWriteTypeOfSymbol(links.target!), links.mapper) */ TODO)
+		return links.writeType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.writeType = instantiateType(getWriteTypeOfSymbol(links.target!), links.mapper) */ TODO)
 	}
 	reportCircularityError := func(symbol Symbol) IntrinsicType {
 		declaration := symbol.valueDeclaration
@@ -11457,7 +11457,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if !popTypeResolution() {
 				error(type_.symbol.valueDeclaration, Diagnostics._0_is_referenced_directly_or_indirectly_in_its_own_base_expression, symbolToString(type_.symbol))
-				return /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedBaseConstructorType ??= errorType */ TODO
+				return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedBaseConstructorType ??= errorType */ TODO
 			}
 			if !(baseConstructorType.flags & TypeFlagsAny) && baseConstructorType != nullWideningType && !isConstructorType(baseConstructorType) {
 				err := error(baseTypeNode.expression, Diagnostics.Type_0_is_not_a_constructor_function_type, typeToString(baseConstructorType))
@@ -11474,9 +11474,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						addRelatedInfo(err, createDiagnosticForNode(baseConstructorType.symbol.declarations[0], Diagnostics.Did_you_mean_for_0_to_be_constrained_to_type_new_args_Colon_any_1, symbolToString(baseConstructorType.symbol), typeToString(ctorReturn)))
 					}
 				}
-				return /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedBaseConstructorType ??= errorType */ TODO
+				return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedBaseConstructorType ??= errorType */ TODO
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedBaseConstructorType ??= baseConstructorType */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedBaseConstructorType ??= baseConstructorType */ TODO
 		}
 		return type_.resolvedBaseConstructorType
 	}
@@ -11700,7 +11700,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				symbol = merged
 				links = merged.links
 			}
-			type_ := /* TODO(TS-TO-GO) Node BinaryExpression: originalLinks.declaredType = links.declaredType = createObjectType(kind, symbol) as InterfaceType */ TODO
+			type_ := /* TODO(TS-TO-GO) EqualsToken BinaryExpression: originalLinks.declaredType = links.declaredType = createObjectType(kind, symbol) as InterfaceType */ TODO
 			outerTypeParameters := getOuterTypeParametersOfClassOrInterface(symbol)
 			localTypeParameters := getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(symbol)
 			// A class or interface is generic if it has type parameters or a "this" type. We always give classes a "this" type
@@ -11766,7 +11766,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					error(__COND__(isNamedDeclaration(declaration), declaration.name || declaration, declaration), Diagnostics.Type_alias_0_circularly_references_itself, symbolToString(symbol))
 				}
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: links.declaredType ??= type */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.declaredType ??= type */ TODO
 		}
 		return links.declaredType
 	}
@@ -11831,11 +11831,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getDeclaredTypeOfTypeParameter := func(symbol Symbol) TypeParameter {
 		links := getSymbolLinks(symbol)
-		return links.declaredType || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.declaredType = createTypeParameter(symbol) */ TODO)
+		return links.declaredType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.declaredType = createTypeParameter(symbol) */ TODO)
 	}
 	getDeclaredTypeOfAlias := func(symbol Symbol) Type {
 		links := getSymbolLinks(symbol)
-		return links.declaredType || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.declaredType = getDeclaredTypeOfSymbol(resolveAlias(symbol)) */ TODO)
+		return links.declaredType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.declaredType = getDeclaredTypeOfSymbol(resolveAlias(symbol)) */ TODO)
 	}
 	getDeclaredTypeOfSymbol := func(symbol Symbol) Type {
 		return tryGetDeclaredTypeOfSymbol(symbol) || errorType
@@ -12095,7 +12095,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				// Get or add a late-bound symbol for the member. This allows us to merge late-bound accessor declarations.
 				lateSymbol := lateSymbols.get(memberName)
 				if !lateSymbol {
-					lateSymbols.set(memberName /* TODO(TS-TO-GO) Node BinaryExpression: lateSymbol = createSymbol(SymbolFlags.None, memberName, CheckFlags.Late) */, TODO)
+					lateSymbols.set(memberName /* TODO(TS-TO-GO) EqualsToken BinaryExpression: lateSymbol = createSymbol(SymbolFlags.None, memberName, CheckFlags.Late) */, TODO)
 				}
 				// Report an error if there's a symbol declaration with the same name and conflicting flags.
 				earlySymbol := earlySymbols && earlySymbols.get(memberName)
@@ -12231,7 +12231,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					getMembersOfSymbol(parent)
 				}
 			}
-			return links.lateSymbol || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.lateSymbol = symbol */ TODO)
+			return links.lateSymbol || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.lateSymbol = symbol */ TODO)
 		}
 		return symbol
 	}
@@ -12379,7 +12379,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		} else {
 			key = "outer"
 		}
-		return signature.optionalCallSignatureCache[key] || ( /* TODO(TS-TO-GO) Node BinaryExpression: signature.optionalCallSignatureCache[key] = createOptionalCallSignature(signature, callChainFlags) */ TODO)
+		return signature.optionalCallSignatureCache[key] || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: signature.optionalCallSignatureCache[key] = createOptionalCallSignature(signature, callChainFlags) */ TODO)
 	}
 	createOptionalCallSignature := func(signature Signature, callChainFlags SignatureFlags) Signature {
 		Debug.assert(callChainFlags == SignatureFlagsIsInnerCallChain || callChainFlags == SignatureFlagsIsOuterCallChain, "An optional call signature can either be for an inner call chain or an outer call chain, but not both.")
@@ -12447,9 +12447,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				counters := NewMap[__String, number]()
 				for _, i := range duplicates {
-					counter := /* TODO(TS-TO-GO) Node BinaryExpression: counters.get(names[i]) ?? 1 */ TODO
+					counter := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: counters.get(names[i]) ?? 1 */ TODO
 					var name __String
-					for !tryAddToSet(uniqueNames /* TODO(TS-TO-GO) Node BinaryExpression: name = `${names[i]}_${counter}` as __String */, TODO) {
+					for !tryAddToSet(uniqueNames /* TODO(TS-TO-GO) EqualsToken BinaryExpression: name = `${names[i]}_${counter}` as __String */, TODO) {
 						counter++
 					}
 					names[i] = name
@@ -12572,7 +12572,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							s = createUnionSignature(signature, unionSignatures)
 							s.thisParameter = thisParameter
 						}
-						(result || ( /* TODO(TS-TO-GO) Node BinaryExpression: result = [] */ TODO)).push(s)
+						(result || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = [] */ TODO)).push(s)
 					}
 				}
 			}
@@ -13228,25 +13228,25 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				error(currentNode, Diagnostics.Type_of_property_0_circularly_references_itself_in_mapped_type_1, symbolToString(symbol), typeToString(mappedType))
 				type_ = errorType
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: symbol.links.type ??= type */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: symbol.links.type ??= type */ TODO
 		}
 		return symbol.links.type_
 	}
 	getTypeParameterFromMappedType := func(type_ MappedType) TypeParameter {
-		return type_.typeParameter || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.typeParameter = getDeclaredTypeOfTypeParameter(getSymbolOfDeclaration(type.declaration.typeParameter)) */ TODO)
+		return type_.typeParameter || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.typeParameter = getDeclaredTypeOfTypeParameter(getSymbolOfDeclaration(type.declaration.typeParameter)) */ TODO)
 	}
 	getConstraintTypeFromMappedType := func(type_ MappedType) Type {
-		return type_.constraintType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.constraintType = getConstraintOfTypeParameter(getTypeParameterFromMappedType(type)) || errorType */ TODO)
+		return type_.constraintType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.constraintType = getConstraintOfTypeParameter(getTypeParameterFromMappedType(type)) || errorType */ TODO)
 	}
 	getNameTypeFromMappedType := func(type_ MappedType) Type {
 		if type_.declaration.nameType {
-			return type_.nameType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.nameType = instantiateType(getTypeFromTypeNode(type.declaration.nameType), type.mapper) */ TODO)
+			return type_.nameType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.nameType = instantiateType(getTypeFromTypeNode(type.declaration.nameType), type.mapper) */ TODO)
 		} else {
 			return nil
 		}
 	}
 	getTemplateTypeFromMappedType := func(type_ MappedType) Type {
-		return type_.templateType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.templateType = type.declaration.type ? instantiateType(addOptionality(getTypeFromTypeNode(type.declaration.type), /*isProperty* / true, !!(getMappedTypeModifiers(type) & MappedTypeModifiers.IncludeOptional)), type.mapper) : errorType */ TODO)
+		return type_.templateType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.templateType = type.declaration.type ? instantiateType(addOptionality(getTypeFromTypeNode(type.declaration.type), /*isProperty* / true, !!(getMappedTypeModifiers(type) & MappedTypeModifiers.IncludeOptional)), type.mapper) : errorType */ TODO)
 	}
 	getConstraintDeclarationForMappedType := func(type_ MappedType) *TypeNode {
 		return getEffectiveConstraintOfTypeParameter(type_.declaration.typeParameter)
@@ -13707,7 +13707,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					result = circularConstraintType
 				}
-				/* TODO(TS-TO-GO) Node BinaryExpression: t.immediateBaseConstraint ??= result || noConstraintType */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: t.immediateBaseConstraint ??= result || noConstraintType */ TODO
 			}
 			return t.immediateBaseConstraint
 		}
@@ -13813,10 +13813,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getApparentTypeOfIntersectionType := func(type_ IntersectionType, thisArgument Type) Type {
 		if type_ == thisArgument {
-			return type_.resolvedApparentType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedApparentType = getTypeWithThisArgument(type, thisArgument, /*needApparentType* / true) */ TODO)
+			return type_.resolvedApparentType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedApparentType = getTypeWithThisArgument(type, thisArgument, /*needApparentType* / true) */ TODO)
 		}
 		key := __TEMPLATE__("I", getTypeId(type_), ",", getTypeId(thisArgument))
-		return /* TODO(TS-TO-GO) Node BinaryExpression: getCachedType(key) ?? setCachedType(key, getTypeWithThisArgument(type, thisArgument, /*needApparentType* / true)) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, getTypeWithThisArgument(type, thisArgument, /*needApparentType* / true)) */ TODO
 	}
 	getResolvedTypeParameterDefault := func(typeParameter TypeParameter) Type {
 		if !typeParameter.default_ {
@@ -13877,10 +13877,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}))
 	}
 	getApparentTypeOfMappedType := func(type_ MappedType) Type {
-		return type_.resolvedApparentType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedApparentType = getResolvedApparentTypeOfMappedType(type) */ TODO)
+		return type_.resolvedApparentType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedApparentType = getResolvedApparentTypeOfMappedType(type) */ TODO)
 	}
 	getResolvedApparentTypeOfMappedType := func(type_ MappedType) Type {
-		target := ( /* TODO(TS-TO-GO) Node BinaryExpression: type.target ?? type */ TODO) /* as MappedType */
+		target := ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: type.target ?? type */ TODO) /* as MappedType */
 		typeVariable := getHomomorphicTypeVariable(target)
 		if typeVariable && !target.declaration.nameType {
 			// We have a homomorphic mapped type or an instantiation of a homomorphic mapped type, i.e. a type
@@ -13909,7 +13909,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isMappedTypeGenericIndexedAccess := func(type_ Type) bool {
 		var objectType TODO
-		return !!(type_.flags&TypeFlagsIndexedAccess && getObjectFlags( /* TODO(TS-TO-GO) Node BinaryExpression: objectType = (type as IndexedAccessType).objectType */ TODO)&ObjectFlagsMapped && !isGenericMappedType(objectType) && isGenericIndexType((type_ /* as IndexedAccessType */).indexType) && !(getMappedTypeModifiers(objectType /* as MappedType */) & MappedTypeModifiersExcludeOptional) && !(objectType /* as MappedType */).declaration.nameType)
+		return !!(type_.flags&TypeFlagsIndexedAccess && getObjectFlags( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: objectType = (type as IndexedAccessType).objectType */ TODO)&ObjectFlagsMapped && !isGenericMappedType(objectType) && isGenericIndexType((type_ /* as IndexedAccessType */).indexType) && !(getMappedTypeModifiers(objectType /* as MappedType */) & MappedTypeModifiersExcludeOptional) && !(objectType /* as MappedType */).declaration.nameType)
 	}
 	/**
 	 * For a type parameter, return the base constraint of the type parameter. For the string, number,
@@ -13985,7 +13985,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if prop {
 					if prop.flags & SymbolFlagsClassMember {
-						/* TODO(TS-TO-GO) Node BinaryExpression: optionalFlag ??= isUnion ? SymbolFlags.None : SymbolFlags.Optional */ TODO
+						/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: optionalFlag ??= isUnion ? SymbolFlags.None : SymbolFlags.Optional */ TODO
 						if isUnion {
 							optionalFlag |= prop.flags & SymbolFlagsOptional
 						} else {
@@ -14106,7 +14106,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			propTypes.push(type_)
 		}
 		addRange(propTypes, indexTypes)
-		result := createSymbol(SymbolFlagsProperty|( /* TODO(TS-TO-GO) Node BinaryExpression: optionalFlag ?? 0 */ TODO), name, syntheticFlag|checkFlags)
+		result := createSymbol(SymbolFlagsProperty|( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: optionalFlag ?? 0 */ TODO), name, syntheticFlag|checkFlags)
 		result.links.containingType = containingType
 		if !hasNonUniformValueDeclaration && firstValueDeclaration {
 			result.valueDeclaration = firstValueDeclaration
@@ -14156,14 +14156,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if property {
 				var properties SymbolTable
 				if skipObjectFunctionPropertyAugment {
-					properties = /* TODO(TS-TO-GO) Node BinaryExpression: type.propertyCacheWithoutObjectFunctionPropertyAugment ||= createSymbolTable() */ TODO
+					properties = /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: type.propertyCacheWithoutObjectFunctionPropertyAugment ||= createSymbolTable() */ TODO
 				} else {
-					properties = /* TODO(TS-TO-GO) Node BinaryExpression: type.propertyCache ||= createSymbolTable() */ TODO
+					properties = /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: type.propertyCache ||= createSymbolTable() */ TODO
 				}
 				properties.set(name, property)
 				// Propagate an entry from the non-augmented cache to the augmented cache unless the property is partial.
 				if skipObjectFunctionPropertyAugment && !(getCheckFlags(property) & CheckFlagsPartial) && !type_.propertyCache. /* ? */ get(name) {
-					properties := /* TODO(TS-TO-GO) Node BinaryExpression: type.propertyCache ||= createSymbolTable() */ TODO
+					properties := /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: type.propertyCache ||= createSymbolTable() */ TODO
 					properties.set(name, property)
 				}
 			}
@@ -14208,7 +14208,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	 */
 	getReducedType := func(type_ Type) Type {
 		if type_.flags&TypeFlagsUnion && (type_ /* as UnionType */).objectFlags&ObjectFlagsContainsIntersections {
-			return (type_ /* as UnionType */).resolvedReducedType || ( /* TODO(TS-TO-GO) Node BinaryExpression: (type as UnionType).resolvedReducedType = getReducedUnionType(type as UnionType) */ TODO)
+			return (type_ /* as UnionType */).resolvedReducedType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: (type as UnionType).resolvedReducedType = getReducedUnionType(type as UnionType) */ TODO)
 		} else if type_.flags & TypeFlagsIntersection {
 			if !((type_ /* as IntersectionType */).objectFlags & ObjectFlagsIsNeverIntersectionComputed) {
 				(type_ /* as IntersectionType */).objectFlags |= ObjectFlagsIsNeverIntersectionComputed | (__COND__(some(getPropertiesOfUnionOrIntersectionType(type_ /* as IntersectionType */), isNeverReducedProperty), ObjectFlagsIsNeverIntersection, 0))
@@ -14255,7 +14255,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return !!(type_.flags&TypeFlagsUnion && (type_ /* as UnionType */).objectFlags&ObjectFlagsContainsIntersections && some((type_ /* as UnionType */).types, isGenericReducibleType) || type_.flags&TypeFlagsIntersection && isReducibleIntersection(type_ /* as IntersectionType */))
 	}
 	isReducibleIntersection := func(type_ IntersectionType) bool {
-		uniqueFilled := type_.uniqueLiteralFilledInstantiation || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.uniqueLiteralFilledInstantiation = instantiateType(type, uniqueLiteralMapper) */ TODO)
+		uniqueFilled := type_.uniqueLiteralFilledInstantiation || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.uniqueLiteralFilledInstantiation = instantiateType(type, uniqueLiteralMapper) */ TODO)
 		return getReducedType(uniqueFilled) != uniqueFilled
 	}
 	elaborateNeverIntersection := func(errorInfo *DiagnosticMessageChain, type_ Type) *DiagnosticMessageChain {
@@ -14354,7 +14354,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// If the union is all different instantiations of a member of the global array type...
 			var memberName __String
 			if everyType(type_, func(t Type) bool {
-				return !!t.symbol. /* ? */ parent && isArrayOrTupleSymbol(t.symbol.parent) && (__COND__(!memberName, ( /* TODO(TS-TO-GO) Node BinaryExpression: memberName = t.symbol.escapedName, true */ TODO), memberName == t.symbol.escapedName))
+				return !!t.symbol. /* ? */ parent && isArrayOrTupleSymbol(t.symbol.parent) && (__COND__(!memberName, ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: memberName = t.symbol.escapedName, true */ TODO), memberName == t.symbol.escapedName))
 			}) {
 				// Transform the type from `(A[] | B[])["member"]` to `(A | B)[]["member"]` (since we pretend array is covariant anyway)
 				arrayArg := mapType(type_, func(t Type) Type {
@@ -14399,7 +14399,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !applicableInfo {
 					applicableInfo = info
 				} else {
-					(applicableInfos || ( /* TODO(TS-TO-GO) Node BinaryExpression: applicableInfos = [applicableInfo] */ TODO)).push(info)
+					(applicableInfos || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: applicableInfos = [applicableInfo] */ TODO)).push(info)
 				}
 			}
 		}
@@ -14939,7 +14939,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				type_ = anyType
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: signature.resolvedReturnType ??= type */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: signature.resolvedReturnType ??= type */ TODO
 		}
 		return signature.resolvedReturnType
 	}
@@ -15008,11 +15008,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return instantiatedSignature
 	}
 	getSignatureInstantiationWithoutFillingInTypeArguments := func(signature Signature, typeArguments *[]Type) Signature {
-		instantiations := signature.instantiations || ( /* TODO(TS-TO-GO) Node BinaryExpression: signature.instantiations = new Map<string, Signature>() */ TODO)
+		instantiations := signature.instantiations || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: signature.instantiations = new Map<string, Signature>() */ TODO)
 		id := getTypeListId(typeArguments)
 		instantiation := instantiations.get(id)
 		if !instantiation {
-			instantiations.set(id /* TODO(TS-TO-GO) Node BinaryExpression: instantiation = createSignatureInstantiation(signature, typeArguments) */, TODO)
+			instantiations.set(id /* TODO(TS-TO-GO) EqualsToken BinaryExpression: instantiation = createSignatureInstantiation(signature, typeArguments) */, TODO)
 		}
 		return instantiation
 	}
@@ -15033,7 +15033,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getErasedSignature := func(signature Signature) Signature {
 		if signature.typeParameters {
-			return signature.erasedSignatureCache || ( /* TODO(TS-TO-GO) Node BinaryExpression: signature.erasedSignatureCache = createErasedSignature(signature) */ TODO)
+			return signature.erasedSignatureCache || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: signature.erasedSignatureCache = createErasedSignature(signature) */ TODO)
 		} else {
 			return signature
 		}
@@ -15044,7 +15044,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getCanonicalSignature := func(signature Signature) Signature {
 		if signature.typeParameters {
-			return signature.canonicalSignatureCache || ( /* TODO(TS-TO-GO) Node BinaryExpression: signature.canonicalSignatureCache = createCanonicalSignature(signature) */ TODO)
+			return signature.canonicalSignatureCache || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: signature.canonicalSignatureCache = createCanonicalSignature(signature) */ TODO)
 		} else {
 			return signature
 		}
@@ -15066,7 +15066,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getImplementationSignature := func(signature Signature) Signature {
 		if signature.typeParameters {
-			return /* TODO(TS-TO-GO) Node BinaryExpression: signature.implementationSignatureCache ||= createImplementationSignature(signature) */ TODO
+			return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: signature.implementationSignatureCache ||= createImplementationSignature(signature) */ TODO
 		} else {
 			return signature
 		}
@@ -15119,7 +15119,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				type_.symbol.declarations = [] /* TODO(TS-TO-GO) inferred type SignatureDeclaration | JSDocSignature */ any{signature.declaration}
 				type_.symbol.valueDeclaration = signature.declaration
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: outerTypeParameters ||= signature.declaration && getOuterTypeParameters(signature.declaration, /*includeThisTypes* / true) */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: outerTypeParameters ||= signature.declaration && getOuterTypeParameters(signature.declaration, /*includeThisTypes* / true) */ TODO
 			type_.outerTypeParameters = outerTypeParameters
 			type_.members = emptySymbols
 			type_.properties = emptyArray
@@ -15396,9 +15396,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				typeArguments = map_(node.elements, getTypeFromTypeNode)
 			}
 			if popTypeResolution() {
-				/* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedTypeArguments ??= type.mapper ? instantiateTypes(typeArguments, type.mapper) : typeArguments */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedTypeArguments ??= type.mapper ? instantiateTypes(typeArguments, type.mapper) : typeArguments */ TODO
 			} else {
-				/* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedTypeArguments ??= concatenate(type.target.outerTypeParameters, type.target.localTypeParameters?.map(() => errorType) || emptyArray) */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedTypeArguments ??= concatenate(type.target.outerTypeParameters, type.target.localTypeParameters?.map(() => errorType) || emptyArray) */ TODO
 				error(type_.node || currentNode, __COND__(type_.target.symbol, Diagnostics.Type_arguments_for_0_circularly_reference_themselves, Diagnostics.Tuple_type_arguments_circularly_reference_themselves), type_.target.symbol && symbolToString(type_.target.symbol))
 			}
 		}
@@ -15472,7 +15472,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		id := getTypeListId(typeArguments) + getAliasId(aliasSymbol, aliasTypeArguments)
 		instantiation := links.instantiations.get(id)
 		if !instantiation {
-			links.instantiations.set(id /* TODO(TS-TO-GO) Node BinaryExpression: instantiation = instantiateTypeWithAlias(type, createTypeMapper(typeParameters, fillMissingTypeArguments(typeArguments, typeParameters, getMinTypeArgumentCount(typeParameters), isInJSFile(symbol.valueDeclaration))), aliasSymbol, aliasTypeArguments) */, TODO)
+			links.instantiations.set(id /* TODO(TS-TO-GO) EqualsToken BinaryExpression: instantiation = instantiateTypeWithAlias(type, createTypeMapper(typeParameters, fillMissingTypeArguments(typeArguments, typeParameters, getMinTypeArgumentCount(typeParameters), isInJSFile(symbol.valueDeclaration))), aliasSymbol, aliasTypeArguments) */, TODO)
 		}
 		return instantiation
 	}
@@ -15589,7 +15589,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			result := unresolvedSymbols.get(path)
 			if !result {
-				unresolvedSymbols.set(path /* TODO(TS-TO-GO) Node BinaryExpression: result = createSymbol(SymbolFlags.TypeAlias, text, CheckFlags.Unresolved) */, TODO)
+				unresolvedSymbols.set(path /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = createSymbol(SymbolFlags.TypeAlias, text, CheckFlags.Unresolved) */, TODO)
 				result.parent = parentSymbol
 				result.links.declaredType = unresolvedType
 			}
@@ -15971,19 +15971,19 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for _, typeName := range typeNames {
 			types = append(types, getGlobalType(typeName /* as __String */, arity /*reportErrors*/, false))
 		}
-		return /* TODO(TS-TO-GO) Node BinaryExpression: types ?? emptyArray */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: types ?? emptyArray */ TODO
 	}
 	getGlobalTypedPropertyDescriptorType := func() GenericType {
 		// We always report an error, so store a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalTypedPropertyDescriptorType ||= getGlobalType("TypedPropertyDescriptor" as __String, /*arity* / 1, /*reportErrors* / true) || emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalTypedPropertyDescriptorType ||= getGlobalType("TypedPropertyDescriptor" as __String, /*arity* / 1, /*reportErrors* / true) || emptyGenericType */ TODO
 	}
 	getGlobalTemplateStringsArrayType := func() ObjectType {
 		// We always report an error, so store a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalTemplateStringsArrayType ||= getGlobalType("TemplateStringsArray" as __String, /*arity* / 0, /*reportErrors* / true) || emptyObjectType */ TODO
+		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalTemplateStringsArrayType ||= getGlobalType("TemplateStringsArray" as __String, /*arity* / 0, /*reportErrors* / true) || emptyObjectType */ TODO
 	}
 	getGlobalImportMetaType := func() ObjectType {
 		// We always report an error, so store a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalImportMetaType ||= getGlobalType("ImportMeta" as __String, /*arity* / 0, /*reportErrors* / true) || emptyObjectType */ TODO
+		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalImportMetaType ||= getGlobalType("ImportMeta" as __String, /*arity* / 0, /*reportErrors* / true) || emptyObjectType */ TODO
 	}
 	getGlobalImportMetaExpressionType := func() ObjectType {
 		if !deferredGlobalImportMetaExpressionType {
@@ -16000,59 +16000,59 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return deferredGlobalImportMetaExpressionType
 	}
 	getGlobalImportCallOptionsType := func(reportErrors bool) ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalImportCallOptionsType ||= getGlobalType("ImportCallOptions" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalImportCallOptionsType ||= getGlobalType("ImportCallOptions" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
 	}
 	getGlobalImportAttributesType := func(reportErrors bool) ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalImportAttributesType ||= getGlobalType("ImportAttributes" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalImportAttributesType ||= getGlobalType("ImportAttributes" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
 	}
 	getGlobalESSymbolConstructorSymbol := func(reportErrors bool) Symbol {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalESSymbolConstructorSymbol ||= getGlobalValueSymbol("Symbol" as __String, reportErrors) */ TODO
+		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalESSymbolConstructorSymbol ||= getGlobalValueSymbol("Symbol" as __String, reportErrors) */ TODO
 	}
 	getGlobalESSymbolConstructorTypeSymbol := func(reportErrors bool) Symbol {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalESSymbolConstructorTypeSymbol ||= getGlobalTypeSymbol("SymbolConstructor" as __String, reportErrors) */ TODO
+		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalESSymbolConstructorTypeSymbol ||= getGlobalTypeSymbol("SymbolConstructor" as __String, reportErrors) */ TODO
 	}
 	getGlobalESSymbolType := func() ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalESSymbolType ||= getGlobalType("Symbol" as __String, /*arity* / 0, /*reportErrors* / false) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalESSymbolType ||= getGlobalType("Symbol" as __String, /*arity* / 0, /*reportErrors* / false) */ TODO) || emptyObjectType
 	}
 	getGlobalPromiseType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalPromiseType ||= getGlobalType("Promise" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseType ||= getGlobalType("Promise" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalPromiseLikeType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalPromiseLikeType ||= getGlobalType("PromiseLike" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseLikeType ||= getGlobalType("PromiseLike" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalPromiseConstructorSymbol := func(reportErrors bool) Symbol {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalPromiseConstructorSymbol ||= getGlobalValueSymbol("Promise" as __String, reportErrors) */ TODO
+		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseConstructorSymbol ||= getGlobalValueSymbol("Promise" as __String, reportErrors) */ TODO
 	}
 	getGlobalPromiseConstructorLikeType := func(reportErrors bool) ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalPromiseConstructorLikeType ||= getGlobalType("PromiseConstructorLike" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseConstructorLikeType ||= getGlobalType("PromiseConstructorLike" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
 	}
 	getGlobalAsyncIterableType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAsyncIterableType ||= getGlobalType("AsyncIterable" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAsyncIterableType ||= getGlobalType("AsyncIterable" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalAsyncIteratorType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAsyncIteratorType ||= getGlobalType("AsyncIterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAsyncIteratorType ||= getGlobalType("AsyncIterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalAsyncIterableIteratorType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAsyncIterableIteratorType ||= getGlobalType("AsyncIterableIterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAsyncIterableIteratorType ||= getGlobalType("AsyncIterableIterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalBuiltinAsyncIteratorTypes := func() []GenericType {
 		// NOTE: This list does not include all built-in async iterator types, only those that are likely to be encountered frequently.
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalBuiltinAsyncIteratorTypes ??= getGlobalBuiltinTypes(["ReadableStreamAsyncIterator"], 1) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalBuiltinAsyncIteratorTypes ??= getGlobalBuiltinTypes(["ReadableStreamAsyncIterator"], 1) */ TODO
 	}
 	getGlobalAsyncIteratorObjectType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAsyncIteratorObjectType ||= getGlobalType("AsyncIteratorObject" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAsyncIteratorObjectType ||= getGlobalType("AsyncIteratorObject" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalAsyncGeneratorType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAsyncGeneratorType ||= getGlobalType("AsyncGenerator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAsyncGeneratorType ||= getGlobalType("AsyncGenerator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalIterableType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalIterableType ||= getGlobalType("Iterable" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalIterableType ||= getGlobalType("Iterable" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalIteratorType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalIteratorType ||= getGlobalType("Iterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalIteratorType ||= getGlobalType("Iterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalIterableIteratorType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalIterableIteratorType ||= getGlobalType("IterableIterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalIterableIteratorType ||= getGlobalType("IterableIterator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getBuiltinIteratorReturnType := func() IntrinsicType {
 		if strictBuiltinIteratorReturn {
@@ -16063,25 +16063,25 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalBuiltinIteratorTypes := func() []GenericType {
 		// NOTE: This list does not include all built-in iterator types, only those that are likely to be encountered frequently.
-		return /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalBuiltinIteratorTypes ??= getGlobalBuiltinTypes(["ArrayIterator", "MapIterator", "SetIterator", "StringIterator"], 1) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalBuiltinIteratorTypes ??= getGlobalBuiltinTypes(["ArrayIterator", "MapIterator", "SetIterator", "StringIterator"], 1) */ TODO
 	}
 	getGlobalIteratorObjectType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalIteratorObjectType ||= getGlobalType("IteratorObject" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalIteratorObjectType ||= getGlobalType("IteratorObject" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalGeneratorType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalGeneratorType ||= getGlobalType("Generator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalGeneratorType ||= getGlobalType("Generator" as __String, /*arity* / 3, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalIteratorYieldResultType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalIteratorYieldResultType ||= getGlobalType("IteratorYieldResult" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalIteratorYieldResultType ||= getGlobalType("IteratorYieldResult" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalIteratorReturnResultType := func(reportErrors bool) GenericType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalIteratorReturnResultType ||= getGlobalType("IteratorReturnResult" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalIteratorReturnResultType ||= getGlobalType("IteratorReturnResult" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalDisposableType := func(reportErrors bool) ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalDisposableType ||= getGlobalType("Disposable" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalDisposableType ||= getGlobalType("Disposable" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
 	}
 	getGlobalAsyncDisposableType := func(reportErrors bool) ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAsyncDisposableType ||= getGlobalType("AsyncDisposable" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAsyncDisposableType ||= getGlobalType("AsyncDisposable" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
 	}
 	getGlobalTypeOrUndefined := func(name __String, arity number /*  = 0 */) *ObjectType {
 		symbol := getGlobalSymbol(name, SymbolFlagsType /*diagnostic*/, nil)
@@ -16089,7 +16089,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalExtractSymbol := func() Symbol {
 		// We always report an error, so cache a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		/* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalExtractSymbol ||= getGlobalTypeAliasSymbol("Extract" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
+		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalExtractSymbol ||= getGlobalTypeAliasSymbol("Extract" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
 		TODO
 		if deferredGlobalExtractSymbol == unknownSymbol {
 			return nil
@@ -16099,7 +16099,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalOmitSymbol := func() Symbol {
 		// We always report an error, so cache a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		/* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalOmitSymbol ||= getGlobalTypeAliasSymbol("Omit" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
+		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalOmitSymbol ||= getGlobalTypeAliasSymbol("Omit" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
 		TODO
 		if deferredGlobalOmitSymbol == unknownSymbol {
 			return nil
@@ -16109,7 +16109,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalAwaitedSymbol := func(reportErrors bool) Symbol {
 		// Only cache `unknownSymbol` if we are reporting errors so that we don't report the error more than once.
-		/* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalAwaitedSymbol ||= getGlobalTypeAliasSymbol("Awaited" as __String, /*arity* / 1, reportErrors) || (reportErrors ? unknownSymbol : undefined) */
+		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAwaitedSymbol ||= getGlobalTypeAliasSymbol("Awaited" as __String, /*arity* / 1, reportErrors) || (reportErrors ? unknownSymbol : undefined) */
 		TODO
 		if deferredGlobalAwaitedSymbol == unknownSymbol {
 			return nil
@@ -16118,37 +16118,37 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	getGlobalBigIntType := func() ObjectType {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalBigIntType ||= getGlobalType("BigInt" as __String, /*arity* / 0, /*reportErrors* / false) */ TODO) || emptyObjectType
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalBigIntType ||= getGlobalType("BigInt" as __String, /*arity* / 0, /*reportErrors* / false) */ TODO) || emptyObjectType
 	}
 	getGlobalClassDecoratorContextType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassDecoratorContextType ??= getGlobalType("ClassDecoratorContext" as __String, /*arity* / 1, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassDecoratorContextType ??= getGlobalType("ClassDecoratorContext" as __String, /*arity* / 1, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassMethodDecoratorContextType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassMethodDecoratorContextType ??= getGlobalType("ClassMethodDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassMethodDecoratorContextType ??= getGlobalType("ClassMethodDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassGetterDecoratorContextType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassGetterDecoratorContextType ??= getGlobalType("ClassGetterDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassGetterDecoratorContextType ??= getGlobalType("ClassGetterDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassSetterDecoratorContextType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassSetterDecoratorContextType ??= getGlobalType("ClassSetterDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassSetterDecoratorContextType ??= getGlobalType("ClassSetterDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassAccessorDecoratorContextType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassAccessorDecoratorContextType ??= getGlobalType("ClassAccessorDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassAccessorDecoratorContextType ??= getGlobalType("ClassAccessorDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassAccessorDecoratorTargetType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassAccessorDecoratorTargetType ??= getGlobalType("ClassAccessorDecoratorTarget" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassAccessorDecoratorTargetType ??= getGlobalType("ClassAccessorDecoratorTarget" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassAccessorDecoratorResultType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassAccessorDecoratorResultType ??= getGlobalType("ClassAccessorDecoratorResult" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassAccessorDecoratorResultType ??= getGlobalType("ClassAccessorDecoratorResult" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalClassFieldDecoratorContextType := func(reportErrors bool) GenericType {
-		return /* TODO(TS-TO-GO) Node BinaryExpression: (deferredGlobalClassFieldDecoratorContextType ??= getGlobalType("ClassFieldDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassFieldDecoratorContextType ??= getGlobalType("ClassFieldDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
 	}
 	getGlobalNaNSymbol := func() Symbol {
-		return ( /* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalNaNSymbol ||= getGlobalValueSymbol("NaN" as __String, /*reportErrors* / false) */ TODO)
+		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalNaNSymbol ||= getGlobalValueSymbol("NaN" as __String, /*reportErrors* / false) */ TODO)
 	}
 	getGlobalRecordSymbol := func() Symbol {
-		/* TODO(TS-TO-GO) Node BinaryExpression: deferredGlobalRecordSymbol ||= getGlobalTypeAliasSymbol("Record" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */ TODO
+		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalRecordSymbol ||= getGlobalTypeAliasSymbol("Record" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */ TODO
 		if deferredGlobalRecordSymbol == unknownSymbol {
 			return nil
 		} else {
@@ -16350,7 +16350,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}).join(","), ""))
 		type_ := tupleTypes.get(key)
 		if !type_ {
-			tupleTypes.set(key /* TODO(TS-TO-GO) Node BinaryExpression: type = createTupleTargetType(elementFlags, readonly, namedMemberDeclarations) */, TODO)
+			tupleTypes.set(key /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type = createTupleTargetType(elementFlags, readonly, namedMemberDeclarations) */, TODO)
 		}
 		return type_
 	}
@@ -16372,7 +16372,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if arity {
 			typeParameters = NewArray(arity)
 			for i := 0; i < arity; i++ {
-				typeParameter := /* TODO(TS-TO-GO) Node BinaryExpression: typeParameters[i] = createTypeParameter() */ TODO
+				typeParameter := /* TODO(TS-TO-GO) EqualsToken BinaryExpression: typeParameters[i] = createTypeParameter() */ TODO
 				flags := elementFlags[i]
 				combinedFlags |= flags
 				if !(combinedFlags & ElementFlagsVariable) {
@@ -17195,7 +17195,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for i < types.length {
 			t := types[i]
 			if getObjectFlags(t) & ObjectFlagsPrimitiveUnion {
-				(unionTypes || ( /* TODO(TS-TO-GO) Node BinaryExpression: unionTypes = [types[index] as UnionType] */ TODO)).push(t /* as UnionType */)
+				(unionTypes || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: unionTypes = [types[index] as UnionType] */ TODO)).push(t /* as UnionType */)
 				orderedRemoveItemAt(types, i)
 			} else {
 				i++
@@ -17445,7 +17445,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if types[j].flags & TypeFlagsUnion {
 					sourceTypes := (types[j] /* as UnionType */).types
 					length := sourceTypes.length
-					constituents[j] = sourceTypes[ /* TODO(TS-TO-GO) Node BinaryExpression: n % length */ TODO]
+					constituents[j] = sourceTypes[ /* TODO(TS-TO-GO) PercentToken BinaryExpression: n % length */ TODO]
 					n = Math.floor(n / length)
 				}
 			}
@@ -17509,9 +17509,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getIndexTypeForGenericType := func(type_ /* TODO(TS-TO-GO) TypeNode UnionType: InstantiableType | UnionOrIntersectionType */ any, indexFlags IndexFlags) IndexType {
 		if indexFlags & IndexFlagsStringsOnly {
-			return type_.resolvedStringIndexType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedStringIndexType = createIndexType(type, IndexFlags.StringsOnly) */ TODO)
+			return type_.resolvedStringIndexType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedStringIndexType = createIndexType(type, IndexFlags.StringsOnly) */ TODO)
 		} else {
-			return type_.resolvedIndexType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedIndexType = createIndexType(type, IndexFlags.None) */ TODO)
+			return type_.resolvedIndexType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedIndexType = createIndexType(type, IndexFlags.None) */ TODO)
 		}
 	}
 	/**
@@ -17785,7 +17785,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}).join(","), "|", newTexts.join(""))
 		type_ := templateLiteralTypes.get(id)
 		if !type_ {
-			templateLiteralTypes.set(id /* TODO(TS-TO-GO) Node BinaryExpression: type = createTemplateLiteralType(newTexts, newTypes) */, TODO)
+			templateLiteralTypes.set(id /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type = createTemplateLiteralType(newTexts, newTypes) */, TODO)
 		}
 		return type_
 		addSpans := func(texts []string, types []Type) bool {
@@ -17889,7 +17889,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		id := __TEMPLATE__(getSymbolId(symbol), ",", getTypeId(type_))
 		result := stringMappingTypes.get(id)
 		if !result {
-			stringMappingTypes.set(id /* TODO(TS-TO-GO) Node BinaryExpression: result = createStringMappingType(symbol, type) */, TODO)
+			stringMappingTypes.set(id /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = createStringMappingType(symbol, type) */, TODO)
 		}
 		return result
 	}
@@ -17980,7 +17980,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			prop := getPropertyOfType(objectType, propName)
 			if prop {
 				if accessFlags&AccessFlagsReportDeprecated && accessNode && prop.declarations && isDeprecatedSymbol(prop) && isUncalledFunctionReference(accessNode, prop) {
-					deprecatedNode := /* TODO(TS-TO-GO) Node BinaryExpression: accessExpression?.argumentExpression ?? (isIndexedAccessTypeNode(accessNode) ? accessNode.indexType : accessNode) */ TODO
+					deprecatedNode := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: accessExpression?.argumentExpression ?? (isIndexedAccessTypeNode(accessNode) ? accessNode.indexType : accessNode) */ TODO
 					addDeprecatedSuggestion(deprecatedNode, prop.declarations, propName /* as string */)
 				}
 				if accessExpression {
@@ -18097,7 +18097,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						error(accessExpression.argumentExpression, Diagnostics.Element_implicitly_has_an_any_type_because_index_expression_is_not_of_type_number)
 					} else {
 						var suggestion *string
-						if propName != nil && ( /* TODO(TS-TO-GO) Node BinaryExpression: suggestion = getSuggestionForNonexistentProperty(propName as string, objectType) */ TODO) {
+						if propName != nil && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: suggestion = getSuggestionForNonexistentProperty(propName as string, objectType) */ TODO) {
 							if suggestion != nil {
 								error(accessExpression.argumentExpression, Diagnostics.Property_0_does_not_exist_on_type_1_Did_you_mean_2, propName /* as string */, typeToString(objectType), suggestion)
 							}
@@ -18418,7 +18418,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			id := objectType.id + "," + indexType.id + "," + persistentAccessFlags + getAliasId(aliasSymbol, aliasTypeArguments)
 			type_ := indexedAccessTypes.get(id)
 			if !type_ {
-				indexedAccessTypes.set(id /* TODO(TS-TO-GO) Node BinaryExpression: type = createIndexedAccessType(objectType, indexType, persistentAccessFlags, aliasSymbol, aliasTypeArguments) */, TODO)
+				indexedAccessTypes.set(id /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type = createIndexedAccessType(objectType, indexType, persistentAccessFlags, aliasSymbol, aliasTypeArguments) */, TODO)
 			}
 			return type_
 		}
@@ -18579,7 +18579,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if checkType.flags&TypeFlagsAny || forConstraint && !(inferredExtendsType.flags&TypeFlagsNever) && someType(getPermissiveInstantiation(inferredExtendsType), func(t Type) bool {
 						return isTypeAssignableTo(t, getPermissiveInstantiation(checkType))
 					}) {
-						(extraTypes || ( /* TODO(TS-TO-GO) Node BinaryExpression: extraTypes = [] */ TODO)).push(instantiateType(getTypeFromTypeNode(root.node.trueType), combinedMapper || mapper))
+						(extraTypes || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: extraTypes = [] */ TODO)).push(instantiateType(getTypeFromTypeNode(root.node.trueType), combinedMapper || mapper))
 					}
 					// If falseType is an immediately nested conditional type that isn't distributive or has an
 					// identical checkType, switch to that type and loop.
@@ -18668,13 +18668,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	getTrueTypeFromConditionalType := func(type_ ConditionalType) Type {
-		return type_.resolvedTrueType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedTrueType = instantiateType(getTypeFromTypeNode(type.root.node.trueType), type.mapper) */ TODO)
+		return type_.resolvedTrueType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedTrueType = instantiateType(getTypeFromTypeNode(type.root.node.trueType), type.mapper) */ TODO)
 	}
 	getFalseTypeFromConditionalType := func(type_ ConditionalType) Type {
-		return type_.resolvedFalseType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedFalseType = instantiateType(getTypeFromTypeNode(type.root.node.falseType), type.mapper) */ TODO)
+		return type_.resolvedFalseType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedFalseType = instantiateType(getTypeFromTypeNode(type.root.node.falseType), type.mapper) */ TODO)
 	}
 	getInferredTrueTypeFromConditionalType := func(type_ ConditionalType) Type {
-		return type_.resolvedInferredTrueType || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.resolvedInferredTrueType = type.combinedMapper ? instantiateType(getTypeFromTypeNode(type.root.node.trueType), type.combinedMapper) : getTrueTypeFromConditionalType(type) */ TODO)
+		return type_.resolvedInferredTrueType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedInferredTrueType = type.combinedMapper ? instantiateType(getTypeFromTypeNode(type.root.node.trueType), type.combinedMapper) : getTrueTypeFromConditionalType(type) */ TODO)
 	}
 	getInferTypeParameters := func(node ConditionalTypeNode) *[]TypeParameter {
 		var result *[]TypeParameter
@@ -18769,7 +18769,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				var nameStack []Identifier = getIdentifierChain(node.qualifier)
 				currentNamespace := moduleSymbol
 				var current *Identifier
-				for /* TODO(TS-TO-GO) Node BinaryExpression: current = nameStack.shift() */ TODO {
+				for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: current = nameStack.shift() */ TODO {
 					var meaning number
 					if nameStack.length {
 						meaning = SymbolFlagsNamespace
@@ -18792,7 +18792,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					} else {
 						symbolFromModule = getSymbol(getExportsOfSymbol(mergedResolvedSymbol), current.escapedText, meaning)
 					}
-					next := /* TODO(TS-TO-GO) Node BinaryExpression: symbolFromModule ?? symbolFromVariable */ TODO
+					next := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: symbolFromModule ?? symbolFromVariable */ TODO
 					if !next {
 						error(current, Diagnostics.Namespace_0_has_no_exported_member_1, getFullyQualifiedName(currentNamespace), declarationNameToString(current))
 						links.resolvedType = errorType
@@ -19084,7 +19084,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		case type_.flags & TypeFlagsFreshable:
 			return (type_ /* as FreshableType */).regularType
 		case type_.flags & TypeFlagsUnion:
-			return ((type_ /* as UnionType */).regularType || ( /* TODO(TS-TO-GO) Node BinaryExpression: (type as UnionType).regularType = mapType(type, getRegularTypeOfLiteralType) as UnionType */ TODO))
+			return ((type_ /* as UnionType */).regularType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: (type as UnionType).regularType = mapType(type, getRegularTypeOfLiteralType) as UnionType */ TODO))
 		default:
 			return type_
 		}
@@ -19094,22 +19094,22 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getStringLiteralType := func(value string) StringLiteralType {
 		var type_ TODO
-		return stringLiteralTypes.get(value) || ( /* TODO(TS-TO-GO) Node BinaryExpression: stringLiteralTypes.set(value, type = createLiteralType(TypeFlags.StringLiteral, value) as StringLiteralType), type */ TODO)
+		return stringLiteralTypes.get(value) || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: stringLiteralTypes.set(value, type = createLiteralType(TypeFlags.StringLiteral, value) as StringLiteralType), type */ TODO)
 	}
 	getNumberLiteralType := func(value number) NumberLiteralType {
 		var type_ TODO
-		return numberLiteralTypes.get(value) || ( /* TODO(TS-TO-GO) Node BinaryExpression: numberLiteralTypes.set(value, type = createLiteralType(TypeFlags.NumberLiteral, value) as NumberLiteralType), type */ TODO)
+		return numberLiteralTypes.get(value) || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: numberLiteralTypes.set(value, type = createLiteralType(TypeFlags.NumberLiteral, value) as NumberLiteralType), type */ TODO)
 	}
 	getBigIntLiteralType := func(value PseudoBigInt) BigIntLiteralType {
 		var type_ TODO
 		key := pseudoBigIntToString(value)
-		return bigIntLiteralTypes.get(key) || ( /* TODO(TS-TO-GO) Node BinaryExpression: bigIntLiteralTypes.set(key, type = createLiteralType(TypeFlags.BigIntLiteral, value) as BigIntLiteralType), type */ TODO)
+		return bigIntLiteralTypes.get(key) || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: bigIntLiteralTypes.set(key, type = createLiteralType(TypeFlags.BigIntLiteral, value) as BigIntLiteralType), type */ TODO)
 	}
 	getEnumLiteralType := func(value /* TODO(TS-TO-GO) TypeNode UnionType: string | number */ any, enumId number, symbol Symbol) LiteralType {
 		var type_ TODO
 		key := __TEMPLATE__(enumId, __COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof value */ TODO == "string", "@", "#"), value)
 		flags := TypeFlagsEnumLiteral | (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof value */ TODO == "string", TypeFlagsStringLiteral, TypeFlagsNumberLiteral))
-		return enumLiteralTypes.get(key) || ( /* TODO(TS-TO-GO) Node BinaryExpression: enumLiteralTypes.set(key, type = createLiteralType(flags, value, symbol)), type */ TODO)
+		return enumLiteralTypes.get(key) || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: enumLiteralTypes.set(key, type = createLiteralType(flags, value, symbol)), type */ TODO)
 	}
 	getTypeFromLiteralTypeNode := func(node LiteralTypeNode) Type {
 		if node.literal.kind == SyntaxKindNullKeyword {
@@ -19142,7 +19142,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if symbol {
 				links := getSymbolLinks(symbol)
-				return links.uniqueESSymbolType || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.uniqueESSymbolType = createUniqueESSymbolType(symbol) */ TODO)
+				return links.uniqueESSymbolType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.uniqueESSymbolType = createUniqueESSymbolType(symbol) */ TODO)
 			}
 		}
 		return esSymbolType
@@ -19205,7 +19205,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getTypeFromNamedTupleTypeNode := func(node NamedTupleMember) Type {
 		links := getNodeLinks(node)
-		return links.resolvedType || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.resolvedType = node.dotDotDotToken ? getTypeFromRestTypeNode(node) : addOptionality(getTypeFromTypeNode(node.type), /*isProperty* / true, !!node.questionToken) */ TODO)
+		return links.resolvedType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.resolvedType = node.dotDotDotToken ? getTypeFromRestTypeNode(node) : addOptionality(getTypeFromTypeNode(node.type), /*isProperty* / true, !!node.questionToken) */ TODO)
 	}
 	getTypeFromTypeNode := func(node TypeNode) Type {
 		return getConditionalFlowTypeOfType(getTypeFromTypeNodeWorker(node), node)
@@ -19486,7 +19486,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if !tp.constraint && !getConstraintDeclaration(tp) || tp.constraint == noConstraintType {
 			return tp
 		} else {
-			return tp.restrictiveInstantiation || ( /* TODO(TS-TO-GO) Node BinaryExpression: tp.restrictiveInstantiation = createTypeParameter(tp.symbol), (tp.restrictiveInstantiation as TypeParameter).constraint = noConstraintType, tp.restrictiveInstantiation */ TODO)
+			return tp.restrictiveInstantiation || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: tp.restrictiveInstantiation = createTypeParameter(tp.symbol), (tp.restrictiveInstantiation as TypeParameter).constraint = noConstraintType, tp.restrictiveInstantiation */ TODO)
 		}
 	}
 	cloneTypeParameter := func(typeParameter TypeParameter) TypeParameter {
@@ -19761,7 +19761,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if t.flags&(TypeFlagsAnyOrUnknown|TypeFlagsInstantiableNonPrimitive|TypeFlagsObject|TypeFlagsIntersection) && t != wildcardType && !isErrorType(t) {
 				if !type_.declaration.nameType {
 					var constraint TODO
-					if isArrayType(t) || t.flags&TypeFlagsAny && findResolutionCycleStartIndex(typeVariable, TypeSystemPropertyNameImmediateBaseConstraint) < 0 && ( /* TODO(TS-TO-GO) Node BinaryExpression: constraint = getConstraintOfTypeParameter(typeVariable!) */ TODO) && everyType(constraint, isArrayOrTupleType) {
+					if isArrayType(t) || t.flags&TypeFlagsAny && findResolutionCycleStartIndex(typeVariable, TypeSystemPropertyNameImmediateBaseConstraint) < 0 && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: constraint = getConstraintOfTypeParameter(typeVariable!) */ TODO) && everyType(constraint, isArrayOrTupleType) {
 						return instantiateMappedArrayType(t, type_, prependTypeMapping(typeVariable, t, mapper))
 					}
 					if isTupleType(t) {
@@ -19812,7 +19812,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			case flags & ElementFlagsVariadic:
 				return instantiateType(mappedType, prependTypeMapping(typeVariable, type_, mapper))
 			default:
-				return /* TODO(TS-TO-GO) Node BinaryExpression: getElementTypeOfArrayType(instantiateType(mappedType, prependTypeMapping(typeVariable, createArrayType(type), mapper))) ?? unknownType */ TODO
+				return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getElementTypeOfArrayType(instantiateType(mappedType, prependTypeMapping(typeVariable, createArrayType(type), mapper))) ?? unknownType */ TODO
 			}
 		})
 		modifiers := getMappedTypeModifiers(mappedType)
@@ -20085,7 +20085,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if type_.flags & (TypeFlagsPrimitive | TypeFlagsAnyOrUnknown | TypeFlagsNever) {
 			return type_
 		} else {
-			return type_.permissiveInstantiation || ( /* TODO(TS-TO-GO) Node BinaryExpression: type.permissiveInstantiation = instantiateType(type, permissiveMapper) */ TODO)
+			return type_.permissiveInstantiation || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.permissiveInstantiation = instantiateType(type, permissiveMapper) */ TODO)
 		}
 	}
 	getRestrictiveInstantiation := func(type_ Type) Type {
@@ -20667,7 +20667,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					result = true
 					diag := error(containingElement.openingElement.tagName, Diagnostics.This_JSX_tag_s_0_prop_expects_a_single_child_of_type_1_but_multiple_children_were_provided, childrenPropName, typeToString(childrenTargetType))
 					if errorOutputContainer && errorOutputContainer.skipLogging {
-						(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
+						(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
 					}
 				}
 			} else {
@@ -20684,7 +20684,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					result = true
 					diag := error(containingElement.openingElement.tagName, Diagnostics.This_JSX_tag_s_0_prop_expects_type_1_which_requires_multiple_children_but_only_a_single_child_was_provided, childrenPropName, typeToString(childrenTargetType))
 					if errorOutputContainer && errorOutputContainer.skipLogging {
-						(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
+						(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
 					}
 				}
 			}
@@ -21144,7 +21144,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					// If the other is a string, we have a mismatch in types.
 					if sourceIsString || targetIsString {
 						if errorReporter {
-							knownStringValue := /* TODO(TS-TO-GO) Node BinaryExpression: sourceValue ?? targetValue */ TODO
+							knownStringValue := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: sourceValue ?? targetValue */ TODO
 							Debug.assert( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof knownStringValue */ TODO == "string")
 							escapedValue := __TEMPLATE__("\"", escapeString(knownStringValue), "\"")
 							errorReporter(Diagnostics.One_value_of_0_1_is_the_string_2_and_the_other_is_assumed_to_be_an_unknown_numeric_value, symbolName(targetSymbol), symbolName(targetProperty), escapedValue)
@@ -21328,8 +21328,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		hasInstantiable := false
 		hasNullableOrEmpty := false
 		for _, t := range type_.types {
-			/* TODO(TS-TO-GO) Node BinaryExpression: hasInstantiable ||= !!(t.flags & TypeFlags.Instantiable) */ TODO
-			/* TODO(TS-TO-GO) Node BinaryExpression: hasNullableOrEmpty ||= !!(t.flags & TypeFlags.Nullable) || isEmptyAnonymousObjectType(t) */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasInstantiable ||= !!(t.flags & TypeFlags.Instantiable) */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasNullableOrEmpty ||= !!(t.flags & TypeFlags.Nullable) || isEmptyAnonymousObjectType(t) */ TODO
 			if hasInstantiable && hasNullableOrEmpty {
 				return true
 			}
@@ -21382,7 +21382,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var incompatibleStack *[]DiagnosticAndArguments
 		// In Node.js, the maximum number of elements in a map is 2^24. We limit the number of entries an invocation
 		// of checkTypeRelatedTo can add to a relation to 1/8th of its remaining capacity.
-		relationCount := /* TODO(TS-TO-GO) Node BinaryExpression: (16_000_000 - relation.size) >> 3 */ TODO
+		relationCount := /* TODO(TS-TO-GO) GreaterThanGreaterThanToken BinaryExpression: (16_000_000 - relation.size) >> 3 */ TODO
 		Debug.assert(relation != identityRelation || !errorNode, "no error reporting in identity checking")
 		result := isRelatedTo(source, target, RecursionFlagsBoth /*reportErrors*/, !!errorNode, headMessage)
 		if incompatibleStack {
@@ -21406,7 +21406,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			diag := error(errorNode || currentNode, message, typeToString(source), typeToString(target))
 			if errorOutputContainer {
-				(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
+				(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
 			}
 		} else if errorInfo {
 			if containingMessageChain {
@@ -21435,7 +21435,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				addRelatedInfo(diag, relatedInfo...)
 			}
 			if errorOutputContainer {
-				(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
+				(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
 			}
 			if !errorOutputContainer || !errorOutputContainer.skipLogging {
 				diagnostics.add(diag)
@@ -21468,7 +21468,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// Suppress the next relation error
 			lastSkippedInfo = nil
 			// Reset skipped info cache
-			( /* TODO(TS-TO-GO) Node BinaryExpression: incompatibleStack ||= [] */ TODO).push([]any{message /* TODO(TS-TO-GO) Node SpreadElement: ...args */})
+			( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: incompatibleStack ||= [] */ TODO).push([]any{message /* TODO(TS-TO-GO) Node SpreadElement: ...args */})
 		}
 		reportIncompatibleStack := func() undefined {
 			stack := incompatibleStack || []never{}
@@ -21617,7 +21617,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if targetFlags&TypeFlagsTypeParameter && target != markerSuperTypeForCheck && target != markerSubTypeForCheck {
 				constraint := getBaseConstraintOfType(target)
 				var needsOriginalSource TODO
-				if constraint && (isTypeAssignableTo(generalizedSource, constraint) || ( /* TODO(TS-TO-GO) Node BinaryExpression: needsOriginalSource = isTypeAssignableTo(source, constraint) */ TODO)) {
+				if constraint && (isTypeAssignableTo(generalizedSource, constraint) || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: needsOriginalSource = isTypeAssignableTo(source, constraint) */ TODO)) {
 					reportError(Diagnostics._0_is_assignable_to_the_constraint_of_type_1_but_1_could_be_instantiated_with_a_different_subtype_of_constraint_2, __COND__(needsOriginalSource, sourceType, generalizedSourceType), targetType, typeToString(constraint))
 				} else {
 					errorInfo = nil
@@ -22186,13 +22186,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			undefinedStrippedTarget := getUndefinedStrippedTargetIfNeeded(source, target /* as UnionType */)
 			for i := 0; i < sourceTypes.length; i++ {
 				sourceType := sourceTypes[i]
-				if undefinedStrippedTarget.flags&TypeFlagsUnion && sourceTypes.length >= (undefinedStrippedTarget /* as UnionType */).types.length && /* TODO(TS-TO-GO) Node BinaryExpression: sourceTypes.length % (undefinedStrippedTarget as UnionType).types.length */ TODO == 0 {
+				if undefinedStrippedTarget.flags&TypeFlagsUnion && sourceTypes.length >= (undefinedStrippedTarget /* as UnionType */).types.length && /* TODO(TS-TO-GO) PercentToken BinaryExpression: sourceTypes.length % (undefinedStrippedTarget as UnionType).types.length */ TODO == 0 {
 					// many unions are mappings of one another; in such cases, simply comparing members at the same index can shortcut the comparison
 					// such unions will have identical lengths, and their corresponding elements will match up. Another common scenario is where a large
 					// union has a union of objects intersected with it. In such cases, if the input was, eg `("a" | "b" | "c") & (string | boolean | {} | {whatever})`,
 					// the result will have the structure `"a" | "b" | "c" | "a" & {} | "b" & {} | "c" & {} | "a" & {whatever} | "b" & {whatever} | "c" & {whatever}`
 					// - the resulting union has a length which is a multiple of the original union, and the elements correspond modulo the length of the original union
-					related := isRelatedTo(sourceType, (undefinedStrippedTarget /* as UnionType */).types[ /* TODO(TS-TO-GO) Node BinaryExpression: i % (undefinedStrippedTarget as UnionType).types.length */ TODO], RecursionFlagsBoth /*reportErrors*/, false /*headMessage*/, nil, intersectionState)
+					related := isRelatedTo(sourceType, (undefinedStrippedTarget /* as UnionType */).types[ /* TODO(TS-TO-GO) PercentToken BinaryExpression: i % (undefinedStrippedTarget as UnionType).types.length */ TODO], RecursionFlagsBoth /*reportErrors*/, false /*headMessage*/, nil, intersectionState)
 					if related {
 						result &= related
 						continue
@@ -22521,18 +22521,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return isRelatedTo((source /* as IndexType */).type_, (target /* as IndexType */).type_, RecursionFlagsBoth /*reportErrors*/, false)
 				}
 				if sourceFlags & TypeFlagsIndexedAccess {
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo((source as IndexedAccessType).objectType, (target as IndexedAccessType).objectType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
-						if /* TODO(TS-TO-GO) Node BinaryExpression: result &= isRelatedTo((source as IndexedAccessType).indexType, (target as IndexedAccessType).indexType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo((source as IndexedAccessType).objectType, (target as IndexedAccessType).objectType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+						if /* TODO(TS-TO-GO) AmpersandEqualsToken BinaryExpression: result &= isRelatedTo((source as IndexedAccessType).indexType, (target as IndexedAccessType).indexType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
 							return result
 						}
 					}
 				}
 				if sourceFlags & TypeFlagsConditional {
 					if (source /* as ConditionalType */).root.isDistributive == (target /* as ConditionalType */).root.isDistributive {
-						if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo((source as ConditionalType).checkType, (target as ConditionalType).checkType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
-							if /* TODO(TS-TO-GO) Node BinaryExpression: result &= isRelatedTo((source as ConditionalType).extendsType, (target as ConditionalType).extendsType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
-								if /* TODO(TS-TO-GO) Node BinaryExpression: result &= isRelatedTo(getTrueTypeFromConditionalType(source as ConditionalType), getTrueTypeFromConditionalType(target as ConditionalType), RecursionFlags.Both, /*reportErrors* / false) */ TODO {
-									if /* TODO(TS-TO-GO) Node BinaryExpression: result &= isRelatedTo(getFalseTypeFromConditionalType(source as ConditionalType), getFalseTypeFromConditionalType(target as ConditionalType), RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+						if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo((source as ConditionalType).checkType, (target as ConditionalType).checkType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+							if /* TODO(TS-TO-GO) AmpersandEqualsToken BinaryExpression: result &= isRelatedTo((source as ConditionalType).extendsType, (target as ConditionalType).extendsType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+								if /* TODO(TS-TO-GO) AmpersandEqualsToken BinaryExpression: result &= isRelatedTo(getTrueTypeFromConditionalType(source as ConditionalType), getTrueTypeFromConditionalType(target as ConditionalType), RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+									if /* TODO(TS-TO-GO) AmpersandEqualsToken BinaryExpression: result &= isRelatedTo(getFalseTypeFromConditionalType(source as ConditionalType), getFalseTypeFromConditionalType(target as ConditionalType), RecursionFlags.Both, /*reportErrors* / false) */ TODO {
 										return result
 									}
 								}
@@ -22541,8 +22541,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				if sourceFlags & TypeFlagsSubstitution {
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo((source as SubstitutionType).baseType, (target as SubstitutionType).baseType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
-						if /* TODO(TS-TO-GO) Node BinaryExpression: result &= isRelatedTo((source as SubstitutionType).constraint, (target as SubstitutionType).constraint, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo((source as SubstitutionType).baseType, (target as SubstitutionType).baseType, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+						if /* TODO(TS-TO-GO) AmpersandEqualsToken BinaryExpression: result &= isRelatedTo((source as SubstitutionType).constraint, (target as SubstitutionType).constraint, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
 							return result
 						}
 					}
@@ -22551,7 +22551,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return TernaryFalse
 				}
 			} else if sourceFlags&TypeFlagsUnionOrIntersection || targetFlags&TypeFlagsUnionOrIntersection {
-				if /* TODO(TS-TO-GO) Node BinaryExpression: result = unionOrIntersectionRelatedTo(source, target, reportErrors, intersectionState) */ TODO {
+				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = unionOrIntersectionRelatedTo(source, target, reportErrors, intersectionState) */ TODO {
 					return result
 				}
 				// The ordered decomposition above doesn't handle all cases. Specifically, we also need to handle:
@@ -22583,7 +22583,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			// For a generic type T and a type U that is assignable to T, [...U] is assignable to T, U is assignable to readonly [...T],
 			// and U is assignable to [...T] when U is constrained to a mutable array or tuple type.
-			if isSingleElementGenericTupleType(source) && !source.target.readonly && ( /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(getTypeArguments(source)[0], target, RecursionFlags.Source) */ TODO) || isSingleElementGenericTupleType(target) && (target.target.readonly || isMutableArrayOrTuple(getBaseConstraintOfType(source) || source)) && ( /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(source, getTypeArguments(target)[0], RecursionFlags.Target) */ TODO) {
+			if isSingleElementGenericTupleType(source) && !source.target.readonly && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(getTypeArguments(source)[0], target, RecursionFlags.Source) */ TODO) || isSingleElementGenericTupleType(target) && (target.target.readonly || isMutableArrayOrTuple(getBaseConstraintOfType(source) || source)) && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(source, getTypeArguments(target)[0], RecursionFlags.Target) */ TODO) {
 				return result
 			}
 			if targetFlags & TypeFlagsTypeParameter {
@@ -22592,7 +22592,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if !(getMappedTypeModifiers(source /* as MappedType */) & MappedTypeModifiersIncludeOptional) {
 						templateType := getTemplateTypeFromMappedType(source /* as MappedType */)
 						indexedAccessType := getIndexedAccessType(target, getTypeParameterFromMappedType(source /* as MappedType */))
-						if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(templateType, indexedAccessType, RecursionFlags.Both, reportErrors) */ TODO {
+						if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(templateType, indexedAccessType, RecursionFlags.Both, reportErrors) */ TODO {
 							return result
 						}
 					}
@@ -22605,7 +22605,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						for constraint && someType(constraint, func(c Type) bool {
 							return !!(c.flags & TypeFlagsTypeParameter)
 						}) {
-							if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors* / false) */ TODO {
+							if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors* / false) */ TODO {
 								return result
 							}
 							constraint = getConstraintOfTypeParameter(constraint)
@@ -22617,14 +22617,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				targetType := (target /* as IndexType */).type_
 				// A keyof S is related to a keyof T if T is related to S.
 				if sourceFlags & TypeFlagsIndex {
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(targetType, (source as IndexType).type, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(targetType, (source as IndexType).type, RecursionFlags.Both, /*reportErrors* / false) */ TODO {
 						return result
 					}
 				}
 				if isTupleType(targetType) {
 					// An index type can have a tuple type target when the tuple type contains variadic elements.
 					// Check if the source is related to the known keys of the tuple type.
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(source, getKnownKeysOfTupleType(targetType), RecursionFlags.Target, reportErrors) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(source, getKnownKeysOfTupleType(targetType), RecursionFlags.Target, reportErrors) */ TODO {
 						return result
 					}
 				} else {
@@ -22664,7 +22664,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if sourceFlags & TypeFlagsIndexedAccess {
 					// Relate components directly before falling back to constraint relationships
 					// A type S[K] is related to a type T[J] if S is related to T and K is related to J.
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo((source as IndexedAccessType).objectType, (target as IndexedAccessType).objectType, RecursionFlags.Both, reportErrors) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo((source as IndexedAccessType).objectType, (target as IndexedAccessType).objectType, RecursionFlags.Both, reportErrors) */ TODO {
 						result &= isRelatedTo((source /* as IndexedAccessType */).indexType, (target /* as IndexedAccessType */).indexType, RecursionFlagsBoth, reportErrors)
 					}
 					if result {
@@ -22689,7 +22689,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 								// create a new chain for the constraint error
 								resetErrorInfo(saveErrorInfo)
 							}
-							if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(source, constraint, RecursionFlags.Target, reportErrors, /*headMessage* / undefined, intersectionState) */ TODO {
+							if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(source, constraint, RecursionFlags.Target, reportErrors, /*headMessage* / undefined, intersectionState) */ TODO {
 								return result
 							}
 							// prefer the shorter chain of the constraint comparison chain, and the direct comparison chain
@@ -22746,7 +22746,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 							// to avoid creating the (potentially very large) number of new intermediate types made by manufacturing `S[P]`.
 							nonNullComponent := extractTypesOfKind(templateType, ~TypeFlagsNullable)
 							if !keysRemapped && nonNullComponent.flags&TypeFlagsIndexedAccess && (nonNullComponent /* as IndexedAccessType */).indexType == typeParameter {
-								if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(source, (nonNullComponent as IndexedAccessType).objectType, RecursionFlags.Target, reportErrors) */ TODO {
+								if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(source, (nonNullComponent as IndexedAccessType).objectType, RecursionFlags.Target, reportErrors) */ TODO {
 									return result
 								}
 							} else {
@@ -22769,7 +22769,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 								}
 								indexedAccessType := getIndexedAccessType(source, indexingType)
 								// Compare `S[indexingType]` to `T`, where `T` is the type of a property of the target type.
-								if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(indexedAccessType, templateType, RecursionFlags.Both, reportErrors) */ TODO {
+								if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(indexedAccessType, templateType, RecursionFlags.Both, reportErrors) */ TODO {
 									return result
 								}
 							}
@@ -22794,7 +22794,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					skipTrue := !isTypeAssignableTo(getPermissiveInstantiation(c.checkType), getPermissiveInstantiation(c.extendsType))
 					skipFalse := !skipTrue && isTypeAssignableTo(getRestrictiveInstantiation(c.checkType), getRestrictiveInstantiation(c.extendsType))
 					// TODO: Find a nice way to include potential conditional type breakdowns in error output, if they seem good (they usually don't)
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = skipTrue ? Ternary.True : isRelatedTo(source, getTrueTypeFromConditionalType(c), RecursionFlags.Target, /*reportErrors* / false, /*headMessage* / undefined, intersectionState) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = skipTrue ? Ternary.True : isRelatedTo(source, getTrueTypeFromConditionalType(c), RecursionFlags.Target, /*reportErrors* / false, /*headMessage* / undefined, intersectionState) */ TODO {
 						if skipFalse {
 							result &= TernaryTrue
 						} else {
@@ -22833,9 +22833,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !(sourceFlags&TypeFlagsIndexedAccess && targetFlags&TypeFlagsIndexedAccess) {
 					constraint := getConstraintOfType(source /* as TypeVariable */) || unknownType
 					// hi-speed no-this-instantiation check (less accurate, but avoids costly `this`-instantiation when the constraint will suffice), see #28231 for report on why this is needed
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors* / false, /*headMessage* / undefined, intersectionState) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, /*reportErrors* / false, /*headMessage* / undefined, intersectionState) */ TODO {
 						return result
-					} else if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(getTypeWithThisArgument(constraint, source), target, RecursionFlags.Source, reportErrors && constraint !== unknownType && !(targetFlags & sourceFlags & TypeFlags.TypeParameter), /*headMessage* / undefined, intersectionState) */ TODO {
+					} else if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(getTypeWithThisArgument(constraint, source), target, RecursionFlags.Source, reportErrors && constraint !== unknownType && !(targetFlags & sourceFlags & TypeFlags.TypeParameter), /*headMessage* / undefined, intersectionState) */ TODO {
 						return result
 					}
 					if isMappedTypeGenericIndexedAccess(source) {
@@ -22843,7 +22843,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						// substituted for P. We also want to explore type { [P in K]: E }[C], where C is the constraint of X.
 						indexConstraint := getConstraintOfType((source /* as IndexedAccessType */).indexType)
 						if indexConstraint {
-							if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(getIndexedAccessType((source as IndexedAccessType).objectType, indexConstraint), target, RecursionFlags.Source, reportErrors) */ TODO {
+							if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(getIndexedAccessType((source as IndexedAccessType).objectType, indexConstraint), target, RecursionFlags.Source, reportErrors) */ TODO {
 								return result
 							}
 						}
@@ -22851,7 +22851,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			} else if sourceFlags & TypeFlagsIndex {
 				isDeferredMappedIndex := shouldDeferIndexType((source /* as IndexType */).type_, (source /* as IndexType */).indexFlags) && getObjectFlags((source /* as IndexType */).type_)&ObjectFlagsMapped
-				if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(stringNumberSymbolType, target, RecursionFlags.Source, reportErrors && !isDeferredMappedIndex) */ TODO {
+				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(stringNumberSymbolType, target, RecursionFlags.Source, reportErrors && !isDeferredMappedIndex) */ TODO {
 					return result
 				}
 				if isDeferredMappedIndex {
@@ -22868,14 +22868,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					} else {
 						sourceMappedKeys = (nameType || getConstraintTypeFromMappedType(mappedType))
 					}
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(sourceMappedKeys, target, RecursionFlags.Source, reportErrors) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(sourceMappedKeys, target, RecursionFlags.Source, reportErrors) */ TODO {
 						return result
 					}
 				}
 			} else if sourceFlags&TypeFlagsTemplateLiteral && !(targetFlags & TypeFlagsObject) {
 				if !(targetFlags & TypeFlagsTemplateLiteral) {
 					constraint := getBaseConstraintOfType(source)
-					if constraint && constraint != source && ( /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, reportErrors) */ TODO) {
+					if constraint && constraint != source && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, reportErrors) */ TODO) {
 						return result
 					}
 				}
@@ -22884,12 +22884,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if (source /* as StringMappingType */).symbol != (target /* as StringMappingType */).symbol {
 						return TernaryFalse
 					}
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo((source as StringMappingType).type, (target as StringMappingType).type, RecursionFlags.Both, reportErrors) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo((source as StringMappingType).type, (target as StringMappingType).type, RecursionFlags.Both, reportErrors) */ TODO {
 						return result
 					}
 				} else {
 					constraint := getBaseConstraintOfType(source)
-					if constraint && ( /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, reportErrors) */ TODO) {
+					if constraint && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(constraint, target, RecursionFlags.Source, reportErrors) */ TODO) {
 						return result
 					}
 				}
@@ -22914,7 +22914,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						mapper = ctx.mapper
 					}
 					if isTypeIdenticalTo(sourceExtends, (target /* as ConditionalType */).extendsType) && (isRelatedTo((source /* as ConditionalType */).checkType, (target /* as ConditionalType */).checkType, RecursionFlagsBoth) || isRelatedTo((target /* as ConditionalType */).checkType, (source /* as ConditionalType */).checkType, RecursionFlagsBoth)) {
-						if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(instantiateType(getTrueTypeFromConditionalType(source as ConditionalType), mapper), getTrueTypeFromConditionalType(target as ConditionalType), RecursionFlags.Both, reportErrors) */ TODO {
+						if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(instantiateType(getTrueTypeFromConditionalType(source as ConditionalType), mapper), getTrueTypeFromConditionalType(target as ConditionalType), RecursionFlags.Both, reportErrors) */ TODO {
 							result &= isRelatedTo(getFalseTypeFromConditionalType(source /* as ConditionalType */), getFalseTypeFromConditionalType(target /* as ConditionalType */), RecursionFlagsBoth, reportErrors)
 						}
 						if result {
@@ -22926,7 +22926,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				// when `O` is a conditional (`never` is trivially assignable to `O`, as is `O`!).
 				defaultConstraint := getDefaultConstraintOfConditionalType(source /* as ConditionalType */)
 				if defaultConstraint {
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(defaultConstraint, target, RecursionFlags.Source, reportErrors) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(defaultConstraint, target, RecursionFlags.Source, reportErrors) */ TODO {
 						return result
 					}
 				}
@@ -22940,7 +22940,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if distributiveConstraint {
 					resetErrorInfo(saveErrorInfo)
-					if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(distributiveConstraint, target, RecursionFlags.Source, reportErrors) */ TODO {
+					if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(distributiveConstraint, target, RecursionFlags.Source, reportErrors) */ TODO {
 						return result
 					}
 				}
@@ -22951,7 +22951,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if isGenericMappedType(target) {
 					if isGenericMappedType(source) {
-						if /* TODO(TS-TO-GO) Node BinaryExpression: result = mappedTypeRelatedTo(source, target, reportErrors) */ TODO {
+						if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = mappedTypeRelatedTo(source, target, reportErrors) */ TODO {
 							return result
 						}
 					}
@@ -23051,7 +23051,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}, 0)
 			}
 			relateVariances := func(sourceTypeArguments *[]Type, targetTypeArguments *[]Type, variances []VarianceFlags, intersectionState IntersectionState) *Ternary {
-				if /* TODO(TS-TO-GO) Node BinaryExpression: result = typeArgumentsRelatedTo(sourceTypeArguments, targetTypeArguments, variances, reportErrors, intersectionState) */ TODO {
+				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = typeArgumentsRelatedTo(sourceTypeArguments, targetTypeArguments, variances, reportErrors, intersectionState) */ TODO {
 					return result
 				}
 				if some(variances, func(v VarianceFlags) bool {
@@ -23105,7 +23105,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				var result Ternary
 				targetConstraint := getConstraintTypeFromMappedType(target)
 				sourceConstraint := instantiateType(getConstraintTypeFromMappedType(source), __COND__(getCombinedMappedTypeOptionality(source) < 0, reportUnmeasurableMapper, reportUnreliableMapper))
-				if /* TODO(TS-TO-GO) Node BinaryExpression: result = isRelatedTo(targetConstraint, sourceConstraint, RecursionFlags.Both, reportErrors) */ TODO {
+				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = isRelatedTo(targetConstraint, sourceConstraint, RecursionFlags.Both, reportErrors) */ TODO {
 					mapper := createTypeMapper([]TypeParameter{getTypeParameterFromMappedType(source)}, []TypeParameter{getTypeParameterFromMappedType(target)})
 					if instantiateType(getNameTypeFromMappedType(source), mapper) == instantiateType(getNameTypeFromMappedType(target), mapper) {
 						return result & isRelatedTo(instantiateType(getTemplateTypeFromMappedType(source), mapper), getTemplateTypeFromMappedType(target), RecursionFlagsBoth, reportErrors)
@@ -23987,9 +23987,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					oldHandler := outofbandVarianceMarkerHandler
 					outofbandVarianceMarkerHandler = func(onlyUnreliable bool) bool {
 						if onlyUnreliable {
-							return /* TODO(TS-TO-GO) Node BinaryExpression: unreliable = true */ TODO
+							return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: unreliable = true */ TODO
 						} else {
-							return /* TODO(TS-TO-GO) Node BinaryExpression: unmeasurable = true */ TODO
+							return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: unmeasurable = true */ TODO
 						}
 					}
 					// We first compare instantiations where the type parameter is replaced with
@@ -24241,7 +24241,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	// unique recursion identity (that of their target object type literal) and thus avoid appearing deeply nested.
 	getMappedTargetWithSymbol := func(type_ Type) Type {
 		var target TODO
-		for (getObjectFlags(type_)&ObjectFlagsInstantiatedMapped) == ObjectFlagsInstantiatedMapped && ( /* TODO(TS-TO-GO) Node BinaryExpression: target = getModifiersTypeFromMappedType(type as MappedType) */ TODO) && (target.symbol || target.flags&TypeFlagsIntersection && some((target /* as IntersectionType */).types, func(t Type) true {
+		for (getObjectFlags(type_)&ObjectFlagsInstantiatedMapped) == ObjectFlagsInstantiatedMapped && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: target = getModifiersTypeFromMappedType(type as MappedType) */ TODO) && (target.symbol || target.flags&TypeFlagsIntersection && some((target /* as IntersectionType */).types, func(t Type) true {
 			return !!t.symbol
 		})) {
 			type_ = target
@@ -24429,7 +24429,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for _, t := range types {
 			if !(t.flags & TypeFlagsNever) {
 				baseType := getBaseTypeOfLiteralType(t)
-				/* TODO(TS-TO-GO) Node BinaryExpression: commonBaseType ??= baseType */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: commonBaseType ??= baseType */ TODO
 				if baseType == t || baseType != commonBaseType {
 					return false
 				}
@@ -24573,7 +24573,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isTupleLikeType := func(type_ Type) bool {
 		var lengthType TODO
-		return isTupleType(type_) || !!getPropertyOfType(type_, "0" /* as __String */) || isArrayLikeType(type_) && !!( /* TODO(TS-TO-GO) Node BinaryExpression: lengthType = getTypeOfPropertyOfType(type, "length" as __String) */ TODO) && everyType(lengthType, func(t Type) bool {
+		return isTupleType(type_) || !!getPropertyOfType(type_, "0" /* as __String */) || isArrayLikeType(type_) && !!( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: lengthType = getTypeOfPropertyOfType(type, "length" as __String) */ TODO) && everyType(lengthType, func(t Type) bool {
 			return !!(t.flags & TypeFlagsNumberLiteral)
 		})
 	}
@@ -24647,7 +24647,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getBaseTypeOfLiteralTypeUnion := func(type_ UnionType) Type {
 		key := __TEMPLATE__("B", getTypeId(type_))
-		return /* TODO(TS-TO-GO) Node BinaryExpression: getCachedType(key) ?? setCachedType(key, mapType(type, getBaseTypeOfLiteralType)) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, mapType(type, getBaseTypeOfLiteralType)) */ TODO
 	}
 	// This like getBaseTypeOfLiteralType, but instead treats enum literals as strings/numbers instead
 	// of returning their enum base type (which depends on the types of other literals in the enum).
@@ -25130,12 +25130,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					errorReported = true
 				} else {
 					for _, t := range (type_ /* as UnionType */).types {
-						/* TODO(TS-TO-GO) Node BinaryExpression: errorReported ||= reportWideningErrorsInType(t) */ TODO
+						/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: errorReported ||= reportWideningErrorsInType(t) */ TODO
 					}
 				}
 			} else if isArrayOrTupleType(type_) {
 				for _, t := range getTypeArguments(type_) {
-					/* TODO(TS-TO-GO) Node BinaryExpression: errorReported ||= reportWideningErrorsInType(t) */ TODO
+					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: errorReported ||= reportWideningErrorsInType(t) */ TODO
 				}
 			} else if isObjectLiteralType(type_) {
 				for _, p := range getPropertiesOfObjectType(type_) {
@@ -25355,7 +25355,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	addIntraExpressionInferenceSite := func(context InferenceContext, node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | MethodDeclaration */ any, type_ Type) {
-		( /* TODO(TS-TO-GO) Node BinaryExpression: context.intraExpressionInferenceSites ??= [] */ TODO).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
+		( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: context.intraExpressionInferenceSites ??= [] */ TODO).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"node":  node,
 			"type_": type_,
 		})
@@ -26103,14 +26103,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				inferencePriority = Math.min(inferencePriority, status)
 				return
 			}
-			(visited || ( /* TODO(TS-TO-GO) Node BinaryExpression: visited = new Map<string, number>() */ TODO)).set(key, InferencePriorityCircularity)
+			(visited || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: visited = new Map<string, number>() */ TODO)).set(key, InferencePriorityCircularity)
 			saveInferencePriority := inferencePriority
 			inferencePriority = InferencePriorityMaxValue
 			// We stop inferring and report a circularity if we encounter duplicate recursion identities on both
 			// the source side and the target side.
 			saveExpandingFlags := expandingFlags
-			( /* TODO(TS-TO-GO) Node BinaryExpression: sourceStack ??= [] */ TODO).push(source)
-			( /* TODO(TS-TO-GO) Node BinaryExpression: targetStack ??= [] */ TODO).push(target)
+			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceStack ??= [] */ TODO).push(source)
+			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: targetStack ??= [] */ TODO).push(target)
 			if isDeeplyNestedType(source, sourceStack, sourceStack.length, 2) {
 				expandingFlags |= ExpandingFlagsSource
 			}
@@ -27273,7 +27273,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return assignedType
 		}
 		key := __TEMPLATE__("A", getTypeId(declaredType), ",", getTypeId(assignedType))
-		return /* TODO(TS-TO-GO) Node BinaryExpression: getCachedType(key) ?? setCachedType(key, getAssignmentReducedTypeWorker(declaredType, assignedType)) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, getAssignmentReducedTypeWorker(declaredType, assignedType)) */ TODO
 	}
 	getAssignmentReducedTypeWorker := func(declaredType UnionType, assignedType Type) Type {
 		filteredType := filterType(declaredType, func(t Type) bool {
@@ -27852,7 +27852,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				mapped = mapper(t)
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: changed ||= t !== mapped */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: changed ||= t !== mapped */ TODO
 			if mapped {
 				if !mappedTypes {
 					mappedTypes = []Type{mapped}
@@ -27933,7 +27933,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return result
 	}
 	getEvolvingArrayType := func(elementType Type) EvolvingArrayType {
-		return evolvingArrayTypes[elementType.id] || ( /* TODO(TS-TO-GO) Node BinaryExpression: evolvingArrayTypes[elementType.id] = createEvolvingArrayType(elementType) */ TODO)
+		return evolvingArrayTypes[elementType.id] || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: evolvingArrayTypes[elementType.id] = createEvolvingArrayType(elementType) */ TODO)
 	}
 	// When adding evolving array element types we do not perform subtype reduction. Instead,
 	// we defer subtype reduction until the evolving array type is finalized into a manifest
@@ -27955,7 +27955,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	// We perform subtype reduction upon obtaining the final array type from an evolving array type.
 	getFinalArrayType := func(evolvingArrayType EvolvingArrayType) Type {
-		return evolvingArrayType.finalArrayType || ( /* TODO(TS-TO-GO) Node BinaryExpression: evolvingArrayType.finalArrayType = createFinalArrayType(evolvingArrayType.elementType) */ TODO)
+		return evolvingArrayType.finalArrayType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: evolvingArrayType.finalArrayType = createFinalArrayType(evolvingArrayType.elementType) */ TODO)
 	}
 	finalizeEvolvingArrayType := func(type_ Type) Type {
 		if getObjectFlags(type_) & ObjectFlagsEvolvingArray {
@@ -28098,7 +28098,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			default:
 				candidate = nil
 			}
-			signature = /* TODO(TS-TO-GO) Node BinaryExpression: links.effectsSignature = candidate && hasTypePredicateOrNeverReturnType(candidate) ? candidate : unknownSignature */ TODO
+			signature = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.effectsSignature = candidate && hasTypePredicateOrNeverReturnType(candidate) ? candidate : unknownSignature */ TODO
 		}
 		if signature == unknownSignature {
 			return nil
@@ -28149,7 +28149,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if reachable != nil {
 						return reachable
 					} else {
-						return ( /* TODO(TS-TO-GO) Node BinaryExpression: flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck* / true) */ TODO)
+						return ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: flowNodeReachable[id] = isReachableFlowNodeWorker(flow, /*noCacheCheck* / true) */ TODO)
 					}
 				}
 				noCacheCheck = false
@@ -28217,7 +28217,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					if postSuper != nil {
 						return postSuper
 					} else {
-						return ( /* TODO(TS-TO-GO) Node BinaryExpression: flowNodePostSuper[id] = isPostSuperFlowNode(flow, /*noCacheCheck* / true) */ TODO)
+						return ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: flowNodePostSuper[id] = isPostSuperFlowNode(flow, /*noCacheCheck* / true) */ TODO)
 					}
 				}
 				noCacheCheck = false
@@ -28647,7 +28647,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// If we have previously computed the control flow type for the reference at
 			// this flow loop junction, return the cached type.
 			id := getFlowNodeId(flow)
-			cache := flowLoopCaches[id] || ( /* TODO(TS-TO-GO) Node BinaryExpression: flowLoopCaches[id] = new Map<string, Type>() */ TODO)
+			cache := flowLoopCaches[id] || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: flowLoopCaches[id] = new Map<string, Type>() */ TODO)
 			key := getOrSetCacheKey()
 			if !key {
 				// No cache key is generated when binding patterns are in unnarrowable situations
@@ -28680,7 +28680,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !firstAntecedentType {
 					// The first antecedent of a loop junction is always the non-looping control
 					// flow path that leads to the top.
-					flowType = /* TODO(TS-TO-GO) Node BinaryExpression: firstAntecedentType = getTypeAtFlowNode(antecedent) */ TODO
+					flowType = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: firstAntecedentType = getTypeAtFlowNode(antecedent) */ TODO
 				} else {
 					// All but the first antecedent are the looping control flow paths that lead
 					// back to the loop junction. We track these on the flow loop stack.
@@ -29393,7 +29393,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				key = nil
 			}
-			return /* TODO(TS-TO-GO) Node BinaryExpression: getCachedType(key) ?? setCachedType(key, getNarrowedTypeWorker(type, candidate, assumeTrue, checkDerived)) */ TODO
+			return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, getNarrowedTypeWorker(type, candidate, assumeTrue, checkDerived)) */ TODO
 		}
 		getNarrowedTypeWorker := func(type_ Type, candidate Type, assumeTrue bool, checkDerived bool) Type {
 			if !assumeTrue {
@@ -29777,7 +29777,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				reportCircularityError(declaration.symbol)
 				return true
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: links.parameterInitializerContainsUndefined ??= containsUndefined */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.parameterInitializerContainsUndefined ??= containsUndefined */ TODO
 		}
 		return links.parameterInitializerContainsUndefined
 	}
@@ -30606,7 +30606,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						if part {
 							links := getNodeLinks(part)
 							links.flags |= NodeCheckFlagsContainsCapturedBlockScopeBinding
-							capturedBindings := links.capturedBlockScopeBindings || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.capturedBlockScopeBindings = [] */ TODO)
+							capturedBindings := links.capturedBlockScopeBindings || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.capturedBlockScopeBindings = [] */ TODO)
 							pushIfUnique(capturedBindings, symbol)
 							if part == container.initializer {
 								capturesBlockScopeBindingInLoopBody = false
@@ -30783,7 +30783,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if isJSConstructor(container) {
 					thisType = (getDeclaredTypeOfSymbol(getMergedSymbol(container.symbol)) /* as InterfaceType */).thisType
 				}
-				/* TODO(TS-TO-GO) Node BinaryExpression: thisType ||= getContextualThisParameterType(container) */ TODO
+				/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: thisType ||= getContextualThisParameterType(container) */ TODO
 			}
 			if thisType {
 				return getFlowTypeOfReference(node, thisType)
@@ -31304,9 +31304,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if node.asteriskToken {
 					iterationTypes := getIterationTypesOfGeneratorFunctionReturnType(contextualReturnType, isAsyncGenerator)
-					yieldType := /* TODO(TS-TO-GO) Node BinaryExpression: iterationTypes?.yieldType ?? silentNeverType */ TODO
-					returnType := /* TODO(TS-TO-GO) Node BinaryExpression: getContextualType(node, contextFlags) ?? silentNeverType */ TODO
-					nextType := /* TODO(TS-TO-GO) Node BinaryExpression: iterationTypes?.nextType ?? unknownType */ TODO
+					yieldType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: iterationTypes?.yieldType ?? silentNeverType */ TODO
+					returnType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getContextualType(node, contextFlags) ?? silentNeverType */ TODO
+					nextType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: iterationTypes?.nextType ?? unknownType */ TODO
 					generatorType := createGeneratorType(yieldType, returnType, nextType /*isAsyncGenerator*/, false)
 					if isAsyncGenerator {
 						asyncGeneratorType := createGeneratorType(yieldType, returnType, nextType /*isAsyncGenerator*/, true)
@@ -31554,7 +31554,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					valueDeclaration = nil
 				}
 			}
-			/* TODO(TS-TO-GO) Node BinaryExpression: valueDeclaration ||= binaryExpression.symbol?.valueDeclaration */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: valueDeclaration ||= binaryExpression.symbol?.valueDeclaration */ TODO
 			annotated := valueDeclaration && getEffectiveTypeAnnotationNode(valueDeclaration)
 			if annotated {
 				return getTypeFromTypeNode(annotated)
@@ -31662,7 +31662,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if isGenericMappedType(t) && getMappedTypeNameTypeKind(t) != MappedTypeNameTypeKindRemapping {
 				return getIndexedMappedTypeSubstitutedTypeOfContextualType(t, name, nameType)
 			} else {
-				return /* TODO(TS-TO-GO) Node BinaryExpression: getTypeOfConcretePropertyOfContextualType(t, name) ?? getTypeFromIndexInfosOfContextualType(t, name, nameType) */ TODO
+				return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getTypeOfConcretePropertyOfContextualType(t, name) ?? getTypeFromIndexInfosOfContextualType(t, name, nameType) */ TODO
 			}
 		}, /*noReductions*/ true)
 	}
@@ -31755,7 +31755,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var last TODO
 		for i := 0; i < elements.length; i++ {
 			if isSpreadElement(elements[i]) {
-				/* TODO(TS-TO-GO) Node BinaryExpression: first ??= i */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: first ??= i */ TODO
 				last = i
 			}
 		}
@@ -31877,7 +31877,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	discriminateContextualTypeByObjectMembers := func(node ObjectLiteralExpression, contextualType UnionType) Type {
 		key := __TEMPLATE__("D", getNodeId(node), ",", getTypeId(contextualType))
-		return /* TODO(TS-TO-GO) Node BinaryExpression: getCachedType(key) ?? setCachedType( key, getMatchingUnionConstituentForObjectLiteral(contextualType, node) ?? discriminateTypeByDiscriminableItems( contextualType, concatenate( map( filter(node.properties, (p): p is PropertyAssignment | ShorthandPropertyAssignment => { if (!p.symbol) { return false; } if (p.kind === SyntaxKind.PropertyAssignment) { return isPossiblyDiscriminantValue(p.initializer) && isDiscriminantProperty(contextualType, p.symbol.escapedName); } if (p.kind === SyntaxKind.ShorthandPropertyAssignment) { return isDiscriminantProperty(contextualType, p.symbol.escapedName); } return false; }), prop => ([() => getContextFreeTypeOfExpression(prop.kind === SyntaxKind.PropertyAssignment ? prop.initializer : prop.name), prop.symbol.escapedName] as const), ), map( filter(getPropertiesOfType(contextualType), s => !!(s.flags & SymbolFlags.Optional) && !!node?.symbol?.members && !node.symbol.members.has(s.escapedName) && isDiscriminantProperty(contextualType, s.escapedName)), s => [() => undefinedType, s.escapedName] as const, ), ), isTypeAssignableTo, ), ) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType( key, getMatchingUnionConstituentForObjectLiteral(contextualType, node) ?? discriminateTypeByDiscriminableItems( contextualType, concatenate( map( filter(node.properties, (p): p is PropertyAssignment | ShorthandPropertyAssignment => { if (!p.symbol) { return false; } if (p.kind === SyntaxKind.PropertyAssignment) { return isPossiblyDiscriminantValue(p.initializer) && isDiscriminantProperty(contextualType, p.symbol.escapedName); } if (p.kind === SyntaxKind.ShorthandPropertyAssignment) { return isDiscriminantProperty(contextualType, p.symbol.escapedName); } return false; }), prop => ([() => getContextFreeTypeOfExpression(prop.kind === SyntaxKind.PropertyAssignment ? prop.initializer : prop.name), prop.symbol.escapedName] as const), ), map( filter(getPropertiesOfType(contextualType), s => !!(s.flags & SymbolFlags.Optional) && !!node?.symbol?.members && !node.symbol.members.has(s.escapedName) && isDiscriminantProperty(contextualType, s.escapedName)), s => [() => undefinedType, s.escapedName] as const, ), ), isTypeAssignableTo, ), ) */ TODO
 	}
 	discriminateContextualTypeByJSXAttributes := func(node JsxAttributes, contextualType UnionType) Type {
 		key := __TEMPLATE__("D", getNodeId(node), ",", getTypeId(contextualType))
@@ -32052,7 +32052,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			arrayLiteral := parent /* as ArrayLiteralExpression */
 			type_ := getApparentTypeOfContextualType(arrayLiteral, contextFlags)
 			elementIndex := indexOfNode(arrayLiteral.elements, node)
-			spreadIndices := /* TODO(TS-TO-GO) Node BinaryExpression: getNodeLinks(arrayLiteral).spreadIndices ??= getSpreadIndices(arrayLiteral.elements) */ TODO
+			spreadIndices := /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: getNodeLinks(arrayLiteral).spreadIndices ??= getSpreadIndices(arrayLiteral.elements) */ TODO
 			return getContextualTypeForElementExpression(type_, elementIndex, arrayLiteral.elements.length, spreadIndices.first, spreadIndices.last)
 			fallthrough
 		case SyntaxKindConditionalExpression:
@@ -32471,7 +32471,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		sourceFile := getSourceFileOfNode(node)
 		if !hasParseDiagnostics(sourceFile) && !node.isUnterminated {
 			var lastError *DiagnosticWithLocation
-			/* TODO(TS-TO-GO) Node BinaryExpression: scanner ??= createScanner(ScriptTarget.ESNext, /*skipTrivia* / true) */ TODO
+			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: scanner ??= createScanner(ScriptTarget.ESNext, /*skipTrivia* / true) */ TODO
 			scanner.setScriptTarget(sourceFile.languageVersion)
 			scanner.setLanguageVariant(sourceFile.languageVariant)
 			scanner.setOnError(func(message DiagnosticMessage, length number, arg0 any) {
@@ -32609,7 +32609,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		literalType := (type_ /* as TypeReference */).literalType
 		if !literalType {
-			literalType = /* TODO(TS-TO-GO) Node BinaryExpression: (type as TypeReference).literalType = cloneTypeReference(type as TypeReference) */ TODO
+			literalType = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: (type as TypeReference).literalType = cloneTypeReference(type as TypeReference) */ TODO
 			literalType.objectFlags |= ObjectFlagsArrayLiteral | ObjectFlagsContainsObjectOrArrayLiteral
 		}
 		return literalType
@@ -34374,7 +34374,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		default:
 			jsxSpecific = nil
 		}
-		return /* TODO(TS-TO-GO) Node BinaryExpression: jsxSpecific ?? getSpellingSuggestionForName(strName, properties, SymbolFlags.Value) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: jsxSpecific ?? getSpellingSuggestionForName(strName, properties, SymbolFlags.Value) */ TODO
 	}
 	getSuggestionForNonexistentProperty := func(name /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | string */ any, containingType Type) *string {
 		suggestion := getSuggestedSymbolForNonexistentProperty(name, containingType)
@@ -34707,7 +34707,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				// current declaration belongs to a different symbol
 				// set cutoffIndex so re-orderings in the future won't change result set from 0 to cutoffIndex
-				index = /* TODO(TS-TO-GO) Node BinaryExpression: cutoffIndex = result.length */ TODO
+				index = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: cutoffIndex = result.length */ TODO
 				lastParent = parent
 			}
 			lastSymbol = symbol
@@ -34826,7 +34826,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	isInstantiatedGenericParameter := func(signature Signature, pos number) bool {
 		var type_ TODO
-		return !!(signature.target && ( /* TODO(TS-TO-GO) Node BinaryExpression: type = tryGetTypeAtPosition(signature.target, pos) */ TODO) && isGenericType(type_))
+		return !!(signature.target && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type = tryGetTypeAtPosition(signature.target, pos) */ TODO) && isGenericType(type_))
 	}
 	// If type has a single call signature and no other members, return that signature. Otherwise, return undefined.
 	getSingleCallSignature := func(type_ Type) *Signature {
@@ -35208,7 +35208,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					addRelatedInfo(diag, createDiagnosticForNode(tagNameDeclaration, Diagnostics._0_is_declared_here, entityNameToString(node.tagName)))
 				}
 				if errorOutputContainer && errorOutputContainer.skipLogging {
-					(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
+					(errorOutputContainer.errors || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: errorOutputContainer.errors = [] */ TODO)).push(diag)
 				}
 				if !errorOutputContainer.skipLogging {
 					diagnostics.add(diag)
@@ -35475,12 +35475,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getDiagnosticForCallNode := func(node CallLikeExpression, message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) DiagnosticWithLocation {
 		if isCallExpression(node) {
 			TODO_IDENTIFIER := getDiagnosticSpanForCallNode(node)
-			if /* TODO(TS-TO-GO) Node BinaryExpression: "message" in message */ TODO {
+			if /* TODO(TS-TO-GO) InKeyword BinaryExpression: "message" in message */ TODO {
 				return createFileDiagnostic(sourceFile, start, length, message, args...)
 			}
 			return createDiagnosticForFileFromMessageChain(sourceFile, message)
 		} else {
-			if /* TODO(TS-TO-GO) Node BinaryExpression: "message" in message */ TODO {
+			if /* TODO(TS-TO-GO) InKeyword BinaryExpression: "message" in message */ TODO {
 				return createDiagnosticForNode(node, message, args...)
 			}
 			return createDiagnosticForNodeFromMessageChain(getSourceFileOfNode(node), node, message)
@@ -35963,7 +35963,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				if getSignatureApplicabilityError(node, args, checkCandidate, relation, argCheckMode /*reportErrors*/, false /*containingMessageChain*/, nil, inferenceContext) {
 					// Give preference to error candidates that have no rest parameters (as they are more specific)
-					(candidatesForArgumentError || ( /* TODO(TS-TO-GO) Node BinaryExpression: candidatesForArgumentError = [] */ TODO)).push(checkCandidate)
+					(candidatesForArgumentError || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: candidatesForArgumentError = [] */ TODO)).push(checkCandidate)
 					continue
 				}
 				if argCheckMode {
@@ -35983,7 +35983,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					if getSignatureApplicabilityError(node, args, checkCandidate, relation, argCheckMode /*reportErrors*/, false /*containingMessageChain*/, nil, inferenceContext) {
 						// Give preference to error candidates that have no rest parameters (as they are more specific)
-						(candidatesForArgumentError || ( /* TODO(TS-TO-GO) Node BinaryExpression: candidatesForArgumentError = [] */ TODO)).push(checkCandidate)
+						(candidatesForArgumentError || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: candidatesForArgumentError = [] */ TODO)).push(checkCandidate)
 						continue
 					}
 				}
@@ -36751,7 +36751,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if source.members. /* ? */ size {
 					mergeSymbolTable(inferred.members, source.members)
 				}
-				(links.inferredClassSymbol || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.inferredClassSymbol = new Map() */ TODO)).set(getSymbolId(inferred), inferred)
+				(links.inferredClassSymbol || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.inferredClassSymbol = new Map() */ TODO)).set(getSymbolId(inferred), inferred)
 				return inferred
 			}
 			return links.inferredClassSymbol.get(getSymbolId(target))
@@ -37201,9 +37201,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			hasSignatures := false
 			hasApplicableSignature := false
 			result := getInstantiatedTypePart(type_)
-			/* TODO(TS-TO-GO) Node BinaryExpression: hasSomeApplicableSignature ||= hasApplicableSignature */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasSomeApplicableSignature ||= hasApplicableSignature */ TODO
 			if hasSignatures && !hasApplicableSignature {
-				/* TODO(TS-TO-GO) Node BinaryExpression: nonApplicableType ??= type */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: nonApplicableType ??= type */ TODO
 			}
 			return result
 			getInstantiatedTypePart := func(type_ Type) Type {
@@ -37211,8 +37211,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					resolved := resolveStructuredTypeMembers(type_ /* as ObjectType */)
 					callSignatures := getInstantiatedSignatures(resolved.callSignatures)
 					constructSignatures := getInstantiatedSignatures(resolved.constructSignatures)
-					/* TODO(TS-TO-GO) Node BinaryExpression: hasSignatures ||= resolved.callSignatures.length !== 0 || resolved.constructSignatures.length !== 0 */ TODO
-					/* TODO(TS-TO-GO) Node BinaryExpression: hasApplicableSignature ||= callSignatures.length !== 0 || constructSignatures.length !== 0 */ TODO
+					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasSignatures ||= resolved.callSignatures.length !== 0 || resolved.constructSignatures.length !== 0 */ TODO
+					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasApplicableSignature ||= callSignatures.length !== 0 || constructSignatures.length !== 0 */ TODO
 					if callSignatures != resolved.callSignatures || constructSignatures != resolved.constructSignatures {
 						result := createAnonymousType(createSymbol(SymbolFlagsNone, InternalSymbolNameInstantiationExpression), resolved.members, callSignatures, constructSignatures, resolved.indexInfos) /* as ResolvedType & InstantiationExpressionType */
 						result.objectFlags |= ObjectFlagsInstantiationExpressionType
@@ -37393,7 +37393,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if restParameter {
 				return getTupleElementLabelFromBindingElement(restParameter, index, elementFlags)
 			} else {
-				return __TEMPLATE__( /* TODO(TS-TO-GO) Node BinaryExpression: restSymbol?.escapedName ?? "arg" */ TODO, "_", index) /* as __String */
+				return __TEMPLATE__( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: restSymbol?.escapedName ?? "arg" */ TODO, "_", index) /* as __String */
 			}
 		}
 		Debug.assert(isIdentifier(d.name))
@@ -37686,7 +37686,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				type_ := tryGetTypeAtPosition(context, i)
 				if type_ && declaration.initializer {
 					initializerType := checkDeclarationInitializer(declaration, CheckModeNormal)
-					if !isTypeAssignableTo(initializerType, type_) && isTypeAssignableTo(type_ /* TODO(TS-TO-GO) Node BinaryExpression: initializerType = widenTypeInferredFromInitializer(declaration, initializerType) */, TODO) {
+					if !isTypeAssignableTo(initializerType, type_) && isTypeAssignableTo(type_ /* TODO(TS-TO-GO) EqualsToken BinaryExpression: initializerType = widenTypeInferredFromInitializer(declaration, initializerType) */, TODO) {
 						type_ = initializerType
 					}
 				}
@@ -38651,7 +38651,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 								instantiatedContextualSignature = instantiateSignature(contextualSignature, inferenceContext.nonFixingMapper)
 							}
 						}
-						/* TODO(TS-TO-GO) Node BinaryExpression: instantiatedContextualSignature ||= inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature */ TODO
+						/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: instantiatedContextualSignature ||= inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature */ TODO
 						assignContextualParameterTypes(signature, instantiatedContextualSignature)
 					} else {
 						// Force resolution of all parameter types such that the absence of a contextual type is consistently reflected.
@@ -38863,7 +38863,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if !hasParseDiagnostics(sourceFile) {
 					var span *TextSpan
 					if !isEffectiveExternalModule(sourceFile, compilerOptions) {
-						/* TODO(TS-TO-GO) Node BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
+						/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
 						var message DiagnosticMessage
 						if isAwaitExpression(node) {
 							message = Diagnostics.await_expressions_are_only_allowed_at_the_top_level_of_a_file_when_that_file_is_a_module_but_this_file_has_no_imports_or_exports_Consider_adding_an_empty_export_to_make_this_file_a_module
@@ -38878,7 +38878,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					case ModuleKindNode16,
 						ModuleKindNodeNext:
 						if sourceFile.impliedNodeFormat == ModuleKindCommonJS {
-							/* TODO(TS-TO-GO) Node BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
+							/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
 							diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, Diagnostics.The_current_file_is_a_CommonJS_module_and_cannot_use_await_at_the_top_level))
 							hasError = true
 							break
@@ -38893,7 +38893,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						}
 						fallthrough
 					default:
-						/* TODO(TS-TO-GO) Node BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
+						/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
 						var message DiagnosticMessage
 						if isAwaitExpression(node) {
 							message = Diagnostics.Top_level_await_expressions_are_only_allowed_when_the_module_option_is_set_to_es2022_esnext_system_node16_nodenext_or_preserve_and_the_target_option_is_set_to_es2017_or_higher
@@ -39221,7 +39221,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		for i := 0; i < elements.length; i++ {
 			type_ := possiblyOutOfBoundsType
 			if node.elements[i].kind == SyntaxKindSpreadElement {
-				type_ = /* TODO(TS-TO-GO) Node BinaryExpression: inBoundsType = inBoundsType ?? (checkIteratedTypeOrElementType(IterationUse.Destructuring, sourceType, undefinedType, node) || errorType) */ TODO
+				type_ = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: inBoundsType = inBoundsType ?? (checkIteratedTypeOrElementType(IterationUse.Destructuring, sourceType, undefinedType, node) || errorType) */ TODO
 			}
 			checkArrayLiteralDestructuringElementAssignment(node, sourceType, i, type_, checkMode)
 		}
@@ -39609,7 +39609,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			leftType = checkNonNullType(leftType, left)
 			rightType = checkNonNullType(rightType, right)
 			var suggestedOperator *PunctuationSyntaxKind
-			if (leftType.flags & TypeFlagsBooleanLike) && (rightType.flags & TypeFlagsBooleanLike) && ( /* TODO(TS-TO-GO) Node BinaryExpression: suggestedOperator = getSuggestedBooleanOperator(operatorToken.kind) */ TODO) != nil {
+			if (leftType.flags & TypeFlagsBooleanLike) && (rightType.flags & TypeFlagsBooleanLike) && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: suggestedOperator = getSuggestedBooleanOperator(operatorToken.kind) */ TODO) != nil {
 				error(errorNode || operatorToken, Diagnostics.The_0_operator_is_not_allowed_for_boolean_types_Consider_using_1_instead, tokenToString(operatorToken.kind), tokenToString(suggestedOperator))
 				return numberType
 			} else {
@@ -39647,7 +39647,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
 						rhsEval := evaluate(right)
 						if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof rhsEval.value */ TODO == "number" && Math.abs(rhsEval.value) >= 32 {
-							errorOrSuggestion(isEnumMember(walkUpParenthesizedExpressions(right.parent.parent)), errorNode || operatorToken, Diagnostics.This_operation_can_be_simplified_This_shift_is_identical_to_0_1_2, getTextOfNode(left), tokenToString(operator) /* TODO(TS-TO-GO) Node BinaryExpression: rhsEval.value % 32 */, TODO)
+							errorOrSuggestion(isEnumMember(walkUpParenthesizedExpressions(right.parent.parent)), errorNode || operatorToken, Diagnostics.This_operation_can_be_simplified_This_shift_is_identical_to_0_1_2, getTextOfNode(left), tokenToString(operator) /* TODO(TS-TO-GO) PercentToken BinaryExpression: rhsEval.value % 32 */, TODO)
 						}
 					default:
 					}
@@ -40480,7 +40480,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		type_ := checkExpression(node, CheckModeTypeOnly)
 		// If control flow analysis was required to determine the type, it is worth caching.
 		if flowInvocationCount != startInvocationCount {
-			cache := flowTypeCache || ( /* TODO(TS-TO-GO) Node BinaryExpression: flowTypeCache = [] */ TODO)
+			cache := flowTypeCache || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: flowTypeCache = [] */ TODO)
 			cache[getNodeId(node)] = type_
 			setNodeFlags(node, node.flags|NodeFlagsTypeCached)
 		}
@@ -40531,7 +40531,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return links.contextFreeType
 		}
 		pushContextualType(node, anyType /*isCache*/, false)
-		type_ := /* TODO(TS-TO-GO) Node BinaryExpression: links.contextFreeType = checkExpression(node, CheckMode.SkipContextSensitive) */ TODO
+		type_ := /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.contextFreeType = checkExpression(node, CheckMode.SkipContextSensitive) */ TODO
 		popContextualType()
 		return type_
 	}
@@ -41639,7 +41639,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		checkFlagAgreementBetweenOverloads := func(overloads []Declaration, implementation *FunctionLikeDeclaration, flagsToCheck ModifierFlags, someOverloadFlags ModifierFlags, allOverloadFlags ModifierFlags) {
 			// Error if some overloads have a flag that is not shared by all overloads. To find the
 			// deviations, we XOR someOverloadFlags with allOverloadFlags
-			someButNotAllOverloadFlags := /* TODO(TS-TO-GO) Node BinaryExpression: someOverloadFlags ^ allOverloadFlags */ TODO
+			someButNotAllOverloadFlags := /* TODO(TS-TO-GO) CaretToken BinaryExpression: someOverloadFlags ^ allOverloadFlags */ TODO
 			if someButNotAllOverloadFlags != 0 {
 				canonicalFlags := getEffectiveDeclarationFlags(getCanonicalOverload(overloads, implementation), flagsToCheck)
 				group(overloads, func(o Declaration) string {
@@ -41647,8 +41647,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}).forEach(func(overloadsInFile []Declaration) {
 					canonicalFlagsForFile := getEffectiveDeclarationFlags(getCanonicalOverload(overloadsInFile, implementation), flagsToCheck)
 					for _, o := range overloadsInFile {
-						deviation := /* TODO(TS-TO-GO) Node BinaryExpression: getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlags */ TODO
-						deviationInFile := /* TODO(TS-TO-GO) Node BinaryExpression: getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlagsForFile */ TODO
+						deviation := /* TODO(TS-TO-GO) CaretToken BinaryExpression: getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlags */ TODO
+						deviationInFile := /* TODO(TS-TO-GO) CaretToken BinaryExpression: getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlagsForFile */ TODO
 						if deviationInFile & ModifierFlagsExport {
 							// Overloads in different files need not all have export modifiers. This is ok:
 							//   // lib.d.ts
@@ -42149,7 +42149,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		//   - The base constraint of `T` is `any`, `unknown`, `object`, or `{}`, or
 		//   - The base constraint of `T` is an object type with a callable `then` method.
 		if isAwaitedTypeNeeded(type_) {
-			return /* TODO(TS-TO-GO) Node BinaryExpression: tryCreateAwaitedType(type) ?? type */ TODO
+			return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: tryCreateAwaitedType(type) ?? type */ TODO
 		}
 		Debug.assert(isAwaitedTypeInstantiation(type_) || getPromisedTypeOfPromise(type_) == nil, "type provided should not be a non-generic 'promise'-like.")
 		return type_
@@ -43622,7 +43622,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				type_ = checkExpression(location)
 			}
-			if type_.flags&TypeFlagsEnumLiteral && isPropertyAccessExpression(location) && ( /* TODO(TS-TO-GO) Node BinaryExpression: getNodeLinks(location.expression).resolvedSymbol ?? unknownSymbol */ TODO).flags&SymbolFlagsEnum {
+			if type_.flags&TypeFlagsEnumLiteral && isPropertyAccessExpression(location) && ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getNodeLinks(location.expression).resolvedSymbol ?? unknownSymbol */ TODO).flags&SymbolFlagsEnum {
 				// EnumLiteral type at condition with known value is always truthy or always falsy, likely an error
 				error(location, Diagnostics.This_condition_will_always_return_0, __COND__(!!(type_ /* as LiteralType */).value, "true", "false"))
 				return
@@ -44427,7 +44427,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 		iteratorType := getIntersectionType(map_(signatures, getReturnTypeOfSignature))
-		iterationTypes := /* TODO(TS-TO-GO) Node BinaryExpression: getIterationTypesOfIteratorWorker(iteratorType, resolver, errorNode, errorOutputContainer, noCache) ?? noIterationTypes */ TODO
+		iterationTypes := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getIterationTypesOfIteratorWorker(iteratorType, resolver, errorNode, errorOutputContainer, noCache) ?? noIterationTypes */ TODO
 		if noCache {
 			return iterationTypes
 		} else {
@@ -44471,7 +44471,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			iterationTypes = nil
 			noCache = true
 		}
-		/* TODO(TS-TO-GO) Node BinaryExpression: iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache) */ TODO
+		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache) */ TODO
 		if iterationTypes == noIterationTypes {
 			return nil
 		} else {
@@ -44631,7 +44631,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					diagnostic = resolver.mustBeAMethodDiagnostic
 				}
 				if errorOutputContainer {
-					/* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors ??= [] */ TODO
+					/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: errorOutputContainer.errors ??= [] */ TODO
 					errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, diagnostic, methodName))
 				} else {
 					error(errorNode, diagnostic, methodName)
@@ -44708,7 +44708,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if iterationTypes == noIterationTypes {
 			if errorNode {
 				if errorOutputContainer {
-					/* TODO(TS-TO-GO) Node BinaryExpression: errorOutputContainer.errors ??= [] */ TODO
+					/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: errorOutputContainer.errors ??= [] */ TODO
 					errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, resolver.mustHaveAValueDiagnostic, methodName))
 				} else {
 					error(errorNode, resolver.mustHaveAValueDiagnostic, methodName)
@@ -44834,7 +44834,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					error(node, Diagnostics.Return_type_of_constructor_signature_must_be_assignable_to_the_instance_type_of_the_class)
 				}
 			} else if getReturnTypeFromAnnotation(container) {
-				unwrappedReturnType := /* TODO(TS-TO-GO) Node BinaryExpression: unwrapReturnType(returnType, functionFlags) ?? returnType */ TODO
+				unwrappedReturnType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: unwrapReturnType(returnType, functionFlags) ?? returnType */ TODO
 				var unwrappedExprType Type
 				if functionFlags & FunctionFlagsAsync {
 					unwrappedExprType = checkAwaitedType(exprType /*withAlias*/, false, node, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member)
@@ -45262,7 +45262,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if willTransformStaticElementsOfDecoratedClass || willTransformPrivateElementsOrClassStaticBlocks {
 			for _, member := range node.members {
 				if willTransformStaticElementsOfDecoratedClass && classElementOrClassElementParameterIsDecorated(false, member, node) {
-					return /* TODO(TS-TO-GO) Node BinaryExpression: firstOrUndefined(getDecorators(node)) ?? node */ TODO
+					return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: firstOrUndefined(getDecorators(node)) ?? node */ TODO
 				} else if willTransformPrivateElementsOrClassStaticBlocks {
 					if isClassStaticBlockDeclaration(member) {
 						return member
@@ -45286,7 +45286,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		willTransformESDecorators := !legacyDecorators && languageVersion < LanguageFeatureMinimumTargetClassAndClassElementDecorators
 		var location Node
 		if willTransformESDecorators && classOrConstructorParameterIsDecorated(false, node) {
-			location = /* TODO(TS-TO-GO) Node BinaryExpression: firstOrUndefined(getDecorators(node)) ?? node */ TODO
+			location = /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: firstOrUndefined(getDecorators(node)) ?? node */ TODO
 		} else {
 			location = getFirstTransformableStaticClassElement(node)
 		}
@@ -46442,7 +46442,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else {
 					Debug.assert(node.kind != SyntaxKindVariableDeclaration)
 					importDeclaration := findAncestor(node, or(isImportDeclaration, isImportEqualsDeclaration))
-					moduleSpecifier := /* TODO(TS-TO-GO) Node BinaryExpression: (importDeclaration && tryGetModuleSpecifierFromDeclaration(importDeclaration)?.text) ?? "..." */ TODO
+					moduleSpecifier := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (importDeclaration && tryGetModuleSpecifierFromDeclaration(importDeclaration)?.text) ?? "..." */ TODO
 					importedIdentifier := unescapeLeadingUnderscores(__COND__(isIdentifier(errorNode), errorNode.escapedText, symbol.escapedName))
 					error(errorNode, Diagnostics._0_is_a_type_and_cannot_be_imported_in_JavaScript_files_Use_1_in_a_JSDoc_type_annotation, importedIdentifier, __TEMPLATE__("import(\"", moduleSpecifier, "\").", importedIdentifier))
 				}
@@ -47235,7 +47235,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		enclosingFile := getSourceFileOfNode(node)
 		links := getNodeLinks(enclosingFile)
 		if !(links.flags & NodeCheckFlagsTypeChecked) {
-			/* TODO(TS-TO-GO) Node BinaryExpression: links.deferredNodes ||= new Set() */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: links.deferredNodes ||= new Set() */ TODO
 			links.deferredNodes.add(node)
 		} else {
 			Debug.assert(!links.deferredNodes, "A type-checked file should have no deferred nodes.")
@@ -47410,11 +47410,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			clear(potentialUnusedRenamedBindingElementsInTypes)
 			forEach(nodes, checkSourceElement)
 			checkDeferredNodes(file)
-			(links.potentialThisCollisions || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.potentialThisCollisions = [] */ TODO)).push(potentialThisCollisions...)
-			(links.potentialNewTargetCollisions || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.potentialNewTargetCollisions = [] */ TODO)).push(potentialNewTargetCollisions...)
-			(links.potentialWeakMapSetCollisions || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.potentialWeakMapSetCollisions = [] */ TODO)).push(potentialWeakMapSetCollisions...)
-			(links.potentialReflectCollisions || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.potentialReflectCollisions = [] */ TODO)).push(potentialReflectCollisions...)
-			(links.potentialUnusedRenamedBindingElementsInTypes || ( /* TODO(TS-TO-GO) Node BinaryExpression: links.potentialUnusedRenamedBindingElementsInTypes = [] */ TODO)).push(potentialUnusedRenamedBindingElementsInTypes...)
+			(links.potentialThisCollisions || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.potentialThisCollisions = [] */ TODO)).push(potentialThisCollisions...)
+			(links.potentialNewTargetCollisions || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.potentialNewTargetCollisions = [] */ TODO)).push(potentialNewTargetCollisions...)
+			(links.potentialWeakMapSetCollisions || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.potentialWeakMapSetCollisions = [] */ TODO)).push(potentialWeakMapSetCollisions...)
+			(links.potentialReflectCollisions || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.potentialReflectCollisions = [] */ TODO)).push(potentialReflectCollisions...)
+			(links.potentialUnusedRenamedBindingElementsInTypes || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: links.potentialUnusedRenamedBindingElementsInTypes = [] */ TODO)).push(potentialUnusedRenamedBindingElementsInTypes...)
 			links.flags |= NodeCheckFlagsPartiallyTypeChecked
 			for _, node := range nodes {
 				nodeLinks := getNodeLinks(node)
@@ -47601,7 +47601,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		var result *T
 		containingClass := getContainingClass(node)
 		for containingClass {
-			if /* TODO(TS-TO-GO) Node BinaryExpression: result = callback(containingClass) */ TODO {
+			if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = callback(containingClass) */ TODO {
 				break
 			}
 			containingClass = getContainingClass(containingClass)
@@ -48051,7 +48051,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if isBinaryExpression(node.parent) {
 				type_ := getTypeOfExpression(node.parent.right)
 				hasInstanceMethodType := getSymbolHasInstanceMethodOfObjectType(type_)
-				return /* TODO(TS-TO-GO) Node BinaryExpression: hasInstanceMethodType?.symbol ?? type.symbol */ TODO
+				return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: hasInstanceMethodType?.symbol ?? type.symbol */ TODO
 			}
 			return nil
 		case SyntaxKindMetaProperty:
@@ -48334,7 +48334,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	tryGetTarget := func(symbol Symbol) Symbol {
 		var target Symbol
 		var next Symbol = symbol
-		for /* TODO(TS-TO-GO) Node BinaryExpression: next = getSymbolLinks(next).target */ TODO {
+		for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: next = getSymbolLinks(next).target */ TODO {
 			target = next
 		}
 		return target
@@ -48736,7 +48736,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		isExpressionNodeOrShorthandPropertyAssignmentName := func(node Identifier) bool {
 			// TODO(jakebailey): Just use isExpressionNode once that considers these identifiers to be expressions.
-			return isExpressionNode(node) || isShorthandPropertyAssignment(node.parent) && ( /* TODO(TS-TO-GO) Node BinaryExpression: node.parent.objectAssignmentInitializer ?? node.parent.name */ TODO) == node
+			return isExpressionNode(node) || isShorthandPropertyAssignment(node.parent) && ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: node.parent.objectAssignmentInitializer ?? node.parent.name */ TODO) == node
 		}
 		checkSingleIdentifier := func(node Node) {
 			nodeLinks := getNodeLinks(node)
@@ -48777,7 +48777,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getEnumMemberValue := func(node EnumMember) EvaluatorResult {
 		computeEnumMemberValues(node.parent)
-		return /* TODO(TS-TO-GO) Node BinaryExpression: getNodeLinks(node).enumMemberValue ?? evaluatorResult(/*value* / undefined) */ TODO
+		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getNodeLinks(node).enumMemberValue ?? evaluatorResult(/*value* / undefined) */ TODO
 	}
 	canHaveConstantValue := func(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is EnumMember | AccessExpression */ any {
 		switch node.kind {
@@ -48834,7 +48834,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		} else {
 			resolvedValueSymbol = valueSymbol
 		}
-		/* TODO(TS-TO-GO) Node BinaryExpression: isTypeOnly ||= !!(valueSymbol && getTypeOnlyAliasDeclaration(valueSymbol, SymbolFlags.Value)) */ TODO
+		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: isTypeOnly ||= !!(valueSymbol && getTypeOnlyAliasDeclaration(valueSymbol, SymbolFlags.Value)) */ TODO
 		// Resolve the symbol as a type so that we can provide a more useful hint for the type serializer.
 		typeSymbol := resolveEntityName(typeName, SymbolFlagsType /*ignoreErrors*/, true /*dontResolveAlias*/, true, location)
 		var resolvedTypeSymbol Symbol
@@ -48845,7 +48845,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		// In case the value symbol can't be resolved (e.g. because of missing declarations), use type symbol for reachability check.
 		if !valueSymbol {
-			/* TODO(TS-TO-GO) Node BinaryExpression: isTypeOnly ||= !!(typeSymbol && getTypeOnlyAliasDeclaration(typeSymbol, SymbolFlags.Type)) */ TODO
+			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: isTypeOnly ||= !!(typeSymbol && getTypeOnlyAliasDeclaration(typeSymbol, SymbolFlags.Type)) */ TODO
 		}
 		if resolvedValueSymbol && resolvedValueSymbol == resolvedTypeSymbol {
 			globalPromiseSymbol := getGlobalPromiseConstructorSymbol(false)
@@ -49128,7 +49128,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getJsxFactoryEntity := func(location Node) *EntityName {
 		if location {
-			return ( /* TODO(TS-TO-GO) Node BinaryExpression: getJsxNamespace(location), (getSourceFileOfNode(location).localJsxFactory || _jsxFactoryEntity) */ TODO)
+			return ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: getJsxNamespace(location), (getSourceFileOfNode(location).localJsxFactory || _jsxFactoryEntity) */ TODO)
 		} else {
 			return _jsxFactoryEntity
 		}
@@ -49367,7 +49367,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				patternAmbientModules = concatenate(patternAmbientModules, file.patternAmbientModules)
 			}
 			if file.moduleAugmentations.length {
-				(augmentations || ( /* TODO(TS-TO-GO) Node BinaryExpression: augmentations = [] */ TODO)).push(file.moduleAugmentations)
+				(augmentations || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: augmentations = [] */ TODO)).push(file.moduleAugmentations)
 			}
 			if file.symbol && file.symbol.globalExports {
 				// Merge in UMD exports with first-in-wins semantics (see #9771)
@@ -49470,7 +49470,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				helpersModule := resolveHelpersModule(sourceFile, location)
 				if helpersModule != unknownSymbol {
 					links := getSymbolLinks(helpersModule)
-					/* TODO(TS-TO-GO) Node BinaryExpression: links.requestedExternalEmitHelpers ??= 0 as ExternalEmitHelpers */ TODO
+					/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.requestedExternalEmitHelpers ??= 0 as ExternalEmitHelpers */ TODO
 					if (links.requestedExternalEmitHelpers & helpers) != helpers {
 						uncheckedHelpers := helpers & ~links.requestedExternalEmitHelpers
 						for helper := ExternalEmitHelpersFirstEmitHelper; helper <= ExternalEmitHelpersLastEmitHelper; helper <<= 1 {
@@ -49635,7 +49635,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if flags & ModifierFlagsExport {
 					sawExportBeforeDecorators = true
 				}
-				/* TODO(TS-TO-GO) Node BinaryExpression: firstDecorator ??= modifier */ TODO
+				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: firstDecorator ??= modifier */ TODO
 			} else {
 				if modifier.kind != SyntaxKindReadonlyKeyword {
 					if node.kind == SyntaxKindPropertySignature || node.kind == SyntaxKindMethodSignature {
@@ -51040,7 +51040,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		// 2) otherwise, although `node.text` may be imprecise string representation, its mathematical value and consequently `value` cannot be less than 2 ** 53,
 		//    thus the result of the predicate won't be affected.
 		value := +node.text
-		if value <= /* TODO(TS-TO-GO) Node BinaryExpression: 2 ** 53 */ TODO-1 {
+		if value <= 2**53-1 {
 			return
 		}
 		addErrorOrSuggestion(false, createDiagnosticForNode(node, Diagnostics.Numeric_literals_with_absolute_values_equal_to_2_53_or_greater_are_too_large_to_be_represented_accurately_as_integers))
@@ -51149,7 +51149,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	findBestTypeForInvokable := func(source Type, unionTarget UnionOrIntersectionType) Type {
 		signatureKind := SignatureKindCall
-		hasSignatures := getSignaturesOfType(source, signatureKind).length > 0 || ( /* TODO(TS-TO-GO) Node BinaryExpression: signatureKind = SignatureKind.Construct, getSignaturesOfType(source, signatureKind).length > 0 */ TODO)
+		hasSignatures := getSignaturesOfType(source, signatureKind).length > 0 || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: signatureKind = SignatureKind.Construct, getSignaturesOfType(source, signatureKind).length > 0 */ TODO)
 		if hasSignatures {
 			return find(unionTarget.types, func(t Type) bool {
 				return getSignaturesOfType(t, signatureKind).length > 0

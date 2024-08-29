@@ -70,7 +70,14 @@ function asComment(text: string) {
 const todoCounts = new Map<string, number>();
 
 function writeTodoNode(node: Node) {
-    const nodeKind = Node.isTypeNode(node) ? "TypeNode" : "Node";
+    let nodeKind = "Node";
+    if (Node.isBinaryExpression(node)) {
+        const token = node.getOperatorToken().getKindName();
+        nodeKind = token;
+    }
+    else if (Node.isTypeNode(node)) {
+        nodeKind = "TypeNode";
+    }
     const kindName = node.getKindName();
     const todoName = `${nodeKind} ${kindName}`;
     const count = todoCounts.get(todoName) || 0;
@@ -681,6 +688,7 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
         case ts.SyntaxKind.PlusToken:
         case ts.SyntaxKind.AsteriskToken:
         case ts.SyntaxKind.SlashToken:
+        case ts.SyntaxKind.AsteriskAsteriskToken:
             tok = ts.tokenToString(op.getKind())!;
             break;
         case ts.SyntaxKind.EqualsEqualsEqualsToken:
