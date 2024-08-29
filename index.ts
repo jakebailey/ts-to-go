@@ -1053,14 +1053,21 @@ function visitStatement2(node: Statement) {
     }
 
     if (Node.isContinueStatement(node)) {
+        const label = node.getLabel();
         writer.write("continue");
+        if (label) {
+            writer.write(` ${sanitizeName(label.getText())}`);
+        }
         writer.newLine();
         return;
     }
 
     if (Node.isBreakStatement(node)) {
-        assert(!node.getLabel());
+        const label = node.getLabel();
         writer.write("break");
+        if (label) {
+            writer.write(` ${sanitizeName(label.getText())}`);
+        }
         writer.newLine();
         return;
     }
@@ -1199,8 +1206,16 @@ function visitStatement2(node: Statement) {
         writer.newLineIfLastNot();
         return;
     }
-    else if (Node.isCommentStatement(node)) {
+
+    if (Node.isCommentStatement(node)) {
         writer.write(node.getText());
+        return;
+    }
+
+    if (Node.isLabeledStatement(node)) {
+        const label = node.getLabel().getText();
+        writer.write(`${sanitizeName(label)}: `);
+        visitStatement(node.getStatement());
         return;
     }
 

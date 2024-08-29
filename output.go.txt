@@ -24443,7 +24443,30 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			var matchingTypes []Type = []never{}
 			for _, combination := range discriminantCombinations {
 				hasMatch := false
-				/* TODO(TS-TO-GO) Node LabeledStatement: outer: for (const type of target.types) { for (let i = 0; i < sourcePropertiesFiltered.length; i++) { const sourceProperty = sourcePropertiesFiltered[i]; const targetProperty = getPropertyOfType(type, sourceProperty.escapedName); if (!targetProperty) continue outer; if (sourceProperty === targetProperty) continue; // We compare the source property to the target in the context of a single discriminant type. const related = propertyRelatedTo(source, target, sourceProperty, targetProperty, _ => combination[i], /*reportErrors* / false, IntersectionState.None, /*skipOptional* / strictNullChecks || relation === comparableRelation); // If the target property could not be found, or if the properties were not related, // then this constituent is not a match. if (!related) { continue outer; } } pushIfUnique(matchingTypes, type, equateValues); hasMatch = true; } */
+			outer:
+				for _, type_ := range target.types {
+					for i := 0; i < sourcePropertiesFiltered.length; i++ {
+						sourceProperty := sourcePropertiesFiltered[i]
+						targetProperty := getPropertyOfType(type_, sourceProperty.escapedName)
+						if !targetProperty {
+							continue outer
+						}
+						if sourceProperty == targetProperty {
+							continue
+						}
+						// We compare the source property to the target in the context of a single discriminant type.
+						related := propertyRelatedTo(source, target, sourceProperty, targetProperty, func(_ Symbol) Type {
+							return combination[i]
+						}, /*reportErrors*/ false, IntersectionStateNone /*skipOptional*/, strictNullChecks || relation == comparableRelation)
+						// If the target property could not be found, or if the properties were not related,
+						// then this constituent is not a match.
+						if !related {
+							continue outer
+						}
+					}
+					pushIfUnique(matchingTypes, type_, equateValues)
+					hasMatch = true
+				}
 				if !hasMatch {
 					// We failed to match any type for this combination.
 					return TernaryFalse
@@ -24863,7 +24886,25 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return result
 				}
 			} else {
-				/* TODO(TS-TO-GO) Node LabeledStatement: outer: for (const t of targetSignatures) { const saveErrorInfo = captureErrorCalculationState(); // Only elaborate errors from the first failure let shouldElaborateErrors = reportErrors; for (const s of sourceSignatures) { const related = signatureRelatedTo(s, t, /*erase* / true, shouldElaborateErrors, intersectionState, incompatibleReporter(s, t)); if (related) { result &= related; resetErrorInfo(saveErrorInfo); continue outer; } shouldElaborateErrors = false; } if (shouldElaborateErrors) { reportError(Diagnostics.Type_0_provides_no_match_for_the_signature_1, typeToString(source), signatureToString(t, /*enclosingDeclaration* / undefined, /*flags* / undefined, kind)); } return Ternary.False; } */
+			outer:
+				for _, t := range targetSignatures {
+					saveErrorInfo := captureErrorCalculationState()
+					// Only elaborate errors from the first failure
+					shouldElaborateErrors := reportErrors
+					for _, s := range sourceSignatures {
+						related := signatureRelatedTo(s, t /*erase*/, true, shouldElaborateErrors, intersectionState, incompatibleReporter(s, t))
+						if related {
+							result &= related
+							resetErrorInfo(saveErrorInfo)
+							continue outer
+						}
+						shouldElaborateErrors = false
+					}
+					if shouldElaborateErrors {
+						reportError(Diagnostics.Type_0_provides_no_match_for_the_signature_1, typeToString(source), signatureToString(t /*enclosingDeclaration*/, nil /*flags*/, nil, kind))
+					}
+					return TernaryFalse
+				}
 			}
 			return result
 		}
@@ -48271,7 +48312,119 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			typeName         string
 		}
 		notImplementedInfo := NewMap[ClassLikeDeclaration, MemberInfo]()
-		/* TODO(TS-TO-GO) Node LabeledStatement: basePropertyCheck: for (const baseProperty of baseProperties) { const base = getTargetSymbol(baseProperty); if (base.flags & SymbolFlags.Prototype) { continue; } const baseSymbol = getPropertyOfObjectType(type, base.escapedName); if (!baseSymbol) { continue; } const derived = getTargetSymbol(baseSymbol); const baseDeclarationFlags = getDeclarationModifierFlagsFromSymbol(base); Debug.assert(!!derived, "derived should point to something, even if it is the base class' declaration."); // In order to resolve whether the inherited method was overridden in the base class or not, // we compare the Symbols obtained. Since getTargetSymbol returns the symbol on the *uninstantiated* // type declaration, derived and base resolve to the same symbol even in the case of generic classes. if (derived === base) { // derived class inherits base without override/redeclaration const derivedClassDecl = getClassLikeDeclarationOfSymbol(type.symbol)!; // It is an error to inherit an abstract member without implementing it or being declared abstract. // If there is no declaration for the derived class (as in the case of class expressions), // then the class cannot be declared abstract. if (baseDeclarationFlags & ModifierFlags.Abstract && (!derivedClassDecl || !hasSyntacticModifier(derivedClassDecl, ModifierFlags.Abstract))) { // Searches other base types for a declaration that would satisfy the inherited abstract member. // (The class may have more than one base type via declaration merging with an interface with the // same name.) for (const otherBaseType of getBaseTypes(type)) { if (otherBaseType === baseType) continue; const baseSymbol = getPropertyOfObjectType(otherBaseType, base.escapedName); const derivedElsewhere = baseSymbol && getTargetSymbol(baseSymbol); if (derivedElsewhere && derivedElsewhere !== base) { continue basePropertyCheck; } } const baseTypeName = typeToString(baseType); const typeName = typeToString(type); const basePropertyName = symbolToString(baseProperty); const missedProperties = append(notImplementedInfo.get(derivedClassDecl)?.missedProperties, basePropertyName); notImplementedInfo.set(derivedClassDecl, { baseTypeName, typeName, missedProperties }); } } else { // derived overrides base. const derivedDeclarationFlags = getDeclarationModifierFlagsFromSymbol(derived); if (baseDeclarationFlags & ModifierFlags.Private || derivedDeclarationFlags & ModifierFlags.Private) { // either base or derived property is private - not override, skip it continue; } let errorMessage: DiagnosticMessage; const basePropertyFlags = base.flags & SymbolFlags.PropertyOrAccessor; const derivedPropertyFlags = derived.flags & SymbolFlags.PropertyOrAccessor; if (basePropertyFlags && derivedPropertyFlags) { // property/accessor is overridden with property/accessor if ( (getCheckFlags(base) & CheckFlags.Synthetic ? base.declarations?.some(d => isPropertyAbstractOrInterface(d, baseDeclarationFlags)) : base.declarations?.every(d => isPropertyAbstractOrInterface(d, baseDeclarationFlags))) || getCheckFlags(base) & CheckFlags.Mapped || derived.valueDeclaration && isBinaryExpression(derived.valueDeclaration) ) { // when the base property is abstract or from an interface, base/derived flags don't need to match // for intersection properties, this must be true of *any* of the declarations, for others it must be true of *all* // same when the derived property is from an assignment continue; } const overriddenInstanceProperty = basePropertyFlags !== SymbolFlags.Property && derivedPropertyFlags === SymbolFlags.Property; const overriddenInstanceAccessor = basePropertyFlags === SymbolFlags.Property && derivedPropertyFlags !== SymbolFlags.Property; if (overriddenInstanceProperty || overriddenInstanceAccessor) { const errorMessage = overriddenInstanceProperty ? Diagnostics._0_is_defined_as_an_accessor_in_class_1_but_is_overridden_here_in_2_as_an_instance_property : Diagnostics._0_is_defined_as_a_property_in_class_1_but_is_overridden_here_in_2_as_an_accessor; error(getNameOfDeclaration(derived.valueDeclaration) || derived.valueDeclaration, errorMessage, symbolToString(base), typeToString(baseType), typeToString(type)); } else if (useDefineForClassFields) { const uninitialized = derived.declarations?.find(d => d.kind === SyntaxKind.PropertyDeclaration && !(d as PropertyDeclaration).initializer); if ( uninitialized && !(derived.flags & SymbolFlags.Transient) && !(baseDeclarationFlags & ModifierFlags.Abstract) && !(derivedDeclarationFlags & ModifierFlags.Abstract) && !derived.declarations?.some(d => !!(d.flags & NodeFlags.Ambient)) ) { const constructor = findConstructorDeclaration(getClassLikeDeclarationOfSymbol(type.symbol)!); const propName = (uninitialized as PropertyDeclaration).name; if ( (uninitialized as PropertyDeclaration).exclamationToken || !constructor || !isIdentifier(propName) || !strictNullChecks || !isPropertyInitializedInConstructor(propName, type, constructor) ) { const errorMessage = Diagnostics.Property_0_will_overwrite_the_base_property_in_1_If_this_is_intentional_add_an_initializer_Otherwise_add_a_declare_modifier_or_remove_the_redundant_declaration; error(getNameOfDeclaration(derived.valueDeclaration) || derived.valueDeclaration, errorMessage, symbolToString(base), typeToString(baseType)); } } } // correct case continue; } else if (isPrototypeProperty(base)) { if (isPrototypeProperty(derived) || derived.flags & SymbolFlags.Property) { // method is overridden with method or property -- correct case continue; } else { Debug.assert(!!(derived.flags & SymbolFlags.Accessor)); errorMessage = Diagnostics.Class_0_defines_instance_member_function_1_but_extended_class_2_defines_it_as_instance_member_accessor; } } else if (base.flags & SymbolFlags.Accessor) { errorMessage = Diagnostics.Class_0_defines_instance_member_accessor_1_but_extended_class_2_defines_it_as_instance_member_function; } else { errorMessage = Diagnostics.Class_0_defines_instance_member_property_1_but_extended_class_2_defines_it_as_instance_member_function; } error(getNameOfDeclaration(derived.valueDeclaration) || derived.valueDeclaration, errorMessage, typeToString(baseType), symbolToString(base), typeToString(type)); } } */
+	basePropertyCheck:
+		for _, baseProperty := range baseProperties {
+			base := getTargetSymbol(baseProperty)
+			if base.flags & SymbolFlagsPrototype {
+				continue
+			}
+			baseSymbol := getPropertyOfObjectType(type_, base.escapedName)
+			if !baseSymbol {
+				continue
+			}
+			derived := getTargetSymbol(baseSymbol)
+			baseDeclarationFlags := getDeclarationModifierFlagsFromSymbol(base)
+			Debug.assert(!!derived, "derived should point to something, even if it is the base class' declaration.")
+			// In order to resolve whether the inherited method was overridden in the base class or not,
+			// we compare the Symbols obtained. Since getTargetSymbol returns the symbol on the *uninstantiated*
+			// type declaration, derived and base resolve to the same symbol even in the case of generic classes.
+			if derived == base {
+				// derived class inherits base without override/redeclaration
+				derivedClassDecl := getClassLikeDeclarationOfSymbol(type_.symbol)
+				// It is an error to inherit an abstract member without implementing it or being declared abstract.
+				// If there is no declaration for the derived class (as in the case of class expressions),
+				// then the class cannot be declared abstract.
+				if baseDeclarationFlags&ModifierFlagsAbstract && (!derivedClassDecl || !hasSyntacticModifier(derivedClassDecl, ModifierFlagsAbstract)) {
+					// Searches other base types for a declaration that would satisfy the inherited abstract member.
+					// (The class may have more than one base type via declaration merging with an interface with the
+					// same name.)
+					for _, otherBaseType := range getBaseTypes(type_) {
+						if otherBaseType == baseType {
+							continue
+						}
+						baseSymbol := getPropertyOfObjectType(otherBaseType, base.escapedName)
+						derivedElsewhere := baseSymbol && getTargetSymbol(baseSymbol)
+						if derivedElsewhere && derivedElsewhere != base {
+							continue basePropertyCheck
+						}
+					}
+					baseTypeName := typeToString(baseType)
+					typeName := typeToString(type_)
+					basePropertyName := symbolToString(baseProperty)
+					missedProperties := append(notImplementedInfo.get(derivedClassDecl). /* TODO(TS-TO-GO): was ? */ missedProperties, basePropertyName)
+					notImplementedInfo.set(derivedClassDecl, map[any]any{ /* TODO(TS-TO-GO): was object literal */
+						"baseTypeName":     baseTypeName,
+						"typeName":         typeName,
+						"missedProperties": missedProperties,
+					})
+				}
+			} else {
+				// derived overrides base.
+				derivedDeclarationFlags := getDeclarationModifierFlagsFromSymbol(derived)
+				if baseDeclarationFlags&ModifierFlagsPrivate || derivedDeclarationFlags&ModifierFlagsPrivate {
+					// either base or derived property is private - not override, skip it
+					continue
+				}
+				var errorMessage DiagnosticMessage
+				basePropertyFlags := base.flags & SymbolFlagsPropertyOrAccessor
+				derivedPropertyFlags := derived.flags & SymbolFlagsPropertyOrAccessor
+				if basePropertyFlags && derivedPropertyFlags {
+					// property/accessor is overridden with property/accessor
+					if (__COND__(getCheckFlags(base)&CheckFlagsSynthetic, base.declarations. /* TODO(TS-TO-GO): was ? */ some(func(d Declaration) bool {
+						return isPropertyAbstractOrInterface(d, baseDeclarationFlags)
+					}), base.declarations. /* TODO(TS-TO-GO): was ? */ every(func(d Declaration) bool {
+						return isPropertyAbstractOrInterface(d, baseDeclarationFlags)
+					}))) || getCheckFlags(base)&CheckFlagsMapped || derived.valueDeclaration && isBinaryExpression(derived.valueDeclaration) {
+						// when the base property is abstract or from an interface, base/derived flags don't need to match
+						// for intersection properties, this must be true of *any* of the declarations, for others it must be true of *all*
+						// same when the derived property is from an assignment
+						continue
+					}
+					overriddenInstanceProperty := basePropertyFlags != SymbolFlagsProperty && derivedPropertyFlags == SymbolFlagsProperty
+					overriddenInstanceAccessor := basePropertyFlags == SymbolFlagsProperty && derivedPropertyFlags != SymbolFlagsProperty
+					if overriddenInstanceProperty || overriddenInstanceAccessor {
+						var errorMessage DiagnosticMessage
+						// TODO(TS-TO-GO): converted from conditional expression
+						switch {
+						case overriddenInstanceProperty:
+							errorMessage = Diagnostics._0_is_defined_as_an_accessor_in_class_1_but_is_overridden_here_in_2_as_an_instance_property
+						default:
+							errorMessage = Diagnostics._0_is_defined_as_a_property_in_class_1_but_is_overridden_here_in_2_as_an_accessor
+						}
+						error(getNameOfDeclaration(derived.valueDeclaration) || derived.valueDeclaration, errorMessage, symbolToString(base), typeToString(baseType), typeToString(type_))
+					} else if useDefineForClassFields {
+						uninitialized := derived.declarations. /* TODO(TS-TO-GO): was ? */ find(func(d Declaration) bool {
+							return d.kind == SyntaxKindPropertyDeclaration && !(d /* as PropertyDeclaration */).initializer
+						})
+						if uninitialized && !(derived.flags & SymbolFlagsTransient) && !(baseDeclarationFlags & ModifierFlagsAbstract) && !(derivedDeclarationFlags & ModifierFlagsAbstract) && !derived.declarations. /* TODO(TS-TO-GO): was ? */ some(func(d Declaration) bool {
+							return !!(d.flags & NodeFlagsAmbient)
+						}) {
+							constructor := findConstructorDeclaration(getClassLikeDeclarationOfSymbol(type_.symbol))
+							propName := (uninitialized /* as PropertyDeclaration */).name
+							if (uninitialized /* as PropertyDeclaration */).exclamationToken || !constructor || !isIdentifier(propName) || !strictNullChecks || !isPropertyInitializedInConstructor(propName, type_, constructor) {
+								errorMessage := Diagnostics.Property_0_will_overwrite_the_base_property_in_1_If_this_is_intentional_add_an_initializer_Otherwise_add_a_declare_modifier_or_remove_the_redundant_declaration
+								error(getNameOfDeclaration(derived.valueDeclaration) || derived.valueDeclaration, errorMessage, symbolToString(base), typeToString(baseType))
+							}
+						}
+					}
+					// correct case
+					continue
+				} else if isPrototypeProperty(base) {
+					if isPrototypeProperty(derived) || derived.flags&SymbolFlagsProperty {
+						// method is overridden with method or property -- correct case
+						continue
+					} else {
+						Debug.assert(!!(derived.flags & SymbolFlagsAccessor))
+						errorMessage = Diagnostics.Class_0_defines_instance_member_function_1_but_extended_class_2_defines_it_as_instance_member_accessor
+					}
+				} else if base.flags & SymbolFlagsAccessor {
+					errorMessage = Diagnostics.Class_0_defines_instance_member_accessor_1_but_extended_class_2_defines_it_as_instance_member_function
+				} else {
+					errorMessage = Diagnostics.Class_0_defines_instance_member_property_1_but_extended_class_2_defines_it_as_instance_member_function
+				}
+				error(getNameOfDeclaration(derived.valueDeclaration) || derived.valueDeclaration, errorMessage, typeToString(baseType), symbolToString(base), typeToString(type_))
+			}
+		}
 		for _, TODO_IDENTIFIER := range notImplementedInfo {
 			if length(memberInfo.missedProperties) == 1 {
 				if isClassExpression(errorNode) {
