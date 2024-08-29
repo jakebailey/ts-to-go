@@ -11,6 +11,7 @@ import {
     Expression,
     ExpressionStatement,
     FunctionDeclaration,
+    FunctionExpression,
     IfStatement,
     MethodDeclaration,
     Node,
@@ -90,6 +91,8 @@ function typeStringToGo(text: string): string {
         case "void":
             return "";
         case "object":
+            return "any";
+        case "{}":
             return "any";
     }
 
@@ -411,8 +414,18 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         visitExpression(node.getArgumentExpressionOrThrow());
         writer.write("]");
     }
-    else if (Node.isArrowFunction(node)) {
+    else if (Node.isArrowFunction(node) || Node.isFunctionExpression(node)) {
         writer.write("func");
+        if (Node.isFunctionExpression(node)) {
+            const name = node.getName();
+            if (name) {
+                writer.write(` ${asComment(node.getName()!)}`);
+            }
+            if (node.isGenerator()) {
+                writer.write(` ${asComment("generator")}`);
+            }
+        }
+
         writeFunctionParametersAndReturn(node);
         writer.write(" {");
         writer.indent(() => {
@@ -767,7 +780,9 @@ function writeTypeParameters(node: TypeParameteredNode) {
     }
 }
 
-function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunction | MethodDeclaration) {
+function writeFunctionParametersAndReturn(
+    node: FunctionDeclaration | ArrowFunction | MethodDeclaration | FunctionExpression,
+) {
     writer.write("(");
     const params = node.getParameters();
     for (let i = 0; i < params.length; i++) {

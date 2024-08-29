@@ -6851,7 +6851,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						context.enclosingDeclaration = fakeScope
 					} else {
 						// We did not create the current scope, so we have to clean it up
-						return /* TODO(TS-TO-GO) Node FunctionExpression: function undo() { forEach(newLocals, s => locals.delete(s)); forEach(oldLocals, s => locals.set(s.name, s.oldSymbol)); } */ TODO
+						return func /* undo */ () {
+							forEach(newLocals, func(s __String) bool {
+								return locals.delete(s)
+							})
+							forEach(oldLocals, func(s /* TODO(TS-TO-GO) inferred type { name: __String; oldSymbol: Symbol; } */ any) SymbolTable {
+								return locals.set(s.name, s.oldSymbol)
+							})
+						}
 					}
 				}
 			}
@@ -9515,7 +9522,84 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			/* TODO(TS-TO-GO): function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: true, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | AccessorDeclaration | (T | AccessorDeclaration)[]; */
 			/* TODO(TS-TO-GO): function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: false, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | T[]; */
 			makeSerializePropertySymbol := func(createProperty func(modifiers *[]Modifier, name /* TODO(TS-TO-GO) TypeNode UnionType: string | PropertyName */ any, questionOrExclamationToken *QuestionToken, type_ *TypeNode, initializer *Expression) T, methodKind /* TODO(TS-TO-GO) TypeNode IndexedAccessType: SignatureDeclaration["kind"] */ any, useAccessors bool) func(p Symbol, isStatic bool, baseType *Type) /* TODO(TS-TO-GO) TypeNode UnionType: T | AccessorDeclaration | (T | AccessorDeclaration)[] */ any {
-				return /* TODO(TS-TO-GO) Node FunctionExpression: function serializePropertySymbol(p: Symbol, isStatic: boolean, baseType: Type | undefined): T | AccessorDeclaration | (T | AccessorDeclaration)[] { const modifierFlags = getDeclarationModifierFlagsFromSymbol(p); const isPrivate = !!(modifierFlags & ModifierFlags.Private); if (isStatic && (p.flags & (SymbolFlags.Type | SymbolFlags.Namespace | SymbolFlags.Alias))) { // Only value-only-meaning symbols can be correctly encoded as class statics, type/namespace/alias meaning symbols // need to be merged namespace members return []; } if ( p.flags & SymbolFlags.Prototype || p.escapedName === "constructor" || (baseType && getPropertyOfType(baseType, p.escapedName) && isReadonlySymbol(getPropertyOfType(baseType, p.escapedName)!) === isReadonlySymbol(p) && (p.flags & SymbolFlags.Optional) === (getPropertyOfType(baseType, p.escapedName)!.flags & SymbolFlags.Optional) && isTypeIdenticalTo(getTypeOfSymbol(p), getTypeOfPropertyOfType(baseType, p.escapedName)!)) ) { return []; } const flag = (modifierFlags & ~ModifierFlags.Async) | (isStatic ? ModifierFlags.Static : 0); const name = getPropertyNameNodeForSymbol(p, context); const firstPropertyLikeDecl = p.declarations?.find(or(isPropertyDeclaration, isAccessor, isVariableDeclaration, isPropertySignature, isBinaryExpression, isPropertyAccessExpression)); if (p.flags & SymbolFlags.Accessor && useAccessors) { const result: AccessorDeclaration[] = []; if (p.flags & SymbolFlags.SetAccessor) { const setter = p.declarations && forEach(p.declarations, d => { if (d.kind === SyntaxKind.SetAccessor) { return d as SetAccessorDeclaration; } if (isCallExpression(d) && isBindableObjectDefinePropertyCall(d)) { return forEach(d.arguments[2].properties, propDecl => { const id = getNameOfDeclaration(propDecl); if (!!id && isIdentifier(id) && idText(id) === "set") { return propDecl; } }); } }); Debug.assert(!!setter); const paramSymbol = isFunctionLikeDeclaration(setter) ? getSignatureFromDeclaration(setter).parameters[0] : undefined; result.push(setTextRange( context, factory.createSetAccessorDeclaration( factory.createModifiersFromModifierFlags(flag), name, [factory.createParameterDeclaration( /*modifiers* / undefined, /*dotDotDotToken* / undefined, paramSymbol ? parameterToParameterDeclarationName(paramSymbol, getEffectiveParameterDeclaration(paramSymbol), context) : "value", /*questionToken* / undefined, isPrivate ? undefined : serializeTypeForDeclaration(context, /*declaration* / undefined, getWriteTypeOfSymbol(p), p), )], /*body* / undefined, ), p.declarations?.find(isSetAccessor) || firstPropertyLikeDecl, )); } if (p.flags & SymbolFlags.GetAccessor) { const isPrivate = modifierFlags & ModifierFlags.Private; result.push(setTextRange( context, factory.createGetAccessorDeclaration( factory.createModifiersFromModifierFlags(flag), name, [], isPrivate ? undefined : serializeTypeForDeclaration(context, /*declaration* / undefined, getTypeOfSymbol(p), p), /*body* / undefined, ), p.declarations?.find(isGetAccessor) || firstPropertyLikeDecl, )); } return result; } // This is an else/if as accessors and properties can't merge in TS, but might in JS // If this happens, we assume the accessor takes priority, as it imposes more constraints else if (p.flags & (SymbolFlags.Property | SymbolFlags.Variable | SymbolFlags.Accessor)) { return setTextRange( context, createProperty( factory.createModifiersFromModifierFlags((isReadonlySymbol(p) ? ModifierFlags.Readonly : 0) | flag), name, p.flags & SymbolFlags.Optional ? factory.createToken(SyntaxKind.QuestionToken) : undefined, isPrivate ? undefined : serializeTypeForDeclaration(context, /*declaration* / undefined, getWriteTypeOfSymbol(p), p), // TODO: https://github.com/microsoft/TypeScript/pull/32372#discussion_r328386357 // interface members can't have initializers, however class members _can_ /*initializer* / undefined, ), p.declarations?.find(or(isPropertyDeclaration, isVariableDeclaration)) || firstPropertyLikeDecl, ); } if (p.flags & (SymbolFlags.Method | SymbolFlags.Function)) { const type = getTypeOfSymbol(p); const signatures = getSignaturesOfType(type, SignatureKind.Call); if (flag & ModifierFlags.Private) { return setTextRange( context, createProperty( factory.createModifiersFromModifierFlags((isReadonlySymbol(p) ? ModifierFlags.Readonly : 0) | flag), name, p.flags & SymbolFlags.Optional ? factory.createToken(SyntaxKind.QuestionToken) : undefined, /*type* / undefined, /*initializer* / undefined, ), p.declarations?.find(isFunctionLikeDeclaration) || signatures[0] && signatures[0].declaration || p.declarations && p.declarations[0], ); } const results = []; for (const sig of signatures) { // Each overload becomes a separate method declaration, in order const decl = signatureToSignatureDeclarationHelper( sig, methodKind, context, { name, questionToken: p.flags & SymbolFlags.Optional ? factory.createToken(SyntaxKind.QuestionToken) : undefined, modifiers: flag ? factory.createModifiersFromModifierFlags(flag) : undefined, }, ); const location = sig.declaration && isPrototypePropertyAssignment(sig.declaration.parent) ? sig.declaration.parent : sig.declaration; results.push(setTextRange(context, decl, location)); } return results as unknown as T[]; } // The `Constructor`'s symbol isn't in the class's properties lists, obviously, since it's a signature on the static return Debug.fail(`Unhandled class member kind! ${(p as any).__debugFlags || p.flags}`); } */ TODO
+				return func /* serializePropertySymbol */ (p Symbol, isStatic bool, baseType *Type) /* TODO(TS-TO-GO) TypeNode UnionType: T | AccessorDeclaration | (T | AccessorDeclaration)[] */ any {
+					modifierFlags := getDeclarationModifierFlagsFromSymbol(p)
+					isPrivate := !!(modifierFlags & ModifierFlagsPrivate)
+					if isStatic && (p.flags & (SymbolFlagsType | SymbolFlagsNamespace | SymbolFlagsAlias)) {
+						// Only value-only-meaning symbols can be correctly encoded as class statics, type/namespace/alias meaning symbols
+						// need to be merged namespace members
+						return []never{}
+					}
+					if p.flags&SymbolFlagsPrototype || p.escapedName == "constructor" || (baseType && getPropertyOfType(baseType, p.escapedName) && isReadonlySymbol(getPropertyOfType(baseType, p.escapedName)) == isReadonlySymbol(p) && (p.flags&SymbolFlagsOptional) == (getPropertyOfType(baseType, p.escapedName).flags&SymbolFlagsOptional) && isTypeIdenticalTo(getTypeOfSymbol(p), getTypeOfPropertyOfType(baseType, p.escapedName))) {
+						return []never{}
+					}
+					flag := (modifierFlags & ~ModifierFlagsAsync) | (__COND__(isStatic, ModifierFlagsStatic, 0))
+					name := getPropertyNameNodeForSymbol(p, context)
+					firstPropertyLikeDecl := p.declarations. /* TODO(TS-TO-GO): was ? */ find(or(isPropertyDeclaration, isAccessor, isVariableDeclaration, isPropertySignature, isBinaryExpression, isPropertyAccessExpression))
+					if p.flags&SymbolFlagsAccessor && useAccessors {
+						var result []AccessorDeclaration = []never{}
+						if p.flags & SymbolFlagsSetAccessor {
+							setter := p.declarations && forEach(p.declarations, func(d Declaration) /* TODO(TS-TO-GO) inferred type SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment | MethodDeclaration | GetAccessorDeclaration */ any {
+								if d.kind == SyntaxKindSetAccessor {
+									return d /* as SetAccessorDeclaration */
+								}
+								if isCallExpression(d) && isBindableObjectDefinePropertyCall(d) {
+									return forEach(d.arguments[2].properties, func(propDecl /* TODO(TS-TO-GO) inferred type SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment | MethodDeclaration | GetAccessorDeclaration */ any) /* TODO(TS-TO-GO) inferred type SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment | MethodDeclaration | GetAccessorDeclaration */ any {
+										id := getNameOfDeclaration(propDecl)
+										if !!id && isIdentifier(id) && idText(id) == "set" {
+											return propDecl
+										}
+									})
+								}
+							})
+							Debug.assert(!!setter)
+							var paramSymbol Symbol
+							// TODO(TS-TO-GO): converted from conditional expression
+							switch {
+							case isFunctionLikeDeclaration(setter):
+								paramSymbol = getSignatureFromDeclaration(setter).parameters[0]
+							default:
+								paramSymbol = nil
+							}
+							result.push(setTextRange(context, factory.createSetAccessorDeclaration(factory.createModifiersFromModifierFlags(flag), name, []ParameterDeclaration{factory.createParameterDeclaration(nil, nil, __COND__(paramSymbol, parameterToParameterDeclarationName(paramSymbol, getEffectiveParameterDeclaration(paramSymbol), context), "value"), nil, __COND__(isPrivate, nil, serializeTypeForDeclaration(context /*declaration*/, nil, getWriteTypeOfSymbol(p), p)))}, nil), p.declarations. /* TODO(TS-TO-GO): was ? */ find(isSetAccessor) || firstPropertyLikeDecl))
+						}
+						if p.flags & SymbolFlagsGetAccessor {
+							isPrivate := modifierFlags & ModifierFlagsPrivate
+							result.push(setTextRange(context, factory.createGetAccessorDeclaration(factory.createModifiersFromModifierFlags(flag), name, []never{}, __COND__(isPrivate, nil, serializeTypeForDeclaration(context /*declaration*/, nil, getTypeOfSymbol(p), p)), nil), p.declarations. /* TODO(TS-TO-GO): was ? */ find(isGetAccessor) || firstPropertyLikeDecl))
+						}
+						return result
+					} else if p.flags & (SymbolFlagsProperty | SymbolFlagsVariable | SymbolFlagsAccessor) {
+						return setTextRange(context, createProperty(factory.createModifiersFromModifierFlags((__COND__(isReadonlySymbol(p), ModifierFlagsReadonly, 0))|flag), name, __COND__(p.flags&SymbolFlagsOptional, factory.createToken(SyntaxKindQuestionToken), nil), __COND__(isPrivate, nil, serializeTypeForDeclaration(context /*declaration*/, nil, getWriteTypeOfSymbol(p), p)), nil), p.declarations. /* TODO(TS-TO-GO): was ? */ find(or(isPropertyDeclaration, isVariableDeclaration)) || firstPropertyLikeDecl)
+					}
+					if p.flags & (SymbolFlagsMethod | SymbolFlagsFunction) {
+						type_ := getTypeOfSymbol(p)
+						signatures := getSignaturesOfType(type_, SignatureKindCall)
+						if flag & ModifierFlagsPrivate {
+							return setTextRange(context, createProperty(factory.createModifiersFromModifierFlags((__COND__(isReadonlySymbol(p), ModifierFlagsReadonly, 0))|flag), name, __COND__(p.flags&SymbolFlagsOptional, factory.createToken(SyntaxKindQuestionToken), nil), nil, nil), p.declarations. /* TODO(TS-TO-GO): was ? */ find(isFunctionLikeDeclaration) || signatures[0] && signatures[0].declaration || p.declarations && p.declarations[0])
+						}
+						results := []never{}
+						for _, sig := range signatures {
+							// Each overload becomes a separate method declaration, in order
+							decl := signatureToSignatureDeclarationHelper(sig, methodKind, context, map[any]any{ /* TODO(TS-TO-GO): was object literal */
+								"name":          name,
+								"questionToken": __COND__(p.flags&SymbolFlagsOptional, factory.createToken(SyntaxKindQuestionToken), nil),
+								"modifiers":     __COND__(flag, factory.createModifiersFromModifierFlags(flag), nil),
+							})
+							var location /* TODO(TS-TO-GO) inferred type SignatureDeclaration | JSDocSignature | PrototypePropertyAssignment */ any
+							// TODO(TS-TO-GO): converted from conditional expression
+							switch {
+							case sig.declaration && isPrototypePropertyAssignment(sig.declaration.parent):
+								location = sig.declaration.parent
+							default:
+								location = sig.declaration
+							}
+							results.push(setTextRange(context, decl, location))
+						}
+						return results /* as unknown */ /* as T[] */
+					}
+					// The `Constructor`'s symbol isn't in the class's properties lists, obviously, since it's a signature on the static
+					return Debug.fail(__TEMPLATE__("Unhandled class member kind! ", (p /* as any */).__debugFlags || p.flags))
+				}
 			}
 			serializePropertySymbolForInterface := func(p Symbol, baseType *Type) [] /* TODO(TS-TO-GO) inferred type TypeElement | TypeElement */ any {
 				return serializePropertySymbolForInterfaceWorker(p /*isStatic*/, false, baseType)
@@ -21836,7 +21920,9 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					child := validChildren[0]
 					elem := getElaborationElementForJsxChild(child, childrenNameType, getInvalidTextualChildDiagnostic)
 					if elem {
-						result = elaborateElementwise(( /* TODO(TS-TO-GO) Node FunctionExpression: function* () { yield elem; } */ TODO)(), source, target, relation, containingMessageChain, errorOutputContainer) || result
+						result = elaborateElementwise((func /* generator */ () /* TODO(TS-TO-GO) inferred type Generator<{ errorNode: JsxExpression; innerExpression: Expression | undefined; nameType: LiteralType; errorMessage?: undefined; } | { errorNode: JsxText; innerExpression: undefined; nameType: LiteralType; errorMessage: DiagnosticMessage; } | { errorNode: JsxElement | JsxSelfClosingElement | JsxFragment; innerExpression: JsxElement | JsxSelfClosingElement | JsxFragment; nameType: LiteralType; errorMessage?: undefined; }, void, undefined> */ any {
+							yield(elem)
+						})(), source, target, relation, containingMessageChain, errorOutputContainer) || result
 					}
 				} else if !isTypeRelatedTo(getIndexedAccessType(source, childrenNameType), childrenTargetType, relation) {
 					// arity mismatch
@@ -46217,11 +46303,49 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	isSymbolUsedInConditionBody := func(expr Expression, body /* TODO(TS-TO-GO) TypeNode UnionType: Statement | Expression */ any, testedNode Node, testedSymbol Symbol) bool {
-		return !!forEachChild(body /* TODO(TS-TO-GO) Node FunctionExpression: function check(childNode): boolean | undefined { if (isIdentifier(childNode)) { const childSymbol = getSymbolAtLocation(childNode); if (childSymbol && childSymbol === testedSymbol) { // If the test was a simple identifier, the above check is sufficient if (isIdentifier(expr) || isIdentifier(testedNode) && isBinaryExpression(testedNode.parent)) { return true; } // Otherwise we need to ensure the symbol is called on the same target let testedExpression = testedNode.parent; let childExpression = childNode.parent; while (testedExpression && childExpression) { if ( isIdentifier(testedExpression) && isIdentifier(childExpression) || testedExpression.kind === SyntaxKind.ThisKeyword && childExpression.kind === SyntaxKind.ThisKeyword ) { return getSymbolAtLocation(testedExpression) === getSymbolAtLocation(childExpression); } else if (isPropertyAccessExpression(testedExpression) && isPropertyAccessExpression(childExpression)) { if (getSymbolAtLocation(testedExpression.name) !== getSymbolAtLocation(childExpression.name)) { return false; } childExpression = childExpression.expression; testedExpression = testedExpression.expression; } else if (isCallExpression(testedExpression) && isCallExpression(childExpression)) { childExpression = childExpression.expression; testedExpression = testedExpression.expression; } else { return false; } } } } return forEachChild(childNode, check); } */, TODO)
+		return !!forEachChild(body, func /* check */ (childNode Node) *bool {
+			if isIdentifier(childNode) {
+				childSymbol := getSymbolAtLocation(childNode)
+				if childSymbol && childSymbol == testedSymbol {
+					// If the test was a simple identifier, the above check is sufficient
+					if isIdentifier(expr) || isIdentifier(testedNode) && isBinaryExpression(testedNode.parent) {
+						return true
+					}
+					// Otherwise we need to ensure the symbol is called on the same target
+					testedExpression := testedNode.parent
+					childExpression := childNode.parent
+					for testedExpression && childExpression {
+						if isIdentifier(testedExpression) && isIdentifier(childExpression) || testedExpression.kind == SyntaxKindThisKeyword && childExpression.kind == SyntaxKindThisKeyword {
+							return getSymbolAtLocation(testedExpression) == getSymbolAtLocation(childExpression)
+						} else if isPropertyAccessExpression(testedExpression) && isPropertyAccessExpression(childExpression) {
+							if getSymbolAtLocation(testedExpression.name) != getSymbolAtLocation(childExpression.name) {
+								return false
+							}
+							childExpression = childExpression.expression
+							testedExpression = testedExpression.expression
+						} else if isCallExpression(testedExpression) && isCallExpression(childExpression) {
+							childExpression = childExpression.expression
+							testedExpression = testedExpression.expression
+						} else {
+							return false
+						}
+					}
+				}
+			}
+			return forEachChild(childNode, check)
+		})
 	}
 	isSymbolUsedInBinaryExpressionChain := func(node Node, testedSymbol Symbol) bool {
 		for isBinaryExpression(node) && node.operatorToken.kind == SyntaxKindAmpersandAmpersandToken {
-			isUsed := forEachChild(node.right /* TODO(TS-TO-GO) Node FunctionExpression: function visit(child): boolean | undefined { if (isIdentifier(child)) { const symbol = getSymbolAtLocation(child); if (symbol && symbol === testedSymbol) { return true; } } return forEachChild(child, visit); } */, TODO)
+			isUsed := forEachChild(node.right, func /* visit */ (child Node) *bool {
+				if isIdentifier(child) {
+					symbol := getSymbolAtLocation(child)
+					if symbol && symbol == testedSymbol {
+						return true
+					}
+				}
+				return forEachChild(child, visit)
+			})
 			if isUsed {
 				return true
 			}
