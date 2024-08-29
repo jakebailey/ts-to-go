@@ -76,9 +76,41 @@ function writeTodoNode(node: Node) {
     writer.write(asComment(`TODO(TS-TO-GO) ${todoName}: ${node.getText()}`));
 }
 
-function writeType(node: Type): void {
-    let text = node.getText();
-    text = text.replaceAll(`import("/home/jabaile/work/TypeScript/src/compiler/types").`, "");
+function isIdentifier(text: string) {
+    return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(text);
+}
+
+function writeType(host: Node, node: Type): void {
+    let text = node.getText(host);
+    text = text.trim();
+
+    if (isIdentifier(text)) {
+        writer.write(text);
+        return;
+    }
+
+    const orUndefined = " | undefined";
+    if (text.endsWith(orUndefined)) {
+        text = text.slice(0, -orUndefined.length);
+    }
+
+    text = text.trim();
+
+    if (isIdentifier(text)) {
+        switch (text) {
+            case "Node":
+            case "Declaration":
+                break;
+            default:
+                writer.write("*");
+        }
+        writer.write(text);
+        return;
+    }
+
+    const todoName = "Type";
+    const count = todoCounts.get(todoName) || 0;
+    todoCounts.set(todoName, count + 1);
     writer.write(`${asComment("TODO(TS-TO-GO) inferred type " + text)} any`);
 }
 
@@ -399,7 +431,7 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         const type = node.getType().getArrayElementType();
         if (type) {
             writer.write(" ");
-            writeType(type);
+            writeType(node, type);
         }
         else {
             writer.write("any");
@@ -691,7 +723,7 @@ function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunct
             visitTypeNode(paramType);
         }
         else {
-            writeType(param.getType());
+            writeType(node, param.getType());
         }
         const initializer = param.getInitializer();
         if (initializer) {
@@ -708,7 +740,7 @@ function writeFunctionParametersAndReturn(node: FunctionDeclaration | ArrowFunct
             visitTypeNode(retNode);
         }
         else {
-            writeType(ret);
+            writeType(node, ret);
         }
     }
 }
@@ -846,7 +878,7 @@ function visitStatement2(node: Statement) {
                     visitTypeNode(typeNode);
                 }
                 else {
-                    writeType(declaration.getType());
+                    writeType(declaration, declaration.getType());
                 }
                 writeConditionalExpressionAsSwitchCase(
                     initializer,
