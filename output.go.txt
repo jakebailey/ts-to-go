@@ -44569,7 +44569,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return !!thenFunction && getSignaturesOfType(getTypeWithFacts(thenFunction, TypeFactsNEUndefinedOrNull), SignatureKindCall).length > 0
 	}
 	type AwaitedTypeInstantiation struct {
-		_awaitedTypeBrand/* TODO(TS-TO-GO) Node NeverKeyword: never */ any
+		_awaitedTypeBrand  never
 		aliasSymbol        Symbol
 		aliasTypeArguments []Type
 	}

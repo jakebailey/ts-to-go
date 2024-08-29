@@ -85,12 +85,6 @@ function typeStringToGo(text: string): string {
     text = text.trim();
 
     switch (text) {
-        case "any":
-            return "any";
-        case "string":
-            return "string";
-        case "number":
-            return "number";
         case "boolean":
             return "bool";
         case "void":
@@ -183,6 +177,9 @@ function visitTypeNode(type: TypeNode): void {
     }
     else if (Node.isNumberKeyword(type)) {
         writer.write("number");
+    }
+    else if (Node.isNeverKeyword(type)) {
+        writer.write("never");
     }
     else if (type.getText() === "void") {
         const parent = type.getParentIfKind(ts.SyntaxKind.FunctionType);
