@@ -262,6 +262,10 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
         const args = node.getArguments();
         for (let i = 0; i < args.length; i++) {
             const expr = args[i];
+            const comment = expr.getPreviousSibling()?.getTrailingCommentRanges().at(0)?.getText();
+            if (comment?.startsWith("/*")) {
+                writer.write(comment);
+            }
             assert(Node.isExpression(expr));
             visitExpression(expr);
             writer.conditionalWrite(i < args.length - 1, ", ");
@@ -725,13 +729,23 @@ function visitBlock(node: Block) {
 
 function writeLeadingComments(node: Node) {
     for (const range of node.getLeadingCommentRanges()) {
-        writer.writeLine(range.getText());
+        if (range.compilerObject.hasTrailingNewLine) {
+            writer.writeLine(range.getText());
+        }
+        else {
+            writer.write(range.getText());
+        }
     }
 }
 
 function writeTrailingComments(node: Node) {
     for (const range of node.getTrailingCommentRanges()) {
-        writer.writeLine(range.getText());
+        if (range.compilerObject.hasTrailingNewLine) {
+            writer.writeLine(range.getText());
+        }
+        else {
+            writer.write(range.getText());
+        }
     }
 }
 
