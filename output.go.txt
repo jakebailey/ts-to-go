@@ -960,7 +960,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return moduleSpecifier && resolveExternalModuleName(moduleSpecifier, moduleSpecifier /*ignoreErrors*/, true)
 		},
 		"resolveExternalModuleSymbol": resolveExternalModuleSymbol,
-		"tryGetThisTypeAt": func(nodeIn Node, includeGlobalThis *boolean, container /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/utilities").ThisContainer */ any) *Type {
+		"tryGetThisTypeAt": func(nodeIn Node, includeGlobalThis *boolean, container *ThisContainer) *Type {
 			node := getParseTreeNode(nodeIn)
 			return node && tryGetThisTypeAt(node, includeGlobalThis, container)
 		},
@@ -1496,7 +1496,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					jsxFragmentPragma := file.pragmas.get("jsxfrag")
 					if jsxFragmentPragma {
-						var chosenPragma /* TODO(TS-TO-GO) inferred type { arguments: { factory: string; }; range: import("/home/jabaile/work/TypeScript/src/compiler/types").CommentRange; } */ any
+						var chosenPragma /* TODO(TS-TO-GO) inferred type { arguments: { factory: string; }; range: CommentRange; } */ any
 						// TODO(TS-TO-GO): converted from conditional expression
 						switch {
 						case isArray(jsxFragmentPragma):
@@ -1549,7 +1549,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		jsxPragma := file.pragmas.get("jsx")
 		if jsxPragma {
-			var chosenPragma /* TODO(TS-TO-GO) inferred type { arguments: { factory: string; }; range: import("/home/jabaile/work/TypeScript/src/compiler/types").CommentRange; } */ any
+			var chosenPragma /* TODO(TS-TO-GO) inferred type { arguments: { factory: string; }; range: CommentRange; } */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isArray(jsxPragma):
@@ -1648,7 +1648,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return diagnostic
 	}
 	addDeprecatedSuggestionWorker := func(declarations /* TODO(TS-TO-GO) TypeNode UnionType: Node | Node[] */ any, diagnostic DiagnosticWithLocation) DiagnosticWithLocation {
-		var deprecatedTag /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocDeprecatedTag */ any
+		var deprecatedTag *JSDocDeprecatedTag
 		// TODO(TS-TO-GO): converted from conditional expression
 		switch {
 		case Array.isArray(declarations):
@@ -3889,7 +3889,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return nil
 		}
 		if patternAmbientModules {
-			pattern := findBestPatternMatch(patternAmbientModules, func(_ PatternAmbientModule) /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/core").Pattern */ any {
+			pattern := findBestPatternMatch(patternAmbientModules, func(_ PatternAmbientModule) Pattern {
 				return _.pattern
 			}, moduleReference)
 			if pattern {
@@ -5110,7 +5110,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		symbolToStringWorker := func(writer EmitTextWriter) EmitTextWriter {
 			entity := builder(symbol, meaning, enclosingDeclaration, nodeFlags, internalNodeFlags)
 			// add neverAsciiEscape for GH#39027
-			var printer /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Printer */ any
+			var printer Printer
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case enclosingDeclaration. /* TODO(TS-TO-GO): was ? */ kind == SyntaxKindSourceFile:
@@ -5166,7 +5166,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		// The unresolved type gets a synthesized comment on `any` to hint to users that it's not a plain `any`.
 		// Otherwise, we always strip comments out.
-		var printer /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").Printer */ any
+		var printer Printer
 		// TODO(TS-TO-GO): converted from conditional expression
 		switch {
 		case type_ != unresolvedType:
@@ -5753,7 +5753,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				texts := (type_ /* as TemplateLiteralType */).texts
 				types := (type_ /* as TemplateLiteralType */).types
 				templateHead := factory.createTemplateHead(texts[0])
-				templateSpans := factory.createNodeArray(map_(types, func(t Type, i number) /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralTypeSpan */ any {
+				templateSpans := factory.createNodeArray(map_(types, func(t Type, i number) TemplateLiteralTypeSpan {
 					return factory.createTemplateLiteralTypeSpan(typeToTypeNodeHelper(t, context), (__COND__(i < types.length-1, factory.createTemplateMiddle, factory.createTemplateTail))(texts[i+1]))
 				}))
 				context.approximateLength += 2
@@ -6435,7 +6435,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return
 				}
 			}
-			var optionalToken /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").PunctuationToken<SyntaxKind.QuestionToken> */ any
+			var optionalToken /* TODO(TS-TO-GO) inferred type PunctuationToken<SyntaxKind.QuestionToken> */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case propertySymbol.flags & SymbolFlagsOptional:
@@ -6477,11 +6477,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					context.reverseMappedStack.pop()
 				}
 			}
-			var modifiers /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ModifierToken<SyntaxKind.ReadonlyKeyword>[] */ any
+			var modifiers /* TODO(TS-TO-GO) inferred type ModifierToken<SyntaxKind.ReadonlyKeyword>[] */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isReadonlySymbol(propertySymbol):
-				modifiers = [] /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ModifierToken<SyntaxKind.ReadonlyKeyword> */ any{factory.createToken(SyntaxKindReadonlyKeyword)}
+				modifiers = [] /* TODO(TS-TO-GO) inferred type ModifierToken<SyntaxKind.ReadonlyKeyword> */ any{factory.createToken(SyntaxKindReadonlyKeyword)}
 			default:
 				modifiers = nil
 			}
@@ -6530,7 +6530,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 				mayHaveNameCollisions := !(context.flags & NodeBuilderFlagsUseFullyQualifiedType)
 				/** Map from type reference identifier text to [type, index in `result` where the type node is] */
-				var seenNames /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/core").MultiMap<__String, [Type, number]> */ any
+				var seenNames /* TODO(TS-TO-GO) inferred type MultiMap<__String, [Type, number]> */ any
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case mayHaveNameCollisions:
@@ -6598,7 +6598,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				context.encounteredError = true
 			}
 			context.approximateLength += name.length + 4
-			return factory.createIndexSignature(__COND__(indexInfo.isReadonly, [] /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ModifierToken<SyntaxKind.ReadonlyKeyword> */ any{factory.createToken(SyntaxKindReadonlyKeyword)}, nil), []ParameterDeclaration{indexingParameter}, typeNode)
+			return factory.createIndexSignature(__COND__(indexInfo.isReadonly, [] /* TODO(TS-TO-GO) inferred type ModifierToken<SyntaxKind.ReadonlyKeyword> */ any{factory.createToken(SyntaxKindReadonlyKeyword)}, nil), []ParameterDeclaration{indexingParameter}, typeNode)
 		}
 		type SignatureToSignatureDeclarationOptions struct {
 			modifiers     []Modifier
@@ -6781,7 +6781,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 								}
 								return nil
 								bindPattern := func(p BindingPattern) {
-									forEach(p.elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ any) {
+									forEach(p.elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | OmittedExpression */ any) {
 										switch e.kind {
 										case SyntaxKindOmittedExpression:
 											return
@@ -6893,7 +6893,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return typeParameterToDeclarationWithConstraint(type_, context, constraintNode)
 		}
 		typePredicateToTypePredicateNodeHelper := func(typePredicate TypePredicate, context NodeBuilderContext) TypePredicateNode {
-			var assertsModifier /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").KeywordToken<SyntaxKind.AssertsKeyword> */ any
+			var assertsModifier /* TODO(TS-TO-GO) inferred type KeywordToken<SyntaxKind.AssertsKeyword> */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case typePredicate.kind == TypePredicateKindAssertsThis || typePredicate.kind == TypePredicateKindAssertsIdentifier:
@@ -6934,7 +6934,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				modifiers = nil
 			}
 			isRest := parameterDeclaration && isRestParameter(parameterDeclaration) || getCheckFlags(parameterSymbol)&CheckFlagsRestParameter
-			var dotDotDotToken /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").PunctuationToken<SyntaxKind.DotDotDotToken> */ any
+			var dotDotDotToken /* TODO(TS-TO-GO) inferred type PunctuationToken<SyntaxKind.DotDotDotToken> */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isRest:
@@ -6944,7 +6944,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			name := parameterToParameterDeclarationName(parameterSymbol, parameterDeclaration, context)
 			isOptional := parameterDeclaration && isOptionalParameter(parameterDeclaration) || getCheckFlags(parameterSymbol)&CheckFlagsOptionalParameter
-			var questionToken /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").PunctuationToken<SyntaxKind.QuestionToken> */ any
+			var questionToken /* TODO(TS-TO-GO) inferred type PunctuationToken<SyntaxKind.QuestionToken> */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isOptional:
@@ -8330,7 +8330,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 					return result
 				}
-				getEffectiveDotDotDotForParameter := func(p ParameterDeclaration) /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").DotDotDotToken */ any {
+				getEffectiveDotDotDotForParameter := func(p ParameterDeclaration) *DotDotDotToken {
 					return p.dotDotDotToken || (__COND__(p.type_ && isJSDocVariadicType(p.type_), factory.createToken(SyntaxKindDotDotDotToken), nil))
 				}
 				/** Note that `new:T` parameters are not handled, but should be before calling this function. */
@@ -9019,7 +9019,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					serializeAsNamespaceDeclaration(props, localName, modifierFlags /*suppressNewPrivateContext*/, true)
 				}
 			}
-			getSignatureTextRangeLocation := func(signature Signature) /* TODO(TS-TO-GO) inferred type SignatureDeclaration | BinaryExpression | JSDocSignature | VariableDeclarationList | import("/home/jabaile/work/TypeScript/src/compiler/types").CatchClause */ any {
+			getSignatureTextRangeLocation := func(signature Signature) /* TODO(TS-TO-GO) inferred type SignatureDeclaration | BinaryExpression | JSDocSignature | VariableDeclarationList | CatchClause */ any {
 				if signature.declaration && signature.declaration.parent {
 					if isBinaryExpression(signature.declaration.parent) && getAssignmentDeclarationKind(signature.declaration.parent) == AssignmentDeclarationKindProperty {
 						return signature.declaration.parent
@@ -10249,7 +10249,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			propName := getDestructuringPropertyName(node)
 			if propName {
 				literal := setTextRangeWorker(parseNodeFactory.createStringLiteral(propName), node)
-				var lhsExpr /* TODO(TS-TO-GO) inferred type Identifier | PropertyAccessExpression | ElementAccessExpression | FunctionExpression | ParenthesizedExpression | MetaProperty | ThisExpression | import("/home/jabaile/work/TypeScript/src/compiler/types").SuperExpression */ any
+				var lhsExpr /* TODO(TS-TO-GO) inferred type Identifier | PropertyAccessExpression | ElementAccessExpression | FunctionExpression | ParenthesizedExpression | MetaProperty | ThisExpression | SuperExpression */ any
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case isLeftHandSideExpression(parentAccess):
@@ -11096,7 +11096,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return anyArrayType
 			}
 		}
-		elementTypes := map_(elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ any) Type {
+		elementTypes := map_(elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | OmittedExpression */ any) Type {
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isOmittedExpression(e):
@@ -11105,10 +11105,10 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return getTypeFromBindingElement(e, includePatternInType, reportErrors)
 			}
 		})
-		minLength := findLastIndex(elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ any) boolean {
+		minLength := findLastIndex(elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | OmittedExpression */ any) boolean {
 			return !(e == restElement || isOmittedExpression(e) || hasDefaultValue(e))
 		}, elements.length-1) + 1
-		elementFlags := map_(elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ any, i number) /* TODO(TS-TO-GO) inferred type ElementFlags.Required | ElementFlags.Optional | ElementFlags.Rest */ any {
+		elementFlags := map_(elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | OmittedExpression */ any, i number) /* TODO(TS-TO-GO) inferred type ElementFlags.Required | ElementFlags.Optional | ElementFlags.Rest */ any {
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case e == restElement:
@@ -11822,7 +11822,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case (node /* as JSDoc */).tags:
-					return appendTypeParameters(outerTypeParameters, flatMap((node /* as JSDoc */).tags, func(t /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocTag */ any) /* TODO(TS-TO-GO) inferred type NodeArray<TypeParameterDeclaration> */ any {
+					return appendTypeParameters(outerTypeParameters, flatMap((node /* as JSDoc */).tags, func(t JSDocTag) /* TODO(TS-TO-GO) inferred type NodeArray<TypeParameterDeclaration> */ any {
 						// TODO(TS-TO-GO): converted from conditional expression
 						switch {
 						case isJSDocTemplateTag(t):
@@ -12613,7 +12613,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// In the event we attempt to resolve the late-bound name of this member recursively,
 			// fall back to the early-bound name of this member.
 			links.resolvedSymbol = decl.symbol
-			var declName /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").LateBoundElementAccessExpression | LateBoundName */ any
+			var declName /* TODO(TS-TO-GO) inferred type LateBoundElementAccessExpression | LateBoundName */ any
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isBinaryExpression(decl):
@@ -16045,7 +16045,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getParentSymbolOfTypeParameter := func(typeParameter TypeParameter) *Symbol {
 		tp := getDeclarationOfKind(typeParameter.symbol, SyntaxKindTypeParameter)
-		var host /* TODO(TS-TO-GO) inferred type ClassDeclaration | ClassExpression | InterfaceDeclaration | SignatureDeclaration | TypeAliasDeclaration | InferTypeNode | JSDocCallbackTag | import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocEnumTag | JSDocTypedefTag */ any
+		var host /* TODO(TS-TO-GO) inferred type ClassDeclaration | ClassExpression | InterfaceDeclaration | SignatureDeclaration | TypeAliasDeclaration | InferTypeNode | JSDocCallbackTag | JSDocEnumTag | JSDocTypedefTag */ any
 		// TODO(TS-TO-GO): converted from conditional expression
 		switch {
 		case isJSDocTemplateTag(tp.parent):
@@ -18691,7 +18691,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	getTypeFromTemplateTypeNode := func(node TemplateLiteralTypeNode) Type {
 		links := getNodeLinks(node)
 		if !links.resolvedType {
-			links.resolvedType = getTemplateLiteralType([]string{node.head.text /* TODO(TS-TO-GO) Node SpreadElement: ...map(node.templateSpans, span => span.literal.text) */}, map_(node.templateSpans, func(span /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateLiteralTypeSpan */ any) Type {
+			links.resolvedType = getTemplateLiteralType([]string{node.head.text /* TODO(TS-TO-GO) Node SpreadElement: ...map(node.templateSpans, span => span.literal.text) */}, map_(node.templateSpans, func(span TemplateLiteralTypeSpan) Type {
 				return getTypeFromTypeNode(span.type_)
 			}))
 		}
@@ -21747,7 +21747,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 	}
-	getElaborationElementForJsxChild := func(child JsxChild, nameType LiteralType, getInvalidTextDiagnostic func() DiagnosticMessage) /* TODO(TS-TO-GO) inferred type { errorNode: JsxExpression; innerExpression: Expression | undefined; nameType: LiteralType; errorMessage?: undefined; } | { errorNode: import("/home/jabaile/work/TypeScript/src/compiler/types").JsxText; innerExpression: undefined; nameType: LiteralType; errorMessage: DiagnosticMessage; } | { errorNode: JsxElement | JsxSelfClosingElement | JsxFragment; innerExpression: JsxElement | JsxSelfClosingElement | JsxFragment; nameType: LiteralType; errorMessage?: undefined; } */ any {
+	getElaborationElementForJsxChild := func(child JsxChild, nameType LiteralType, getInvalidTextDiagnostic func() DiagnosticMessage) /* TODO(TS-TO-GO) inferred type { errorNode: JsxExpression; innerExpression: Expression | undefined; nameType: LiteralType; errorMessage?: undefined; } | { errorNode: JsxText; innerExpression: undefined; nameType: LiteralType; errorMessage: DiagnosticMessage; } | { errorNode: JsxElement | JsxSelfClosingElement | JsxFragment; innerExpression: JsxElement | JsxSelfClosingElement | JsxFragment; nameType: LiteralType; errorMessage?: undefined; } */ any {
 		switch child.kind {
 		case SyntaxKindJsxExpression:
 			return map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -30141,7 +30141,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		getTypeAtFlowArrayMutation := func(flow FlowArrayMutation) *FlowType {
 			if declaredType == autoType || declaredType == autoArrayType {
 				node := flow.node
-				var expr /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").LeftHandSideExpression */ any
+				var expr LeftHandSideExpression
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case node.kind == SyntaxKindCallExpression:
@@ -31371,7 +31371,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if node.kind == SyntaxKindIdentifier {
 			return isSymbolAssigned(getSymbolOfDeclaration(node.parent /* as Declaration */))
 		}
-		return some(node.elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | import("/home/jabaile/work/TypeScript/src/compiler/types").OmittedExpression */ any) boolean {
+		return some(node.elements, func(e /* TODO(TS-TO-GO) inferred type BindingElement | OmittedExpression */ any) boolean {
 			return e.kind != SyntaxKindOmittedExpression && isSomeSymbolAssignedWorker(e.name)
 		})
 	}
@@ -31640,7 +31640,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			// This is the exception, rather than the rule - most non-expression identifiers are declaration names.
 			if isIdentifier(location) && (isExpressionNode(location) || isShorthandPropertyAssignment(location.parent) || (isImportEqualsDeclaration(location.parent) && location.parent.moduleReference == location)) && shouldMarkIdentifierAliasReferenced(location) {
 				if isPropertyAccessOrQualifiedName(location.parent) {
-					var left /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").LeftHandSideExpression | QualifiedName */ any
+					var left /* TODO(TS-TO-GO) inferred type LeftHandSideExpression | QualifiedName */ any
 					// TODO(TS-TO-GO): converted from conditional expression
 					switch {
 					case isPropertyAccessExpression(location.parent):
@@ -31705,7 +31705,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	markPropertyAliasReferenced := func(location /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName */ any, propSymbol Symbol, parentType Type) {
-		var left /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").LeftHandSideExpression | QualifiedName */ any
+		var left /* TODO(TS-TO-GO) inferred type LeftHandSideExpression | QualifiedName */ any
 		// TODO(TS-TO-GO): converted from conditional expression
 		switch {
 		case isPropertyAccessExpression(location):
@@ -31742,7 +31742,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		prop := propSymbol
 		if !prop && !parentType {
-			var right /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").MemberName */ any
+			var right MemberName
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isPropertyAccessExpression(location):
@@ -32541,7 +32541,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return type_ || anyType
 	}
-	tryGetThisTypeAt := func(node Node, includeGlobalThis boolean /*  = true */, container /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/utilities").ThisContainer */ any /*  = getThisContainer(node, /*includeArrowFunctions* / false, /*includeClassComputedPropertyName* / false) */) *Type {
+	tryGetThisTypeAt := func(node Node, includeGlobalThis boolean /*  = true */, container ThisContainer /*  = getThisContainer(node, /*includeArrowFunctions* / false, /*includeClassComputedPropertyName* / false) */) *Type {
 		isInJS := isInJSFile(node)
 		if isFunctionLike(container) && (!isInParameterInitializerBeforeContainingFunction(node) || getThisParameter(container)) {
 			thisType := getThisTypeOfDeclaration(container) || isInJS && getTypeForThisExpressionFromJSDoc(container)
@@ -32607,7 +32607,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 		}
 	}
-	getClassNameFromPrototypeMethod := func(container Node) /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").LeftHandSideExpression */ any {
+	getClassNameFromPrototypeMethod := func(container Node) *LeftHandSideExpression {
 		// Check if it's the RHS of a x.prototype.y = function [name]() { .... }
 		if container.kind == SyntaxKindFunctionExpression && isBinaryExpression(container.parent) && getAssignmentDeclarationKind(container.parent) == AssignmentDeclarationKindPrototypeProperty {
 			// Get the 'x' of 'x.prototype.y = container'
@@ -34622,7 +34622,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			checkFlags = 0
 		}
 		isInJavascript := isInJSFile(node) && !isInJsonFile(node)
-		var enumTag /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocEnumTag */ any
+		var enumTag *JSDocEnumTag
 		// TODO(TS-TO-GO): converted from conditional expression
 		switch {
 		case isInJavascript:
@@ -37375,7 +37375,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if node.kind == SyntaxKindBinaryExpression {
 			return node.right
 		}
-		var expression /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").LeftHandSideExpression */ any
+		var expression *LeftHandSideExpression
 		// TODO(TS-TO-GO): converted from conditional expression
 		switch {
 		case node.kind == SyntaxKindCallExpression:
@@ -37408,7 +37408,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			template := node.template
 			var args []Expression = []SyntheticExpression{createSyntheticExpression(template, getGlobalTemplateStringsArrayType())}
 			if template.kind == SyntaxKindTemplateExpression {
-				forEach(template.templateSpans, func(span /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TemplateSpan */ any) {
+				forEach(template.templateSpans, func(span TemplateSpan) {
 					args.push(span.expression)
 				})
 			}
@@ -45420,7 +45420,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if parent.kind != SyntaxKindInferType && parent.typeParameters.every(isTypeParameterUnused) {
 				if tryAddToSet(seenParentsWithEveryUnused, parent) {
 					sourceFile := getSourceFileOfNode(parent)
-					var range_ /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").TextRange */ any
+					var range_ TextRange
 					// TODO(TS-TO-GO): converted from conditional expression
 					switch {
 					case isJSDocTemplateTag(parent):
@@ -46151,7 +46151,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			if callSignatures.length == 0 && !isPromise {
 				return
 			}
-			var testedNode /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").MemberName */ any
+			var testedNode *MemberName
 			// TODO(TS-TO-GO): converted from conditional expression
 			switch {
 			case isIdentifier(location):
@@ -47856,7 +47856,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return true
 	}
-	getFirstTransformableStaticClassElement := func(node ClassLikeDeclaration) /* TODO(TS-TO-GO) inferred type ClassLikeDeclaration | ClassStaticBlockDeclaration | Decorator | import("/home/jabaile/work/TypeScript/src/compiler/types").PrivateIdentifierPropertyDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").PrivateIdentifierMethodDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").PrivateIdentifierGetAccessorDeclaration | import("/home/jabaile/work/TypeScript/src/compiler/types").PrivateIdentifierSetAccessorDeclaration | (PropertyDeclaration & { initializer: Expression; }) */ any {
+	getFirstTransformableStaticClassElement := func(node ClassLikeDeclaration) /* TODO(TS-TO-GO) inferred type ClassLikeDeclaration | ClassStaticBlockDeclaration | Decorator | PrivateIdentifierPropertyDeclaration | PrivateIdentifierMethodDeclaration | PrivateIdentifierGetAccessorDeclaration | PrivateIdentifierSetAccessorDeclaration | (PropertyDeclaration & { initializer: Expression; }) */ any {
 		willTransformStaticElementsOfDecoratedClass := !legacyDecorators && languageVersion < LanguageFeatureMinimumTargetClassAndClassElementDecorators && classOrConstructorParameterIsDecorated(false, node)
 		willTransformPrivateElementsOrClassStaticBlocks := languageVersion < LanguageFeatureMinimumTargetPrivateNamesAndClassStaticBlocks || languageVersion < LanguageFeatureMinimumTargetClassAndClassElementDecorators
 		willTransformInitializers := !emitStandardClassFields
@@ -48776,7 +48776,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					}
 				}
 				if compilerOptions.verbatimModuleSyntax && node.parent.kind == SyntaxKindSourceFile && host.getEmitModuleFormatOfFile(node.parent) == ModuleKindCommonJS {
-					exportModifier := node.modifiers. /* TODO(TS-TO-GO): was ? */ find(func(m /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").ModifierLike */ any) boolean {
+					exportModifier := node.modifiers. /* TODO(TS-TO-GO): was ? */ find(func(m ModifierLike) boolean {
 						return m.kind == SyntaxKindExportKeyword
 					})
 					if exportModifier {
@@ -49485,7 +49485,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if canHaveJSDoc(node) {
 			forEach(node.jsDoc, func(TODO_IDENTIFIER JSDoc) {
 				checkJSDocCommentWorker(comment)
-				forEach(tags, func(tag /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/types").JSDocTag */ any) {
+				forEach(tags, func(tag JSDocTag) {
 					checkJSDocCommentWorker(tag.comment)
 					if isInJSFile(node) {
 						checkSourceElement(tag)
@@ -51873,7 +51873,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return file.localJsxFragmentFactory
 				}
 				jsxFragPragmas := file.pragmas.get("jsxfrag")
-				var jsxFragPragma /* TODO(TS-TO-GO) inferred type { arguments: { factory: string; }; range: import("/home/jabaile/work/TypeScript/src/compiler/types").CommentRange; } */ any
+				var jsxFragPragma /* TODO(TS-TO-GO) inferred type { arguments: { factory: string; }; range: CommentRange; } */ any
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case isArray(jsxFragPragmas):
@@ -54183,7 +54183,7 @@ func createBasicNodeBuilderModuleSpecifierResolutionHost(host TypeCheckerHost) M
 			return host.getCurrentDirectory()
 		},
 		"getSymlinkCache": maybeBind(host, host.getSymlinkCache),
-		"getPackageJsonInfoCache": func() /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/moduleNameResolver").PackageJsonInfoCache */ any {
+		"getPackageJsonInfoCache": func() *PackageJsonInfoCache {
 			return host.getPackageJsonInfoCache()
 		},
 		"useCaseSensitiveFileNames": maybeBind(host, host.useCaseSensitiveFileNames),
@@ -54197,7 +54197,7 @@ func createBasicNodeBuilderModuleSpecifierResolutionHost(host TypeCheckerHost) M
 		"fileExists": func(fileName string) boolean {
 			return host.fileExists(fileName)
 		},
-		"getFileIncludeReasons": func() /* TODO(TS-TO-GO) inferred type import("/home/jabaile/work/TypeScript/src/compiler/core").MultiMap<Path, import("/home/jabaile/work/TypeScript/src/compiler/types").FileIncludeReason> */ any {
+		"getFileIncludeReasons": func() /* TODO(TS-TO-GO) inferred type MultiMap<Path, FileIncludeReason> */ any {
 			return host.getFileIncludeReasons()
 		},
 		"readFile": __COND__(host.readFile, (func(fileName string) *string {

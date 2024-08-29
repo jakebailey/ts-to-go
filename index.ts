@@ -82,6 +82,7 @@ function isIdentifier(text: string) {
 
 function writeType(host: Node, node: Type): void {
     let text = node.getText(host);
+    text = text.replace(/import\([^)]+\)\./g, "");
     text = text.trim();
 
     if (isIdentifier(text)) {
