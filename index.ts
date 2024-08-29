@@ -380,11 +380,25 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             }
         }
 
-        visitExpression(node.getExpression());
+        const expr = node.getExpression();
+        const name = node.getNameNode();
+        if (Node.isStringLiteral(node.getExpression())) {
+            switch (name.getText()) {
+                case "length":
+                    writer.write("len(");
+                    visitExpression(expr);
+                    writer.write(")");
+                    return;
+                default:
+                    throw new Error(`Unexpected string property access: ${name.getText()}`);
+            }
+        }
+
+        visitExpression(expr);
         if (node.hasQuestionDotToken()) {
             writer.write("/* TODO(TS-TO-GO): was ? */");
         }
-        writer.write(`.${sanitizeName(node.getName())}`);
+        writer.write(`.${sanitizeName(name.getText())}`);
     }
     else if (Node.isElementAccessExpression(node)) {
         visitExpression(node.getExpression());

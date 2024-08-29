@@ -5186,7 +5186,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			maxLength = defaultMaximumTruncationLength * 2
 		}
 		if maxLength && result && result.length >= maxLength {
-			return result.substr(0, maxLength-"...".length) + "..."
+			return result.substr(0, maxLength-len("...")) + "..."
 		}
 		return result
 	}
@@ -52969,14 +52969,14 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	checkGrammarForDisallowedTrailingComma := func(list *NodeArray[Node], diag DiagnosticMessage /*  = Diagnostics.Trailing_comma_not_allowed */) bool {
 		if list && list.hasTrailingComma {
-			return grammarErrorAtPos(list[0], list.end-",".length, ",".length, diag)
+			return grammarErrorAtPos(list[0], list.end-len(","), len(","), diag)
 		}
 		return false
 	}
 	checkGrammarTypeParameterList := func(typeParameters *NodeArray[TypeParameterDeclaration], file SourceFile) bool {
 		if typeParameters && typeParameters.length == 0 {
-			start := typeParameters.pos - "<".length
-			end := skipTrivia(file.text, typeParameters.end) + ">".length
+			start := typeParameters.pos - len("<")
+			end := skipTrivia(file.text, typeParameters.end) + len(">")
 			return grammarErrorAtPos(file, start, end-start, Diagnostics.Type_parameter_list_cannot_be_empty)
 		}
 		return false
@@ -53102,8 +53102,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	checkGrammarForAtLeastOneTypeArgument := func(node Node, typeArguments *NodeArray[TypeNode]) bool {
 		if typeArguments && typeArguments.length == 0 {
 			sourceFile := getSourceFileOfNode(node)
-			start := typeArguments.pos - "<".length
-			end := skipTrivia(sourceFile.text, typeArguments.end) + ">".length
+			start := typeArguments.pos - len("<")
+			end := skipTrivia(sourceFile.text, typeArguments.end) + len(">")
 			return grammarErrorAtPos(sourceFile, start, end-start, Diagnostics.Type_argument_list_cannot_be_empty)
 		}
 		return false
@@ -53458,7 +53458,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return grammarErrorOnNode(accessor.name, Diagnostics.Private_identifiers_are_only_available_when_targeting_ECMAScript_2015_and_higher)
 			}
 			if accessor.body == nil && !hasSyntacticModifier(accessor, ModifierFlagsAbstract) {
-				return grammarErrorAtPos(accessor, accessor.end-1, ";".length, Diagnostics._0_expected, "{")
+				return grammarErrorAtPos(accessor, accessor.end-1, len(";"), Diagnostics._0_expected, "{")
 			}
 		}
 		if accessor.body {
@@ -53567,7 +53567,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if checkGrammarForInvalidExclamationToken(node.exclamationToken, Diagnostics.A_definite_assignment_assertion_is_not_permitted_in_this_context) {
 					return true
 				} else if node.body == nil {
-					return grammarErrorAtPos(node, node.end-1, ";".length, Diagnostics._0_expected, "{")
+					return grammarErrorAtPos(node, node.end-1, len(";"), Diagnostics._0_expected, "{")
 				}
 			}
 			if checkGrammarForGenerator(node) {
