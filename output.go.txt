@@ -17448,7 +17448,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				if types[j].flags & TypeFlagsUnion {
 					sourceTypes := (types[j] /* as UnionType */).types
 					length := sourceTypes.length
-					constituents[j] = sourceTypes[ /* TODO(TS-TO-GO) PercentToken BinaryExpression: n % length */ TODO]
+					constituents[j] = sourceTypes[n%length]
 					n = Math.floor(n / length)
 				}
 			}
@@ -22189,13 +22189,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			undefinedStrippedTarget := getUndefinedStrippedTargetIfNeeded(source, target /* as UnionType */)
 			for i := 0; i < sourceTypes.length; i++ {
 				sourceType := sourceTypes[i]
-				if undefinedStrippedTarget.flags&TypeFlagsUnion && sourceTypes.length >= (undefinedStrippedTarget /* as UnionType */).types.length && /* TODO(TS-TO-GO) PercentToken BinaryExpression: sourceTypes.length % (undefinedStrippedTarget as UnionType).types.length */ TODO == 0 {
+				if undefinedStrippedTarget.flags&TypeFlagsUnion && sourceTypes.length >= (undefinedStrippedTarget /* as UnionType */).types.length && sourceTypes.length%(undefinedStrippedTarget /* as UnionType */).types.length == 0 {
 					// many unions are mappings of one another; in such cases, simply comparing members at the same index can shortcut the comparison
 					// such unions will have identical lengths, and their corresponding elements will match up. Another common scenario is where a large
 					// union has a union of objects intersected with it. In such cases, if the input was, eg `("a" | "b" | "c") & (string | boolean | {} | {whatever})`,
 					// the result will have the structure `"a" | "b" | "c" | "a" & {} | "b" & {} | "c" & {} | "a" & {whatever} | "b" & {whatever} | "c" & {whatever}`
 					// - the resulting union has a length which is a multiple of the original union, and the elements correspond modulo the length of the original union
-					related := isRelatedTo(sourceType, (undefinedStrippedTarget /* as UnionType */).types[ /* TODO(TS-TO-GO) PercentToken BinaryExpression: i % (undefinedStrippedTarget as UnionType).types.length */ TODO], RecursionFlagsBoth /*reportErrors*/, false /*headMessage*/, nil, intersectionState)
+					related := isRelatedTo(sourceType, (undefinedStrippedTarget /* as UnionType */).types[i%(undefinedStrippedTarget /* as UnionType */).types.length], RecursionFlagsBoth /*reportErrors*/, false /*headMessage*/, nil, intersectionState)
 					if related {
 						result &= related
 						continue
@@ -39654,7 +39654,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken:
 						rhsEval := evaluate(right)
 						if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof rhsEval.value */ TODO == "number" && Math.abs(rhsEval.value) >= 32 {
-							errorOrSuggestion(isEnumMember(walkUpParenthesizedExpressions(right.parent.parent)), errorNode || operatorToken, Diagnostics.This_operation_can_be_simplified_This_shift_is_identical_to_0_1_2, getTextOfNode(left), tokenToString(operator) /* TODO(TS-TO-GO) PercentToken BinaryExpression: rhsEval.value % 32 */, TODO)
+							errorOrSuggestion(isEnumMember(walkUpParenthesizedExpressions(right.parent.parent)), errorNode || operatorToken, Diagnostics.This_operation_can_be_simplified_This_shift_is_identical_to_0_1_2, getTextOfNode(left), tokenToString(operator), rhsEval.value%32)
 						}
 					default:
 					}
@@ -41646,7 +41646,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		checkFlagAgreementBetweenOverloads := func(overloads []Declaration, implementation *FunctionLikeDeclaration, flagsToCheck ModifierFlags, someOverloadFlags ModifierFlags, allOverloadFlags ModifierFlags) {
 			// Error if some overloads have a flag that is not shared by all overloads. To find the
 			// deviations, we XOR someOverloadFlags with allOverloadFlags
-			someButNotAllOverloadFlags := /* TODO(TS-TO-GO) CaretToken BinaryExpression: someOverloadFlags ^ allOverloadFlags */ TODO
+			someButNotAllOverloadFlags := someOverloadFlags ^ allOverloadFlags
 			if someButNotAllOverloadFlags != 0 {
 				canonicalFlags := getEffectiveDeclarationFlags(getCanonicalOverload(overloads, implementation), flagsToCheck)
 				group(overloads, func(o Declaration) string {
@@ -41654,8 +41654,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}).forEach(func(overloadsInFile []Declaration) {
 					canonicalFlagsForFile := getEffectiveDeclarationFlags(getCanonicalOverload(overloadsInFile, implementation), flagsToCheck)
 					for _, o := range overloadsInFile {
-						deviation := /* TODO(TS-TO-GO) CaretToken BinaryExpression: getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlags */ TODO
-						deviationInFile := /* TODO(TS-TO-GO) CaretToken BinaryExpression: getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlagsForFile */ TODO
+						deviation := getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlags
+						deviationInFile := getEffectiveDeclarationFlags(o, flagsToCheck) ^ canonicalFlagsForFile
 						if deviationInFile & ModifierFlagsExport {
 							// Overloads in different files need not all have export modifiers. This is ok:
 							//   // lib.d.ts

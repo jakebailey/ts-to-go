@@ -690,6 +690,8 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
         case ts.SyntaxKind.AsteriskToken:
         case ts.SyntaxKind.SlashToken:
         case ts.SyntaxKind.AsteriskAsteriskToken:
+        case ts.SyntaxKind.CaretToken:
+        case ts.SyntaxKind.PercentToken:
             tok = ts.tokenToString(op.getKind())!;
             break;
         case ts.SyntaxKind.EqualsEqualsEqualsToken:
