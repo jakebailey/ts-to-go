@@ -1286,6 +1286,25 @@ function visitStatement2(node: Statement) {
         return;
     }
 
+    if (Node.isTryStatement(node)) {
+        writer.writeLine("// TODO(TS-TO-GO): try");
+        writer.write("{");
+        writer.indent(() => {
+            visitStatement(node.getTryBlock());
+        });
+        writer.writeLine("}");
+        const catchClause = node.getCatchClause();
+        if (catchClause) {
+            writeTodoNode(catchClause);
+            writer.newLineIfLastNot();
+        }
+        const finallyBlock = node.getFinallyBlock();
+        if (finallyBlock) {
+            writeTodoNode(finallyBlock);
+            writer.newLineIfLastNot();
+        }
+    }
+
     writeTodoNode(node);
     // console.error(`Unhandled node kind: ${node.getKindName()}`);
 }

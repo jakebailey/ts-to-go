@@ -974,9 +974,36 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				return emptyArray
 			}
 			var diagnostics *[]DiagnosticWithLocation
+			// TODO(TS-TO-GO): try
+			{
+				// Record the cancellation token so it can be checked later on during checkSourceElement.
+				// Do this in a finally block so we can ensure that it gets reset back to nothing after
+				// this call is done.
+				cancellationToken = ct
+				// Ensure file is type checked, with _eager_ diagnostic production, so identifiers are registered as potentially unused
+				checkSourceFileWithEagerDiagnostics(file)
+				Debug.assert(!!(getNodeLinks(file).flags & NodeCheckFlagsTypeChecked))
+				diagnostics = addRange(diagnostics, suggestionDiagnostics.getDiagnostics(file.fileName))
+				checkUnusedIdentifiers(getPotentiallyUnusedIdentifiers(file), func(containingNode Node, kind UnusedKind, diag DiagnosticWithLocation) {
+					if !containsParseError(containingNode) && !unusedIsError(kind, !!(containingNode.flags&NodeFlagsAmbient)) {
+						(diagnostics || ( /* TODO(TS-TO-GO) Node BinaryExpression: diagnostics = [] */ TODO)).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
+							/* TODO(TS-TO-GO) Node SpreadAssignment: ...diag */
+							"category": DiagnosticCategorySuggestion,
+						})
+					}
+				})
+				return diagnostics || emptyArray
+			}
+			/* TODO(TS-TO-GO) Node Block: { cancellationToken = undefined; } */
 			/* TODO(TS-TO-GO) Node TryStatement: try { // Record the cancellation token so it can be checked later on during checkSourceElement. // Do this in a finally block so we can ensure that it gets reset back to nothing after // this call is done. cancellationToken = ct; // Ensure file is type checked, with _eager_ diagnostic production, so identifiers are registered as potentially unused checkSourceFileWithEagerDiagnostics(file); Debug.assert(!!(getNodeLinks(file).flags & NodeCheckFlags.TypeChecked)); diagnostics = addRange(diagnostics, suggestionDiagnostics.getDiagnostics(file.fileName)); checkUnusedIdentifiers(getPotentiallyUnusedIdentifiers(file), (containingNode, kind, diag) => { if (!containsParseError(containingNode) && !unusedIsError(kind, !!(containingNode.flags & NodeFlags.Ambient))) { (diagnostics || (diagnostics = [])).push({ ...diag, category: DiagnosticCategory.Suggestion }); } }); return diagnostics || emptyArray; } finally { cancellationToken = undefined; } */
 		},
 		"runWithCancellationToken": func(token CancellationToken, callback /* TODO(TS-TO-GO) inferred type ((checker: TypeChecker) => T) | ((checker: TypeChecker) => T) */ any) T {
+			// TODO(TS-TO-GO): try
+			{
+				cancellationToken = token
+				return callback(checker)
+			}
+			/* TODO(TS-TO-GO) Node Block: { cancellationToken = undefined; } */
 			/* TODO(TS-TO-GO) Node TryStatement: try { cancellationToken = token; return callback(checker); } finally { cancellationToken = undefined; } */
 		},
 		"getLocalTypeParametersOfClassOrInterfaceOrTypeAlias": getLocalTypeParametersOfClassOrInterfaceOrTypeAlias,
@@ -34510,6 +34537,13 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			})
 			scanner.setText(sourceFile.text, node.pos, node.end-node.pos)
+			// TODO(TS-TO-GO): try
+			{
+				scanner.scan()
+				Debug.assert(scanner.reScanSlashToken(true) == SyntaxKindRegularExpressionLiteral, "Expected scanner to rescan RegularExpressionLiteral")
+				return !!lastError
+			}
+			/* TODO(TS-TO-GO) Node Block: { scanner.setText(""); scanner.setOnError(/*onError* / undefined); } */
 			/* TODO(TS-TO-GO) Node TryStatement: try { scanner.scan(); Debug.assert(scanner.reScanSlashToken(/*reportErrors* / true) === SyntaxKind.RegularExpressionLiteral, "Expected scanner to rescan RegularExpressionLiteral"); return !!lastError; } finally { scanner.setText(""); scanner.setOnError(/*onError* / undefined); } */
 		}
 		return false
@@ -50303,6 +50337,15 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 	}
 	getDiagnostics := func(sourceFile SourceFile, ct CancellationToken, nodesToCheck []Node) []Diagnostic {
+		// TODO(TS-TO-GO): try
+		{
+			// Record the cancellation token so it can be checked later on during checkSourceElement.
+			// Do this in a finally block so we can ensure that it gets reset back to nothing after
+			// this call is done.
+			cancellationToken = ct
+			return getDiagnosticsWorker(sourceFile, nodesToCheck)
+		}
+		/* TODO(TS-TO-GO) Node Block: { cancellationToken = undefined; } */
 		/* TODO(TS-TO-GO) Node TryStatement: try { // Record the cancellation token so it can be checked later on during checkSourceElement. // Do this in a finally block so we can ensure that it gets reset back to nothing after // this call is done. cancellationToken = ct; return getDiagnosticsWorker(sourceFile, nodesToCheck); } finally { cancellationToken = undefined; } */
 	}
 	ensurePendingDiagnosticWorkComplete := func() {
