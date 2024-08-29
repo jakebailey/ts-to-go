@@ -5750,7 +5750,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				links := context.enclosingDeclaration && getNodeLinks(context.enclosingDeclaration)
 				key := __TEMPLATE__(getTypeId(type_), "|", context.flags, "|", context.internalFlags)
 				if links {
-					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: links.serializedTypes ||= new Map() */ TODO
+					links.serializedTypes = links.serializedTypes || NewMap()
 				}
 				cachedResult := links. /* ? */ serializedTypes. /* ? */ get(key)
 				if cachedResult {
@@ -6193,7 +6193,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				propertyTypeNode = createElidedInformationPlaceholder(context)
 			} else {
 				if propertyIsReverseMapped {
-					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: context.reverseMappedStack ||= [] */ TODO
+					context.reverseMappedStack = context.reverseMappedStack || []never{}
 					context.reverseMappedStack.push(propertySymbol /* as ReverseMappedSymbol */)
 				}
 				if propertyType {
@@ -15119,7 +15119,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				type_.symbol.declarations = [] /* TODO(TS-TO-GO) inferred type SignatureDeclaration | JSDocSignature */ any{signature.declaration}
 				type_.symbol.valueDeclaration = signature.declaration
 			}
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: outerTypeParameters ||= signature.declaration && getOuterTypeParameters(signature.declaration, /*includeThisTypes* / true) */ TODO
+			outerTypeParameters = outerTypeParameters || signature.declaration && getOuterTypeParameters(signature.declaration /*includeThisTypes*/, true)
 			type_.outerTypeParameters = outerTypeParameters
 			type_.members = emptySymbols
 			type_.properties = emptyArray
@@ -15975,15 +15975,18 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalTypedPropertyDescriptorType := func() GenericType {
 		// We always report an error, so store a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalTypedPropertyDescriptorType ||= getGlobalType("TypedPropertyDescriptor" as __String, /*arity* / 1, /*reportErrors* / true) || emptyGenericType */ TODO
+		deferredGlobalTypedPropertyDescriptorType = deferredGlobalTypedPropertyDescriptorType || getGlobalType("TypedPropertyDescriptor" /* as __String */ /*arity*/, 1 /*reportErrors*/, true) || emptyGenericType
+		return deferredGlobalTypedPropertyDescriptorType
 	}
 	getGlobalTemplateStringsArrayType := func() ObjectType {
 		// We always report an error, so store a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalTemplateStringsArrayType ||= getGlobalType("TemplateStringsArray" as __String, /*arity* / 0, /*reportErrors* / true) || emptyObjectType */ TODO
+		deferredGlobalTemplateStringsArrayType = deferredGlobalTemplateStringsArrayType || getGlobalType("TemplateStringsArray" /* as __String */ /*arity*/, 0 /*reportErrors*/, true) || emptyObjectType
+		return deferredGlobalTemplateStringsArrayType
 	}
 	getGlobalImportMetaType := func() ObjectType {
 		// We always report an error, so store a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalImportMetaType ||= getGlobalType("ImportMeta" as __String, /*arity* / 0, /*reportErrors* / true) || emptyObjectType */ TODO
+		deferredGlobalImportMetaType = deferredGlobalImportMetaType || getGlobalType("ImportMeta" /* as __String */ /*arity*/, 0 /*reportErrors*/, true) || emptyObjectType
+		return deferredGlobalImportMetaType
 	}
 	getGlobalImportMetaExpressionType := func() ObjectType {
 		if !deferredGlobalImportMetaExpressionType {
@@ -16006,10 +16009,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalImportAttributesType ||= getGlobalType("ImportAttributes" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
 	}
 	getGlobalESSymbolConstructorSymbol := func(reportErrors bool) Symbol {
-		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalESSymbolConstructorSymbol ||= getGlobalValueSymbol("Symbol" as __String, reportErrors) */ TODO
+		deferredGlobalESSymbolConstructorSymbol = deferredGlobalESSymbolConstructorSymbol || getGlobalValueSymbol("Symbol" /* as __String */, reportErrors)
+		return deferredGlobalESSymbolConstructorSymbol
 	}
 	getGlobalESSymbolConstructorTypeSymbol := func(reportErrors bool) Symbol {
-		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalESSymbolConstructorTypeSymbol ||= getGlobalTypeSymbol("SymbolConstructor" as __String, reportErrors) */ TODO
+		deferredGlobalESSymbolConstructorTypeSymbol = deferredGlobalESSymbolConstructorTypeSymbol || getGlobalTypeSymbol("SymbolConstructor" /* as __String */, reportErrors)
+		return deferredGlobalESSymbolConstructorTypeSymbol
 	}
 	getGlobalESSymbolType := func() ObjectType {
 		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalESSymbolType ||= getGlobalType("Symbol" as __String, /*arity* / 0, /*reportErrors* / false) */ TODO) || emptyObjectType
@@ -16021,7 +16026,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseLikeType ||= getGlobalType("PromiseLike" as __String, /*arity* / 1, reportErrors) */ TODO) || emptyGenericType
 	}
 	getGlobalPromiseConstructorSymbol := func(reportErrors bool) Symbol {
-		return /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseConstructorSymbol ||= getGlobalValueSymbol("Promise" as __String, reportErrors) */ TODO
+		deferredGlobalPromiseConstructorSymbol = deferredGlobalPromiseConstructorSymbol || getGlobalValueSymbol("Promise" /* as __String */, reportErrors)
+		return deferredGlobalPromiseConstructorSymbol
 	}
 	getGlobalPromiseConstructorLikeType := func(reportErrors bool) ObjectType {
 		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalPromiseConstructorLikeType ||= getGlobalType("PromiseConstructorLike" as __String, /*arity* / 0, reportErrors) */ TODO) || emptyObjectType
@@ -16089,8 +16095,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalExtractSymbol := func() Symbol {
 		// We always report an error, so cache a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalExtractSymbol ||= getGlobalTypeAliasSymbol("Extract" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
-		TODO
+		deferredGlobalExtractSymbol = deferredGlobalExtractSymbol || getGlobalTypeAliasSymbol("Extract" /* as __String */ /*arity*/, 2 /*reportErrors*/, true) || unknownSymbol
 		if deferredGlobalExtractSymbol == unknownSymbol {
 			return nil
 		} else {
@@ -16099,8 +16104,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalOmitSymbol := func() Symbol {
 		// We always report an error, so cache a result in the event we could not resolve the symbol to prevent reporting it multiple times
-		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalOmitSymbol ||= getGlobalTypeAliasSymbol("Omit" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */
-		TODO
+		deferredGlobalOmitSymbol = deferredGlobalOmitSymbol || getGlobalTypeAliasSymbol("Omit" /* as __String */ /*arity*/, 2 /*reportErrors*/, true) || unknownSymbol
 		if deferredGlobalOmitSymbol == unknownSymbol {
 			return nil
 		} else {
@@ -16109,8 +16113,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	}
 	getGlobalAwaitedSymbol := func(reportErrors bool) Symbol {
 		// Only cache `unknownSymbol` if we are reporting errors so that we don't report the error more than once.
-		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalAwaitedSymbol ||= getGlobalTypeAliasSymbol("Awaited" as __String, /*arity* / 1, reportErrors) || (reportErrors ? unknownSymbol : undefined) */
-		TODO
+		deferredGlobalAwaitedSymbol = deferredGlobalAwaitedSymbol || getGlobalTypeAliasSymbol("Awaited" /* as __String */ /*arity*/, 1, reportErrors) || (__COND__(reportErrors, unknownSymbol, nil))
 		if deferredGlobalAwaitedSymbol == unknownSymbol {
 			return nil
 		} else {
@@ -16148,7 +16151,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalNaNSymbol ||= getGlobalValueSymbol("NaN" as __String, /*reportErrors* / false) */ TODO)
 	}
 	getGlobalRecordSymbol := func() Symbol {
-		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalRecordSymbol ||= getGlobalTypeAliasSymbol("Record" as __String, /*arity* / 2, /*reportErrors* / true) || unknownSymbol */ TODO
+		deferredGlobalRecordSymbol = deferredGlobalRecordSymbol || getGlobalTypeAliasSymbol("Record" /* as __String */ /*arity*/, 2 /*reportErrors*/, true) || unknownSymbol
 		if deferredGlobalRecordSymbol == unknownSymbol {
 			return nil
 		} else {
@@ -21328,8 +21331,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		hasInstantiable := false
 		hasNullableOrEmpty := false
 		for _, t := range type_.types {
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasInstantiable ||= !!(t.flags & TypeFlags.Instantiable) */ TODO
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasNullableOrEmpty ||= !!(t.flags & TypeFlags.Nullable) || isEmptyAnonymousObjectType(t) */ TODO
+			hasInstantiable = hasInstantiable || !!(t.flags & TypeFlagsInstantiable)
+			hasNullableOrEmpty = hasNullableOrEmpty || !!(t.flags & TypeFlagsNullable) || isEmptyAnonymousObjectType(t)
 			if hasInstantiable && hasNullableOrEmpty {
 				return true
 			}
@@ -25130,12 +25133,12 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					errorReported = true
 				} else {
 					for _, t := range (type_ /* as UnionType */).types {
-						/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: errorReported ||= reportWideningErrorsInType(t) */ TODO
+						errorReported = errorReported || reportWideningErrorsInType(t)
 					}
 				}
 			} else if isArrayOrTupleType(type_) {
 				for _, t := range getTypeArguments(type_) {
-					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: errorReported ||= reportWideningErrorsInType(t) */ TODO
+					errorReported = errorReported || reportWideningErrorsInType(t)
 				}
 			} else if isObjectLiteralType(type_) {
 				for _, p := range getPropertiesOfObjectType(type_) {
@@ -27852,7 +27855,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			} else {
 				mapped = mapper(t)
 			}
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: changed ||= t !== mapped */ TODO
+			changed = changed || t != mapped
 			if mapped {
 				if !mappedTypes {
 					mappedTypes = []Type{mapped}
@@ -30783,7 +30786,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				} else if isJSConstructor(container) {
 					thisType = (getDeclaredTypeOfSymbol(getMergedSymbol(container.symbol)) /* as InterfaceType */).thisType
 				}
-				/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: thisType ||= getContextualThisParameterType(container) */ TODO
+				thisType = thisType || getContextualThisParameterType(container)
 			}
 			if thisType {
 				return getFlowTypeOfReference(node, thisType)
@@ -31554,7 +31557,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					valueDeclaration = nil
 				}
 			}
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: valueDeclaration ||= binaryExpression.symbol?.valueDeclaration */ TODO
+			valueDeclaration = valueDeclaration || binaryExpression.symbol. /* ? */ valueDeclaration
 			annotated := valueDeclaration && getEffectiveTypeAnnotationNode(valueDeclaration)
 			if annotated {
 				return getTypeFromTypeNode(annotated)
@@ -37201,7 +37204,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			hasSignatures := false
 			hasApplicableSignature := false
 			result := getInstantiatedTypePart(type_)
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasSomeApplicableSignature ||= hasApplicableSignature */ TODO
+			hasSomeApplicableSignature = hasSomeApplicableSignature || hasApplicableSignature
 			if hasSignatures && !hasApplicableSignature {
 				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: nonApplicableType ??= type */ TODO
 			}
@@ -37211,8 +37214,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					resolved := resolveStructuredTypeMembers(type_ /* as ObjectType */)
 					callSignatures := getInstantiatedSignatures(resolved.callSignatures)
 					constructSignatures := getInstantiatedSignatures(resolved.constructSignatures)
-					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasSignatures ||= resolved.callSignatures.length !== 0 || resolved.constructSignatures.length !== 0 */ TODO
-					/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: hasApplicableSignature ||= callSignatures.length !== 0 || constructSignatures.length !== 0 */ TODO
+					hasSignatures = hasSignatures || resolved.callSignatures.length != 0 || resolved.constructSignatures.length != 0
+					hasApplicableSignature = hasApplicableSignature || callSignatures.length != 0 || constructSignatures.length != 0
 					if callSignatures != resolved.callSignatures || constructSignatures != resolved.constructSignatures {
 						result := createAnonymousType(createSymbol(SymbolFlagsNone, InternalSymbolNameInstantiationExpression), resolved.members, callSignatures, constructSignatures, resolved.indexInfos) /* as ResolvedType & InstantiationExpressionType */
 						result.objectFlags |= ObjectFlagsInstantiationExpressionType
@@ -38651,7 +38654,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 								instantiatedContextualSignature = instantiateSignature(contextualSignature, inferenceContext.nonFixingMapper)
 							}
 						}
-						/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: instantiatedContextualSignature ||= inferenceContext ? instantiateSignature(contextualSignature, inferenceContext.mapper) : contextualSignature */ TODO
+						if inferenceContext {
+							instantiatedContextualSignature = instantiatedContextualSignature || instantiateSignature(contextualSignature, inferenceContext.mapper)
+						} else {
+							instantiatedContextualSignature = instantiatedContextualSignature || contextualSignature
+						}
 						assignContextualParameterTypes(signature, instantiatedContextualSignature)
 					} else {
 						// Force resolution of all parameter types such that the absence of a contextual type is consistently reflected.
@@ -47235,7 +47242,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		enclosingFile := getSourceFileOfNode(node)
 		links := getNodeLinks(enclosingFile)
 		if !(links.flags & NodeCheckFlagsTypeChecked) {
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: links.deferredNodes ||= new Set() */ TODO
+			links.deferredNodes = links.deferredNodes || NewSet()
 			links.deferredNodes.add(node)
 		} else {
 			Debug.assert(!links.deferredNodes, "A type-checked file should have no deferred nodes.")
@@ -48834,7 +48841,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		} else {
 			resolvedValueSymbol = valueSymbol
 		}
-		/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: isTypeOnly ||= !!(valueSymbol && getTypeOnlyAliasDeclaration(valueSymbol, SymbolFlags.Value)) */ TODO
+		isTypeOnly = isTypeOnly || !!(valueSymbol && getTypeOnlyAliasDeclaration(valueSymbol, SymbolFlagsValue))
 		// Resolve the symbol as a type so that we can provide a more useful hint for the type serializer.
 		typeSymbol := resolveEntityName(typeName, SymbolFlagsType /*ignoreErrors*/, true /*dontResolveAlias*/, true, location)
 		var resolvedTypeSymbol Symbol
@@ -48845,7 +48852,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		// In case the value symbol can't be resolved (e.g. because of missing declarations), use type symbol for reachability check.
 		if !valueSymbol {
-			/* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: isTypeOnly ||= !!(typeSymbol && getTypeOnlyAliasDeclaration(typeSymbol, SymbolFlags.Type)) */ TODO
+			isTypeOnly = isTypeOnly || !!(typeSymbol && getTypeOnlyAliasDeclaration(typeSymbol, SymbolFlagsType))
 		}
 		if resolvedValueSymbol && resolvedValueSymbol == resolvedTypeSymbol {
 			globalPromiseSymbol := getGlobalPromiseConstructorSymbol(false)

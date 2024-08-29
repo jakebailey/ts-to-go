@@ -666,6 +666,7 @@ function isAssignmentOperator(kind: ts.SyntaxKind): boolean {
         case ts.SyntaxKind.CaretEqualsToken:
         case ts.SyntaxKind.LessThanLessThanEqualsToken:
         case ts.SyntaxKind.GreaterThanGreaterThanEqualsToken:
+        case ts.SyntaxKind.BarBarEqualsToken:
             return true;
         default:
             return false;
@@ -706,7 +707,14 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
                 if (Node.isConditionalExpression(right)) {
                     writeConditionalExpression(right, () => {
                         visitExpression(left);
-                        writer.write(` ${tok} `);
+                        if (tok === "||=") {
+                            writer.write(" = ");
+                            visitExpression(left);
+                            writer.write(" || ");
+                        }
+                        else {
+                            writer.write(` ${tok} `);
+                        }
                     });
                     return;
                 }
@@ -720,7 +728,14 @@ function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
     }
 
     visitExpression(node.getLeft());
-    writer.write(` ${tok} `);
+    if (tok === "||=") {
+        writer.write(" = ");
+        visitExpression(node.getLeft());
+        writer.write(" || ");
+    }
+    else {
+        writer.write(` ${tok} `);
+    }
     visitExpression(node.getRight());
 }
 
