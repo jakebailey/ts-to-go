@@ -517,7 +517,6 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
                 else {
                     writeTodoNode(prop);
                 }
-                writer.newLineIfLastNot();
                 writeTrailingComments(prop);
                 writer.newLineIfLastNot();
             }
