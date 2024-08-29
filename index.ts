@@ -89,6 +89,8 @@ function typeStringToGo(text: string): string {
             return "bool";
         case "void":
             return "";
+        case "object":
+            return "any";
     }
 
     if (isIdentifier(text)) {
@@ -180,6 +182,9 @@ function visitTypeNode(type: TypeNode): void {
     }
     else if (Node.isNeverKeyword(type)) {
         writer.write("never");
+    }
+    else if (Node.isObjectKeyword(type)) {
+        writer.write("any");
     }
     else if (type.getText() === "void") {
         const parent = type.getParentIfKind(ts.SyntaxKind.FunctionType);

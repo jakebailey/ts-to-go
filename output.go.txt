@@ -14327,7 +14327,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		if type_.resolvedBaseConstraint {
 			return type_.resolvedBaseConstraint
 		}
-		var stack [] /* TODO(TS-TO-GO) Node ObjectKeyword: object */ any = []never{}
+		var stack []any = []never{}
 		type_.resolvedBaseConstraint = getImmediateBaseConstraint(type_)
 		return type_.resolvedBaseConstraint
 		getImmediateBaseConstraint := func(t Type) Type {
@@ -25574,7 +25574,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		}
 		return type_
 	}
-	hasMatchingRecursionIdentity := func(type_ Type, identity /* TODO(TS-TO-GO) Node ObjectKeyword: object */ any) bool {
+	hasMatchingRecursionIdentity := func(type_ Type, identity any) bool {
 		if (getObjectFlags(type_) & ObjectFlagsInstantiatedMapped) == ObjectFlagsInstantiatedMapped {
 			type_ = getMappedTargetWithSymbol(type_)
 		}
@@ -25591,7 +25591,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	// instantiations of that type have the same recursion identity. The default recursion identity is the object
 	// identity of the type, meaning that every type is unique. Generally, types with constituents that could circularly
 	// reference the type have a recursion identity that differs from the object identity.
-	getRecursionIdentity := func(type_ Type) /* TODO(TS-TO-GO) Node ObjectKeyword: object */ any {
+	getRecursionIdentity := func(type_ Type) any {
 		// Object and array literals are known not to contain recursive references and don't need a recursion identity.
 		if type_.flags&TypeFlagsObject && !isObjectOrArrayLiteralType(type_) {
 			if getObjectFlags(type_)&ObjectFlagsReference && (type_ /* as TypeReference */).node {
