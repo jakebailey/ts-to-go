@@ -139,6 +139,12 @@ function typeStringToGo(text: string): string {
         return `Map[${typeStringToGo(key)}, ${typeStringToGo(value)}]`;
     }
 
+    const nodeArray = "NodeArray<";
+    if (text.startsWith(nodeArray)) {
+        text = text.slice(nodeArray.length, -1);
+        return `NodeArray[${typeStringToGo(text)}]`;
+    }
+
     const todoName = "Type";
     const count = todoCounts.get(todoName) || 0;
     todoCounts.set(todoName, count + 1);

@@ -5280,8 +5280,8 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					return symbolToExpression(symbol, context, meaning)
 				})
 			},
-			"symbolToTypeParameterDeclarations": func(symbol Symbol, enclosingDeclaration Node, flags NodeBuilderFlags, internalFlags InternalNodeBuilderFlags, tracker SymbolTracker) /* TODO(TS-TO-GO) inferred type NodeArray<TypeParameterDeclaration> */ any {
-				return withContext(enclosingDeclaration, flags, internalFlags, tracker, func(context NodeBuilderContext) /* TODO(TS-TO-GO) inferred type NodeArray<TypeParameterDeclaration> */ any {
+			"symbolToTypeParameterDeclarations": func(symbol Symbol, enclosingDeclaration Node, flags NodeBuilderFlags, internalFlags InternalNodeBuilderFlags, tracker SymbolTracker) NodeArray[TypeParameterDeclaration] {
+				return withContext(enclosingDeclaration, flags, internalFlags, tracker, func(context NodeBuilderContext) NodeArray[TypeParameterDeclaration] {
 					return typeParametersToTypeParameterDeclarations(symbol, context)
 				})
 			},
@@ -7090,7 +7090,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				}
 			}
 		}
-		typeParametersToTypeParameterDeclarations := func(symbol Symbol, context NodeBuilderContext) /* TODO(TS-TO-GO) inferred type NodeArray<TypeParameterDeclaration> */ any {
+		typeParametersToTypeParameterDeclarations := func(symbol Symbol, context NodeBuilderContext) NodeArray[TypeParameterDeclaration] {
 			var typeParameterNodes *NodeArray[TypeParameterDeclaration]
 			targetSymbol := getTargetSymbol(symbol)
 			if targetSymbol.flags & (SymbolFlagsClass | SymbolFlagsInterface | SymbolFlagsTypeAlias) {
@@ -8506,7 +8506,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 					nonExports := filter(statements, func(d Statement) bool {
 						return !isExportDeclaration(d) || !!d.moduleSpecifier || !d.exportClause
 					})
-					statements = []Statement{ /* TODO(TS-TO-GO) Node SpreadElement: ...nonExports */ factory.createExportDeclaration(nil, false, factory.createNamedExports(flatMap(exports, func(e ExportDeclaration) /* TODO(TS-TO-GO) inferred type NodeArray<ExportSpecifier> */ any {
+					statements = []Statement{ /* TODO(TS-TO-GO) Node SpreadElement: ...nonExports */ factory.createExportDeclaration(nil, false, factory.createNamedExports(flatMap(exports, func(e ExportDeclaration) NodeArray[ExportSpecifier] {
 						return cast(e.exportClause, isNamedExports).elements
 					})), nil)}
 				}
@@ -8528,7 +8528,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 						for _, group := range groups {
 							if group.length > 1 {
 								// remove group members from statements and then merge group members and add back to statements
-								statements = []Statement{ /* TODO(TS-TO-GO) Node SpreadElement: ...filter(statements, s => !group.includes(s as ExportDeclaration)) */ factory.createExportDeclaration(nil, false, factory.createNamedExports(flatMap(group, func(e ExportDeclaration) /* TODO(TS-TO-GO) inferred type NodeArray<ExportSpecifier> */ any {
+								statements = []Statement{ /* TODO(TS-TO-GO) Node SpreadElement: ...filter(statements, s => !group.includes(s as ExportDeclaration)) */ factory.createExportDeclaration(nil, false, factory.createNamedExports(flatMap(group, func(e ExportDeclaration) NodeArray[ExportSpecifier] {
 									return cast(e.exportClause, isNamedExports).elements
 								})), group[0].moduleSpecifier)}
 							}
@@ -11822,7 +11822,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case (node /* as JSDoc */).tags:
-					return appendTypeParameters(outerTypeParameters, flatMap((node /* as JSDoc */).tags, func(t JSDocTag) /* TODO(TS-TO-GO) inferred type NodeArray<TypeParameterDeclaration> */ any {
+					return appendTypeParameters(outerTypeParameters, flatMap((node /* as JSDoc */).tags, func(t JSDocTag) NodeArray[TypeParameterDeclaration] {
 						// TODO(TS-TO-GO): converted from conditional expression
 						switch {
 						case isJSDocTemplateTag(t):
