@@ -4308,7 +4308,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			}
 			if exportStar. /* TODO(TS-TO-GO): was ? */ isTypeOnly {
 				/* TODO(TS-TO-GO) Node BinaryExpression: typeOnlyExportStarMap ??= new Map() */ TODO
-				symbols.forEach(func(_ Symbol, escapedName __String) /* TODO(TS-TO-GO) inferred type Map<__String, ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; }> */ any {
+				symbols.forEach(func(_ Symbol, escapedName __String) Map[__String /* TODO(TS-TO-GO) inferred type ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */, any] {
 					return typeOnlyExportStarMap.set(escapedName, exportStar /* as ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */)
 				})
 			}
@@ -4714,7 +4714,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 			return SymbolFlagsNamespace
 		}
 	}
-	getAccessibleSymbolChain := func(symbol *Symbol, enclosingDeclaration Node, meaning SymbolFlags, useOnlyExternalAliasing bool, visitedSymbolTablesMap /* TODO(TS-TO-GO) inferred type Map<number, SymbolTable[]> */ any /*  = new Map<SymbolId, SymbolTable[]>() */) *[]Symbol {
+	getAccessibleSymbolChain := func(symbol *Symbol, enclosingDeclaration Node, meaning SymbolFlags, useOnlyExternalAliasing bool, visitedSymbolTablesMap Map[number, []SymbolTable] /*  = new Map<SymbolId, SymbolTable[]>() */) *[]Symbol {
 		if !(symbol && !isPropertyOrMethodDeclarationSymbol(symbol)) {
 			return nil
 		}
@@ -28633,7 +28633,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 	// types of the property by that name in each constituent type. No map is returned if some key property
 	// has a non-literal type or if less than 10 or less than 50% of the constituents have a unique key.
 	// Entries with duplicate keys have unknownType as the value.
-	mapTypesByKeyProperty := func(types []Type, name __String) /* TODO(TS-TO-GO) inferred type Map<number, Type> */ any {
+	mapTypesByKeyProperty := func(types []Type, name __String) Map[number, Type] {
 		map_ := NewMap[TypeId, Type]()
 		count := 0
 		for _, type_ := range types {
@@ -43373,7 +43373,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 				default:
 					privateStaticFlags = 0
 				}
-				var names /* TODO(TS-TO-GO) inferred type Map<__String, DeclarationMeaning> */ any
+				var names Map[__String, DeclarationMeaning]
 				// TODO(TS-TO-GO): converted from conditional expression
 				switch {
 				case isPrivate:

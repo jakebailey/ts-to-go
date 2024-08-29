@@ -132,12 +132,12 @@ function typeStringToGo(text: string): string {
         return `Set[${typeStringToGo(text)}]`;
     }
 
-    // const map = "Map<";
-    // if (text.startsWith(map)) {
-    //     text = text.slice(map.length, -1);
-    //     const [key, value] = text.split(", ", 2);
-    //     return `Map[${typeStringToGo(key)}]${typeStringToGo(value)}`;
-    // }
+    const map = "Map<";
+    if (text.startsWith(map)) {
+        text = text.slice(map.length, -1);
+        const [key, value] = text.split(", ", 2);
+        return `Map[${typeStringToGo(key)}, ${typeStringToGo(value)}]`;
+    }
 
     const todoName = "Type";
     const count = todoCounts.get(todoName) || 0;
