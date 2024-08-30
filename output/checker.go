@@ -15286,7 +15286,7 @@ func (tc *TypeChecker) tryFindAmbientModule(moduleName string, withAugmentations
 	if isExternalModuleNameRelative(moduleName) {
 		return nil
 	}
-	symbol := tc.getSymbol(tc.globals, '"'+moduleName+'"' /* as __String */, SymbolFlagsValueModule)
+	symbol := tc.getSymbol(tc.globals, "\""+moduleName+"\"" /* as __String */, SymbolFlagsValueModule)
 	// merged symbol is module declaration symbol combined with all augmentations
 	if symbol && withAugmentations {
 		return tc.getMergedSymbol(symbol)
@@ -36278,7 +36278,7 @@ func (tc *TypeChecker) getSpellingSuggestionForName(name string, symbols []Symbo
 	return getSpellingSuggestion(name, symbols, getCandidateName)
 	getCandidateName := func(candidate Symbol) *string {
 		candidateName := symbolName(candidate)
-		if startsWith(candidateName, '"') {
+		if startsWith(candidateName, "\"") {
 			return nil
 		}
 		if candidate.flags & meaning {

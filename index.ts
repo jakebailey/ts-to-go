@@ -14,7 +14,6 @@ import {
     ExpressionStatement,
     FunctionDeclaration,
     FunctionExpression,
-    Identifier,
     IfStatement,
     MethodDeclaration,
     Node,
@@ -46,9 +45,14 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         case "TypeChecker":
             methodReceiver = "tc";
             break;
+        case "Binder":
+            methodReceiver = "binder";
+            break;
         default:
             throw new Error(`Unknown main struct: ${mainStruct}`);
     }
+
+    console.log(`Converting ${filename} to ${output}...`);
 
     const sourceFile = project.getSourceFileOrThrow(pathFor(filename));
 
@@ -389,7 +393,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.write(`regexp.MustParse(\`${source}\`)`);
         }
         else if (Node.isLiteralExpression(node)) {
-            writer.write(node.getText());
+            if (Node.isStringLiteral(node)) {
+                writer.write(JSON.stringify(node.getLiteralValue()));
+            }
+            else {
+                writer.write(node.getText());
+            }
         }
         else if (Node.isAsExpression(node)) {
             visitExpression(node.getExpression());
@@ -408,7 +417,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 if (structFields.has(id)) {
                     const decl = node.getSymbolOrThrow().getValueDeclarationOrThrow();
                     if (isVariableForMainStruct(decl)) {
-                        writer.write(`tc.${id}`);
+                        writer.write(`${methodReceiver}.${id}`);
                     }
                     else {
                         writer.write(id);
@@ -1016,7 +1025,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
 
             if (isStructMethod) {
-                writer.write(`func (tc *${mainStruct}) ${getNameOfNamed(node)}`);
+                writer.write(`func (${methodReceiver} *${mainStruct}) ${getNameOfNamed(node)}`);
             }
             else if (!isGlobal) {
                 writer.write(`${getNameOfNamed(node)} := func`);
@@ -1570,15 +1579,16 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     const formatted = await execa("gofmt", ["-w", output], { reject: false });
     if (formatted.exitCode === 0) {
         // await Bun.write(outFile, formatted.stdout);
-        console.log("All good!");
+        console.log("    All good!");
     }
     else {
         console.log(formatted.stderr);
     }
 
     const totalTodo = [...todoCounts.values()].reduce((a, b) => a + b, 0);
-    console.log(`Total TODOs: ${totalTodo}`);
-    console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join("\n"));
+    console.log(`    Total TODOs: ${totalTodo}`);
+    console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `    ${k} ${v}`).join("\n"));
 }
 
 await convert("checker.ts", "output/checker.go", "TypeChecker");
+await convert("binder.ts", "output/binder.go", "Binder");
