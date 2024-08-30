@@ -41,15 +41,20 @@ const project = new Project({
 async function convert(filename: string, output: string, mainStruct?: string) {
     const createFunction = mainStruct ? `create${mainStruct}` : undefined;
     let methodReceiver: string | undefined;
-    switch (mainStruct) {
-        case "TypeChecker":
-            methodReceiver = "tc";
-            break;
-        case "Binder":
-            methodReceiver = "binder";
-            break;
-        default:
-            throw new Error(`Unknown main struct: ${mainStruct}`);
+    if (mainStruct) {
+        switch (mainStruct) {
+            case "TypeChecker":
+                methodReceiver = "tc";
+                break;
+            case "Binder":
+                methodReceiver = "binder";
+                break;
+            case "Scanner":
+                methodReceiver = "scanner";
+                break;
+            default:
+                throw new Error(`Unknown main struct: ${mainStruct}`);
+        }
     }
 
     console.log(`Converting ${filename} to ${output}...`);
@@ -451,6 +456,10 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 visitExpression(node.getOperand());
                 writer.write(token);
             }
+            else if (token === "++" || token === "--") {
+                writeTodoNode(node);
+                writer.write(` TODO`);
+            }
             else {
                 writer.write(token);
                 visitExpression(node.getOperand());
@@ -477,8 +486,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 const type = expression.getType();
                 if (type.isEnum()) {
                     const enumName = expression.getText();
-                    const enumMember = node.getNameNode();
-                    writer.write(`${enumName}${enumMember.getText()}`);
+                    writer.write(`${enumName}${getNameOfNamed(node)}`);
                     return;
                 }
             }
@@ -582,14 +590,24 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         else if (Node.isPostfixUnaryExpression(node)) {
             const tokenStr = ts.tokenToString(node.getOperatorToken());
             if (tokenStr) {
+                if (!inStatement && (tokenStr === "++" || tokenStr === "--")) {
+                    writeTodoNode(node);
+                    writer.write(` TODO`);
+                    return;
+                }
+
                 visitExpression(node.getOperand());
                 writer.write(tokenStr);
                 return;
             }
+            writeTodoNode(node);
+            writer.write(` TODO`);
+            return;
         }
         else if (Node.isSpreadElement(node)) {
             visitExpression(node.getExpression());
             writer.write("...");
+            return;
         }
         else if (Node.isArrayLiteralExpression(node)) {
             writer.write("[]");
@@ -808,10 +826,16 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case "switch":
             case "type":
             case "var":
-                return `${name}_`;
+                name = `${name}_`;
+                break;
             default:
-                return name || "TODO";
+                name = name || "TODO";
+                break;
         }
+
+        name = name.replaceAll("$", "_DOLLAR_");
+
+        return name;
     }
 
     function getNameOfNamed(node: { getName(): string | undefined; }) {
@@ -1002,6 +1026,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     function visitStatement2(node: Statement, isStructMethod: boolean) {
         writer.newLineIfLastNot();
 
+        const isGlobal = node.getParentIfKind(ts.SyntaxKind.SourceFile) !== undefined;
+
         if (Node.isImportDeclaration(node)) {
             return;
         }
@@ -1064,10 +1090,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.indent(() => {
                 const members = node.getMembers();
                 for (const member of members) {
-                    if (Node.isMethodSignature(member)) {
-                        assert.fail("oops");
-                    }
-                    else if (Node.isPropertySignature(member)) {
+                    if (Node.isPropertySignature(member)) {
                         writer.write(`${getNameOfNamed(member)} `);
                         visitTypeNode(member.getTypeNodeOrThrow());
                         writer.newLine();
@@ -1243,13 +1266,13 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isExpressionStatement(node)) {
+        if (!isGlobal && Node.isExpressionStatement(node)) {
             // Handling expressions separately so we _don't_ handle side effect expressions in writeExpression
             visitExpressionStatement(node);
             return;
         }
 
-        if (Node.isReturnStatement(node)) {
+        if (!isGlobal && Node.isReturnStatement(node)) {
             writer.newLineIfLastNot();
 
             const expression = node.getExpression();
@@ -1276,7 +1299,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isContinueStatement(node)) {
+        if (!isGlobal && Node.isContinueStatement(node)) {
             const label = node.getLabel();
             writer.write("continue");
             if (label) {
@@ -1286,7 +1309,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isBreakStatement(node)) {
+        if (!isGlobal && Node.isBreakStatement(node)) {
             const label = node.getLabel();
             writer.write("break");
             if (label) {
@@ -1296,12 +1319,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isIfStatement(node)) {
+        if (!isGlobal && Node.isIfStatement(node)) {
             visitIfStatement(node);
             return;
         }
 
-        if (Node.isForOfStatement(node)) {
+        if (!isGlobal && Node.isForOfStatement(node)) {
             writer.write("for _, ");
             const initializer = node.getInitializer();
             if (Node.isVariableDeclarationList(initializer)) {
@@ -1321,7 +1344,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isForStatement(node)) {
+        if (!isGlobal && Node.isForStatement(node)) {
             writer.write("for ");
             const initializer = node.getInitializer();
             if (initializer) {
@@ -1359,7 +1382,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isWhileStatement(node)) {
+        if (!isGlobal && Node.isWhileStatement(node)) {
             writer.write("for ");
             visitExpression(node.getExpression());
             writer.write(" {");
@@ -1371,7 +1394,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isDoStatement(node)) {
+        if (!isGlobal && Node.isDoStatement(node)) {
             writer.write("for ok := true; ok; ok = ");
             visitExpression(node.getExpression());
             writer.write(" { // do-while loop");
@@ -1383,12 +1406,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isBlock(node)) {
+        if (!isGlobal && Node.isBlock(node)) {
             visitBlock(node);
             return;
         }
 
-        if (Node.isSwitchStatement(node)) {
+        if (!isGlobal && Node.isSwitchStatement(node)) {
             writer.write("switch ");
             visitExpression(node.getExpression());
             writer.write(" {");
@@ -1497,14 +1520,14 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             return;
         }
 
-        if (Node.isLabeledStatement(node)) {
+        if (!isGlobal && Node.isLabeledStatement(node)) {
             const label = node.getLabel().getText();
             writer.write(`${sanitizeName(label)}: `);
             visitStatement(node.getStatement());
             return;
         }
 
-        if (Node.isTryStatement(node)) {
+        if (!isGlobal && Node.isTryStatement(node)) {
             writer.write("{ // try");
             writer.indent(() => {
                 visitStatement(node.getTryBlock());
@@ -1592,3 +1615,5 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
 await convert("checker.ts", "output/checker.go", "TypeChecker");
 await convert("binder.ts", "output/binder.go", "Binder");
+await convert("scanner.ts", "output/scanner.go", "Scanner");
+await convert("parser.ts", "output/parser.go");
