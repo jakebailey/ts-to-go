@@ -1581,4 +1581,4 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join("\n"));
 }
 
-await convert("checker.ts", "output.go.txt", "TypeChecker");
+await convert("checker.ts", "output/checker.go", "TypeChecker");
