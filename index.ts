@@ -8,11 +8,13 @@ import {
     Block,
     BodyableNode,
     type CaseOrDefaultClause,
+    CommentStatement,
     ConditionalExpression,
     Expression,
     ExpressionStatement,
     FunctionDeclaration,
     FunctionExpression,
+    Identifier,
     IfStatement,
     MethodDeclaration,
     Node,
@@ -350,6 +352,11 @@ function writeConditionalExpressionAsIfElse(node: ConditionalExpression, sideEff
     writer.write("}");
 }
 
+function isVariableDefinedInTypeChecker(node: Node) {
+    const block = node.getFirstAncestorByKind(ts.SyntaxKind.Block);
+    return block?.getParentIfKind(ts.SyntaxKind.FunctionDeclaration)?.getName() === "createTypeChecker";
+}
+
 function visitExpression(node: Expression, inStatement?: boolean): void {
     if (Node.isRegularExpressionLiteral(node)) {
         const re = node.getLiteralValue();
@@ -385,7 +392,19 @@ function visitExpression(node: Expression, inStatement?: boolean): void {
             writer.write("nil");
         }
         else {
-            writer.write(sanitizeName(node.getText()));
+            const id = sanitizeName(node.getText());
+            if (checkerFields.has(id)) {
+                const decl = node.getSymbolOrThrow().getValueDeclarationOrThrow();
+                if (isVariableDefinedInTypeChecker(decl)) {
+                    writer.write(`tc.${id}`);
+                }
+                else {
+                    writer.write(id);
+                }
+            }
+            else {
+                writer.write(id);
+            }
         }
     }
     else if (Node.isCallExpression(node)) {
@@ -925,20 +944,41 @@ function writeTrailingComments(node: Node) {
     }
 }
 
+let typeCheckerScanState: "before" | "after" | (FunctionDeclaration | CommentStatement)[] = "before";
+
 function visitStatement(node: Statement) {
+    let isTypeCheckerMethod = false;
+    if (isVariableDefinedInTypeChecker(node)) {
+        if (Node.isFunctionDeclaration(node) || Node.isCommentStatement(node)) {
+            if (typeCheckerScanState === "before") {
+                // Do nothing
+            }
+            else if (typeCheckerScanState === "after") {
+                isTypeCheckerMethod = true;
+            }
+            else {
+                typeCheckerScanState.push(node);
+                return;
+            }
+        }
+        else if (Node.isReturnStatement(node)) {
+            typeCheckerScanState = [];
+        }
+    }
+
     writer.newLineIfLastNot();
     if (!node.getPreviousSibling()?.getKindName()?.endsWith("Trivia")) {
         writeLeadingComments(node);
     }
 
-    visitStatement2(node);
+    visitStatement2(node, isTypeCheckerMethod);
 
     if (!node.getNextSibling()?.getKindName()?.endsWith("Trivia")) {
         writeTrailingComments(node);
     }
 }
 
-function visitStatement2(node: Statement) {
+function visitStatement2(node: Statement, isTypeCheckerMethod: boolean) {
     writer.newLineIfLastNot();
 
     if (Node.isImportDeclaration(node)) {
@@ -963,7 +1003,10 @@ function visitStatement2(node: Statement) {
 
         const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
 
-        if (!isGlobal) {
+        if (isTypeCheckerMethod) {
+            writer.write(`func (tc *TypeChecker) ${getNameOfNamed(node)}`);
+        }
+        else if (!isGlobal) {
             writer.write(`${getNameOfNamed(node)} := func`);
             if (node.isGenerator()) {
                 writer.write("/* generator */");
@@ -981,6 +1024,15 @@ function visitStatement2(node: Statement) {
         writeBody(node);
 
         writer.newLine();
+        writer.newLine();
+
+        if (node.getName() === "createTypeChecker") {
+            const funcs = typeCheckerScanState;
+            assert(Array.isArray(funcs));
+            typeCheckerScanState = "after";
+            funcs.forEach(visitStatement);
+        }
+
         return;
     }
 
@@ -1018,6 +1070,14 @@ function visitStatement2(node: Statement) {
         for (const declaration of declarations) {
             const typeNode = declaration.getTypeNode();
             const initializer = declaration.getInitializer();
+
+            if (isVariableDefinedInTypeChecker(declaration)) {
+                if (initializer) {
+                    writer.write(`tc.${getNameOfNamed(declaration)} = `);
+                    visitExpression(initializer);
+                }
+                continue;
+            }
 
             if (!isGlobal && Node.isConditionalExpression(initializer)) {
                 writer.write(`var ${getNameOfNamed(declaration)} `);
@@ -1452,6 +1512,38 @@ function visitStatement2(node: Statement) {
     writeTodoNode(node);
     // console.error(`Unhandled node kind: ${node.getKindName()}`);
 }
+
+const checkerFields = new Set<string>();
+let seenReturn = false;
+
+writer.write("type TypeChecker struct {");
+
+writer.indent(() => {
+    sourceFile.getFunctionOrThrow("createTypeChecker").getStatements().forEach(statement => {
+        if (!seenReturn && Node.isVariableStatement(statement)) {
+            for (const declaration of statement.getDeclarations()) {
+                checkerFields.add(getNameOfNamed(declaration));
+                writer.write(`${getNameOfNamed(declaration)} `);
+                const typeNode = declaration.getTypeNode();
+                if (typeNode) {
+                    visitTypeNode(typeNode);
+                }
+                else {
+                    writeType(declaration, declaration.getType());
+                }
+                writer.newLine();
+            }
+        }
+        else if (seenReturn && Node.isFunctionDeclaration(statement)) {
+            checkerFields.add(getNameOfNamed(statement));
+        }
+        else if (Node.isReturnStatement(statement)) {
+            seenReturn = true;
+        }
+    });
+});
+
+writer.write("}");
 
 sourceFile.getStatementsWithComments().forEach(visitStatement);
 
