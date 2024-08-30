@@ -1893,9 +1893,11 @@ func (scanner *Scanner) scan() SyntaxKind {
 		case CharacterCodesexclamation:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.ExclamationEqualsEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.ExclamationEqualsEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.ExclamationEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.ExclamationEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindExclamationToken
@@ -1910,7 +1912,8 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodespercent:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.PercentEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.PercentEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindPercentToken
@@ -1918,12 +1921,15 @@ func (scanner *Scanner) scan() SyntaxKind {
 		case CharacterCodesampersand:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesampersand {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.AmpersandAmpersandEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AmpersandAmpersandEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.AmpersandAmpersandToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AmpersandAmpersandToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.AmpersandEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AmpersandEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindAmpersandToken
@@ -1938,13 +1944,16 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodesasterisk:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.AsteriskEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AsteriskEqualsToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesasterisk {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.AsteriskAsteriskEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AsteriskAsteriskEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.AsteriskAsteriskToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AsteriskAsteriskToken */ TODO
 			}
 			scanner.pos++
 			if scanner.skipJsDocLeadingAsterisks && (scanner.tokenFlags&TokenFlagsPrecedingJSDocLeadingAsterisks) == 0 && (scanner.tokenFlags & TokenFlagsPrecedingLineBreak) {
@@ -1956,10 +1965,12 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodesplus:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesplus {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.PlusPlusToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.PlusPlusToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.PlusEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.PlusEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindPlusToken
@@ -1970,10 +1981,12 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodesminus:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesminus {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.MinusMinusToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.MinusMinusToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.MinusEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.MinusEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindMinusToken
@@ -1985,7 +1998,8 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return scanner.token
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesdot && scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesdot {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.DotDotDotToken */ TODO
+				scanner.pos += 3
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.DotDotDotToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindDotToken
@@ -2043,7 +2057,8 @@ func (scanner *Scanner) scan() SyntaxKind {
 				}
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.SlashEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.SlashEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindSlashToken
@@ -2115,15 +2130,19 @@ func (scanner *Scanner) scan() SyntaxKind {
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodeslessThan {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.LessThanLessThanEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.LessThanLessThanEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.LessThanLessThanToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.LessThanLessThanToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.LessThanEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.LessThanEqualsToken */ TODO
 			}
 			if languageVariant == LanguageVariantJSX && scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesslash && scanner.charCodeUnchecked(scanner.pos+2) != CharacterCodesasterisk {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.LessThanSlashToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.LessThanSlashToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindLessThanToken
@@ -2140,12 +2159,15 @@ func (scanner *Scanner) scan() SyntaxKind {
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.EqualsEqualsEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.EqualsEqualsEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.EqualsEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.EqualsEqualsToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesgreaterThan {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.EqualsGreaterThanToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.EqualsGreaterThanToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindEqualsToken
@@ -2165,13 +2187,16 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodesquestion:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesdot && !isDigit(scanner.charCodeUnchecked(scanner.pos+2)) {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.QuestionDotToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.QuestionDotToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesquestion {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.QuestionQuestionEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.QuestionQuestionEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.QuestionQuestionToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.QuestionQuestionToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindQuestionToken
@@ -2186,7 +2211,8 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodescaret:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.CaretEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.CaretEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindCaretToken
@@ -2207,12 +2233,15 @@ func (scanner *Scanner) scan() SyntaxKind {
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesbar {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.BarBarEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.BarBarEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.BarBarToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.BarBarToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.BarEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.BarEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindBarToken
@@ -2369,12 +2398,15 @@ func (scanner *Scanner) reScanGreaterToken() SyntaxKind {
 		if scanner.charCodeUnchecked(scanner.pos) == CharacterCodesgreaterThan {
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesgreaterThan {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
-					return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 3, token = SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken */ TODO
+					scanner.pos += 3
+					return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken */ TODO
 				}
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.GreaterThanGreaterThanGreaterThanToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.GreaterThanGreaterThanGreaterThanToken */ TODO
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
-				return /* TODO(TS-TO-GO) CommaToken BinaryExpression: pos += 2, token = SyntaxKind.GreaterThanGreaterThanEqualsToken */ TODO
+				scanner.pos += 2
+				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.GreaterThanGreaterThanEqualsToken */ TODO
 			}
 			scanner.pos++
 			scanner.token = SyntaxKindGreaterThanGreaterThanToken

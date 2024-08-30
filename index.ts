@@ -295,7 +295,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 writer.write(` any`);
             }
         }
-        else if (Node.isAnyKeyword(type)) {
+        else if (Node.isAnyKeyword(type) || type.getText() === "unknown") {
             writer.write("any");
         }
         else {
@@ -1276,6 +1276,17 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.newLineIfLastNot();
 
             const expression = node.getExpression();
+            if (Node.isBinaryExpression(expression) && expression.getOperatorToken().isKind(ts.SyntaxKind.CommaToken)) {
+                const left = expression.getLeft();
+                const right = expression.getRight();
+                visitExpression(left, true);
+                writer.newLineIfLastNot();
+                writer.write("return ");
+                visitExpression(right);
+                writer.newLine();
+                return;
+            }
+
             if (Node.isConditionalExpression(expression)) {
                 writeConditionalExpression(expression, () => writer.write("return "));
                 return;

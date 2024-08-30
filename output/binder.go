@@ -217,7 +217,7 @@ const (
 )
 
 /** @internal */
-func createFlowNode(flags FlowFlags, node /* TODO(TS-TO-GO) Node UnknownKeyword: unknown */ any, antecedent /* TODO(TS-TO-GO) TypeNode UnionType: FlowNode | FlowNode[] | undefined */ any) FlowNode {
+func createFlowNode(flags FlowFlags, node any, antecedent /* TODO(TS-TO-GO) TypeNode UnionType: FlowNode | FlowNode[] | undefined */ any) FlowNode {
 	return Debug.attachFlowNodeDebugInfo(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"flags":      flags,
 		"id":         0,
