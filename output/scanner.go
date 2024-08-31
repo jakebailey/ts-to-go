@@ -25,14 +25,17 @@ type Scanner struct {
 	jsDocParsingMode          JSDocParsingMode
 	scanner                   Scanner
 }
+
 type ErrorCallback func(message DiagnosticMessage, length number, arg0 any)
 
 /** @internal */
+
 func tokenIsIdentifierOrKeyword(token SyntaxKind) bool {
 	return token >= SyntaxKindIdentifier
 }
 
 /** @internal */
+
 func tokenIsIdentifierOrKeywordOrGreaterThan(token SyntaxKind) bool {
 	return token == SyntaxKindGreaterThanToken || tokenIsIdentifierOrKeyword(token)
 }
@@ -94,6 +97,7 @@ type Scanner struct {
 }
 
 /** @internal */
+
 var textToKeywordObj MapLike[KeywordSyntaxKind] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	"abstract":        SyntaxKindAbstractKeyword,
 	"accessor":        SyntaxKindAccessorKeyword,
@@ -179,7 +183,9 @@ var textToKeywordObj MapLike[KeywordSyntaxKind] = map[any]any{ /* TODO(TS-TO-GO)
 	"await":           SyntaxKindAwaitKeyword,
 	"of":              SyntaxKindOfKeyword,
 }
+
 var textToKeyword = NewMap(Object.entries(textToKeywordObj))
+
 var textToToken = NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	/* TODO(TS-TO-GO) Node SpreadAssignment: ...textToKeywordObj */
 	"TODO_IDENTIFIER": SyntaxKindOpenBraceToken,
@@ -244,7 +250,9 @@ var textToToken = NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was obje
 	"TODO_IDENTIFIER": SyntaxKindHashToken,
 	"TODO_IDENTIFIER": SyntaxKindBacktickToken,
 }))
+
 var charCodeToRegExpFlag = NewMap[CharacterCodes, RegularExpressionFlags]([] /* TODO(TS-TO-GO) inferred type [CharacterCodes.d, RegularExpressionFlags.HasIndices] | [CharacterCodes.g, RegularExpressionFlags.Global] | [CharacterCodes.i, RegularExpressionFlags.IgnoreCase] | [CharacterCodes.m, RegularExpressionFlags.Multiline] | [CharacterCodes.s, RegularExpressionFlags.DotAll] | [CharacterCodes.u, RegularExpressionFlags.Unicode] | [CharacterCodes.v, RegularExpressionFlags.UnicodeSets] | [CharacterCodes.y, RegularExpressionFlags.Sticky] */ any{[]any{CharacterCodesd, RegularExpressionFlagsHasIndices}, []any{CharacterCodesg, RegularExpressionFlagsGlobal}, []any{CharacterCodesi, RegularExpressionFlagsIgnoreCase}, []any{CharacterCodesm, RegularExpressionFlagsMultiline}, []any{CharacterCodess, RegularExpressionFlagsDotAll}, []any{CharacterCodesu, RegularExpressionFlagsUnicode}, []any{CharacterCodesv, RegularExpressionFlagsUnicodeSets}, []any{CharacterCodesy, RegularExpressionFlagsSticky}})
+
 var regExpFlagToFirstAvailableLanguageVersion = NewMap[RegularExpressionFlags, LanguageFeatureMinimumTarget]([] /* TODO(TS-TO-GO) inferred type [RegularExpressionFlags.HasIndices, LanguageFeatureMinimumTarget.TopLevelAwait] | [RegularExpressionFlags.DotAll, LanguageFeatureMinimumTarget.ForAwaitOf] | [RegularExpressionFlags.Unicode, LanguageFeatureMinimumTarget.Classes] | [RegularExpressionFlags.UnicodeSets, LanguageFeatureMinimumTarget.ShebangComments] | [RegularExpressionFlags.Sticky, LanguageFeatureMinimumTarget.Classes] */ any{[]any{RegularExpressionFlagsHasIndices, LanguageFeatureMinimumTargetRegularExpressionFlagsHasIndices}, []any{RegularExpressionFlagsDotAll, LanguageFeatureMinimumTargetRegularExpressionFlagsDotAll}, []any{RegularExpressionFlagsUnicode, LanguageFeatureMinimumTargetRegularExpressionFlagsUnicode}, []any{RegularExpressionFlagsUnicodeSets, LanguageFeatureMinimumTargetRegularExpressionFlagsUnicodeSets}, []any{RegularExpressionFlagsSticky, LanguageFeatureMinimumTargetRegularExpressionFlagsSticky}})
 
 /*
@@ -282,6 +290,7 @@ var unicodeES5IdentifierPart = []number{170, 170, 181, 181, 186, 186, 192, 214, 
  * unicodeESNextIdentifierPart corresponds to ID_Continue, Other_ID_Continue, plus ID_Start and Other_ID_Start
  */
 // dprint-ignore
+
 var unicodeESNextIdentifierStart = []number{65, 90, 97, 122, 170, 170, 181, 181, 186, 186, 192, 214, 216, 246, 248, 705, 710, 721, 736, 740, 748, 748, 750, 750, 880, 884, 886, 887, 890, 893, 895, 895, 902, 902, 904, 906, 908, 908, 910, 929, 931, 1013, 1015, 1153, 1162, 1327, 1329, 1366, 1369, 1369, 1376, 1416, 1488, 1514, 1519, 1522, 1568, 1610, 1646, 1647, 1649, 1747, 1749, 1749, 1765, 1766, 1774, 1775, 1786, 1788, 1791, 1791, 1808, 1808, 1810, 1839, 1869, 1957, 1969, 1969, 1994, 2026, 2036, 2037, 2042, 2042, 2048, 2069, 2074, 2074, 2084, 2084, 2088, 2088, 2112, 2136, 2144, 2154, 2160, 2183, 2185, 2190, 2208, 2249, 2308, 2361, 2365, 2365, 2384, 2384, 2392, 2401, 2417, 2432, 2437, 2444, 2447, 2448, 2451, 2472, 2474, 2480, 2482, 2482, 2486, 2489, 2493, 2493, 2510, 2510, 2524, 2525, 2527, 2529, 2544, 2545, 2556, 2556, 2565, 2570, 2575, 2576, 2579, 2600, 2602, 2608, 2610, 2611, 2613, 2614, 2616, 2617, 2649, 2652, 2654, 2654, 2674, 2676, 2693, 2701, 2703, 2705, 2707, 2728, 2730, 2736, 2738, 2739, 2741, 2745, 2749, 2749, 2768, 2768, 2784, 2785, 2809, 2809, 2821, 2828, 2831, 2832, 2835, 2856, 2858, 2864, 2866, 2867, 2869, 2873, 2877, 2877, 2908, 2909, 2911, 2913, 2929, 2929, 2947, 2947, 2949, 2954, 2958, 2960, 2962, 2965, 2969, 2970, 2972, 2972, 2974, 2975, 2979, 2980, 2984, 2986, 2990, 3001, 3024, 3024, 3077, 3084, 3086, 3088, 3090, 3112, 3114, 3129, 3133, 3133, 3160, 3162, 3165, 3165, 3168, 3169, 3200, 3200, 3205, 3212, 3214, 3216, 3218, 3240, 3242, 3251, 3253, 3257, 3261, 3261, 3293, 3294, 3296, 3297, 3313, 3314, 3332, 3340, 3342, 3344, 3346, 3386, 3389, 3389, 3406, 3406, 3412, 3414, 3423, 3425, 3450, 3455, 3461, 3478, 3482, 3505, 3507, 3515, 3517, 3517, 3520, 3526, 3585, 3632, 3634, 3635, 3648, 3654, 3713, 3714, 3716, 3716, 3718, 3722, 3724, 3747, 3749, 3749, 3751, 3760, 3762, 3763, 3773, 3773, 3776, 3780, 3782, 3782, 3804, 3807, 3840, 3840, 3904, 3911, 3913, 3948, 3976, 3980, 4096, 4138, 4159, 4159, 4176, 4181, 4186, 4189, 4193, 4193, 4197, 4198, 4206, 4208, 4213, 4225, 4238, 4238, 4256, 4293, 4295, 4295, 4301, 4301, 4304, 4346, 4348, 4680, 4682, 4685, 4688, 4694, 4696, 4696, 4698, 4701, 4704, 4744, 4746, 4749, 4752, 4784, 4786, 4789, 4792, 4798, 4800, 4800, 4802, 4805, 4808, 4822, 4824, 4880, 4882, 4885, 4888, 4954, 4992, 5007, 5024, 5109, 5112, 5117, 5121, 5740, 5743, 5759, 5761, 5786, 5792, 5866, 5870, 5880, 5888, 5905, 5919, 5937, 5952, 5969, 5984, 5996, 5998, 6000, 6016, 6067, 6103, 6103, 6108, 6108, 6176, 6264, 6272, 6312, 6314, 6314, 6320, 6389, 6400, 6430, 6480, 6509, 6512, 6516, 6528, 6571, 6576, 6601, 6656, 6678, 6688, 6740, 6823, 6823, 6917, 6963, 6981, 6988, 7043, 7072, 7086, 7087, 7098, 7141, 7168, 7203, 7245, 7247, 7258, 7293, 7296, 7304, 7312, 7354, 7357, 7359, 7401, 7404, 7406, 7411, 7413, 7414, 7418, 7418, 7424, 7615, 7680, 7957, 7960, 7965, 7968, 8005, 8008, 8013, 8016, 8023, 8025, 8025, 8027, 8027, 8029, 8029, 8031, 8061, 8064, 8116, 8118, 8124, 8126, 8126, 8130, 8132, 8134, 8140, 8144, 8147, 8150, 8155, 8160, 8172, 8178, 8180, 8182, 8188, 8305, 8305, 8319, 8319, 8336, 8348, 8450, 8450, 8455, 8455, 8458, 8467, 8469, 8469, 8472, 8477, 8484, 8484, 8486, 8486, 8488, 8488, 8490, 8505, 8508, 8511, 8517, 8521, 8526, 8526, 8544, 8584, 11264, 11492, 11499, 11502, 11506, 11507, 11520, 11557, 11559, 11559, 11565, 11565, 11568, 11623, 11631, 11631, 11648, 11670, 11680, 11686, 11688, 11694, 11696, 11702, 11704, 11710, 11712, 11718, 11720, 11726, 11728, 11734, 11736, 11742, 12293, 12295, 12321, 12329, 12337, 12341, 12344, 12348, 12353, 12438, 12443, 12447, 12449, 12538, 12540, 12543, 12549, 12591, 12593, 12686, 12704, 12735, 12784, 12799, 13312, 19903, 19968, 42124, 42192, 42237, 42240, 42508, 42512, 42527, 42538, 42539, 42560, 42606, 42623, 42653, 42656, 42735, 42775, 42783, 42786, 42888, 42891, 42954, 42960, 42961, 42963, 42963, 42965, 42969, 42994, 43009, 43011, 43013, 43015, 43018, 43020, 43042, 43072, 43123, 43138, 43187, 43250, 43255, 43259, 43259, 43261, 43262, 43274, 43301, 43312, 43334, 43360, 43388, 43396, 43442, 43471, 43471, 43488, 43492, 43494, 43503, 43514, 43518, 43520, 43560, 43584, 43586, 43588, 43595, 43616, 43638, 43642, 43642, 43646, 43695, 43697, 43697, 43701, 43702, 43705, 43709, 43712, 43712, 43714, 43714, 43739, 43741, 43744, 43754, 43762, 43764, 43777, 43782, 43785, 43790, 43793, 43798, 43808, 43814, 43816, 43822, 43824, 43866, 43868, 43881, 43888, 44002, 44032, 55203, 55216, 55238, 55243, 55291, 63744, 64109, 64112, 64217, 64256, 64262, 64275, 64279, 64285, 64285, 64287, 64296, 64298, 64310, 64312, 64316, 64318, 64318, 64320, 64321, 64323, 64324, 64326, 64433, 64467, 64829, 64848, 64911, 64914, 64967, 65008, 65019, 65136, 65140, 65142, 65276, 65313, 65338, 65345, 65370, 65382, 65470, 65474, 65479, 65482, 65487, 65490, 65495, 65498, 65500, 65536, 65547, 65549, 65574, 65576, 65594, 65596, 65597, 65599, 65613, 65616, 65629, 65664, 65786, 65856, 65908, 66176, 66204, 66208, 66256, 66304, 66335, 66349, 66378, 66384, 66421, 66432, 66461, 66464, 66499, 66504, 66511, 66513, 66517, 66560, 66717, 66736, 66771, 66776, 66811, 66816, 66855, 66864, 66915, 66928, 66938, 66940, 66954, 66956, 66962, 66964, 66965, 66967, 66977, 66979, 66993, 66995, 67001, 67003, 67004, 67072, 67382, 67392, 67413, 67424, 67431, 67456, 67461, 67463, 67504, 67506, 67514, 67584, 67589, 67592, 67592, 67594, 67637, 67639, 67640, 67644, 67644, 67647, 67669, 67680, 67702, 67712, 67742, 67808, 67826, 67828, 67829, 67840, 67861, 67872, 67897, 67968, 68023, 68030, 68031, 68096, 68096, 68112, 68115, 68117, 68119, 68121, 68149, 68192, 68220, 68224, 68252, 68288, 68295, 68297, 68324, 68352, 68405, 68416, 68437, 68448, 68466, 68480, 68497, 68608, 68680, 68736, 68786, 68800, 68850, 68864, 68899, 69248, 69289, 69296, 69297, 69376, 69404, 69415, 69415, 69424, 69445, 69488, 69505, 69552, 69572, 69600, 69622, 69635, 69687, 69745, 69746, 69749, 69749, 69763, 69807, 69840, 69864, 69891, 69926, 69956, 69956, 69959, 69959, 69968, 70002, 70006, 70006, 70019, 70066, 70081, 70084, 70106, 70106, 70108, 70108, 70144, 70161, 70163, 70187, 70207, 70208, 70272, 70278, 70280, 70280, 70282, 70285, 70287, 70301, 70303, 70312, 70320, 70366, 70405, 70412, 70415, 70416, 70419, 70440, 70442, 70448, 70450, 70451, 70453, 70457, 70461, 70461, 70480, 70480, 70493, 70497, 70656, 70708, 70727, 70730, 70751, 70753, 70784, 70831, 70852, 70853, 70855, 70855, 71040, 71086, 71128, 71131, 71168, 71215, 71236, 71236, 71296, 71338, 71352, 71352, 71424, 71450, 71488, 71494, 71680, 71723, 71840, 71903, 71935, 71942, 71945, 71945, 71948, 71955, 71957, 71958, 71960, 71983, 71999, 71999, 72001, 72001, 72096, 72103, 72106, 72144, 72161, 72161, 72163, 72163, 72192, 72192, 72203, 72242, 72250, 72250, 72272, 72272, 72284, 72329, 72349, 72349, 72368, 72440, 72704, 72712, 72714, 72750, 72768, 72768, 72818, 72847, 72960, 72966, 72968, 72969, 72971, 73008, 73030, 73030, 73056, 73061, 73063, 73064, 73066, 73097, 73112, 73112, 73440, 73458, 73474, 73474, 73476, 73488, 73490, 73523, 73648, 73648, 73728, 74649, 74752, 74862, 74880, 75075, 77712, 77808, 77824, 78895, 78913, 78918, 82944, 83526, 92160, 92728, 92736, 92766, 92784, 92862, 92880, 92909, 92928, 92975, 92992, 92995, 93027, 93047, 93053, 93071, 93760, 93823, 93952, 94026, 94032, 94032, 94099, 94111, 94176, 94177, 94179, 94179, 94208, 100343, 100352, 101589, 101632, 101640, 110576, 110579, 110581, 110587, 110589, 110590, 110592, 110882, 110898, 110898, 110928, 110930, 110933, 110933, 110948, 110951, 110960, 111355, 113664, 113770, 113776, 113788, 113792, 113800, 113808, 113817, 119808, 119892, 119894, 119964, 119966, 119967, 119970, 119970, 119973, 119974, 119977, 119980, 119982, 119993, 119995, 119995, 119997, 120003, 120005, 120069, 120071, 120074, 120077, 120084, 120086, 120092, 120094, 120121, 120123, 120126, 120128, 120132, 120134, 120134, 120138, 120144, 120146, 120485, 120488, 120512, 120514, 120538, 120540, 120570, 120572, 120596, 120598, 120628, 120630, 120654, 120656, 120686, 120688, 120712, 120714, 120744, 120746, 120770, 120772, 120779, 122624, 122654, 122661, 122666, 122928, 122989, 123136, 123180, 123191, 123197, 123214, 123214, 123536, 123565, 123584, 123627, 124112, 124139, 124896, 124902, 124904, 124907, 124909, 124910, 124912, 124926, 124928, 125124, 125184, 125251, 125259, 125259, 126464, 126467, 126469, 126495, 126497, 126498, 126500, 126500, 126503, 126503, 126505, 126514, 126516, 126519, 126521, 126521, 126523, 126523, 126530, 126530, 126535, 126535, 126537, 126537, 126539, 126539, 126541, 126543, 126545, 126546, 126548, 126548, 126551, 126551, 126553, 126553, 126555, 126555, 126557, 126557, 126559, 126559, 126561, 126562, 126564, 126564, 126567, 126570, 126572, 126578, 126580, 126583, 126585, 126588, 126590, 126590, 126592, 126601, 126603, 126619, 126625, 126627, 126629, 126633, 126635, 126651, 131072, 173791, 173824, 177977, 177984, 178205, 178208, 183969, 183984, 191456, 191472, 192093, 194560, 195101, 196608, 201546, 201552, 205743}
 
 // dprint-ignore
@@ -290,12 +299,15 @@ var unicodeESNextIdentifierPart = []number{48, 57, 65, 90, 95, 95, 97, 122, 170,
 /**
  * Test for whether a single line comment with leading whitespace trimmed's text contains a directive.
  */
+
 var commentDirectiveRegExSingleLine = regexp.MustParse(`^\/\/\/?\s*@(ts-expect-error|ts-ignore)`)
 
 /**
  * Test for whether a multi-line comment with leading whitespace trimmed's last line contains a directive.
  */
+
 var commentDirectiveRegExMultiLine = regexp.MustParse(`^(?:\/|\*)*\s*@(ts-expect-error|ts-ignore)`)
+
 var jsDocSeeOrLink = regexp.MustParse(`(?i:@(?:see|link))`)
 
 func lookupInUnicodeMap(code number, map_ []number) bool {
@@ -303,10 +315,12 @@ func lookupInUnicodeMap(code number, map_ []number) bool {
 	if code < map_[0] {
 		return false
 	}
+
 	// Perform binary search in one of the Unicode range maps
 	lo := 0
 	var hi number = map_.length
 	var mid number
+
 	for lo+1 < hi {
 		mid = lo + (hi-lo)/2
 		// mid has to be even to catch a range's beginning
@@ -314,16 +328,19 @@ func lookupInUnicodeMap(code number, map_ []number) bool {
 		if map_[mid] <= code && code <= map_[mid+1] {
 			return true
 		}
+
 		if code < map_[mid] {
 			hi = mid
 		} else {
 			lo = mid + 2
 		}
 	}
+
 	return false
 }
 
 /** @internal */
+
 func isUnicodeIdentifierStart(code number, languageVersion *ScriptTarget) bool {
 	if languageVersion >= ScriptTargetES2015 {
 		return lookupInUnicodeMap(code, unicodeESNextIdentifierStart)
@@ -351,6 +368,7 @@ func makeReverseMap(source Map[T, number]) []T {
 var tokenStrings = makeReverseMap(textToToken)
 
 /** @internal */
+
 /* OVERLOAD: export function tokenToString(t: PunctuationOrKeywordSyntaxKind): string; */
 /* OVERLOAD: export function tokenToString(t: SyntaxKind): string | undefined; */
 func tokenToString(t SyntaxKind) *string {
@@ -358,6 +376,7 @@ func tokenToString(t SyntaxKind) *string {
 }
 
 /** @internal */
+
 func stringToToken(s string) *SyntaxKind {
 	return textToToken.get(s)
 }
@@ -365,16 +384,19 @@ func stringToToken(s string) *SyntaxKind {
 var regExpFlagCharCodes = makeReverseMap(charCodeToRegExpFlag)
 
 /** @internal @knipignore */
+
 func regularExpressionFlagToCharacterCode(f RegularExpressionFlags) *CharacterCodes {
 	return regExpFlagCharCodes[f]
 }
 
 /** @internal @knipignore */
+
 func characterCodeToRegularExpressionFlag(ch CharacterCodes) *RegularExpressionFlags {
 	return charCodeToRegExpFlag.get(ch)
 }
 
 /** @internal */
+
 func computeLineStarts(text string) []number {
 	var result []number = []never{}
 	pos := 0
@@ -404,6 +426,7 @@ func computeLineStarts(text string) []number {
 
 /* OVERLOAD: export function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number): number; */
 /** @internal */
+
 /* OVERLOAD: export function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number, allowEdits?: true): number; */
 // eslint-disable-line @typescript-eslint/unified-signatures
 func getPositionOfLineAndCharacter(sourceFile SourceFileLike, line number, character number, allowEdits /* TODO(TS-TO-GO) TypeNode LiteralType: true */ any) number {
@@ -415,6 +438,7 @@ func getPositionOfLineAndCharacter(sourceFile SourceFileLike, line number, chara
 }
 
 /** @internal */
+
 func computePositionOfLineAndCharacter(lineStarts []number, line number, character number, debugText string, allowEdits /* TODO(TS-TO-GO) TypeNode LiteralType: true */ any) number {
 	if line < 0 || line >= lineStarts.length {
 		if allowEdits {
@@ -431,6 +455,7 @@ func computePositionOfLineAndCharacter(lineStarts []number, line number, charact
 			Debug.fail(__TEMPLATE__("Bad line number. Line: ", line, ", lineStarts.length: ", lineStarts.length, " , line map is correct? ", __COND__(debugText != nil, arrayIsEqualTo(lineStarts, computeLineStarts(debugText)), "unknown")))
 		}
 	}
+
 	res := lineStarts[line] + character
 	if allowEdits {
 		// Clamp to nearest allowable values to allow the underlying to be edited without crashing (accuracy is lost, instead)
@@ -455,11 +480,13 @@ func computePositionOfLineAndCharacter(lineStarts []number, line number, charact
 }
 
 /** @internal */
+
 func getLineStarts(sourceFile SourceFileLike) []number {
 	return sourceFile.lineMap || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: sourceFile.lineMap = computeLineStarts(sourceFile.text) */ TODO)
 }
 
 /** @internal */
+
 func computeLineAndCharacterOfPosition(lineStarts []number, position number) LineAndCharacter {
 	lineNumber := computeLineOfPosition(lineStarts, position)
 	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -472,6 +499,7 @@ func computeLineAndCharacterOfPosition(lineStarts []number, position number) Lin
  * @internal
  * We assume the first line starts at position 0 and 'position' is non-negative.
  */
+
 func computeLineOfPosition(lineStarts []number, position number, lowerBound number) number {
 	lineNumber := binarySearch(lineStarts, position, identity, compareValues, lowerBound)
 	if lineNumber < 0 {
@@ -489,6 +517,7 @@ func computeLineOfPosition(lineStarts []number, position number, lowerBound numb
 }
 
 /** @internal */
+
 func getLinesBetweenPositions(sourceFile SourceFileLike, pos1 number, pos2 number) number {
 	if pos1 == pos2 {
 		return 0
@@ -520,6 +549,7 @@ func isWhiteSpaceLike(ch number) bool {
 }
 
 /** Does not include line breaks. For that, see isWhiteSpaceLike. */
+
 func isWhiteSpaceSingleLine(ch number) bool {
 	// Note: nextLine is in the Zs space, and should be considered to be a whitespace.
 	// It is explicitly not a line-break as it isn't in the exact set specified by EcmaScript.
@@ -537,6 +567,7 @@ func isLineBreak(ch number) bool {
 	//     \u2029              Paragraph separator     <PS>
 	// Only the characters in Table 3 are treated as line terminators. Other new line or line
 	// breaking characters are treated as white space but not as line terminators.
+
 	return ch == CharacterCodeslineFeed || ch == CharacterCodescarriageReturn || ch == CharacterCodeslineSeparator || ch == CharacterCodesparagraphSeparator
 }
 
@@ -585,10 +616,12 @@ func couldStartTrivia(text string, pos number) bool {
 }
 
 /** @internal */
+
 func skipTrivia(text string, pos number, stopAfterLineBreak bool, stopAtComments bool, inJSDoc bool) number {
 	if positionIsSynthesized(pos) {
 		return pos
 	}
+
 	canConsumeStar := false
 	// Keep in sync with couldStartTrivia
 	for true {
@@ -678,18 +711,22 @@ var mergeConflictMarkerLength = len("<<<<<<<")
 
 func isConflictMarkerTrivia(text string, pos number) bool {
 	Debug.assert(pos >= 0)
+
 	// Conflict markers must be at the start of a line.
 	if pos == 0 || isLineBreak(text.charCodeAt(pos-1)) {
 		ch := text.charCodeAt(pos)
+
 		if (pos + mergeConflictMarkerLength) < text.length {
 			for i := 0; i < mergeConflictMarkerLength; i++ {
 				if text.charCodeAt(pos+i) != ch {
 					return false
 				}
 			}
+
 			return ch == CharacterCodesequals || text.charCodeAt(pos+mergeConflictMarkerLength) == CharacterCodesspace
 		}
 	}
+
 	return false
 }
 
@@ -697,8 +734,10 @@ func scanConflictMarkerTrivia(text string, pos number, error func(diag Diagnosti
 	if error {
 		error(Diagnostics.Merge_conflict_marker_encountered, pos, mergeConflictMarkerLength)
 	}
+
 	ch := text.charCodeAt(pos)
 	len := text.length
+
 	if ch == CharacterCodeslessThan || ch == CharacterCodesgreaterThan {
 		for pos < len && !isLineBreak(text.charCodeAt(pos)) {
 			pos++
@@ -712,9 +751,11 @@ func scanConflictMarkerTrivia(text string, pos number, error func(diag Diagnosti
 			if (currentChar == CharacterCodesequals || currentChar == CharacterCodesgreaterThan) && currentChar != ch && isConflictMarkerTrivia(text, pos) {
 				break
 			}
+
 			pos++
 		}
 	}
+
 	return pos
 }
 
@@ -752,6 +793,7 @@ func scanShebangTrivia(text string, pos number) number {
  * @returns If "reduce" is true, the accumulated value. If "reduce" is false, the first truthy
  *      return value of the callback.
  */
+
 func iterateCommentRanges(reduce bool, text string, pos number, trailing bool, cb func(pos number, end number, kind CommentKind, hasTrailingNewLine bool, state T, memo *U) U, state T, initial U) *U {
 	var pendingPos number
 	var pendingEnd number
@@ -781,10 +823,12 @@ scan:
 			if trailing {
 				break scan
 			}
+
 			collecting = true
 			if hasPendingCommentRange {
 				pendingHasTrailingNewLine = true
 			}
+
 			continue
 			fallthrough
 		case CharacterCodestab,
@@ -823,6 +867,7 @@ scan:
 						pos++
 					}
 				}
+
 				if collecting {
 					if hasPendingCommentRange {
 						accumulator = cb(pendingPos, pendingEnd, pendingKind, pendingHasTrailingNewLine, state, accumulator)
@@ -831,12 +876,14 @@ scan:
 							return accumulator
 						}
 					}
+
 					pendingPos = startPos
 					pendingEnd = pos
 					pendingKind = kind
 					pendingHasTrailingNewLine = hasTrailingNewLine
 					hasPendingCommentRange = true
 				}
+
 				continue
 			}
 		default:
@@ -849,9 +896,11 @@ scan:
 			}
 		}
 	}
+
 	if hasPendingCommentRange {
 		accumulator = cb(pendingPos, pendingEnd, pendingKind, pendingHasTrailingNewLine, state, accumulator)
 	}
+
 	return accumulator
 }
 
@@ -894,6 +943,7 @@ func getTrailingCommentRanges(text string, pos number) *[]CommentRange {
 }
 
 /** Optionally, get the shebang */
+
 func getShebang(text string) *string {
 	match := shebangTriviaRegex.exec(text)
 	if match {
@@ -910,16 +960,19 @@ func isIdentifierPart(ch number, languageVersion *ScriptTarget, identifierVarian
 }
 
 /** @internal */
+
 func isIdentifierText(name string, languageVersion *ScriptTarget, identifierVariant LanguageVariant) bool {
 	ch := codePointAt(name, 0)
 	if !isIdentifierStart(ch, languageVersion) {
 		return false
 	}
+
 	for i := charSize(ch); i < name.length; i += charSize(ch) {
 		if !isIdentifierPart( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: ch = codePointAt(name, i) */ TODO, languageVersion, identifierVariant) {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -951,14 +1004,22 @@ func createScanner(languageVersion ScriptTarget, skipTrivia bool, languageVarian
 	// See: https://github.com/microsoft/TypeScript/issues/52924
 	/* eslint-disable no-var */
 	tc.text = textInitial
+
 	// Current position (end position of text of current token)
+
 	// end of text
+
 	// Start position of whitespace before current token
+
 	// Start position of text of current token
+
 	tc.skipJsDocLeadingAsterisks = 0
+
 	tc.scriptKind = ScriptKindUnknown
 	tc.jsDocParsingMode = JSDocParsingModeParseAll
+
 	scanner.setText(scanner.text, start, length)
+
 	tc.scanner = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"getTokenFullStart": func() number {
 			return scanner.fullStartPos
@@ -1053,6 +1114,7 @@ func createScanner(languageVersion ScriptTarget, skipTrivia bool, languageVarian
 		"scanRange":                                  scanRange,
 	}
 	/* eslint-enable no-var */
+
 	if Debug.isDebugging {
 		Object.defineProperty(scanner.scanner, "__debugShowCurrentPositionInText", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"get": func() string {
@@ -1061,6 +1123,7 @@ func createScanner(languageVersion ScriptTarget, skipTrivia bool, languageVarian
 			},
 		})
 	}
+
 	return scanner.scanner
 }
 
@@ -1069,6 +1132,7 @@ func createScanner(languageVersion ScriptTarget, skipTrivia bool, languageVarian
  * should only be used when pos is guaranteed to be within the bounds of `text` as this
  * function does not perform bounds checks.
  */
+
 func (scanner *Scanner) codePointUnchecked(pos number) number {
 	return codePointAt(scanner.text, scanner.pos)
 }
@@ -1077,6 +1141,7 @@ func (scanner *Scanner) codePointUnchecked(pos number) number {
  * Returns the code point for the character at the given position within `text`. If
  * `pos` is outside the bounds set for `text`, `CharacterCodes.EOF` is returned instead.
  */
+
 func (scanner *Scanner) codePointChecked(pos number) number {
 	if scanner.pos >= 0 && scanner.pos < scanner.end {
 		return scanner.codePointUnchecked(scanner.pos)
@@ -1090,6 +1155,7 @@ func (scanner *Scanner) codePointChecked(pos number) number {
  * should only be used when pos is guaranteed to be within the bounds of `text` as this
  * function does not perform bounds checks.
  */
+
 func (scanner *Scanner) charCodeUnchecked(pos number) number {
 	return scanner.text.charCodeAt(scanner.pos)
 }
@@ -1098,6 +1164,7 @@ func (scanner *Scanner) charCodeUnchecked(pos number) number {
  * Returns the char code for the character at the given position within `text`. If
  * `pos` is outside the bounds set for `text`, `CharacterCodes.EOF` is returned instead.
  */
+
 func (scanner *Scanner) charCodeChecked(pos number) number {
 	if scanner.pos >= 0 && scanner.pos < scanner.end {
 		return scanner.charCodeUnchecked(scanner.pos)
@@ -1254,12 +1321,14 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		result = scanner.text.substring(start, end)
 		// No need to use all the fragments; no _ removal needed
 	}
+
 	if scanner.tokenFlags & TokenFlagsContainsLeadingZero {
 		scanner.error(Diagnostics.Decimals_with_leading_zeros_are_not_allowed, start, end-start)
 		// if a literal has a leading zero, it must not be bigint
 		scanner.tokenValue = "" + +result
 		return SyntaxKindNumericLiteral
 	}
+
 	if decimalFragment != nil || scanner.tokenFlags&TokenFlagsScientific {
 		scanner.checkForIdentifierStartAfterNumericLiteral(start, decimalFragment == nil && !!(scanner.tokenFlags&TokenFlagsScientific))
 		// if value is not an integer, it can be safely coerced to a number
@@ -1278,8 +1347,10 @@ func (scanner *Scanner) checkForIdentifierStartAfterNumericLiteral(numericStart 
 	if !isIdentifierStart(scanner.codePointUnchecked(scanner.pos), languageVersion) {
 		return
 	}
+
 	identifierStart := scanner.pos
 	TODO_IDENTIFIER := scanner.scanIdentifierParts()
+
 	if length == 1 && scanner.text[identifierStart] == "n" {
 		if isScientific {
 			scanner.error(Diagnostics.A_bigint_literal_cannot_use_exponential_notation, numericStart, identifierStart-numericStart+1)
@@ -1309,6 +1380,7 @@ func (scanner *Scanner) scanDigits() bool {
  * Scans the given number of hexadecimal digits in the text,
  * returning -1 if the given number is unavailable.
  */
+
 func (scanner *Scanner) scanExactNumberOfHexDigits(count number, canHaveSeparators bool) number {
 	valueString := scanner.scanHexDigits(count /*scanAsManyAsPossible*/, false, canHaveSeparators)
 	if valueString {
@@ -1322,6 +1394,7 @@ func (scanner *Scanner) scanExactNumberOfHexDigits(count number, canHaveSeparato
  * Scans as many hexadecimal digits as are available in the text,
  * returning "" if the given number of digits was unavailable.
  */
+
 func (scanner *Scanner) scanMinimumNumberOfHexDigits(count number, canHaveSeparators bool) string {
 	return scanner.scanHexDigits(count /*scanAsManyAsPossible*/, true, canHaveSeparators)
 }
@@ -1389,6 +1462,7 @@ func (scanner *Scanner) scanString(jsxAttributeString bool /*  = false */) strin
 			start = scanner.pos
 			continue
 		}
+
 		if (ch == CharacterCodeslineFeed || ch == CharacterCodescarriageReturn) && !jsxAttributeString {
 			result += scanner.text.substring(start, scanner.pos)
 			scanner.tokenFlags |= TokenFlagsUnterminated
@@ -1404,12 +1478,15 @@ func (scanner *Scanner) scanString(jsxAttributeString bool /*  = false */) strin
  * Sets the current 'tokenValue' and returns a NoSubstitutionTemplateLiteral or
  * a literal component of a TemplateExpression.
  */
+
 func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeError bool) SyntaxKind {
 	startedWithBacktick := scanner.charCodeUnchecked(scanner.pos) == CharacterCodesbacktick
+
 	scanner.pos++
 	start := scanner.pos
 	contents := ""
 	var resultingToken SyntaxKind
+
 	for true {
 		if scanner.pos >= scanner.end {
 			contents += scanner.text.substring(start, scanner.pos)
@@ -1422,7 +1499,9 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			}
 			break
 		}
+
 		currChar := scanner.charCodeUnchecked(scanner.pos)
+
 		// '`'
 		if currChar == CharacterCodesbacktick {
 			contents += scanner.text.substring(start, scanner.pos)
@@ -1434,6 +1513,7 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			}
 			break
 		}
+
 		// '${'
 		if currChar == CharacterCodes_DOLLAR_ && scanner.pos+1 < scanner.end && scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesopenBrace {
 			contents += scanner.text.substring(start, scanner.pos)
@@ -1445,6 +1525,7 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			}
 			break
 		}
+
 		// Escape character
 		if currChar == CharacterCodesbackslash {
 			contents += scanner.text.substring(start, scanner.pos)
@@ -1452,21 +1533,27 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			start = scanner.pos
 			continue
 		}
+
 		// Speculated ECMAScript 6 Spec 11.8.6.1:
 		// <CR><LF> and <CR> LineTerminatorSequences are normalized to <LF> for Template Values
 		if currChar == CharacterCodescarriageReturn {
 			contents += scanner.text.substring(start, scanner.pos)
 			scanner.pos++
+
 			if scanner.pos < scanner.end && scanner.charCodeUnchecked(scanner.pos) == CharacterCodeslineFeed {
 				scanner.pos++
 			}
+
 			contents += "\n"
 			start = scanner.pos
 			continue
 		}
+
 		scanner.pos++
 	}
+
 	Debug.assert(resultingToken != nil)
+
 	scanner.tokenValue = contents
 	return resultingToken
 }
@@ -1642,6 +1729,7 @@ func (scanner *Scanner) scanExtendedUnicodeEscape(shouldEmitInvalidEscapeError b
 		escapedValue = -1
 	}
 	isInvalidExtendedEscape := false
+
 	// Validate the value of the digit
 	if escapedValue < 0 {
 		if shouldEmitInvalidEscapeError {
@@ -1654,6 +1742,7 @@ func (scanner *Scanner) scanExtendedUnicodeEscape(shouldEmitInvalidEscapeError b
 		}
 		isInvalidExtendedEscape = true
 	}
+
 	if scanner.pos >= scanner.end {
 		if shouldEmitInvalidEscapeError {
 			scanner.error(Diagnostics.Unexpected_end_of_text)
@@ -1668,10 +1757,12 @@ func (scanner *Scanner) scanExtendedUnicodeEscape(shouldEmitInvalidEscapeError b
 		}
 		isInvalidExtendedEscape = true
 	}
+
 	if isInvalidExtendedEscape {
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
 		return scanner.text.substring(start, scanner.pos)
 	}
+
 	scanner.tokenFlags |= TokenFlagsExtendedUnicodeEscape
 	return utf16EncodeAsString(escapedValue)
 }
@@ -1826,6 +1917,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			scanner.token = SyntaxKindEndOfFileToken
 			return scanner.token
 		}
+
 		ch := scanner.codePointUnchecked(scanner.pos)
 		if scanner.pos == 0 {
 			// Special handling for shebang
@@ -1839,6 +1931,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				}
 			}
 		}
+
 		switch ch {
 		case CharacterCodeslineFeed,
 			CharacterCodescarriageReturn:
@@ -2007,13 +2100,16 @@ func (scanner *Scanner) scan() SyntaxKind {
 		case CharacterCodesslash:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesslash {
 				scanner.pos += 2
+
 				for scanner.pos < scanner.end {
 					if isLineBreak(scanner.charCodeUnchecked(scanner.pos)) {
 						break
 					}
 					scanner.pos++
 				}
+
 				scanner.commentDirectives = scanner.appendIfCommentDirective(scanner.commentDirectives, scanner.text.slice(scanner.tokenStart, scanner.pos), commentDirectiveRegExSingleLine, scanner.tokenStart)
+
 				if skipTrivia {
 					continue
 				} else {
@@ -2024,28 +2120,36 @@ func (scanner *Scanner) scan() SyntaxKind {
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesasterisk {
 				scanner.pos += 2
 				isJSDoc := scanner.charCodeUnchecked(scanner.pos) == CharacterCodesasterisk && scanner.charCodeUnchecked(scanner.pos+1) != CharacterCodesslash
+
 				commentClosed := false
 				lastLineStart := scanner.tokenStart
 				for scanner.pos < scanner.end {
 					ch := scanner.charCodeUnchecked(scanner.pos)
+
 					if ch == CharacterCodesasterisk && scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesslash {
 						scanner.pos += 2
 						commentClosed = true
 						break
 					}
+
 					scanner.pos++
+
 					if isLineBreak(ch) {
 						lastLineStart = scanner.pos
 						scanner.tokenFlags |= TokenFlagsPrecedingLineBreak
 					}
 				}
+
 				if isJSDoc && scanner.shouldParseJSDoc() {
 					scanner.tokenFlags |= TokenFlagsPrecedingJSDocComment
 				}
+
 				scanner.commentDirectives = scanner.appendIfCommentDirective(scanner.commentDirectives, scanner.text.slice(lastLineStart, scanner.pos), commentDirectiveRegExMultiLine, lastLineStart)
+
 				if !commentClosed {
 					scanner.error(Diagnostics.Asterisk_Slash_expected)
 				}
+
 				if skipTrivia {
 					continue
 				} else {
@@ -2056,10 +2160,12 @@ func (scanner *Scanner) scan() SyntaxKind {
 					return scanner.token
 				}
 			}
+
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
 				scanner.pos += 2
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.SlashEqualsToken */ TODO
 			}
+
 			scanner.pos++
 			scanner.token = SyntaxKindSlashToken
 			return scanner.token
@@ -2128,6 +2234,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					return scanner.token
 				}
 			}
+
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodeslessThan {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
 					scanner.pos += 3
@@ -2157,6 +2264,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					return scanner.token
 				}
 			}
+
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
 					scanner.pos += 3
@@ -2182,6 +2290,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					return scanner.token
 				}
 			}
+
 			scanner.pos++
 			scanner.token = SyntaxKindGreaterThanToken
 			return scanner.token
@@ -2231,6 +2340,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					return scanner.token
 				}
 			}
+
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesbar {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
 					scanner.pos += 3
@@ -2265,6 +2375,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				scanner.token = scanner.getIdentifierToken()
 				return scanner.token
 			}
+
 			cookedChar := scanner.peekUnicodeEscape()
 			if cookedChar >= 0 && isIdentifierStart(cookedChar, languageVersion) {
 				scanner.pos += 6
@@ -2273,6 +2384,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				scanner.token = scanner.getIdentifierToken()
 				return scanner.token
 			}
+
 			scanner.error(Diagnostics.Invalid_character)
 			scanner.pos++
 			scanner.token = SyntaxKindUnknown
@@ -2284,6 +2396,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				scanner.token = SyntaxKindUnknown
 				return scanner.token
 			}
+
 			charAfterHash := scanner.codePointUnchecked(scanner.pos + 1)
 			if charAfterHash == CharacterCodesbackslash {
 				scanner.pos++
@@ -2293,6 +2406,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					scanner.token = SyntaxKindPrivateIdentifier
 					return scanner.token
 				}
+
 				cookedChar := scanner.peekUnicodeEscape()
 				if cookedChar >= 0 && isIdentifierStart(cookedChar, languageVersion) {
 					scanner.pos += 6
@@ -2303,6 +2417,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				}
 				scanner.pos--
 			}
+
 			if isIdentifierStart(charAfterHash, languageVersion) {
 				scanner.pos++
 				// We're relying on scanIdentifier's behavior and adjusting the token kind after the fact.
@@ -2351,15 +2466,18 @@ func (scanner *Scanner) shouldParseJSDoc() bool {
 	case JSDocParsingModeParseNone:
 		return false
 	}
+
 	if scanner.scriptKind != ScriptKindTS && scanner.scriptKind != ScriptKindTSX {
 		// If outside of TS, we need JSDoc to get any type info.
 		return true
 	}
+
 	if scanner.jsDocParsingMode == JSDocParsingModeParseForTypeInfo {
 		// If we're in TS, but we don't need to produce reliable errors,
 		// we don't need to parse to find @see or @link.
 		return false
 	}
+
 	return jsDocSeeOrLink.test(scanner.text.slice(scanner.fullStartPos, scanner.pos))
 }
 
@@ -2453,6 +2571,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 				scanner.tokenFlags |= TokenFlagsUnterminated
 				break
 			}
+
 			if inEscape {
 				// Parsing an escape character;
 				// reset the flag and just advance to the next char.
@@ -2555,23 +2674,32 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 	// Why var? It avoids TDZ checks in the runtime which can be costly.
 	// See: https://github.com/microsoft/TypeScript/issues/52924
 	/* eslint-disable no-var */
+
 	unicodeSetsMode := !!(regExpFlags & RegularExpressionFlagsUnicodeSets)
 	/** Grammar parameter */
+
 	anyUnicodeMode := !!(regExpFlags & RegularExpressionFlagsAnyUnicodeMode)
+
 	// Regular expressions are checked more strictly when either in 'u' or 'v' mode, or
 	// when not using the looser interpretation of the syntax from ECMA-262 Annex B.
 	anyUnicodeModeOrNonAnnexB := anyUnicodeMode || !annexB
 	/** @see {scanClassSetExpression} */
+
 	mayContainStrings := false
 	/** The number of all (named and unnamed) capturing groups defined in the regex. */
+
 	numberOfCapturingGroups := 0
 	/** All named capturing groups defined in the regex. */
+
 	var groupSpecifiers *Set[string]
 	/** All references to named capturing groups in the regex. */
+
 	var groupNameReferences *[] /* TODO(TS-TO-GO) TypeNode IntersectionType: TextRange & { name: string; } */ any
 	/** All numeric backreferences within the regex. */
+
 	var decimalEscapes *[] /* TODO(TS-TO-GO) TypeNode IntersectionType: TextRange & { value: number; } */ any
 	/** A stack of scopes for named capturing groups. @see {scanGroupName} */
+
 	var namedCapturingGroupsScopeStack []*Set[string] = []never{}
 	var topNamedCapturingGroupsScope *Set[string]
 	/* eslint-enable no-var */
@@ -2976,6 +3104,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 	//         || CharacterClassEscape.UnicodePropertyValueExpression.LoneUnicodePropertyNameOrValue.MayContainStrings
 	//     ClassStringDisjunctionContents: ClassStrings.some(ClassString => ClassString.ClassSetCharacters.length !== 1)
 	//     LoneUnicodePropertyNameOrValue: isBinaryUnicodePropertyOfStrings(LoneUnicodePropertyNameOrValue)
+
 	// ClassSetExpression ::= '^'? (ClassUnion | ClassIntersection | ClassSubtraction)
 	// ClassUnion ::= (ClassSetRange | ClassSetOperand)*
 	// ClassIntersection ::= ClassSetOperand ('&&' ClassSetOperand)+
@@ -3454,6 +3583,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 	}
 
 	scanDisjunction(false)
+
 	forEach(groupNameReferences, func(reference /* TODO(TS-TO-GO) inferred type TextRange & { name: string; } */ any) {
 		if !groupSpecifiers. /* ? */ has(reference.name) {
 			scanner.error(Diagnostics.There_is_no_capturing_group_named_0_in_this_regular_expression, reference.pos, reference.end-reference.pos, reference.name)
@@ -3491,6 +3621,7 @@ func (scanner *Scanner) appendIfCommentDirective(commentDirectives *[]CommentDir
 	if type_ == nil {
 		return scanner.commentDirectives
 	}
+
 	return append(scanner.commentDirectives, map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"range_": map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"pos": lineStart,
@@ -3505,18 +3636,21 @@ func (scanner *Scanner) getDirectiveFromComment(text string, commentDirectiveReg
 	if !match {
 		return nil
 	}
+
 	switch match[1] {
 	case "ts-expect-error":
 		return CommentDirectiveTypeExpectError
 	case "ts-ignore":
 		return CommentDirectiveTypeIgnore
 	}
+
 	return nil
 }
 
 /**
  * Unconditionally back up and scan a template expression portion.
  */
+
 func (scanner *Scanner) reScanTemplateToken(isTaggedTemplate bool) SyntaxKind {
 	scanner.pos = scanner.tokenStart
 	scanner.token = scanner.scanTemplateAndSetTokenValue(!isTaggedTemplate)
@@ -3562,10 +3696,12 @@ func (scanner *Scanner) reScanQuestionToken() SyntaxKind {
 
 func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) JsxTokenSyntaxKind {
 	scanner.fullStartPos = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: tokenStart = pos */ TODO
+
 	if scanner.pos >= scanner.end {
 		scanner.token = SyntaxKindEndOfFileToken
 		return scanner.token
 	}
+
 	char := scanner.charCodeUnchecked(scanner.pos)
 	if char == CharacterCodeslessThan {
 		if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesslash {
@@ -3577,15 +3713,19 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 		scanner.token = SyntaxKindLessThanToken
 		return scanner.token
 	}
+
 	if char == CharacterCodesopenBrace {
 		scanner.pos++
 		scanner.token = SyntaxKindOpenBraceToken
 		return scanner.token
 	}
+
 	// First non-whitespace character on this line.
 	firstNonWhitespace := 0
+
 	// These initial values are special because the first line is:
 	// firstNonWhitespace = 0 to indicate that we want leading whitespace,
+
 	for scanner.pos < scanner.end {
 		char = scanner.charCodeUnchecked(scanner.pos)
 		if char == CharacterCodesopenBrace {
@@ -3605,6 +3745,7 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 		if char == CharacterCodescloseBrace {
 			scanner.error(Diagnostics.Unexpected_token_Did_you_mean_or_rbrace, scanner.pos, 1)
 		}
+
 		// FirstNonWhitespace is 0, then we only see whitespaces so far. If we see a linebreak, we want to ignore that whitespaces.
 		// i.e (- : whitespace)
 		//      <div>----
@@ -3620,9 +3761,12 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 		} else if !isWhiteSpaceLike(char) {
 			firstNonWhitespace = scanner.pos
 		}
+
 		scanner.pos++
 	}
+
 	scanner.tokenValue = scanner.text.substring(scanner.fullStartPos, scanner.pos)
+
 	if firstNonWhitespace == -1 {
 		return SyntaxKindJsxTextAllWhiteSpaces
 	} else {
@@ -3659,6 +3803,7 @@ func (scanner *Scanner) scanJsxIdentifier() SyntaxKind {
 
 func (scanner *Scanner) scanJsxAttributeValue() SyntaxKind {
 	scanner.fullStartPos = scanner.pos
+
 	switch scanner.charCodeUnchecked(scanner.pos) {
 	case CharacterCodesdoubleQuote,
 		CharacterCodessingleQuote:
@@ -3707,6 +3852,7 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 		scanner.token = SyntaxKindEndOfFileToken
 		return scanner.token
 	}
+
 	ch := scanner.codePointUnchecked(scanner.pos)
 	scanner.pos += charSize(ch)
 	switch ch {
@@ -3781,6 +3927,7 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 			scanner.token = scanner.getIdentifierToken()
 			return scanner.token
 		}
+
 		cookedChar := scanner.peekUnicodeEscape()
 		if cookedChar >= 0 && isIdentifierStart(cookedChar, languageVersion) {
 			scanner.pos += 6
@@ -3793,6 +3940,7 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 		scanner.token = SyntaxKindUnknown
 		return scanner.token
 	}
+
 	if isIdentifierStart(ch, languageVersion) {
 		char := ch
 		for scanner.pos < scanner.end && isIdentifierPart( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: char = codePointUnchecked(pos) */ TODO, languageVersion) || char == CharacterCodesminus {
@@ -3818,6 +3966,7 @@ func (scanner *Scanner) speculationHelper(callback func() T, isLookahead bool) T
 	saveTokenValue := scanner.tokenValue
 	saveTokenFlags := scanner.tokenFlags
 	result := callback()
+
 	// If our callback returned something 'falsy' or we're just looking ahead,
 	// then unconditionally restore us to where we were.
 	if !result || isLookahead {
@@ -3840,8 +3989,10 @@ func (scanner *Scanner) scanRange(start number, length number, callback func() T
 	saveTokenValue := scanner.tokenValue
 	saveTokenFlags := scanner.tokenFlags
 	saveErrorExpectations := scanner.commentDirectives
+
 	scanner.setText(scanner.text, start, length)
 	result := callback()
+
 	scanner.end = saveEnd
 	scanner.pos = savePos
 	scanner.fullStartPos = saveStartPos
@@ -3850,6 +4001,7 @@ func (scanner *Scanner) scanRange(start number, length number, callback func() T
 	scanner.tokenValue = saveTokenValue
 	scanner.tokenFlags = saveTokenFlags
 	scanner.commentDirectives = saveErrorExpectations
+
 	return result
 }
 
@@ -3935,11 +4087,14 @@ func charSize(ch number) /* TODO(TS-TO-GO) inferred type 0 | 1 | 2 */ any {
 // Derived from the 10.1.1 UTF16Encoding of the ES6 Spec.
 func utf16EncodeAsStringFallback(codePoint number) string {
 	Debug.assert(0x0 <= codePoint && codePoint <= 0x10FFFF)
+
 	if codePoint <= 65535 {
 		return String.fromCharCode(codePoint)
 	}
+
 	codeUnit1 := Math.floor((codePoint-65536)/1024) + 0xD800
 	codeUnit2 := ((codePoint - 65536) % 1024) + 0xDC00
+
 	return String.fromCharCode(codeUnit1, codeUnit2)
 }
 
@@ -3948,6 +4103,7 @@ var utf16EncodeAsStringWorker func(codePoint number) string = __COND__((String /
 }, utf16EncodeAsStringFallback)
 
 /** @internal */
+
 func utf16EncodeAsString(codePoint number) string {
 	return utf16EncodeAsStringWorker(codePoint)
 }

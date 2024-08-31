@@ -45,6 +45,7 @@ type Binder struct {
 }
 
 /** @internal */
+
 type ModuleInstanceState int32
 
 const (
@@ -62,6 +63,7 @@ type ActiveLabel struct {
 }
 
 /** @internal */
+
 func getModuleInstanceState(node ModuleDeclaration, visited Map[number, *ModuleInstanceState]) ModuleInstanceState {
 	if node.body && !node.body.parent {
 		// getModuleInstanceStateForAliasTarget needs to walk up the parent chain, so parent pointers must be set on this tree already
@@ -190,6 +192,7 @@ func getModuleInstanceStateForAliasTarget(specifier ExportSpecifier, visited Map
 }
 
 /** @internal */
+
 type ContainerFlags int32
 
 const (
@@ -217,6 +220,7 @@ const (
 )
 
 /** @internal */
+
 func createFlowNode(flags FlowFlags, node any, antecedent /* TODO(TS-TO-GO) TypeNode UnionType: FlowNode | FlowNode[] | undefined */ any) FlowNode {
 	return Debug.attachFlowNodeDebugInfo(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"flags":      flags,
@@ -229,6 +233,7 @@ func createFlowNode(flags FlowFlags, node any, antecedent /* TODO(TS-TO-GO) Type
 var binder = createBinder()
 
 /** @internal */
+
 func bindSourceFile(file SourceFile, options CompilerOptions) {
 	performance.mark("beforeBind")
 	binder(file, options)
@@ -241,19 +246,26 @@ func createBinder() func(file SourceFile, options CompilerOptions) {
 	// See: https://github.com/microsoft/TypeScript/issues/52924
 	/* eslint-disable no-var */
 	// Container one level up
+
 	// state used by control flow analysis
+
 	// state used for emit helpers
+
 	// If this file is an external module, then it is automatically in strict-mode according to
 	// ES6.  If it is not an external module, then we'll determine if it is in strict mode or
 	// not depending on if we see "use strict" in certain places or if we hit a class/namespace
 	// or if compiler options contain alwaysStrict.
+
 	// If we are binding an assignment pattern, we will bind certain expressions differently.
 	tc.inAssignmentPattern = false
+
 	tc.symbolCount = 0
+
 	tc.unreachableFlow = createFlowNode(FlowFlagsUnreachable /*node*/, nil /*antecedent*/, nil)
 	tc.reportedUnreachableFlow = createFlowNode(FlowFlagsUnreachable /*node*/, nil /*antecedent*/, nil)
 	tc.bindBinaryExpressionFlow = binder.createBindBinaryExpressionFlow()
 	/* eslint-enable no-var */
+
 	return binder.bindSourceFile
 }
 
@@ -262,6 +274,7 @@ func createBinder() func(file SourceFile, options CompilerOptions) {
  * If so, the node _must_ be in the current file (as that's the only way anything could have traversed to it to yield it as the error node)
  * This version of `createDiagnosticForNode` uses the binder's context to account for this, and always yields correct diagnostics even in these situations.
  */
+
 func (binder *Binder) createDiagnosticForNode(node Node, message DiagnosticMessage, args DiagnosticArguments) DiagnosticWithLocation {
 	return createDiagnosticForNodeInSourceFile(getSourceFileOfNode(node) || binder.file, node, message, args...)
 }
@@ -273,10 +286,13 @@ func (binder *Binder) bindSourceFile(f SourceFile, opts CompilerOptions) {
 	binder.inStrictMode = binder.bindInStrictMode(binder.file, opts)
 	binder.classifiableNames = NewSet()
 	binder.symbolCount = 0
+
 	binder.Symbol = objectAllocator.getSymbolConstructor()
+
 	// Attach debugging information if necessary
 	Debug.attachFlowNodeDebugInfo(binder.unreachableFlow)
 	Debug.attachFlowNodeDebugInfo(binder.reportedUnreachableFlow)
+
 	if !binder.file.locals {
 		tracing. /* ? */ push(tracing.Phase.Bind, "bindSourceFile", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"path": binder.file.path,
@@ -288,6 +304,7 @@ func (binder *Binder) bindSourceFile(f SourceFile, opts CompilerOptions) {
 		binder.delayedBindJSDocTypedefTag()
 		binder.bindJSDocImports()
 	}
+
 	binder.file = nil
 	binder.options = nil
 	binder.languageVersion = nil
@@ -329,18 +346,23 @@ func (binder *Binder) createSymbol(flags SymbolFlags, name __String) Symbol {
 
 func (binder *Binder) addDeclarationToSymbol(symbol Symbol, node Declaration, symbolFlags SymbolFlags) {
 	symbol.flags |= symbolFlags
+
 	node.symbol = symbol
 	symbol.declarations = appendIfUnique(symbol.declarations, node)
+
 	if symbolFlags&(SymbolFlagsClass|SymbolFlagsEnum|SymbolFlagsModule|SymbolFlagsVariable) && !symbol.exports {
 		symbol.exports = createSymbolTable()
 	}
+
 	if symbolFlags&(SymbolFlagsClass|SymbolFlagsInterface|SymbolFlagsTypeLiteral|SymbolFlagsObjectLiteral) && !symbol.members {
 		symbol.members = createSymbolTable()
 	}
+
 	// On merge of const enum module with class or function, reset const enum only flag (namespaces will already recalculate)
 	if symbol.constEnumOnlyModule && (symbol.flags & (SymbolFlagsFunction | SymbolFlagsClass | SymbolFlagsRegularEnum)) {
 		symbol.constEnumOnlyModule = false
 	}
+
 	if symbolFlags & SymbolFlagsValue {
 		setValueDeclaration(symbol, node)
 	}
@@ -356,6 +378,7 @@ func (binder *Binder) getDeclarationName(node Declaration) *__String {
 			return InternalSymbolNameDefault
 		}
 	}
+
 	name := getNameOfDeclaration(node)
 	if name {
 		if isAmbientModule(node) {
@@ -443,9 +466,12 @@ func (binder *Binder) getDisplayName(node Declaration) string {
  * @param includes - The SymbolFlags that node has in addition to its declaration type (eg: export, ambient, etc.)
  * @param excludes - The flags which node cannot be declared alongside in a symbol table. Used to report forbidden declarations.
  */
+
 func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node Declaration, includes SymbolFlags, excludes SymbolFlags, isReplaceableByMethod bool, isComputedName bool) Symbol {
 	Debug.assert(isComputedName || !hasDynamicName(node))
+
 	isDefaultExport := hasSyntacticModifier(node, ModifierFlagsDefault) || isExportSpecifier(node) && moduleExportNameIsDefault(node.name)
+
 	// The exported symbol for an export default function/class node is always named "default"
 	var name *__String
 	switch {
@@ -456,6 +482,7 @@ func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node
 	default:
 		name = binder.getDeclarationName(node)
 	}
+
 	var symbol Symbol
 	if name == nil {
 		symbol = binder.createSymbol(SymbolFlagsNone, InternalSymbolNameMissing)
@@ -484,9 +511,11 @@ func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node
 		// you have multiple 'vars' with the same name in the same container).  In this case
 		// just add this node into the declarations list of the symbol.
 		symbol = symbolTable.get(name)
+
 		if includes & SymbolFlagsClassifiable {
 			binder.classifiableNames.add(name)
 		}
+
 		if !symbol {
 			symbolTable.set(name /* TODO(TS-TO-GO) EqualsToken BinaryExpression: symbol = createSymbol(SymbolFlags.None, name) */, TODO)
 			if isReplaceableByMethod {
@@ -514,10 +543,12 @@ func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node
 					message = Diagnostics.Duplicate_identifier_0
 				}
 				messageNeedsName := true
+
 				if symbol.flags&SymbolFlagsEnum || includes&SymbolFlagsEnum {
 					message = Diagnostics.Enum_declarations_can_only_merge_with_namespace_or_other_enum_declarations
 					messageNeedsName = false
 				}
+
 				multipleDefaultExports := false
 				if length(symbol.declarations) {
 					// If the current node is a default export of some sort, then check if
@@ -539,11 +570,13 @@ func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node
 						}
 					}
 				}
+
 				var relatedInformation []DiagnosticRelatedInformation = []never{}
 				if isTypeAliasDeclaration(node) && nodeIsMissing(node.type_) && hasSyntacticModifier(node, ModifierFlagsExport) && symbol.flags&(SymbolFlagsAlias|SymbolFlagsType|SymbolFlagsNamespace) {
 					// export type T; - may have meant export type { T }?
 					relatedInformation.push(binder.createDiagnosticForNode(node, Diagnostics.Did_you_mean_0, __TEMPLATE__("export type { ", unescapeLeadingUnderscores(node.name.escapedText), " }")))
 				}
+
 				declarationName := getNameOfDeclaration(node) || node
 				forEach(symbol.declarations, func(declaration Declaration, index number) {
 					decl := getNameOfDeclaration(declaration) || declaration
@@ -558,6 +591,7 @@ func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node
 						relatedInformation.push(binder.createDiagnosticForNode(decl, Diagnostics.The_first_export_default_is_here))
 					}
 				})
+
 				var diag DiagnosticWithLocation
 				if messageNeedsName {
 					diag = binder.createDiagnosticForNode(declarationName, message, binder.getDisplayName(node))
@@ -565,16 +599,19 @@ func (binder *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node
 					diag = binder.createDiagnosticForNode(declarationName, message)
 				}
 				binder.file.bindDiagnostics.push(addRelatedInfo(diag, relatedInformation...))
+
 				symbol = binder.createSymbol(SymbolFlagsNone, name)
 			}
 		}
 	}
+
 	binder.addDeclarationToSymbol(symbol, node, includes)
 	if symbol.parent {
 		Debug.assert(symbol.parent == binder.parent, "Existing symbol parent should match new one")
 	} else {
 		symbol.parent = binder.parent
 	}
+
 	return symbol
 }
 
@@ -598,6 +635,7 @@ func (binder *Binder) declareModuleMember(node Declaration, symbolFlags SymbolFl
 		//   2. When we checkIdentifier in the checker, we set its resolved symbol to the local symbol,
 		//      but return the export symbol (by calling getExportSymbolOfValueSymbolIfExported). That way
 		//      when the emitter comes back to it, it knows not to qualify the name if it was found in a containing scope.
+
 		// NOTE: Nested ambient modules always should go to to 'locals' table to prevent their automatic merge
 		//       during global merging in the checker. Why? The only case when ambient module is permitted inside another module is module augmentation
 		//       and this case is specially handled. Module augmentations should only be merged with original module definition
@@ -667,6 +705,7 @@ func (binder *Binder) bindContainer(node Mutable[HasContainerFlags], containerFl
 	saveContainer := binder.container
 	saveThisParentContainer := binder.thisParentContainer
 	savedBlockScopeContainer := binder.blockScopeContainer
+
 	// Depending on what kind of node this is, we may have to adjust the current container
 	// and block-container.   If the current node is a container, then it is automatically
 	// considered the current block-container as well.  Also, for containers that we know
@@ -742,6 +781,7 @@ func (binder *Binder) bindContainer(node Mutable[HasContainerFlags], containerFl
 			node.flags |= binder.emitFlags
 			(node /* as SourceFile */).endFlowNode = binder.currentFlow
 		}
+
 		if binder.currentReturnTarget {
 			binder.addAntecedent(binder.currentReturnTarget, binder.currentFlow)
 			binder.currentFlow = binder.finishFlowLabel(binder.currentReturnTarget)
@@ -771,6 +811,7 @@ func (binder *Binder) bindContainer(node Mutable[HasContainerFlags], containerFl
 	} else {
 		binder.bindChildren(node)
 	}
+
 	binder.container = saveContainer
 	binder.thisParentContainer = saveThisParentContainer
 	binder.blockScopeContainer = savedBlockScopeContainer
@@ -797,6 +838,7 @@ func (binder *Binder) bindEach(nodes *NodeArray[Node], bindFunction func(node No
 	if nodes == nil {
 		return
 	}
+
 	forEach(nodes, bindFunction)
 }
 
@@ -1403,6 +1445,7 @@ func (binder *Binder) bindCaseBlock(node CaseBlock) {
 	clauses := node.clauses
 	isNarrowingSwitch := node.parent.expression.kind == SyntaxKindTrueKeyword || binder.isNarrowingExpression(node.parent.expression)
 	var fallthroughFlow FlowNode = binder.unreachableFlow
+
 	for i := 0; i < clauses.length; i++ {
 		clauseStart := i
 		for !clauses[i].statements.length && i+1 < clauses.length {
@@ -1509,9 +1552,11 @@ func (binder *Binder) bindLogicalLikeExpression(node BinaryExpression, trueTarge
 	}
 	binder.currentFlow = binder.finishFlowLabel(preRightLabel)
 	binder.bind(node.operatorToken)
+
 	if isLogicalOrCoalescingAssignmentOperator(node.operatorToken.kind) {
 		binder.doWithConditionalBranches(binder.bind, node.right, trueTarget, falseTarget)
 		binder.bindAssignmentTargetFlow(node.left)
+
 		binder.addAntecedent(trueTarget, binder.createFlowCondition(FlowFlagsTrueCondition, binder.currentFlow, node))
 		binder.addAntecedent(falseTarget, binder.createFlowCondition(FlowFlagsFalseCondition, binder.currentFlow, node))
 	} else {
@@ -1566,7 +1611,9 @@ func (binder *Binder) createBindBinaryExpressionFlow() /* TODO(TS-TO-GO) inferre
 		inStrictModeStack []*bool
 		parentStack       []Node
 	}
+
 	return createBinaryExpressionTrampoline(onEnter, onLeft, onOperator, onRight, onExit /*foldState*/, nil)
+
 	onEnter := func(node BinaryExpression, state *WorkArea) WorkArea {
 		if state {
 			state.stackIndex++
@@ -1789,6 +1836,7 @@ func (binder *Binder) bindJSDocImportTag(node JSDocImportTag) {
 	binder.bind(node.tagName)
 	binder.bind(node.moduleSpecifier)
 	binder.bind(node.attributes)
+
 	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO != "string" {
 		binder.bindEach(node.comment)
 	}
@@ -1910,6 +1958,7 @@ func (binder *Binder) addToContainerChain(next HasLocals) {
 	if binder.lastContainer {
 		binder.lastContainer.nextContainer = next
 	}
+
 	binder.lastContainer = next
 }
 
@@ -2010,6 +2059,7 @@ func (binder *Binder) bindModuleDeclaration(node ModuleDeclaration) {
 					binder.errorOnFirstToken(node.name, Diagnostics.Pattern_0_can_have_at_most_one_Asterisk_character, text)
 				}
 			}
+
 			symbol := binder.declareSymbolAndAddToSymbolTable(node, SymbolFlagsValueModule, SymbolFlagsValueModuleExcludes)
 			binder.file.patternAmbientModules = append(binder.file.patternAmbientModules, __COND__(pattern && !isString(pattern), map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"pattern": pattern,
@@ -2043,6 +2093,7 @@ func (binder *Binder) bindFunctionOrConstructorType(node /* TODO(TS-TO-GO) TypeN
 	symbol := binder.createSymbol(SymbolFlagsSignature, binder.getDeclarationName(node))
 	// TODO: GH#18217
 	binder.addDeclarationToSymbol(symbol, node, SymbolFlagsSignature)
+
 	typeLiteralSymbol := binder.createSymbol(SymbolFlagsTypeLiteral, InternalSymbolNameType)
 	binder.addDeclarationToSymbol(typeLiteralSymbol, node, SymbolFlagsTypeLiteral)
 	typeLiteralSymbol.members = createSymbolTable()
@@ -2162,11 +2213,13 @@ func (binder *Binder) bindJSDocImports() {
 	if binder.jsDocImports == nil {
 		return
 	}
+
 	saveContainer := binder.container
 	saveLastContainer := binder.lastContainer
 	saveBlockScopeContainer := binder.blockScopeContainer
 	saveParent := binder.parent
 	saveCurrentFlow := binder.currentFlow
+
 	for _, jsDocImportTag := range binder.jsDocImports {
 		host := getJSDocHost(jsDocImportTag)
 		var enclosingContainer *IsContainer
@@ -2187,6 +2240,7 @@ func (binder *Binder) bindJSDocImports() {
 		binder.parent = jsDocImportTag
 		binder.bind(jsDocImportTag.importClause)
 	}
+
 	binder.container = saveContainer
 	binder.lastContainer = saveLastContainer
 	binder.blockScopeContainer = saveBlockScopeContainer
@@ -2205,6 +2259,7 @@ func (binder *Binder) checkContextualIdentifier(node Identifier) {
 		if originalKeywordKind == nil {
 			return
 		}
+
 		if binder.inStrictMode && originalKeywordKind >= SyntaxKindFirstFutureReservedWord && originalKeywordKind <= SyntaxKindLastFutureReservedWord {
 			binder.file.bindDiagnostics.push(binder.createDiagnosticForNode(node, binder.getStrictModeIdentifierMessage(node), declarationNameToString(node)))
 		} else if originalKeywordKind == SyntaxKindAwaitKeyword {
@@ -2225,9 +2280,11 @@ func (binder *Binder) getStrictModeIdentifierMessage(node Node) DiagnosticMessag
 	if getContainingClass(node) {
 		return Diagnostics.Identifier_expected_0_is_a_reserved_word_in_strict_mode_Class_definitions_are_automatically_in_strict_mode
 	}
+
 	if binder.file.externalModuleIndicator {
 		return Diagnostics.Identifier_expected_0_is_a_reserved_word_in_strict_mode_Modules_are_automatically_in_strict_mode
 	}
+
 	return Diagnostics.Identifier_expected_0_is_a_reserved_word_in_strict_mode
 }
 
@@ -2290,9 +2347,11 @@ func (binder *Binder) getStrictModeEvalOrArgumentsMessage(node Node) DiagnosticM
 	if getContainingClass(node) {
 		return Diagnostics.Code_contained_in_a_class_is_evaluated_in_JavaScript_s_strict_mode_which_does_not_allow_this_use_of_0_For_more_information_see_https_Colon_Slash_Slashdeveloper_mozilla_org_Slashen_US_Slashdocs_SlashWeb_SlashJavaScript_SlashReference_SlashStrict_mode
 	}
+
 	if binder.file.externalModuleIndicator {
 		return Diagnostics.Invalid_use_of_0_Modules_are_automatically_in_strict_mode
 	}
+
 	return Diagnostics.Invalid_use_of_0_in_strict_mode
 }
 
@@ -2309,9 +2368,11 @@ func (binder *Binder) getStrictModeBlockScopeFunctionDeclarationMessage(node Nod
 	if getContainingClass(node) {
 		return Diagnostics.Function_declarations_are_not_allowed_inside_blocks_in_strict_mode_when_targeting_ES5_Class_definitions_are_automatically_in_strict_mode
 	}
+
 	if binder.file.externalModuleIndicator {
 		return Diagnostics.Function_declarations_are_not_allowed_inside_blocks_in_strict_mode_when_targeting_ES5_Modules_are_automatically_in_strict_mode
 	}
+
 	return Diagnostics.Function_declarations_are_not_allowed_inside_blocks_in_strict_mode_when_targeting_ES5
 }
 
@@ -2399,6 +2460,7 @@ func (binder *Binder) bind(node Node) {
 		(node /* as TracingNode */).tracingPath = binder.file.path
 	}
 	saveInStrictMode := binder.inStrictMode
+
 	// Even though in the AST the jsdoc @typedef node belongs to the current node,
 	// its symbol might be in the same scope with the current node's symbol. Consider:
 	//
@@ -2408,6 +2470,7 @@ func (binder *Binder) bind(node Node) {
 	// Here the current node is "foo", which is a container, but the scope of "MyType" should
 	// not be inside "foo". Therefore we always bind @typedef before bind the parent node,
 	// and skip binding this tag later when binding all the other jsdoc tags.
+
 	// First we bind declaration nodes to a symbol if possible. We'll both create a symbol
 	// and then potentially add the symbol to an appropriate symbol table. Possible
 	// destination symbol tables are:
@@ -2466,6 +2529,7 @@ func (binder *Binder) updateStrictModeStatementList(statements NodeArray[Stateme
 			if !isPrologueDirective(statement) {
 				return
 			}
+
 			if binder.isUseStrictPrologueDirective(statement /* as ExpressionStatement */) {
 				binder.inStrictMode = true
 				return
@@ -2477,6 +2541,7 @@ func (binder *Binder) updateStrictModeStatementList(statements NodeArray[Stateme
 // / Should be called only on prologue directives (isPrologueDirective(node) should be true)
 func (binder *Binder) isUseStrictPrologueDirective(node ExpressionStatement) bool {
 	nodeText := getSourceTextOfNodeFromSourceFile(binder.file, node.expression)
+
 	// Note: the node text must be exactly "use strict" or 'use strict'.  It is not ok for the
 	// string to contain unicode escapes (as per ES5).
 	return nodeText == "\"use strict\"" || nodeText == "'use strict'"
@@ -2747,6 +2812,7 @@ func (binder *Binder) bindExportAssignment(node ExportAssignment) {
 		// If there is an `export default x;` alias declaration, can't `export default` anything else.
 		// (In contrast, you can still have `export default function f() {}` and `export default interface I {}`.)
 		symbol := binder.declareSymbol(binder.container.symbol.exports, binder.container.symbol, node, flags, SymbolFlagsAll)
+
 		if node.isExportEquals {
 			// Will be an error later, since the module already has other exports. Just make sure this has a valueDeclaration set.
 			setValueDeclaration(symbol, node)
@@ -2864,10 +2930,12 @@ func (binder *Binder) bindModuleExportsAssignment(node BindablePropertyAssignmen
 	if isEmptyObjectLiteral(assignedExpression) || binder.container == binder.file && isExportsOrModuleExportsOrAlias(binder.file, assignedExpression) {
 		return
 	}
+
 	if isObjectLiteralExpression(assignedExpression) && every(assignedExpression.properties, isShorthandPropertyAssignment) {
 		forEach(assignedExpression.properties, binder.bindExportAssignedObjectMemberAlias)
 		return
 	}
+
 	// 'module.exports = expr' assignment
 	var flags number
 	if exportAssignmentIsAlias(node) {
@@ -2901,6 +2969,7 @@ func (binder *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode
 				constructorSymbol = binder.lookupSymbolForPropertyAccess(l.expression.expression, binder.thisParentContainer)
 			}
 		}
+
 		if constructorSymbol && constructorSymbol.valueDeclaration {
 			// Declare a 'member' if the container is an ES5 class or ES6 constructor
 			constructorSymbol.members = constructorSymbol.members || createSymbolTable()
@@ -2968,6 +3037,7 @@ func (binder *Binder) bindSpecialPropertyDeclaration(node /* TODO(TS-TO-GO) Type
 }
 
 /** For `x.prototype = { p, ... }`, declare members p,... if `x` is function/class/{}, or not declared. */
+
 func (binder *Binder) bindPrototypeAssignment(node BindableStaticPropertyAssignmentExpression) {
 	setParent(node.left, node)
 	setParent(node.right, node)
@@ -2987,15 +3057,18 @@ func (binder *Binder) bindObjectDefinePrototypeProperty(node BindableObjectDefin
  * For `x.prototype.y = z`, declare a member `y` on `x` if `x` is a function or class, or not declared.
  * Note that jsdoc preceding an ExpressionStatement like `x.prototype.y;` is also treated as a declaration.
  */
+
 func (binder *Binder) bindPrototypePropertyAssignment(lhs BindableStaticAccessExpression, parent Node) {
 	// Look up the function in the local scope, since prototype assignments should
 	// follow the function declaration
 	classPrototype := lhs.expression /* as BindableStaticAccessExpression */
 	constructorFunction := classPrototype.expression
+
 	// Fix up parent pointers since we're going to use these nodes before we bind into them
 	setParent(constructorFunction, classPrototype)
 	setParent(classPrototype, lhs)
 	setParent(lhs, binder.parent)
+
 	binder.bindPropertyAssignment(constructorFunction, lhs /*isPrototypeProperty*/, true /*containerIsClass*/, true)
 }
 
@@ -3037,6 +3110,7 @@ func (binder *Binder) bindSpecialPropertyAssignment(node BindablePropertyAssignm
  * For nodes like `x.y = z`, declare a member 'y' on 'x' if x is a function (or IIFE) or class or {}, or not declared.
  * Also works for expression statements preceded by JSDoc, like / ** @type number * / x.y;
  */
+
 func (binder *Binder) bindStaticPropertyAssignment(node BindableStaticNameExpression) {
 	Debug.assert(!isIdentifier(node))
 	setParent(node.expression, node)
@@ -3076,6 +3150,7 @@ func (binder *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* 
 	if !namespaceSymbol || !binder.isExpandoSymbol(namespaceSymbol) {
 		return
 	}
+
 	// Set up the members collection if it doesn't exist already
 	var symbolTable SymbolTable
 	if isPrototypeProperty {
@@ -3083,6 +3158,7 @@ func (binder *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* 
 	} else {
 		symbolTable = (namespaceSymbol.exports || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: namespaceSymbol.exports = createSymbolTable() */ TODO))
 	}
+
 	includes := SymbolFlagsNone
 	excludes := SymbolFlagsNone
 	// Method-like
@@ -3107,10 +3183,12 @@ func (binder *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* 
 			excludes |= SymbolFlagsGetAccessorExcludes
 		}
 	}
+
 	if includes == SymbolFlagsNone {
 		includes = SymbolFlagsProperty
 		excludes = SymbolFlagsPropertyExcludes
 	}
+
 	binder.declareSymbol(symbolTable, namespaceSymbol, declaration, includes|SymbolFlagsAssignment, excludes&~SymbolFlagsAssignment)
 }
 
@@ -3139,6 +3217,7 @@ func (binder *Binder) bindPropertyAssignment(name BindableStaticNameExpression, 
  * -                       with empty object literals
  * -                       with non-empty object literals if assigned to the prototype property
  */
+
 func (binder *Binder) isExpandoSymbol(symbol Symbol) bool {
 	if symbol.flags & (SymbolFlagsFunction | SymbolFlagsClass | SymbolFlagsNamespaceModule) {
 		return true
@@ -3224,7 +3303,9 @@ func (binder *Binder) bindClassLikeDeclaration(node ClassLikeDeclaration) {
 			binder.classifiableNames.add(node.name.escapedText)
 		}
 	}
+
 	TODO_IDENTIFIER := node
+
 	// TypeScript 1.0 spec (April 2014): 8.4
 	// Every class automatically contains a static property member named 'prototype', the
 	// type of which is an instantiation of the class type with type Any supplied as a type
@@ -3258,6 +3339,7 @@ func (binder *Binder) bindVariableDeclarationOrBindingElement(node /* TODO(TS-TO
 	if binder.inStrictMode {
 		binder.checkStrictModeEvalOrArguments(node, node.name)
 	}
+
 	if !isBindingPattern(node.name) {
 		var possibleVariableDecl /* TODO(TS-TO-GO) inferred type VariableDeclaration | ParameterDeclaration | BindingElement */ any
 		if node.kind == SyntaxKindVariableDeclaration {
@@ -3295,11 +3377,13 @@ func (binder *Binder) bindParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: P
 		// strict mode FunctionLikeDeclaration or FunctionExpression(13.1)
 		binder.checkStrictModeEvalOrArguments(node, node.name)
 	}
+
 	if isBindingPattern(node.name) {
 		binder.bindAnonymousDeclaration(node, SymbolFlagsFunctionScopedVariable, "__"+(node /* as ParameterDeclaration */).parent.parameters.indexOf(node /* as ParameterDeclaration */) /* as __String */)
 	} else {
 		binder.declareSymbolAndAddToSymbolTable(node, SymbolFlagsFunctionScopedVariable, SymbolFlagsParameterExcludes)
 	}
+
 	// If this is a property-parameter, then also declare the property symbol into the
 	// containing class.
 	if isParameterPropertyDeclaration(node, node.parent) {
@@ -3314,6 +3398,7 @@ func (binder *Binder) bindFunctionDeclaration(node FunctionDeclaration) {
 			binder.emitFlags |= NodeFlagsHasAsyncFunctions
 		}
 	}
+
 	binder.checkStrictModeFunctionName(node)
 	if binder.inStrictMode {
 		binder.checkStrictModeFunctionDeclaration(node)
@@ -3346,9 +3431,11 @@ func (binder *Binder) bindPropertyOrMethodOrAccessor(node Declaration, symbolFla
 	if !binder.file.isDeclarationFile && !(node.flags & NodeFlagsAmbient) && isAsyncFunction(node) {
 		binder.emitFlags |= NodeFlagsHasAsyncFunctions
 	}
+
 	if binder.currentFlow && isObjectLiteralOrClassExpressionMethodOrAccessor(node) {
 		node.flowNode = binder.currentFlow
 	}
+
 	if hasDynamicName(node) {
 		return binder.bindAnonymousDeclaration(node, symbolFlags, InternalSymbolNameComputed)
 	} else {
@@ -3389,6 +3476,7 @@ func (binder *Binder) bindTypeParameter(node TypeParameterDeclaration) {
 }
 
 // reachability checks
+
 func (binder *Binder) shouldReportErrorOnModuleDeclaration(node ModuleDeclaration) bool {
 	instanceState := getModuleInstanceState(node)
 	return instanceState == ModuleInstanceStateInstantiated || (instanceState == ModuleInstanceStateConstEnumOnly && shouldPreserveConstEnums(binder.options))
@@ -3400,8 +3488,10 @@ func (binder *Binder) checkUnreachable(node Node) bool {
 	}
 	if binder.currentFlow == binder.unreachableFlow {
 		reportError := (isStatementButNotDeclaration(node) && node.kind != SyntaxKindEmptyStatement) || node.kind == SyntaxKindClassDeclaration || isEnumDeclarationWithPreservedEmit(node, binder.options) || (node.kind == SyntaxKindModuleDeclaration && binder.shouldReportErrorOnModuleDeclaration(node /* as ModuleDeclaration */))
+
 		if reportError {
 			binder.currentFlow = binder.reportedUnreachableFlow
+
 			if !binder.options.allowUnreachableCode {
 				// unreachable code is reported if
 				// - user has explicitly asked about it AND
@@ -3415,6 +3505,7 @@ func (binder *Binder) checkUnreachable(node Node) bool {
 				isError := unreachableCodeIsError(binder.options) && !(node.flags & NodeFlagsAmbient) && (!isVariableStatement(node) || !!(getCombinedNodeFlags(node.declarationList) & NodeFlagsBlockScoped) || node.declarationList.declarations.some(func(d VariableDeclaration) bool {
 					return !!d.initializer
 				}))
+
 				eachUnreachableRange(node, binder.options, func(start Node, end Node) {
 					return binder.errorOrSuggestionOnRange(isError, start, end, Diagnostics.Unreachable_code_detected)
 				})
@@ -3438,6 +3529,7 @@ func eachUnreachableRange(node Node, options CompilerOptions, cb func(start Node
 	} else {
 		cb(node, node)
 	}
+
 	// As opposed to a pure declaration like an `interface`
 	isExecutableStatement := func(s Statement) bool {
 		// Don't remove statements that can validly be used before they appear.
@@ -3463,6 +3555,7 @@ func eachUnreachableRange(node Node, options CompilerOptions, cb func(start Node
 }
 
 /** @internal */
+
 func isExportsOrModuleExportsOrAlias(sourceFile SourceFile, node Expression) bool {
 	i := 0
 	q := createQueue()
@@ -3488,6 +3581,7 @@ func isExportsOrModuleExportsOrAlias(sourceFile SourceFile, node Expression) boo
 }
 
 /** @internal */
+
 func getContainerFlags(node Node) ContainerFlags {
 	switch node.kind {
 	case SyntaxKindClassExpression,
@@ -3549,6 +3643,7 @@ func getContainerFlags(node Node) ContainerFlags {
 			return ContainerFlagsIsBlockScopedContainer | ContainerFlagsHasLocals
 		}
 	}
+
 	return ContainerFlagsNone
 }
 

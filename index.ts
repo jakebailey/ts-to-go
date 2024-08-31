@@ -1026,6 +1026,20 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     function visitStatement2(node: Statement, isStructMethod: boolean) {
         writer.newLineIfLastNot();
 
+        // If more than one newline, add another newline.
+        const prev = node.getPreviousSibling()?.getEnd();
+        if (prev !== undefined) {
+            // This is much faster than asking ts-morph for the line numbers.
+            const text = sourceFile.getText();
+            const first = text.indexOf("\n", prev);
+            if (first !== -1) {
+                const second = text.indexOf("\n", first + 1);
+                if (second !== -1 && second < node.getStart()) {
+                    writer.newLine();
+                }
+            }
+        }
+
         const isGlobal = node.getParentIfKind(ts.SyntaxKind.SourceFile) !== undefined;
 
         if (Node.isImportDeclaration(node)) {
