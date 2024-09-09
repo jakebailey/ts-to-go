@@ -85,7 +85,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
     function asComment(text: string) {
         text = text.replaceAll("*/", "* /");
-        text = text.replace(/\r?\n\s+/gm, " ");
+        text = text.replace(/(\r?\n\s*)+/gm, " ");
+        assert(!text.includes("\n"));
         return `/* ${text} */`;
     }
 
@@ -910,6 +911,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                     writer.write(" ");
                     visitTypeNode(constraint);
                 }
+                else {
+                    writer.write(" any");
+                }
                 writer.conditionalWrite(i < typeParameters.length - 1, ", ");
             }
 
@@ -1237,6 +1241,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
 
         if (Node.isModuleDeclaration(node)) {
+            // TODO: add namespace name as prefix to each variable declared inside
+            // TODO: error on namespace merging; check which things namespace can merge with?
+
             if (node.getName() === "JsxNames") {
                 // Special case for JsxNames only
                 const exports = new Map<string, string>();
@@ -1560,7 +1567,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.writeLine("}");
             const catchClause = node.getCatchClause();
             if (catchClause) {
-                writer.write(`// catch ${catchClause.getVariableDeclaration()?.getText() ?? ""}`);
+                writer.write(`{ // catch ${catchClause.getVariableDeclaration()?.getText() ?? ""}`);
                 writer.indent(() => {
                     visitStatement(catchClause.getBlock());
                 });
@@ -1642,3 +1649,4 @@ await convert("checker.ts", "output/checker.go", "TypeChecker");
 await convert("binder.ts", "output/binder.go", "Binder");
 await convert("scanner.ts", "output/scanner.go", "Scanner");
 await convert("parser.ts", "output/parser.go");
+await convert("utilities.ts", "output/utilities.go");
