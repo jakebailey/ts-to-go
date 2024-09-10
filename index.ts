@@ -44,10 +44,10 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     if (mainStruct) {
         switch (mainStruct) {
             case "TypeChecker":
-                methodReceiver = "tc";
+                methodReceiver = "c";
                 break;
             case "Binder":
-                methodReceiver = "binder";
+                methodReceiver = "b";
                 break;
             case "Scanner":
                 methodReceiver = "scanner";
