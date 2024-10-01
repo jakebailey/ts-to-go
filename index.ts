@@ -436,6 +436,29 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
         else if (Node.isCallExpression(node)) {
             const expression = node.getExpression();
+
+            if (Node.isPropertyAccessExpression(expression)) {
+                const name = expression.getNameNode();
+                const expr = expression.getExpression();
+                if (Node.isStringLiteral(expr)) {
+                    switch (name.getText()) {
+                        case "padStart":
+                            writer.write("PAD_START(");
+                            visitExpression(expr);
+                            if (node.getArguments().length === 1) {
+                                writer.write(", ");
+                                const arg = node.getArguments()[0];
+                                assert(Node.isExpression(arg));
+                                visitExpression(arg);
+                            }
+                            writer.write(")");
+                            return;
+                        default:
+                            throw new Error(`Unexpected string property access: ${name.getText()}`);
+                    }
+                }
+            }
+
             visitExpression(expression);
             writer.write("(");
             const args = node.getArguments();
@@ -1650,3 +1673,5 @@ await convert("binder.ts", "output/binder.go", "Binder");
 await convert("scanner.ts", "output/scanner.go", "Scanner");
 await convert("parser.ts", "output/parser.go");
 await convert("utilities.ts", "output/utilities.go");
+await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
+await convert("program.ts", "output/program.go");
