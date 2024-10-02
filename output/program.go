@@ -2887,6 +2887,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					SyntaxKindFunctionDeclaration,
 					SyntaxKindArrowFunction,
 					SyntaxKindVariableDeclaration:
+					// type annotation
 					if (parent /* as FunctionLikeDeclaration | VariableDeclaration | ParameterDeclaration | PropertyDeclaration */).type_ == node {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.Type_annotations_can_only_be_used_in_TypeScript_files))
 						return "skip"
@@ -3010,17 +3011,20 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					SyntaxKindFunctionExpression,
 					SyntaxKindFunctionDeclaration,
 					SyntaxKindArrowFunction:
+					// Check type parameters
 					if nodes == (parent.(DeclarationWithTypeParameterChildren)).typeParameters {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_parameter_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
 					fallthrough
 				case SyntaxKindVariableStatement:
+					// Check modifiers
 					if nodes == (parent.(VariableStatement)).modifiers {
 						checkModifiers((parent.(VariableStatement)).modifiers, parent.kind == SyntaxKindVariableStatement)
 						return "skip"
 					}
 				case SyntaxKindPropertyDeclaration:
+					// Check modifiers of property declaration
 					if nodes == (parent.(PropertyDeclaration)).modifiers {
 						for _, modifier := range nodes.(NodeArray[ModifierLike]) {
 							if isModifier(modifier) && modifier.kind != SyntaxKindStaticKeyword && modifier.kind != SyntaxKindAccessorKeyword {
@@ -3030,6 +3034,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 						return "skip"
 					}
 				case SyntaxKindParameter:
+					// Check modifiers of parameter declaration
 					if nodes == (parent.(ParameterDeclaration)).modifiers && some(nodes, isModifier) {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Parameter_modifiers_can_only_be_used_in_TypeScript_files))
 						return "skip"
@@ -3040,6 +3045,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					SyntaxKindJsxSelfClosingElement,
 					SyntaxKindJsxOpeningElement,
 					SyntaxKindTaggedTemplateExpression:
+					// Check type arguments
 					if nodes == (parent.(NodeWithTypeArguments)).typeArguments {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_arguments_can_only_be_used_in_TypeScript_files))
 						return "skip"
@@ -3054,6 +3060,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 						if isConstValid {
 							continue
 						}
+						// to report error,
 						fallthrough
 					case SyntaxKindPublicKeyword,
 						SyntaxKindPrivateKeyword,
@@ -3065,12 +3072,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 						SyntaxKindInKeyword,
 						SyntaxKindOutKeyword:
 						diagnostics.push(createDiagnosticForNode(modifier, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, tokenToString(modifier.kind)))
+
+						// These are all legal modifiers.
 					case SyntaxKindStaticKeyword:
-						fallthrough
 					case SyntaxKindExportKeyword:
-						fallthrough
 					case SyntaxKindDefaultKeyword:
-						fallthrough
 					case SyntaxKindAccessorKeyword:
 					}
 				}
@@ -4572,6 +4578,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				break
 			}
 			matchedByInclude := getMatchedIncludeSpec(program, fileName)
+			// Could be additional files specified as roots
 			if !matchedByInclude || !isString(matchedByInclude) {
 				return nil
 			}
@@ -5237,6 +5244,7 @@ func getResolutionDiagnostic(options CompilerOptions, TODO_IDENTIFIER ResolvedMo
 		ExtensionDmts,
 		ExtensionCts,
 		ExtensionDcts:
+		// These are always allowed.
 		return nil
 	case ExtensionTsx:
 		return needJsx()

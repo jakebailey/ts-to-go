@@ -86,15 +86,18 @@ func getModuleInstanceStateWorker(node Node, visited Map[number, *ModuleInstance
 	case SyntaxKindInterfaceDeclaration,
 		SyntaxKindTypeAliasDeclaration:
 		return ModuleInstanceStateNonInstantiated
+		// 2. const enum declarations
 	case SyntaxKindEnumDeclaration:
 		if isEnumConst(node.(EnumDeclaration)) {
 			return ModuleInstanceStateConstEnumOnly
 		}
+		// 3. non-exported import declarations
 	case SyntaxKindImportDeclaration,
 		SyntaxKindImportEqualsDeclaration:
 		if !(hasSyntacticModifier(node, ModifierFlagsExport)) {
 			return ModuleInstanceStateNonInstantiated
 		}
+		// 4. Export alias declarations pointing at only uninstantiated modules or things uninstantiated modules contain
 	case SyntaxKindExportDeclaration:
 		exportDeclaration := node.(ExportDeclaration)
 		if !exportDeclaration.moduleSpecifier && exportDeclaration.exportClause && exportDeclaration.exportClause.kind == SyntaxKindNamedExports {
@@ -110,17 +113,21 @@ func getModuleInstanceStateWorker(node Node, visited Map[number, *ModuleInstance
 			}
 			return state
 		}
+		// 5. other uninstantiated module declarations.
 	case SyntaxKindModuleBlock:
 		state := ModuleInstanceStateNonInstantiated
 		forEachChild(node, func(n Node) *true {
 			childState := getModuleInstanceStateCached(n, visited)
 			switch childState {
 			case ModuleInstanceStateNonInstantiated:
+				// child is non-instantiated - continue searching
 				return
 			case ModuleInstanceStateConstEnumOnly:
+				// child is const enum only - record state and continue searching
 				state = ModuleInstanceStateConstEnumOnly
 				return
 			case ModuleInstanceStateInstantiated:
+				// child is instantiated - record state and stop
 				state = ModuleInstanceStateInstantiated
 				return true
 			default:
@@ -128,10 +135,11 @@ func getModuleInstanceStateWorker(node Node, visited Map[number, *ModuleInstance
 			}
 		})
 		return state
-		fallthrough
 	case SyntaxKindModuleDeclaration:
 		return getModuleInstanceState(node.(ModuleDeclaration), visited)
 	case SyntaxKindIdentifier:
+		// Only jsdoc typedef definition can exist in jsdoc namespace, and it should
+		// be considered the same as type alias
 		if node.flags & NodeFlagsIdentifierIsInJSDocNamespace {
 			return ModuleInstanceStateNonInstantiated
 		}
@@ -423,6 +431,8 @@ func (b *Binder) getDeclarationName(node Declaration) *__String {
 	case SyntaxKindExportDeclaration:
 		return InternalSymbolNameExportStar
 	case SyntaxKindSourceFile:
+		// json file should behave as
+		// module.exports = ...
 		return InternalSymbolNameExportEquals
 	case SyntaxKindBinaryExpression:
 		if getAssignmentDeclarationKind(node.(BinaryExpression)) == AssignmentDeclarationKindModuleExports {
@@ -433,6 +443,8 @@ func (b *Binder) getDeclarationName(node Declaration) *__String {
 	case SyntaxKindJSDocFunctionType:
 		return (ifelse(isJSDocConstructSignature(node), InternalSymbolNameNew, InternalSymbolNameCall))
 	case SyntaxKindParameter:
+		// Parameters with names are handled at the top of this function.  Parameters
+		// without names can only come from JSDocFunctionTypes.
 		Debug.assert(node.parent.kind == SyntaxKindJSDocFunctionType, "Impossible parameter parent kind", func() string {
 			return __TEMPLATE__("parent is: ", Debug.formatSyntaxKind(node.parent.kind), ", expected JSDocFunctionType")
 		})
@@ -914,11 +926,10 @@ func (b *Binder) bindChildren(node Node) {
 		b.bindJSDocTypeAlias(node /* as JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag */)
 	case SyntaxKindJSDocImportTag:
 		b.bindJSDocImportTag(node.(JSDocImportTag))
+		// In source files and blocks, bind functions first to match hoisting that occurs at runtime
 	case SyntaxKindSourceFile:
 		b.bindEachFunctionsFirst((node.(SourceFile)).statements)
 		b.bind((node.(SourceFile)).endOfFileToken)
-		break
-		fallthrough
 	case SyntaxKindBlock,
 		SyntaxKindModuleBlock:
 		b.bindEachFunctionsFirst((node.(Block)).statements)
@@ -930,6 +941,8 @@ func (b *Binder) bindChildren(node Node) {
 		SyntaxKindArrayLiteralExpression,
 		SyntaxKindPropertyAssignment,
 		SyntaxKindSpreadElement:
+		// Carry over whether we are in an assignment pattern of Object and Array literals
+		// as well as their children that are valid assignment targets.
 		b.inAssignmentPattern = saveInAssignmentPattern
 		fallthrough
 	default:
@@ -1970,6 +1983,11 @@ func (b *Binder) declareSymbolAndAddToSymbolTable(node Declaration, symbolFlags 
 		SyntaxKindObjectLiteralExpression,
 		SyntaxKindInterfaceDeclaration,
 		SyntaxKindJsxAttributes:
+		// Interface/Object-types always have their children added to the 'members' of
+		// their container. They are only accessible through an instance of their
+		// container, and are never in scope otherwise (even inside the body of the
+		// object / type / interface declaring them). An exception is type parameters,
+		// which are in scope without qualification (similar to 'locals').
 		return b.declareSymbol(b.container.symbol.members, b.container.symbol, node, symbolFlags, symbolExcludes)
 	case SyntaxKindFunctionType,
 		SyntaxKindConstructorType,
@@ -1989,6 +2007,12 @@ func (b *Binder) declareSymbolAndAddToSymbolTable(node Declaration, symbolFlags 
 		SyntaxKindClassStaticBlockDeclaration,
 		SyntaxKindTypeAliasDeclaration,
 		SyntaxKindMappedType:
+		// All the children of these container types are never visible through another
+		// symbol (i.e. through another symbol's 'exports' or 'members').  Instead,
+		// they're only accessed 'lexically' (i.e. from code that exists underneath
+		// their container in the tree). To accomplish this, we simply add their declared
+		// symbol to the 'locals' of the container.  These symbols can then be found as
+		// the type checker walks up the containers, checking them for matching names.
 		if b.container.locals {
 			Debug.assertNode(b.container, canHaveLocals)
 		}
@@ -2542,6 +2566,9 @@ func (b *Binder) isUseStrictPrologueDirective(node ExpressionStatement) bool {
 func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | void | Symbol */ any {
 	switch node.kind {
 	case SyntaxKindIdentifier:
+		// for typedef type names with namespaces, bind the new jsdoc type symbol here
+		// because it requires all containing namespaces to be in effect, namely the
+		// current "blockScopeContainer" needs to be set to its immediate namespace parent.
 		if node.flags & NodeFlagsIdentifierIsInJSDocNamespace {
 			parentNode := node.parent
 			for parentNode && !isJSDocTypeAlias(parentNode) {
@@ -2552,9 +2579,11 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 		}
 		fallthrough
 	case SyntaxKindThisKeyword:
+		// TODO: Why use `isExpression` here? both Identifier and ThisKeyword are expressions.
 		if b.currentFlow && (isExpression(node) || b.parent.kind == SyntaxKindShorthandPropertyAssignment) {
 			(node /* as Identifier | ThisExpression */).flowNode = b.currentFlow
 		}
+		// TODO: a `ThisExpression` is not an Identifier, this cast is unsound
 		return b.checkContextualIdentifier(node.(Identifier))
 	case SyntaxKindQualifiedName:
 		if b.currentFlow && isPartOfTypeQuery(node) {
@@ -2601,6 +2630,7 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 			}
 			b.bindSpecialPropertyAssignment(node.(BindablePropertyAssignmentExpression))
 		case AssignmentDeclarationKindNone:
+			// Nothing to do
 		default:
 			Debug.fail("Unknown binary expression special property assignment kind")
 		}
@@ -2644,6 +2674,10 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 		return b.declareSymbolAndAddToSymbolTable(node.(Declaration), SymbolFlagsSignature, SymbolFlagsNone)
 	case SyntaxKindMethodDeclaration,
 		SyntaxKindMethodSignature:
+		// If this is an ObjectLiteralExpression method, then it sits in the same space
+		// as other properties in the object literal.  So we use SymbolFlags.PropertyExcludes
+		// so that it will conflict with any other object literal members with the same
+		// name.
 		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsMethod|(ifelse((node.(MethodDeclaration)).questionToken, SymbolFlagsOptional, SymbolFlagsNone)), ifelse(isObjectLiteralMethod(node), SymbolFlagsPropertyExcludes, SymbolFlagsMethodExcludes))
 	case SyntaxKindFunctionDeclaration:
 		return b.bindFunctionDeclaration(node.(FunctionDeclaration))
@@ -2685,8 +2719,11 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 		if isInJSFile(node) {
 			b.bindCallExpression(node.(CallExpression))
 		}
+
+		// Members of classes, interfaces, and modules
 	case SyntaxKindClassExpression,
 		SyntaxKindClassDeclaration:
+		// All classes are automatically in strict mode in ES6.
 		b.inStrictMode = true
 		return b.bindClassLikeDeclaration(node.(ClassLikeDeclaration))
 	case SyntaxKindInterfaceDeclaration:
@@ -2697,10 +2734,13 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 		return b.bindEnumDeclaration(node.(EnumDeclaration))
 	case SyntaxKindModuleDeclaration:
 		return b.bindModuleDeclaration(node.(ModuleDeclaration))
+		// Jsx-attributes
 	case SyntaxKindJsxAttributes:
 		return b.bindJsxAttributes(node.(JsxAttributes))
 	case SyntaxKindJsxAttribute:
 		return b.bindJsxAttribute(node.(JsxAttribute), SymbolFlagsProperty, SymbolFlagsPropertyExcludes)
+
+		// Imports and exports
 	case SyntaxKindImportEqualsDeclaration,
 		SyntaxKindNamespaceImport,
 		SyntaxKindImportSpecifier,
@@ -2955,6 +2995,7 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 	case SyntaxKindFunctionDeclaration,
 		SyntaxKindFunctionExpression:
 		var constructorSymbol *Symbol = thisContainer.symbol
+		// For `f.prototype.m = function() { this.x = 0; }`, `this.x = 0` should modify `f`'s members, not the function expression.
 		if isBinaryExpression(thisContainer.parent) && thisContainer.parent.operatorToken.kind == SyntaxKindEqualsToken {
 			l := thisContainer.parent.left
 			if isBindableStaticAccessExpression(l) && isPrototypeAccess(l.expression) {
@@ -2979,6 +3020,8 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 		SyntaxKindGetAccessor,
 		SyntaxKindSetAccessor,
 		SyntaxKindClassStaticBlockDeclaration:
+		// this.foo assignment in a JavaScript class
+		// Bind this property to the containing class
 		containingClass := thisContainer.parent
 		var symbolTable SymbolTable
 		if isStatic(thisContainer) {
@@ -2992,6 +3035,7 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 			b.declareSymbol(symbolTable, containingClass.symbol, node, SymbolFlagsProperty|SymbolFlagsAssignment, SymbolFlagsNone /*isReplaceableByMethod*/, true)
 		}
 	case SyntaxKindSourceFile:
+		// this.property = assignment in a source file -- declare symbol in exports for a module, in locals for a script
 		if hasDynamicName(node) {
 			break
 		} else if thisContainer.commonJsModuleIndicator {
@@ -2999,6 +3043,7 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 		} else {
 			b.declareSymbolAndAddToSymbolTable(node, SymbolFlagsFunctionScopedVariable, SymbolFlagsFunctionScopedVariableExcludes)
 		}
+		// Namespaces are not allowed in javascript files, so do nothing here
 	case SyntaxKindModuleDeclaration:
 	default:
 		Debug.failBadSyntaxKind(thisContainer)
@@ -3629,6 +3674,22 @@ func getContainerFlags(node Node) ContainerFlags {
 		SyntaxKindCaseBlock:
 		return ContainerFlagsIsBlockScopedContainer | ContainerFlagsHasLocals
 	case SyntaxKindBlock:
+		// do not treat blocks directly inside a function as a block-scoped-container.
+		// Locals that reside in this block should go to the function locals. Otherwise 'x'
+		// would not appear to be a redeclaration of a block scoped local in the following
+		// example:
+		//
+		//      function foo() {
+		//          var x;
+		//          let x;
+		//      }
+		//
+		// If we placed 'var x' into the function locals and 'let x' into the locals of
+		// the block, then there would be no collision.
+		//
+		// By not creating a new block-scoped-container here, we ensure that both 'var x'
+		// and 'let x' go into the Function-container's locals, and we do get a collision
+		// conflict.
 		if isFunctionLike(node.parent) || isClassStaticBlockDeclaration(node.parent) {
 			return ContainerFlagsNone
 		} else {

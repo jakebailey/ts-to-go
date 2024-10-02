@@ -649,12 +649,10 @@ func nameForNamelessJSDocTypedef(declaration /* TODO(TS-TO-GO) TypeNode UnionTyp
 		}
 	case SyntaxKindParenthesizedExpression:
 		return getDeclarationIdentifier(hostNode.expression)
-		fallthrough
 	case SyntaxKindLabeledStatement:
 		if isDeclaration(hostNode.statement) || isExpression(hostNode.statement) {
 			return getDeclarationIdentifier(hostNode.statement)
 		}
-		break
 	}
 }
 
@@ -704,8 +702,6 @@ func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode Unio
 		if name.kind == SyntaxKindQualifiedName {
 			return name.right
 		}
-		break
-		fallthrough
 	case SyntaxKindCallExpression,
 		SyntaxKindBinaryExpression:
 		expr := declaration /* as BinaryExpression | CallExpression */
@@ -734,7 +730,6 @@ func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode Unio
 		} else {
 			return nil
 		}
-		fallthrough
 	case SyntaxKindElementAccessExpression:
 		expr := declaration.(ElementAccessExpression)
 		if isBindableStaticElementAccessExpression(expr) {

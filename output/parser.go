@@ -981,8 +981,6 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 					reportDiagnostic(arg.range_.pos, arg.range_.end-arg.range_.pos, Diagnostics.Invalid_reference_directive_syntax)
 				}
 			})
-			break
-			fallthrough
 		case "amd-dependency":
 			context.amdDependencies = map_(toArray(entryOrList) /* as PragmaPseudoMap["amd-dependency"][] */, func(x /* TODO(TS-TO-GO) inferred type { arguments: { path: string; } & { name?: string | undefined; }; range: CommentRange; } */ any) /* TODO(TS-TO-GO) inferred type { name: string | undefined; path: string; } */ any {
 				return (map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -990,8 +988,6 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 					"path": x.arguments.path,
 				})
 			})
-			break
-			fallthrough
 		case "amd-module":
 			if /* TODO(TS-TO-GO) InstanceOfKeyword BinaryExpression: entryOrList instanceof Array */ TODO {
 				for _, entry := range entryOrList {
@@ -1004,8 +1000,6 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 			} else {
 				context.moduleName = (entryOrList /* as PragmaPseudoMap["amd-module"] */).arguments.name
 			}
-			break
-			fallthrough
 		case "ts-nocheck",
 			"ts-check":
 			// _last_ of either nocheck or check in a file is the "winner"
@@ -1018,8 +1012,6 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 					}
 				}
 			})
-			break
-			fallthrough
 		case "jsx",
 			"jsxfrag",
 			"jsximportsource",

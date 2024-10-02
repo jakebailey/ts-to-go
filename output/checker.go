@@ -2478,6 +2478,8 @@ func (c *TypeChecker) isBlockScopedNameDeclaredBeforeUse(declaration Declaration
 		case SyntaxKindVariableStatement,
 			SyntaxKindForStatement,
 			SyntaxKindForOfStatement:
+			// variable statement/for/for-of statement case,
+			// use site should not be inside variable declaration (initializer of declaration or binding element)
 			if c.isSameScopeDescendentOf(usage, declaration, declContainer) {
 				return true
 			}
@@ -2549,6 +2551,7 @@ func (c *TypeChecker) isBlockScopedNameDeclaredBeforeUse(declaration Declaration
 			case SyntaxKindArrowFunction:
 				return true
 			case SyntaxKindPropertyDeclaration:
+				// even when stopping at any property declaration, they need to come from the same class
 				if stopAtAnyPropertyDeclaration && (isPropertyDeclaration(declaration) && node.parent == declaration.parent || isParameterPropertyDeclaration(declaration, declaration.parent) && node.parent == declaration.parent.parent) {
 					return "quit"
 				} else {
@@ -5012,13 +5015,24 @@ func (c *TypeChecker) forEachSymbolTableInScope(enclosingDeclaration Node, callb
 			fallthrough
 		case SyntaxKindModuleDeclaration:
 			sym := c.getSymbolOfDeclaration(location.(ModuleDeclaration))
+			// `sym` may not have exports if this module declaration is backed by the symbol for a `const` that's being rewritten
+			// into a namespace - in such cases, it's best to just let the namespace appear empty (the const members couldn't have referred
+			// to one another anyway)
 			if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = callback(sym?.exports || emptySymbols, /*ignoreQualification* / undefined, /*isLocalNameLookup* / true, location) */ TODO {
 				return result
 			}
 		case SyntaxKindClassDeclaration,
 			SyntaxKindClassExpression,
 			SyntaxKindInterfaceDeclaration:
+			// Type parameters are bound into `members` lists so they can merge across declarations
+			// This is troublesome, since in all other respects, they behave like locals :cries:
+			// TODO: the below is shared with similar code in `resolveName` - in fact, rephrasing all this symbol
+			// lookup logic in terms of `resolveName` would be nice
+			// The below is used to lookup type parameters within a class or interface, as they are added to the class/interface locals
+			// These can never be latebound, so the symbol's raw members are sufficient. `getMembersOfNode` cannot be used, as it would
+			// trigger resolving late-bound names, which we may already be in the process of doing while we're here!
 			var table *Map[__String, Symbol]
+			// TODO: Should this filtered table be cached in some way?
 			(c.getSymbolOfDeclaration(location /* as ClassLikeDeclaration | InterfaceDeclaration */).members || c.emptySymbols).forEach(func(memberSymbol *Symbol, key __String) {
 				if memberSymbol.flags & (SymbolFlagsType & ~SymbolFlagsAssignment) {
 					(table || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: table = createSymbolTable() */ TODO)).set(key, memberSymbol)
@@ -5179,7 +5193,6 @@ func (c *TypeChecker) isPropertyOrMethodDeclarationSymbol(symbol Symbol) bool {
 				SyntaxKindGetAccessor,
 				SyntaxKindSetAccessor:
 				continue
-				fallthrough
 			default:
 				return false
 			}
@@ -9758,6 +9771,7 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 					addResult(factory.createImportDeclaration(nil, factory.createImportClause(false, nil, factory.createNamedImports([]ImportSpecifier{factory.createImportSpecifier(false, ifelse(propertyName && isIdentifier(propertyName), factory.createIdentifier(idText(propertyName)), nil), factory.createIdentifier(localName))})), factory.createStringLiteral(specifier), nil), ModifierFlagsNone)
 					break
 				}
+				// We don't know how to serialize this (nested?) binding element
 				Debug.failBadSyntaxKind(node.parent. /* ? */ parent || node, "Unhandled binding element grandparent kind in declaration serialization")
 			case SyntaxKindShorthandPropertyAssignment:
 				if node.parent. /* ? */ parent. /* ? */ kind == SyntaxKindBinaryExpression {
@@ -9765,6 +9779,7 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 					serializeExportSpecifier(unescapeLeadingUnderscores(symbol.escapedName), targetName)
 				}
 			case SyntaxKindVariableDeclaration:
+				// commonjs require: const x = require('y')
 				if isPropertyAccessExpression((node.(VariableDeclaration)).initializer) {
 					// const x = require('y').z
 					initializer := (node.(VariableDeclaration)).initializer.(PropertyAccessExpression)
@@ -9778,17 +9793,25 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 					addResult(factory.createImportEqualsDeclaration(nil, false, factory.createIdentifier(localName), factory.createQualifiedName(uniqueName, initializer.name.(Identifier))), modifierFlags)
 					break
 				}
+				// else fall through and treat commonjs require just like import=
 				fallthrough
 			case SyntaxKindImportEqualsDeclaration:
+				// This _specifically_ only exists to handle json declarations - where we make aliases, but since
+				// we emit no declarations for the json document, must not refer to it in the declarations
 				if target.escapedName == InternalSymbolNameExportEquals && some(target.declarations, func(d Declaration) bool {
 					return isSourceFile(d) && isJsonSourceFile(d)
 				}) {
 					serializeMaybeAliasAssignment(symbol)
 					break
 				}
+				// Could be a local `import localName = ns.member` or
+				// an external `import localName = require("whatever")`
 				isLocalImport := !(target.flags & SymbolFlagsValueModule) && !isVariableDeclaration(node)
 				addResult(factory.createImportEqualsDeclaration(nil, false, factory.createIdentifier(localName), ifelse(isLocalImport, symbolToName(target, context, SymbolFlagsAll /*expectsIdentifier*/, false), factory.createExternalModuleReference(factory.createStringLiteral(getSpecifierForModuleSymbol(target, context))))), ifelse(isLocalImport, modifierFlags, ModifierFlagsNone))
 			case SyntaxKindNamespaceExportDeclaration:
+				// export as namespace foo
+				// TODO: Not part of a file's local or export symbol tables
+				// Is bound into file.symbol.globalExports instead, which we don't currently traverse
 				addResult(factory.createNamespaceExportDeclaration(idText((node.(NamespaceExportDeclaration)).name)), ModifierFlagsNone)
 			case SyntaxKindImportClause:
 				generatedSpecifier := getSpecifierForModuleSymbol(target.parent || target, context)
@@ -9807,8 +9830,6 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 				}
 				isTypeOnly := isJSDocImportTag((node.(ImportClause)).parent)
 				addResult(factory.createImportDeclaration(nil, factory.createImportClause(isTypeOnly, factory.createIdentifier(localName) /*namedBindings*/, nil), specifier, attributes), ModifierFlagsNone)
-				break
-				fallthrough
 			case SyntaxKindNamespaceImport:
 				generatedSpecifier := getSpecifierForModuleSymbol(target.parent || target, context)
 				// generate specifier (even though we're reusing and existing one) for ambient module reference include side effects
@@ -9820,8 +9841,6 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 				}
 				isTypeOnly := isJSDocImportTag((node.(NamespaceImport)).parent.parent)
 				addResult(factory.createImportDeclaration(nil, factory.createImportClause(isTypeOnly /*name*/, nil, factory.createNamespaceImport(factory.createIdentifier(localName))), specifier, (node.(ImportClause)).parent.attributes), ModifierFlagsNone)
-				break
-				fallthrough
 			case SyntaxKindNamespaceExport:
 				addResult(factory.createExportDeclaration(nil, false, factory.createNamespaceExport(factory.createIdentifier(localName)), factory.createStringLiteral(getSpecifierForModuleSymbol(target, context))), ModifierFlagsNone)
 			case SyntaxKindImportSpecifier:
@@ -9835,9 +9854,9 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 				}
 				isTypeOnly := isJSDocImportTag((node.(ImportSpecifier)).parent.parent.parent)
 				addResult(factory.createImportDeclaration(nil, factory.createImportClause(isTypeOnly, nil, factory.createNamedImports([]ImportSpecifier{factory.createImportSpecifier(false, ifelse(localName != verbatimTargetName, factory.createIdentifier(verbatimTargetName), nil), factory.createIdentifier(localName))})), specifier, (node.(ImportSpecifier)).parent.parent.parent.attributes), ModifierFlagsNone)
-				break
-				fallthrough
 			case SyntaxKindExportSpecifier:
+				// does not use localName because the symbol name in this case refers to the name in the exports table,
+				// which we must exactly preserve
 				specifier := (node.parent.parent.(ExportDeclaration)).moduleSpecifier
 				if specifier {
 					propertyName := (node.(ExportSpecifier)).propertyName
@@ -9845,12 +9864,17 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 						verbatimTargetName = InternalSymbolNameDefault
 					}
 				}
+				// targetName is only used when the target is local, as otherwise the target is an alias that points at
+				// another file
 				serializeExportSpecifier(unescapeLeadingUnderscores(symbol.escapedName), ifelse(specifier, verbatimTargetName, targetName), ifelse(specifier && isStringLiteralLike(specifier), factory.createStringLiteral(specifier.text), nil))
 			case SyntaxKindExportAssignment:
 				serializeMaybeAliasAssignment(symbol)
 			case SyntaxKindBinaryExpression,
 				SyntaxKindPropertyAccessExpression,
 				SyntaxKindElementAccessExpression:
+				// Could be best encoded as though an export specifier or as though an export assignment
+				// If name is default or export=, do an export assignment
+				// Otherwise do an export specifier
 				if symbol.escapedName == InternalSymbolNameDefault || symbol.escapedName == InternalSymbolNameExportEquals {
 					serializeMaybeAliasAssignment(symbol)
 				} else {
@@ -10432,6 +10456,8 @@ func (c *TypeChecker) isDeclarationVisible(node Node) bool {
 		case SyntaxKindJSDocCallbackTag,
 			SyntaxKindJSDocTypedefTag,
 			SyntaxKindJSDocEnumTag:
+			// Top-level jsdoc type aliases are considered exported
+			// First parent is comment node, second is hosting declaration or token; we only care about those tokens or declarations whose parent is a source file
 			return !!(node.parent && node.parent.parent && node.parent.parent.parent && isSourceFile(node.parent.parent.parent))
 		case SyntaxKindBindingElement:
 			return c.isDeclarationVisible(node.parent.parent)
@@ -10448,13 +10474,16 @@ func (c *TypeChecker) isDeclarationVisible(node Node) bool {
 			SyntaxKindFunctionDeclaration,
 			SyntaxKindEnumDeclaration,
 			SyntaxKindImportEqualsDeclaration:
+			// external module augmentation is always visible
 			if isExternalModuleAugmentation(node) {
 				return true
 			}
 			parent := c.getDeclarationContainer(node)
+			// If the node is not exported or it is not ambient module element (except import declaration)
 			if !(c.getCombinedModifierFlagsCached(node.(Declaration)) & ModifierFlagsExport) && !(node.kind != SyntaxKindImportEqualsDeclaration && parent.kind != SyntaxKindSourceFile && parent.flags&NodeFlagsAmbient) {
 				return isGlobalSourceFile(parent)
 			}
+			// Exported members/ambient module elements (exception import declaration) are visible if parent is visible
 			return c.isDeclarationVisible(parent)
 		case SyntaxKindPropertyDeclaration,
 			SyntaxKindPropertySignature,
@@ -10466,6 +10495,7 @@ func (c *TypeChecker) isDeclarationVisible(node Node) bool {
 				// Private/protected properties/methods are not visible
 				return false
 			}
+			// Public properties/methods are visible if its parents are visible, so:
 			fallthrough
 		case SyntaxKindConstructor,
 			SyntaxKindConstructSignature,
@@ -10484,14 +10514,21 @@ func (c *TypeChecker) isDeclarationVisible(node Node) bool {
 			SyntaxKindParenthesizedType,
 			SyntaxKindNamedTupleMember:
 			return c.isDeclarationVisible(node.parent)
+
+			// Default binding, import specifier and namespace import is visible
+			// only on demand so by default it is not visible
 		case SyntaxKindImportClause,
 			SyntaxKindNamespaceImport,
 			SyntaxKindImportSpecifier:
 			return false
+
+			// Type parameters are always visible
 		case SyntaxKindTypeParameter,
 			SyntaxKindSourceFile,
 			SyntaxKindNamespaceExportDeclaration:
 			return true
+
+			// Export assignments do not create name bindings outside the module
 		case SyntaxKindExportAssignment:
 			return false
 		default:
@@ -12332,7 +12369,6 @@ func (c *TypeChecker) getOuterTypeParameters(node Node, includeThisTypes bool) *
 			} else {
 				return outerAndOwnTypeParameters
 			}
-			fallthrough
 		case SyntaxKindJSDocParameterTag:
 			paramSymbol := getParameterSymbolFromJSDoc(node.(JSDocParameterTag))
 			if paramSymbol {
@@ -16967,6 +17003,8 @@ func (c *TypeChecker) getTypeReferenceName(node TypeReferenceType) *EntityNameOr
 	case SyntaxKindTypeReference:
 		return node.typeName
 	case SyntaxKindExpressionWithTypeArguments:
+		// We only support expressions that are simple qualified names. For other
+		// expressions this produces undefined.
 		expr := node.expression
 		if isEntityNameExpression(expr) {
 			return expr
@@ -20920,6 +20958,7 @@ func (c *TypeChecker) getTypeFromTypeNodeWorker(node TypeNode) Type {
 	case SyntaxKindUndefinedKeyword:
 		return c.undefinedType
 	case SyntaxKindNullKeyword.(TypeNodeSyntaxKind):
+		// TODO(rbuckton): `NullKeyword` is no longer a `TypeNode`, but we defensively allow it here because of incorrect casts in the Language Service.
 		return c.nullType
 	case SyntaxKindNeverKeyword:
 		return c.neverType
@@ -20933,6 +20972,7 @@ func (c *TypeChecker) getTypeFromTypeNodeWorker(node TypeNode) Type {
 		return c.intrinsicMarkerType
 	case SyntaxKindThisType,
 		SyntaxKindThisKeyword.(TypeNodeSyntaxKind):
+		// TODO(rbuckton): `ThisKeyword` is no longer a `TypeNode`, but we defensively allow it here because of incorrect casts in the Language Service and because of `isPartOfTypeNode`.
 		return c.getTypeFromThisTypeNode(node /* as ThisExpression | ThisTypeNode */)
 	case SyntaxKindLiteralType:
 		return c.getTypeFromLiteralTypeNode(node.(LiteralTypeNode))
@@ -20992,6 +21032,9 @@ func (c *TypeChecker) getTypeFromTypeNodeWorker(node TypeNode) Type {
 		return c.getTypeFromTemplateTypeNode(node.(TemplateLiteralTypeNode))
 	case SyntaxKindImportType:
 		return c.getTypeFromImportTypeNode(node.(ImportTypeNode))
+		// This function assumes that an identifier, qualified name, or property access expression is a type expression
+		// Callers should first ensure this by calling `isPartOfTypeNode`
+		// TODO(rbuckton): These aren't valid TypeNodes, but we treat them as such because of `isPartOfTypeNode`, which returns `true` for things that aren't `TypeNode`s.
 	case SyntaxKindIdentifier.(TypeNodeSyntaxKind),
 		SyntaxKindQualifiedName.(TypeNodeSyntaxKind),
 		SyntaxKindPropertyAccessExpression.(TypeNodeSyntaxKind):
@@ -21074,7 +21117,6 @@ func (c *TypeChecker) getMappedType(type_ Type, mapper TypeMapper) Type {
 			}
 		}
 		return type_
-		fallthrough
 	case TypeMapKindDeferred:
 		sources := mapper.sources
 		targets := mapper.targets
@@ -21084,7 +21126,6 @@ func (c *TypeChecker) getMappedType(type_ Type, mapper TypeMapper) Type {
 			}
 		}
 		return type_
-		fallthrough
 	case TypeMapKindFunction:
 		return mapper.func_(type_)
 	case TypeMapKindComposite,
@@ -21867,7 +21908,6 @@ func (c *TypeChecker) isContextSensitive(node /* TODO(TS-TO-GO) TypeNode UnionTy
 		// If there is no initializer, JSX attribute has a boolean value of true which is not context sensitive.
 		TODO_IDENTIFIER := node.(JsxAttribute)
 		return !!initializer && c.isContextSensitive(initializer)
-		fallthrough
 	case SyntaxKindJsxExpression:
 		// It is possible to that node.expression is undefined (e.g <div x={} />)
 		TODO_IDENTIFIER := node.(JsxExpression)
@@ -22361,6 +22401,7 @@ func (c *TypeChecker) generateJsxChildren(node JsxElement, getInvalidTextDiagnos
 func (c *TypeChecker) getElaborationElementForJsxChild(child JsxChild, nameType LiteralType, getInvalidTextDiagnostic func() DiagnosticMessage) * /* TODO(TS-TO-GO) inferred type { errorNode: JsxExpression; innerExpression: Expression | undefined; nameType: LiteralType; errorMessage?: undefined; } | { errorNode: JsxText; innerExpression: undefined; nameType: LiteralType; errorMessage: DiagnosticMessage; } | { errorNode: JsxElement | JsxSelfClosingElement | JsxFragment; innerExpression: JsxElement | JsxSelfClosingElement | JsxFragment; nameType: LiteralType; errorMessage?: undefined; } */ any {
 	switch child.kind {
 	case SyntaxKindJsxExpression:
+		// child is of the type of the expression
 		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"errorNode":       child,
 			"innerExpression": child.expression,
@@ -22371,6 +22412,7 @@ func (c *TypeChecker) getElaborationElementForJsxChild(child JsxChild, nameType 
 			break
 			// Whitespace only jsx text isn't real jsx text
 		}
+		// child is a string
 		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"errorNode":       child,
 			"innerExpression": nil,
@@ -22380,6 +22422,7 @@ func (c *TypeChecker) getElaborationElementForJsxChild(child JsxChild, nameType 
 	case SyntaxKindJsxElement,
 		SyntaxKindJsxSelfClosingElement,
 		SyntaxKindJsxFragment:
+		// child is of type JSX.Element
 		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"errorNode":       child,
 			"innerExpression": child,
@@ -23331,8 +23374,6 @@ func (c *TypeChecker) checkTypeRelatedTo(source Type, target Type, relation Map[
 				} else {
 					path = __TEMPLATE__(path, "[", str, "]")
 				}
-				break
-				fallthrough
 			case Diagnostics.Call_signature_return_types_0_and_1_are_incompatible.code,
 				Diagnostics.Construct_signature_return_types_0_and_1_are_incompatible.code,
 				Diagnostics.Call_signatures_with_no_arguments_have_incompatible_return_types_0_and_1.code,
@@ -23362,16 +23403,10 @@ func (c *TypeChecker) checkTypeRelatedTo(source Type, target Type, relation Map[
 					}
 					path = __TEMPLATE__(prefix, path, "(", params, ")")
 				}
-				break
-				fallthrough
 			case Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target.code:
 				secondaryRootErrors.unshift([]any{Diagnostics.Type_at_position_0_in_source_is_not_compatible_with_type_at_position_1_in_target, args[0], args[1]})
-				break
-				fallthrough
 			case Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target.code:
 				secondaryRootErrors.unshift([]any{Diagnostics.Type_at_positions_0_through_1_in_source_is_not_compatible_with_type_at_position_2_in_target, args[0], args[1], args[2]})
-				break
-				fallthrough
 			default:
 				return Debug.fail(__TEMPLATE__("Unhandled Diagnostic: ", msg.code))
 			}
@@ -29139,6 +29174,7 @@ func (c *TypeChecker) getFlowCacheKey(node Node, declaredType Type, initialType 
 		SyntaxKindFunctionExpression,
 		SyntaxKindArrowFunction,
 		SyntaxKindMethodDeclaration:
+		// Handle pseudo-references originating in getNarrowedTypeOfSymbol.
 		return __TEMPLATE__(getNodeId(node), "#", c.getTypeId(declaredType))
 	}
 	return nil
@@ -30329,7 +30365,6 @@ func (c *TypeChecker) getTypeOfDottedName(node Expression, diagnostic *Diagnosti
 				return prop && c.getExplicitTypeOfSymbol(prop, diagnostic)
 			}
 			return nil
-			fallthrough
 		case SyntaxKindParenthesizedExpression:
 			return c.getTypeOfDottedName((node.(ParenthesizedExpression)).expression, diagnostic)
 		}
@@ -30538,6 +30573,7 @@ func (c *TypeChecker) isConstantReference(node Node) bool {
 		}
 	case SyntaxKindPropertyAccessExpression,
 		SyntaxKindElementAccessExpression:
+		// The resolvedSymbol property is initialized by checkPropertyAccess or checkElementAccess before we get here.
 		return c.isConstantReference((node.(AccessExpression)).expression) && c.isReadonlySymbol(c.getNodeLinks(node).resolvedSymbol || c.unknownSymbol)
 	case SyntaxKindObjectBindingPattern,
 		SyntaxKindArrayBindingPattern:
@@ -31277,6 +31313,9 @@ func (c *TypeChecker) getFlowTypeOfReference(reference Node, declaredType Type, 
 			}
 		case SyntaxKindCommaToken:
 			return narrowType(type_, expr.right, assumeTrue)
+			// Ordinarily we won't see && and || expressions in control flow analysis because the Binder breaks those
+			// expressions down to individual conditional control flows. However, we may encounter them when analyzing
+			// aliased conditional expressions.
 		case SyntaxKindAmpersandAmpersandToken:
 			if assumeTrue {
 				return narrowType(narrowType(type_, expr.left /*assumeTrue*/, true), expr.right /*assumeTrue*/, true)
@@ -31878,6 +31917,8 @@ func (c *TypeChecker) getFlowTypeOfReference(reference Node, declaredType Type, 
 		}
 		switch expr.kind {
 		case SyntaxKindIdentifier:
+			// When narrowing a reference to a const variable, non-assigned parameter, or readonly property, we inline
+			// up to five levels of aliased conditional expressions that are themselves declared as const variables.
 			if !c.isMatchingReference(reference, expr) && c.inlineLevel < 5 {
 				symbol := c.getResolvedSymbol(expr.(Identifier))
 				if c.isConstantVariable(symbol) {
@@ -32327,7 +32368,6 @@ func (c *TypeChecker) markLinkedReferences(location Node, hint ReferenceHint, pr
 		}
 
 		return c.markDecoratorAliasReferenced(location)
-		fallthrough
 	default:
 		Debug.assertNever(hint, __TEMPLATE__("Unhandled reference hint: ", hint))
 	}
@@ -33195,8 +33235,10 @@ func (c *TypeChecker) checkThisExpression(node Node) Type {
 		switch container.kind {
 		case SyntaxKindModuleDeclaration:
 			c.error(node, Diagnostics.this_cannot_be_referenced_in_a_module_or_namespace_body)
+			// do not return here so in case if lexical this is captured - it will be reflected in flags on NodeLinks
 		case SyntaxKindEnumDeclaration:
 			c.error(node, Diagnostics.this_cannot_be_referenced_in_current_location)
+			// do not return here so in case if lexical this is captured - it will be reflected in flags on NodeLinks
 		}
 	}
 
@@ -33693,6 +33735,7 @@ func (c *TypeChecker) getContextualTypeForVariableLikeDeclaration(declaration Va
 		if isStatic(declaration) {
 			return c.getContextualTypeForStaticPropertyDeclaration(declaration, contextFlags)
 		}
+		// By default, do nothing and return undefined - only the above cases have context implied by a parent
 	}
 }
 
@@ -33962,6 +34005,11 @@ func (c *TypeChecker) getContextualTypeForBinaryOperand(node Expression, context
 		}
 	case SyntaxKindBarBarToken,
 		SyntaxKindQuestionQuestionToken:
+		// When an || expression has a contextual type, the operands are contextually typed by that type, except
+		// when that type originates in a binding pattern, the right operand is contextually typed by the type of
+		// the left operand. When an || expression has no contextual type, the right operand is contextually typed
+		// by the type of the left operand, except for the special case of Javascript declarations of the form
+		// `namespace.prop = namespace.prop || {}`.
 		type_ := c.getContextualType(binaryExpression, contextFlags)
 		if node == right && (type_ && type_.pattern || !type_ && !isDefaultedExpandoInitializer(binaryExpression)) {
 			return c.getTypeOfExpression(left)
@@ -34026,6 +34074,8 @@ func (c *TypeChecker) getContextualTypeForAssignmentDeclaration(binaryExpression
 		AssignmentDeclarationKindThisProperty:
 		lhsSymbol := c.getSymbolForExpression(binaryExpression.left)
 		decl := lhsSymbol && lhsSymbol.valueDeclaration
+		// Unannotated, uninitialized property declarations have a type implied by their usage in the constructor.
+		// We avoid calling back into `getTypeOfExpression` and reentering contextual typing to avoid a bogus circularity error in that case.
 		if decl && (isPropertyDeclaration(decl) || isPropertySignature(decl)) {
 			overallAnnotation := getEffectiveTypeAnnotationNode(decl)
 			return (overallAnnotation && c.instantiateType(c.getTypeFromTypeNode(overallAnnotation), c.getSymbolLinks(lhsSymbol).mapper)) || (ifelse(isPropertyDeclaration(decl), decl.initializer && c.getTypeOfExpression(binaryExpression.left), nil))
@@ -34606,7 +34656,6 @@ func (c *TypeChecker) getContextualType(node Expression, contextFlags *ContextFl
 		elementIndex := indexOfNode(arrayLiteral.elements, node)
 		spreadIndices := /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: getNodeLinks(arrayLiteral).spreadIndices ??= getSpreadIndices(arrayLiteral.elements) */ TODO
 		return c.getContextualTypeForElementExpression(type_, elementIndex, arrayLiteral.elements.length, spreadIndices.first, spreadIndices.last)
-		fallthrough
 	case SyntaxKindConditionalExpression:
 		return c.getContextualTypeForConditionalOperand(node, contextFlags)
 	case SyntaxKindTemplateSpan:
@@ -34624,7 +34673,6 @@ func (c *TypeChecker) getContextualType(node Expression, contextFlags *ContextFl
 			}
 		}
 		return c.getContextualType(parent.(ParenthesizedExpression), contextFlags)
-		fallthrough
 	case SyntaxKindNonNullExpression:
 		return c.getContextualType(parent.(NonNullExpression), contextFlags)
 	case SyntaxKindSatisfiesExpression:
@@ -38317,6 +38365,7 @@ func (c *TypeChecker) getLegacyDecoratorArgumentCount(node Decorator, signature 
 	case SyntaxKindMethodDeclaration,
 		SyntaxKindGetAccessor,
 		SyntaxKindSetAccessor:
+		// For decorators with only two parameters we supply only two arguments
 		if signature.parameters.length <= 2 {
 			return 2
 		} else {
@@ -40430,7 +40479,6 @@ func (c *TypeChecker) getTupleElementLabelFromBindingElement(node /* TODO(TS-TO-
 				return c.getTupleElementLabelFromBindingElement(lastElement, index-elementCount, elementFlags)
 			}
 		}
-		break
 	}
 	return __TEMPLATE__("arg_", index).(__String)
 }
@@ -41017,8 +41065,6 @@ func (c *TypeChecker) getESDecoratorCallSignature(decorator Decorator) *Signatur
 			targetType := c.getTypeOfSymbol(c.getSymbolOfDeclaration(node))
 			contextType := c.createClassDecoratorContextType(targetType)
 			links.decoratorSignature = c.createESDecoratorCallSignature(targetType, contextType, targetType)
-			break
-			fallthrough
 		case SyntaxKindMethodDeclaration,
 			SyntaxKindGetAccessor,
 			SyntaxKindSetAccessor:
@@ -41080,8 +41126,6 @@ func (c *TypeChecker) getESDecoratorCallSignature(decorator Decorator) *Signatur
 			}
 
 			links.decoratorSignature = c.createESDecoratorCallSignature(targetType, contextType, returnType)
-			break
-			fallthrough
 		case SyntaxKindPropertyDeclaration:
 			node := parent.(PropertyDeclaration)
 			if !isClassLike(node.parent) {
@@ -41126,7 +41170,6 @@ func (c *TypeChecker) getESDecoratorCallSignature(decorator Decorator) *Signatur
 			}
 
 			links.decoratorSignature = c.createESDecoratorCallSignature(targetType, contextType, returnType)
-			break
 		}
 	}
 	if links.decoratorSignature == c.anySignature {
@@ -41150,8 +41193,6 @@ func (c *TypeChecker) getLegacyDecoratorCallSignature(decorator Decorator) *Sign
 			targetType := c.getTypeOfSymbol(c.getSymbolOfDeclaration(node))
 			targetParam := c.createParameter("target" /* as __String */, targetType)
 			links.decoratorSignature = c.createCallSignature(nil, nil, []TransientSymbol{targetParam}, c.getUnionType([]Type{targetType, c.voidType}))
-			break
-			fallthrough
 		case SyntaxKindParameter:
 			node := parent.(ParameterDeclaration)
 			if !isConstructorDeclaration(node.parent) && !(isMethodDeclaration(node.parent) || isSetAccessorDeclaration(node.parent) && isClassLike(node.parent.parent)) {
@@ -41193,8 +41234,6 @@ func (c *TypeChecker) getLegacyDecoratorCallSignature(decorator Decorator) *Sign
 			keyParam := c.createParameter("propertyKey" /* as __String */, keyType)
 			indexParam := c.createParameter("parameterIndex" /* as __String */, indexType)
 			links.decoratorSignature = c.createCallSignature(nil, nil, []TransientSymbol{targetParam, keyParam, indexParam}, c.voidType)
-			break
-			fallthrough
 		case SyntaxKindMethodDeclaration,
 			SyntaxKindGetAccessor,
 			SyntaxKindSetAccessor,
@@ -41228,7 +41267,6 @@ func (c *TypeChecker) getLegacyDecoratorCallSignature(decorator Decorator) *Sign
 			} else {
 				links.decoratorSignature = c.createCallSignature(nil, nil, []TransientSymbol{targetParam, keyParam}, c.getUnionType([]Type{returnType, c.voidType}))
 			}
-			break
 		}
 	}
 	if links.decoratorSignature == c.anySignature {
@@ -42593,6 +42631,8 @@ func (c *TypeChecker) isSideEffectFree(node Node) bool {
 		return c.isSideEffectFree((node.(BinaryExpression)).left) && c.isSideEffectFree((node.(BinaryExpression)).right)
 	case SyntaxKindPrefixUnaryExpression,
 		SyntaxKindPostfixUnaryExpression:
+		// Unary operators ~, !, +, and - have no side effects.
+		// The rest do.
 		switch (node.(PrefixUnaryExpression)).operator {
 		case SyntaxKindExclamationToken,
 			SyntaxKindPlusToken,
@@ -42601,10 +42641,11 @@ func (c *TypeChecker) isSideEffectFree(node Node) bool {
 			return true
 		}
 		return false
+
+		// Some forms listed here for clarity
 	case SyntaxKindVoidExpression,
 		SyntaxKindTypeAssertionExpression,
 		SyntaxKindAsExpression:
-		fallthrough
 	default:
 		return false
 	}
@@ -42790,6 +42831,8 @@ func (c *TypeChecker) getSyntacticNullishnessSemantics(node Node) PredicateSeman
 		SyntaxKindThisKeyword:
 		return PredicateSemanticsSometimes
 	case SyntaxKindBinaryExpression:
+		// List of operators that can produce null/undefined:
+		// = ??= ?? || ||= && &&=
 		switch (node.(BinaryExpression)).operatorToken.kind {
 		case SyntaxKindEqualsToken,
 			SyntaxKindQuestionQuestionToken,
@@ -42865,6 +42908,8 @@ func (c *TypeChecker) checkBinaryLikeExpressionWorker(left Expression, operatorT
 		rightType = c.checkNonNullType(rightType, right)
 
 		var suggestedOperator *PunctuationSyntaxKind
+		// if a user tries to apply a bitwise operator to 2 boolean operands
+		// try and return them a helpful suggestion
 		if (leftType.flags & TypeFlagsBooleanLike) && (rightType.flags & TypeFlagsBooleanLike) && ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: suggestedOperator = getSuggestedBooleanOperator(operatorToken.kind) */ TODO) != nil {
 			c.error(errorNode || operatorToken, Diagnostics.The_0_operator_is_not_allowed_for_boolean_types_Consider_using_1_instead, tokenToString(operatorToken.kind), tokenToString(suggestedOperator))
 			return c.numberType
@@ -42942,6 +42987,8 @@ func (c *TypeChecker) checkBinaryLikeExpressionWorker(left Expression, operatorT
 				resultType = c.anyType
 			}
 		}
+
+		// Symbols are not allowed at all in arithmetic expressions
 		if resultType && !checkForDisallowedESSymbolOperand(operator) {
 			return resultType
 		}
@@ -42983,6 +43030,9 @@ func (c *TypeChecker) checkBinaryLikeExpressionWorker(left Expression, operatorT
 		SyntaxKindExclamationEqualsToken,
 		SyntaxKindEqualsEqualsEqualsToken,
 		SyntaxKindExclamationEqualsEqualsToken:
+		// We suppress errors in CheckMode.TypeOnly (meaning the invocation came from getTypeOfExpression). During
+		// control flow analysis it is possible for operands to temporarily have narrower types, and those narrower
+		// types may cause the operands to not be comparable. We don't want such errors reported (see #46475).
 		if !(checkMode && checkMode&CheckModeTypeOnly) {
 			if (isLiteralExpressionOfObject(left) || isLiteralExpressionOfObject(right)) && (!isInJSFile(left) || (operator == SyntaxKindEqualsEqualsEqualsToken || operator == SyntaxKindExclamationEqualsEqualsToken)) {
 				eqType := operator == SyntaxKindEqualsEqualsToken || operator == SyntaxKindEqualsEqualsEqualsToken
@@ -43010,7 +43060,6 @@ func (c *TypeChecker) checkBinaryLikeExpressionWorker(left Expression, operatorT
 			checkAssignmentOperator(rightType)
 		}
 		return resultType
-		fallthrough
 	case SyntaxKindBarBarToken,
 		SyntaxKindBarBarEqualsToken:
 		var resultType Type
@@ -43023,7 +43072,6 @@ func (c *TypeChecker) checkBinaryLikeExpressionWorker(left Expression, operatorT
 			checkAssignmentOperator(rightType)
 		}
 		return resultType
-		fallthrough
 	case SyntaxKindQuestionQuestionToken,
 		SyntaxKindQuestionQuestionEqualsToken:
 		var resultType Type
@@ -43036,7 +43084,6 @@ func (c *TypeChecker) checkBinaryLikeExpressionWorker(left Expression, operatorT
 			checkAssignmentOperator(rightType)
 		}
 		return resultType
-		fallthrough
 	case SyntaxKindEqualsToken:
 		var declKind AssignmentDeclarationKind
 		if isBinaryExpression(left.parent) {
@@ -45431,10 +45478,13 @@ func (c *TypeChecker) checkExportsOnMergedDeclarationsWorker(node Declaration) {
 			} else {
 				expression = node.right
 			}
+			// Export assigned entity name expressions act as aliases and should fall through, otherwise they export values
 			if !isEntityNameExpression(expression) {
 				return DeclarationSpacesExportValue
 			}
 			d = expression
+
+			// The below options all declare an Alias, which is allowed to merge with other values within the importing module.
 			fallthrough
 		case SyntaxKindImportEqualsDeclaration,
 			SyntaxKindNamespaceImport,
@@ -45450,6 +45500,12 @@ func (c *TypeChecker) checkExportsOnMergedDeclarationsWorker(node Declaration) {
 			SyntaxKindFunctionDeclaration,
 			SyntaxKindImportSpecifier,
 			SyntaxKindIdentifier:
+			// Identifiers are used as declarations of assignment declarations whose parents may be
+			// SyntaxKind.CallExpression - `Object.defineProperty(thing, "aField", {value: 42});`
+			// SyntaxKind.ElementAccessExpression - `thing["aField"] = 42;` or `thing["aField"];` (with a doc comment on it)
+			// or SyntaxKind.PropertyAccessExpression - `thing.aField = 42;`
+			// all of which are pretty much always values, or at least imply a value meaning.
+			// It may be apprpriate to treat these as aliases in the future.
 			return DeclarationSpacesExportValue
 		case SyntaxKindMethodSignature,
 			SyntaxKindPropertySignature:
@@ -46451,6 +46507,7 @@ func (c *TypeChecker) checkUnusedIdentifiers(potentiallyUnusedIdentifiers []Pote
 			SyntaxKindMethodDeclaration,
 			SyntaxKindGetAccessor,
 			SyntaxKindSetAccessor:
+			// Only report unused parameters on the implementation, not overloads.
 			if node.body {
 				c.checkUnusedLocalsAndParameters(node, addDiagnostic)
 			}
@@ -46510,6 +46567,7 @@ func (c *TypeChecker) checkUnusedClassMembers(node /* TODO(TS-TO-GO) TypeNode Un
 		case SyntaxKindIndexSignature,
 			SyntaxKindSemicolonClassElement,
 			SyntaxKindClassStaticBlockDeclaration:
+			// Can't be private
 		default:
 			Debug.fail("Unexpected class member")
 		}
@@ -47444,6 +47502,7 @@ func (c *TypeChecker) getSyntacticTruthySemantics(node Node) PredicateSemantics 
 	node = skipOuterExpressions(node)
 	switch node.kind {
 	case SyntaxKindNumericLiteral:
+		// Allow `while(0)` or `while(1)`
 		if (node.(NumericLiteral)).text == "0" || (node.(NumericLiteral)).text == "1" {
 			return PredicateSemanticsSometimes
 		}
@@ -50272,6 +50331,7 @@ func (c *TypeChecker) checkModuleDeclaration(node ModuleDeclaration) {
 func (c *TypeChecker) checkModuleAugmentationElement(node Node, isGlobalAugmentation bool) {
 	switch node.kind {
 	case SyntaxKindVariableStatement:
+		// error each individual name in variable statement instead of marking the entire variable statement
 		for _, decl := range (node.(VariableStatement)).declarationList.declarations {
 			c.checkModuleAugmentationElement(decl, isGlobalAugmentation)
 		}
@@ -50279,6 +50339,7 @@ func (c *TypeChecker) checkModuleAugmentationElement(node Node, isGlobalAugmenta
 		SyntaxKindExportDeclaration:
 		c.grammarErrorOnFirstToken(node, Diagnostics.Exports_and_export_assignments_are_not_permitted_in_module_augmentations)
 	case SyntaxKindImportEqualsDeclaration:
+		// import a = e.x; in module augmentation is ok, but not import a = require('fs)
 		if isInternalModuleImportEqualsDeclaration(node) {
 			break
 		}
@@ -50474,8 +50535,6 @@ func (c *TypeChecker) checkAliasSymbol(node AliasDeclarationNode) {
 					if isType && node.kind == SyntaxKindImportEqualsDeclaration && hasEffectiveModifier(node, ModifierFlagsExport) {
 						c.error(node, Diagnostics.Cannot_use_export_import_on_a_type_or_type_only_namespace_when_0_is_enabled, c.isolatedModulesLikeFlagName)
 					}
-					break
-					fallthrough
 				case SyntaxKindExportSpecifier:
 					// Don't allow re-exporting an export that will be elided when `--isolatedModules` is set.
 					// The exception is that `import type { A } from './a'; export { A }` is allowed
@@ -51314,6 +51373,9 @@ func (c *TypeChecker) checkDeferredNode(node Node) {
 		SyntaxKindTaggedTemplateExpression,
 		SyntaxKindDecorator,
 		SyntaxKindJsxOpeningElement:
+		// These node kinds are deferred checked when overload resolution fails
+		// To save on work, we ensure the arguments are checked just once, in
+		// a deferred way
 		c.resolveUntypedCall(node.(CallLikeExpression))
 	case SyntaxKindFunctionExpression,
 		SyntaxKindArrowFunction,
@@ -51614,9 +51676,16 @@ func (c *TypeChecker) getSymbolsInScope(location Node, meaning SymbolFlags) []Sy
 				if className {
 					copySymbol((location.(ClassExpression)).symbol, meaning)
 				}
+
+				// this fall-through is necessary because we would like to handle
+				// type parameter inside class expression similar to how we handle it in classDeclaration and interface Declaration.
 				fallthrough
 			case SyntaxKindClassDeclaration,
 				SyntaxKindInterfaceDeclaration:
+				// If we didn't come from static member of class or interface,
+				// add the type parameters into the symbol table
+				// (type parameters of classDeclaration/classExpression and interface are in member property of the symbol.
+				// Note: that the memberFlags come from previous iteration.
 				if !isStaticSymbol {
 					copySymbols(c.getMembersOfSymbol(c.getSymbolOfDeclaration(location /* as ClassDeclaration | InterfaceDeclaration */)), meaning&SymbolFlagsType)
 				}
@@ -52131,6 +52200,7 @@ func (c *TypeChecker) getSymbolAtLocation(node Node, ignoreErrors bool) *Symbol 
 	case SyntaxKindSuperKeyword:
 		return c.checkExpression(node.(Expression)).symbol
 	case SyntaxKindConstructorKeyword:
+		// constructor keyword for an overload, should take us to the definition if it exist
 		constructorDeclaration := node.parent
 		if constructorDeclaration && constructorDeclaration.kind == SyntaxKindConstructor {
 			return (constructorDeclaration.parent.(ClassDeclaration)).symbol
@@ -52138,6 +52208,10 @@ func (c *TypeChecker) getSymbolAtLocation(node Node, ignoreErrors bool) *Symbol 
 		return nil
 	case SyntaxKindStringLiteral,
 		SyntaxKindNoSubstitutionTemplateLiteral:
+		// 1). import x = require("./mo/*gotToDefinitionHere*/d")
+		// 2). External module name in an import declaration
+		// 3). Dynamic import call or require in javascript
+		// 4). type A = import("./f/*gotToDefinitionHere*/oo")
 		if (isExternalModuleImportEqualsDeclaration(node.parent.parent) && getExternalModuleImportEqualsDeclarationExpression(node.parent.parent) == node) || ((node.parent.kind == SyntaxKindImportDeclaration || node.parent.kind == SyntaxKindExportDeclaration) && (node.parent.(ImportDeclaration)).moduleSpecifier == node) || (isInJSFile(node) && isJSDocImportTag(node.parent) && node.parent.moduleSpecifier == node) || ((isInJSFile(node) && isRequireCall(node.parent /*requireStringLiteralLikeArgument*/, false)) || isImportCall(node.parent)) || (isLiteralTypeNode(node.parent) && isLiteralImportTypeNode(node.parent.parent) && node.parent.parent.argument == node.parent) {
 			return c.resolveExternalModuleName(node, node.(LiteralExpression), ignoreErrors)
 		}
@@ -52146,6 +52220,7 @@ func (c *TypeChecker) getSymbolAtLocation(node Node, ignoreErrors bool) *Symbol 
 		}
 		fallthrough
 	case SyntaxKindNumericLiteral:
+		// index access
 		var objectType Type
 		switch {
 		case isElementAccessExpression(parent):
@@ -53969,9 +54044,8 @@ func (c *TypeChecker) checkGrammarModifiers(node /* TODO(TS-TO-GO) TypeNode Unio
 				if node.kind == SyntaxKindTypeParameter && !(isFunctionLikeDeclaration(parent) || isClassLike(parent) || isFunctionTypeNode(parent) || isConstructorTypeNode(parent) || isCallSignatureDeclaration(parent) || isConstructSignatureDeclaration(parent) || isMethodSignature(parent)) {
 					return c.grammarErrorOnNode(modifier, Diagnostics._0_modifier_can_only_appear_on_a_type_parameter_of_a_function_method_or_class, tokenToString(modifier.kind))
 				}
-				break
-				fallthrough
 			case SyntaxKindOverrideKeyword:
+				// If node.kind === SyntaxKind.Parameter, checkParameter reports an error if it's not a parameter property.
 				if flags & ModifierFlagsOverride {
 					return c.grammarErrorOnNode(modifier, Diagnostics._0_modifier_already_seen, "override")
 				} else if flags & ModifierFlagsAmbient {
@@ -54198,7 +54272,6 @@ func (c *TypeChecker) checkGrammarModifiers(node /* TODO(TS-TO-GO) TypeNode Unio
 					return c.grammarErrorOnNode(modifier, Diagnostics._0_modifier_must_precede_1_modifier, "in", "out")
 				}
 				flags |= inOutFlag
-				break
 			}
 		}
 	}
@@ -54666,6 +54739,7 @@ func (c *TypeChecker) checkGrammarObjectLiteralExpression(node ObjectLiteralExpr
 		switch prop.kind {
 		case SyntaxKindShorthandPropertyAssignment,
 			SyntaxKindPropertyAssignment:
+			// Grammar checking for computedPropertyName and shorthandPropertyAssignment
 			c.checkGrammarForInvalidExclamationToken(prop.exclamationToken, Diagnostics.A_definite_assignment_assertion_is_not_permitted_in_this_context)
 			c.checkGrammarForInvalidQuestionMark(prop.questionToken, Diagnostics.An_object_member_cannot_be_declared_optional)
 			if name.kind == SyntaxKindNumericLiteral {

@@ -1557,24 +1557,46 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             for (const [start, end] of groupClauses()) {
                 function writeColonAndCaseBody(clause: CaseOrDefaultClause, idx: number) {
                     const isLastClause = idx === clauses.length - 1;
-                    let statementsOfClause = clause.getStatements();
-                    const lastStatementOfClause = statementsOfClause.at(-1);
-                    if (lastStatementOfClause?.isKind(ts.SyntaxKind.BreakStatement)) {
-                        statementsOfClause = statementsOfClause.slice(0, -1);
+                    let statementsOfClause = clause.getStatementsWithComments();
+                    const firstStatement = statementsOfClause.length === 1 ? statementsOfClause[0] : undefined;
+                    if (firstStatement?.isKind(ts.SyntaxKind.Block)) {
+                        statementsOfClause = firstStatement.getStatementsWithComments();
                     }
-
-                    const fallsThrough = !isLastClause
-                        && !lastStatementOfClause?.isKind(ts.SyntaxKind.BreakStatement)
-                        && !lastStatementOfClause?.isKind(ts.SyntaxKind.ReturnStatement);
 
                     writer.write(":");
                     writer.indent(() => {
-                        for (const statement of statementsOfClause) {
+                        const end = statementsOfClause.findLastIndex(s => !s.getKindName().endsWith("Trivia"));
+
+                        const first = statementsOfClause.slice(0, end);
+                        const last = statementsOfClause.slice(end);
+
+                        for (const statement of first) {
                             visitStatement(statement);
                         }
-                        if (fallsThrough) {
-                            writer.newLineIfLastNot();
-                            writer.writeLine("fallthrough");
+
+                        const lastStatement = last.at(0);
+                        if (lastStatement) {
+                            if (Node.isReturnStatement(lastStatement) || Node.isContinueStatement(lastStatement)) {
+                                last.forEach(visitStatement);
+                            }
+                            else if (Node.isBreakStatement(lastStatement)) {
+                                // Skip
+                                last.slice(1).forEach(visitStatement);
+                            }
+                            else {
+                                last.filter(node => {
+                                    if (node.getKindName().endsWith("Trivia")) {
+                                        if (/\/\/\s+falls? ?through/.test(node.getText())) {
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                }).forEach(visitStatement);
+                                if (!isLastClause) {
+                                    writer.newLineIfLastNot();
+                                    writer.writeLine("fallthrough");
+                                }
+                            }
                         }
                     });
                 }

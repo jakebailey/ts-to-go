@@ -547,8 +547,10 @@ func couldStartTrivia(text string, pos number) bool {
 		CharacterCodesbar,
 		CharacterCodesequals,
 		CharacterCodesgreaterThan:
+		// Starts of conflict marker trivia
 		return true
 	case CharacterCodeshash:
+		// Only if its the beginning can we have #! trivia
 		return pos == 0
 	default:
 		return ch > CharacterCodesmaxAsciiCharacter
@@ -579,14 +581,12 @@ func skipTrivia(text string, pos number, stopAfterLineBreak bool, stopAtComments
 			}
 			canConsumeStar = !!inJSDoc
 			continue
-			fallthrough
 		case CharacterCodestab,
 			CharacterCodesverticalTab,
 			CharacterCodesformFeed,
 			CharacterCodesspace:
 			pos++
 			continue
-			fallthrough
 		case CharacterCodesslash:
 			if stopAtComments {
 				break
@@ -770,14 +770,12 @@ scan:
 			}
 
 			continue
-			fallthrough
 		case CharacterCodestab,
 			CharacterCodesverticalTab,
 			CharacterCodesformFeed,
 			CharacterCodesspace:
 			pos++
 			continue
-			fallthrough
 		case CharacterCodesslash:
 			nextChar := text.charCodeAt(pos + 1)
 			hasTrailingNewLine := false
@@ -1527,24 +1525,31 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 	scanner.pos++
 	switch ch {
 	case CharacterCodes_0:
+		// Although '0' preceding any digit is treated as LegacyOctalEscapeSequence,
+		// '\08' should separately be interpreted as '\0' + '8'.
 		if scanner.pos >= scanner.end || !isDigit(scanner.charCodeUnchecked(scanner.pos)) {
 			return "\u0000"
 		}
+		// '\01', '\011'
 		fallthrough
 	case CharacterCodes_1,
 		CharacterCodes_2,
 		CharacterCodes_3:
+		// '\1', '\17', '\177'
 		if scanner.pos < scanner.end && isOctalDigit(scanner.charCodeUnchecked(scanner.pos)) {
 			scanner.pos++
 		}
+		// '\17', '\177'
 		fallthrough
 	case CharacterCodes_4,
 		CharacterCodes_5,
 		CharacterCodes_6,
 		CharacterCodes_7:
+		// '\4', '\47' but not '\477'
 		if scanner.pos < scanner.end && isOctalDigit(scanner.charCodeUnchecked(scanner.pos)) {
 			scanner.pos++
 		}
+		// '\47'
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
 		if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
 			code := parseInt(scanner.text.substring(start+1, scanner.pos), 8)
@@ -1558,6 +1563,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		return scanner.text.substring(start, scanner.pos)
 	case CharacterCodes_8,
 		CharacterCodes_9:
+		// the invalid '\8' and '\9'
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
 		if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
 			if flags&EscapeSequenceScanningFlagsRegularExpression && !(flags & EscapeSequenceScanningFlagsAtomEscape) {
@@ -1597,6 +1603,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 			}
 			return result
 		}
+		// '\uDDDD'
 		for ; scanner.pos < start+6; scanner.pos++ {
 			if !(scanner.pos < scanner.end && isHexDigit(scanner.charCodeUnchecked(scanner.pos))) {
 				scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
@@ -1629,6 +1636,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		}
 		return escapedValueString
 	case CharacterCodesx:
+		// '\xDD'
 		for ; scanner.pos < start+4; scanner.pos++ {
 			if !(scanner.pos < scanner.end && isHexDigit(scanner.charCodeUnchecked(scanner.pos))) {
 				scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
@@ -1640,6 +1648,9 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		}
 		scanner.tokenFlags |= TokenFlagsHexEscape
 		return String.fromCharCode(parseInt(scanner.text.substring(start+2, scanner.pos), 16))
+
+		// when encountering a LineContinuation (i.e. a backslash and a line terminator sequence),
+		// the line terminator is interpreted to be "the empty code unit sequence".
 	case CharacterCodescarriageReturn:
 		if scanner.pos < scanner.end && scanner.charCodeUnchecked(scanner.pos) == CharacterCodeslineFeed {
 			scanner.pos++
@@ -2038,6 +2049,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			scanner.token = SyntaxKindDotToken
 			return scanner.token
 		case CharacterCodesslash:
+			// Single-line comment
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesslash {
 				scanner.pos += 2
 
@@ -2057,6 +2069,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					return scanner.token
 				}
 			}
+			// Multi-line comment
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesasterisk {
 				scanner.pos += 2
 				isJSDoc := scanner.charCodeUnchecked(scanner.pos) == CharacterCodesasterisk && scanner.charCodeUnchecked(scanner.pos+1) != CharacterCodesslash
@@ -2717,6 +2730,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 					case CharacterCodesequals,
 						CharacterCodesexclamation:
 						scanner.pos++
+						// In Annex B, `(?=Disjunction)` and `(?!Disjunction)` are quantifiable
 						isPreviousTermQuantifiable = !anyUnicodeModeOrNonAnnexB
 					case CharacterCodeslessThan:
 						groupNameStart := scanner.pos
@@ -2889,6 +2903,8 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 			}
 			fallthrough
 		default:
+			// The scanEscapeSequence call in scanCharacterEscape must return non-empty strings
+			// since there must not be line breaks in a regex literal
 			Debug.assert(scanCharacterClassEscape() || scanDecimalEscape() || scanCharacterEscape(true))
 		}
 	}
@@ -3751,6 +3767,7 @@ func (scanner *Scanner) scanJsxAttributeValue() SyntaxKind {
 		scanner.token = SyntaxKindStringLiteral
 		return scanner.token
 	default:
+		// If this scans anything other than `{`, it's a parse error.
 		return scanner.scan()
 	}
 }
