@@ -408,6 +408,16 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
         else if (Node.isAsExpression(node)) {
             visitExpression(node.getExpression());
+            const type = node.getTypeNodeOrThrow();
+            if (Node.isTypeReference(type) && !Node.isStringLiteral(node.getExpression())) {
+                const entity = type.getTypeName();
+                if (Node.isIdentifier(entity)) {
+                    writer.write(".(");
+                    visitTypeNode(type);
+                    writer.write(")");
+                    return;
+                }
+            }
             writer.write(` ${asComment("as " + node.getTypeNodeOrThrow().getText())}`);
         }
         else if (Node.isNonNullExpression(node)) {

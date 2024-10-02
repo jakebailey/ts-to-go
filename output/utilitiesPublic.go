@@ -329,7 +329,7 @@ func getTypeParameterOwner(d Declaration) Declaration {
 	if d && d.kind == SyntaxKindTypeParameter {
 		for current := d; current; current = current.parent {
 			if isFunctionLike(current) || isClassLike(current) || current.kind == SyntaxKindInterfaceDeclaration {
-				return current /* as Declaration */
+				return current.(Declaration)
 			}
 		}
 	}
@@ -411,7 +411,8 @@ func getNodeFlags(node Node) NodeFlags {
 
 /** @internal */
 
-var supportedLocaleDirectories = []any{"cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-br", "ru", "tr", "zh-cn", "zh-tw"} /* as const */
+var supportedLocaleDirectories = []any{"cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-br", "ru", "tr", "zh-cn", "zh-tw"}.(const_)
+
 /**
  * Checks to see if the locale is in the appropriate format,
  * and if it is, attempts to set the appropriate language.
@@ -575,7 +576,7 @@ func getParseTreeNode(node Node, nodeTest func(node Node) bool) Node {
 /** Add an extra underscore to identifiers that start with two underscores to avoid issues with magic names like '__proto__' */
 
 func escapeLeadingUnderscores(identifier string) __String {
-	return (__COND__(identifier.length >= 2 && identifier.charCodeAt(0) == CharacterCodes_ && identifier.charCodeAt(1) == CharacterCodes_, "_"+identifier, identifier)) /* as __String */
+	return (__COND__(identifier.length >= 2 && identifier.charCodeAt(0) == CharacterCodes_ && identifier.charCodeAt(1) == CharacterCodes_, "_"+identifier, identifier)).(__String)
 }
 
 /**
@@ -642,14 +643,14 @@ func nameForNamelessJSDocTypedef(declaration /* TODO(TS-TO-GO) TypeNode UnionTyp
 		}
 	case SyntaxKindExpressionStatement:
 		expr := hostNode.expression
-		if expr.kind == SyntaxKindBinaryExpression && (expr /* as BinaryExpression */).operatorToken.kind == SyntaxKindEqualsToken {
-			expr = (expr /* as BinaryExpression */).left
+		if expr.kind == SyntaxKindBinaryExpression && (expr.(BinaryExpression)).operatorToken.kind == SyntaxKindEqualsToken {
+			expr = (expr.(BinaryExpression)).left
 		}
 		switch expr.kind {
 		case SyntaxKindPropertyAccessExpression:
-			return (expr /* as PropertyAccessExpression */).name
+			return (expr.(PropertyAccessExpression)).name
 		case SyntaxKindElementAccessExpression:
-			arg := (expr /* as ElementAccessExpression */).argumentExpression
+			arg := (expr.(ElementAccessExpression)).argumentExpression
 			if isIdentifier(arg) {
 				return arg
 			}
@@ -677,7 +678,7 @@ func getDeclarationIdentifier(node /* TODO(TS-TO-GO) TypeNode UnionType: Declara
 /** @internal */
 
 func nodeHasName(statement Node, name Identifier) bool {
-	if isNamedDeclaration(statement) && isIdentifier(statement.name) && idText(statement.name /* as Identifier */) == idText(name) {
+	if isNamedDeclaration(statement) && isIdentifier(statement.name) && idText(statement.name.(Identifier)) == idText(name) {
 		return true
 	}
 	if isVariableStatement(statement) && some(statement.declarationList.declarations, func(d VariableDeclaration) bool {
@@ -695,7 +696,7 @@ func getNameOfJSDocTypedef(declaration JSDocTypedefTag) /* TODO(TS-TO-GO) TypeNo
 /** @internal */
 
 func isNamedDeclaration(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NamedDeclaration & { name: DeclarationName; } */ any {
-	return !!(node /* as NamedDeclaration */).name
+	return !!(node.(NamedDeclaration)).name
 	// A 'name' property should always be a DeclarationName.
 }
 
@@ -704,10 +705,10 @@ func isNamedDeclaration(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: nod
 func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression */ any) *DeclarationName {
 	switch declaration.kind {
 	case SyntaxKindIdentifier:
-		return declaration /* as Identifier */
+		return declaration.(Identifier)
 	case SyntaxKindJSDocPropertyTag,
 		SyntaxKindJSDocParameterTag:
-		TODO_IDENTIFIER := declaration /* as JSDocPropertyLikeTag */
+		TODO_IDENTIFIER := declaration.(JSDocPropertyLikeTag)
 		if name.kind == SyntaxKindQualifiedName {
 			return name.right
 		}
@@ -721,21 +722,21 @@ func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode Unio
 			AssignmentDeclarationKindThisProperty,
 			AssignmentDeclarationKindProperty,
 			AssignmentDeclarationKindPrototypeProperty:
-			return getElementOrPropertyAccessArgumentExpressionOrName((expr /* as BinaryExpression */).left /* as AccessExpression */)
+			return getElementOrPropertyAccessArgumentExpressionOrName((expr.(BinaryExpression)).left.(AccessExpression))
 		case AssignmentDeclarationKindObjectDefinePropertyValue,
 			AssignmentDeclarationKindObjectDefinePropertyExports,
 			AssignmentDeclarationKindObjectDefinePrototypeProperty:
-			return (expr /* as BindableObjectDefinePropertyCall */).arguments[1]
+			return (expr.(BindableObjectDefinePropertyCall)).arguments[1]
 		default:
 			return nil
 		}
 		fallthrough
 	case SyntaxKindJSDocTypedefTag:
-		return getNameOfJSDocTypedef(declaration /* as JSDocTypedefTag */)
+		return getNameOfJSDocTypedef(declaration.(JSDocTypedefTag))
 	case SyntaxKindJSDocEnumTag:
-		return nameForNamelessJSDocTypedef(declaration /* as JSDocEnumTag */)
+		return nameForNamelessJSDocTypedef(declaration.(JSDocEnumTag))
 	case SyntaxKindExportAssignment:
-		TODO_IDENTIFIER := declaration /* as ExportAssignment */
+		TODO_IDENTIFIER := declaration.(ExportAssignment)
 		if isIdentifier(expression) {
 			return expression
 		} else {
@@ -743,12 +744,12 @@ func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode Unio
 		}
 		fallthrough
 	case SyntaxKindElementAccessExpression:
-		expr := declaration /* as ElementAccessExpression */
+		expr := declaration.(ElementAccessExpression)
 		if isBindableStaticElementAccessExpression(expr) {
 			return expr.argumentExpression
 		}
 	}
-	return (declaration /* as NamedDeclaration */).name
+	return (declaration.(NamedDeclaration)).name
 }
 
 func getNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression | undefined */ any) *DeclarationName {
@@ -1264,7 +1265,7 @@ func isOutermostOptionalChain(node OptionalChain) bool {
 }
 
 func isNullishCoalesce(node Node) bool {
-	return node.kind == SyntaxKindBinaryExpression && (node /* as BinaryExpression */).operatorToken.kind == SyntaxKindQuestionQuestionToken
+	return node.kind == SyntaxKindBinaryExpression && (node.(BinaryExpression)).operatorToken.kind == SyntaxKindQuestionQuestionToken
 }
 
 func isConstTypeReference(node Node) bool {
@@ -1377,9 +1378,9 @@ func isImportOrExportSpecifier(node Node) /* TODO(TS-TO-GO) TypeNode TypePredica
 func isTypeOnlyImportDeclaration(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeOnlyImportDeclaration */ any {
 	switch node.kind {
 	case SyntaxKindImportSpecifier:
-		return (node /* as ImportSpecifier */).isTypeOnly || (node /* as ImportSpecifier */).parent.parent.isTypeOnly
+		return (node.(ImportSpecifier)).isTypeOnly || (node.(ImportSpecifier)).parent.parent.isTypeOnly
 	case SyntaxKindNamespaceImport:
-		return (node /* as NamespaceImport */).parent.isTypeOnly
+		return (node.(NamespaceImport)).parent.isTypeOnly
 	case SyntaxKindImportClause,
 		SyntaxKindImportEqualsDeclaration:
 		return (node /* as ImportClause | ImportEqualsDeclaration */).isTypeOnly
@@ -1390,11 +1391,11 @@ func isTypeOnlyImportDeclaration(node Node) /* TODO(TS-TO-GO) TypeNode TypePredi
 func isTypeOnlyExportDeclaration(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeOnlyExportDeclaration */ any {
 	switch node.kind {
 	case SyntaxKindExportSpecifier:
-		return (node /* as ExportSpecifier */).isTypeOnly || (node /* as ExportSpecifier */).parent.parent.isTypeOnly
+		return (node.(ExportSpecifier)).isTypeOnly || (node.(ExportSpecifier)).parent.parent.isTypeOnly
 	case SyntaxKindExportDeclaration:
-		return (node /* as ExportDeclaration */).isTypeOnly && !!(node /* as ExportDeclaration */).moduleSpecifier && !(node /* as ExportDeclaration */).exportClause
+		return (node.(ExportDeclaration)).isTypeOnly && !!(node.(ExportDeclaration)).moduleSpecifier && !(node.(ExportDeclaration)).exportClause
 	case SyntaxKindNamespaceExport:
-		return (node /* as NamespaceExport */).parent.isTypeOnly
+		return (node.(NamespaceExport)).parent.isTypeOnly
 	}
 	return false
 }
@@ -1869,7 +1870,7 @@ func isUnaryExpressionWithWrite(expr Node) /* TODO(TS-TO-GO) TypeNode TypePredic
 	case SyntaxKindPostfixUnaryExpression:
 		return true
 	case SyntaxKindPrefixUnaryExpression:
-		return (expr /* as PrefixUnaryExpression */).operator == SyntaxKindPlusPlusToken || (expr /* as PrefixUnaryExpression */).operator == SyntaxKindMinusMinusToken
+		return (expr.(PrefixUnaryExpression)).operator == SyntaxKindPlusPlusToken || (expr.(PrefixUnaryExpression)).operator == SyntaxKindMinusMinusToken
 	default:
 		return false
 	}
@@ -1931,7 +1932,7 @@ func isIterationStatement(node Node, lookInLabeledStatements bool) /* TODO(TS-TO
 		SyntaxKindWhileStatement:
 		return true
 	case SyntaxKindLabeledStatement:
-		return lookInLabeledStatements && isIterationStatement((node /* as LabeledStatement */).statement, lookInLabeledStatements)
+		return lookInLabeledStatements && isIterationStatement((node.(LabeledStatement)).statement, lookInLabeledStatements)
 	}
 
 	return false
@@ -2267,7 +2268,7 @@ func hasJSDocNodes(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is 
 		return false
 	}
 
-	TODO_IDENTIFIER := node /* as JSDocContainer */
+	TODO_IDENTIFIER := node.(JSDocContainer)
 	return !!jsDoc && jsDoc.length > 0
 }
 
@@ -2278,7 +2279,7 @@ func hasJSDocNodes(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is 
  */
 
 func hasType(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasType */ any {
-	return !!(node /* as HasType */).type_
+	return !!(node.(HasType)).type_
 }
 
 /**
@@ -2288,7 +2289,7 @@ func hasType(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasTyp
  */
 
 func hasInitializer(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasInitializer */ any {
-	return !!(node /* as HasInitializer */).initializer
+	return !!(node.(HasInitializer)).initializer
 }
 
 /** True if has initializer node attached to it. */
@@ -2348,7 +2349,7 @@ func guessIndentation(lines []string) *number {
 }
 
 func isStringLiteralLike(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | FileReference */ any) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is StringLiteralLike */ any {
-	return (node /* as Node */).kind == SyntaxKindStringLiteral || (node /* as Node */).kind == SyntaxKindNoSubstitutionTemplateLiteral
+	return (node.(Node)).kind == SyntaxKindStringLiteral || (node.(Node)).kind == SyntaxKindNoSubstitutionTemplateLiteral
 }
 
 func isJSDocLinkLike(node Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JSDocLink | JSDocLinkCode | JSDocLinkPlain */ any {
@@ -2367,7 +2368,7 @@ func isRestParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclara
 	} else {
 		type_ = node.type_
 	}
-	return (node /* as ParameterDeclaration */).dotDotDotToken != nil || !!type_ && type_.kind == SyntaxKindJSDocVariadicType
+	return (node.(ParameterDeclaration)).dotDotDotToken != nil || !!type_ && type_.kind == SyntaxKindJSDocVariadicType
 }
 
 func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {
@@ -2379,10 +2380,10 @@ func isInternalDeclaration(node Node, sourceFile SourceFile) bool {
 	/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceFile ??= getSourceFileOfNode(node) */ TODO
 	parseTreeNode := getParseTreeNode(node)
 	if parseTreeNode && parseTreeNode.kind == SyntaxKindParameter {
-		paramIdx := (parseTreeNode.parent /* as SignatureDeclaration */).parameters.indexOf(parseTreeNode /* as ParameterDeclaration */)
+		paramIdx := (parseTreeNode.parent.(SignatureDeclaration)).parameters.indexOf(parseTreeNode.(ParameterDeclaration))
 		var previousSibling *ParameterDeclaration
 		if paramIdx > 0 {
-			previousSibling = (parseTreeNode.parent /* as SignatureDeclaration */).parameters[paramIdx-1]
+			previousSibling = (parseTreeNode.parent.(SignatureDeclaration)).parameters[paramIdx-1]
 		} else {
 			previousSibling = nil
 		}

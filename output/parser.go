@@ -580,7 +580,7 @@ func forEachChildInObjectOrArrayBindingPattern(node BindingPattern, cbNode func(
 }
 
 func forEachChildInCallOrNewExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | NewExpression */ any, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node /* as CallExpression */).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
+	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node.(CallExpression)).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
 }
 
 func forEachChildInBlock(node /* TODO(TS-TO-GO) TypeNode UnionType: Block | ModuleBlock */ any, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
@@ -653,7 +653,7 @@ func forEachChild(node Node, cbNode func(node Node) *T, cbNodes func(nodes NodeA
 	if node == nil || node.kind <= SyntaxKindLastToken {
 		return
 	}
-	fn := (forEachChildTable /* as Record<SyntaxKind, ForEachChildFunction<any>> */)[node.kind]
+	fn := (forEachChildTable.(Record[SyntaxKind, ForEachChildFunction[any]]))[node.kind]
 	if fn == nil {
 		return nil
 	} else {
@@ -758,7 +758,7 @@ func createSourceFile(fileName string, sourceText string, languageVersionOrOptio
 	} else {
 		TODO_IDENTIFIER = (map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"languageVersion": languageVersionOrOptions,
-		} /* as CreateSourceFileOptions */)
+		}.(CreateSourceFileOptions))
 	}
 	if languageVersion == ScriptTargetJSON {
 		result = Parser.parseSourceFile(fileName, sourceText, languageVersion /*syntaxCursor*/, nil, setParentNodes, ScriptKindJSON, noop, jsDocParsingMode)
@@ -813,7 +813,7 @@ func updateSourceFile(sourceFile SourceFile, newText string, textChangeRange Tex
 	newSourceFile := IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks)
 	// Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
 	// We will manually port the flag to the new source file.
-	(newSourceFile /* as Mutable<SourceFile> */).flags |= sourceFile.flags & NodeFlagsPermanentlySetIncrementalFlags
+	(newSourceFile.(Mutable[SourceFile])).flags |= sourceFile.flags & NodeFlagsPermanentlySetIncrementalFlags
 	return newSourceFile
 }
 
@@ -916,7 +916,7 @@ func processCommentPragmas(context PragmaContext, sourceText string) {
 		extractPragmas(pragmas, range_, comment)
 	}
 
-	context.pragmas = NewMap() /* as PragmaMap */
+	context.pragmas = NewMap().(PragmaMap)
 	for _, pragma := range pragmas {
 		if context.pragmas.has(pragma.name) {
 			currentValue := context.pragmas.get(pragma.name)
@@ -1060,7 +1060,7 @@ func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text st
 	if tripleSlash {
 		name := tripleSlash[1].toLowerCase() /* as keyof PragmaPseudoMap */
 		// Technically unsafe cast, but we do it so the below check to make it safe typechecks
-		pragma := commentPragmas[name] /* as PragmaDefinition */
+		pragma := commentPragmas[name].(PragmaDefinition)
 		if !pragma || !(pragma.kind & PragmaKindFlagsTripleSlashXML) {
 			return
 		}
@@ -1093,7 +1093,7 @@ func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text st
 					"arguments": argument,
 					"range_":    range_,
 				},
-			} /* as PragmaPseudoMapEntry */)
+			}.(PragmaPseudoMapEntry))
 		} else {
 			pragmas.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"name": name,
@@ -1102,7 +1102,7 @@ func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text st
 					},
 					"range_": range_,
 				},
-			} /* as PragmaPseudoMapEntry */)
+			}.(PragmaPseudoMapEntry))
 		}
 		return
 	}
@@ -1129,7 +1129,7 @@ func addPragmaForMatch(pragmas []PragmaPseudoMapEntry, range_ CommentRange, kind
 	}
 	name := match[1].toLowerCase() /* as keyof PragmaPseudoMap */
 	// Technically unsafe cast, but we do it so they below check to make it safe typechecks
-	pragma := commentPragmas[name] /* as PragmaDefinition */
+	pragma := commentPragmas[name].(PragmaDefinition)
 	if !pragma || !(pragma.kind & kind) {
 		return
 	}
@@ -1147,7 +1147,7 @@ func addPragmaForMatch(pragmas []PragmaPseudoMapEntry, range_ CommentRange, kind
 			"arguments": argument,
 			"range_":    range_,
 		},
-	} /* as PragmaPseudoMapEntry */)
+	}.(PragmaPseudoMapEntry))
 	return
 }
 
@@ -1184,7 +1184,7 @@ func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) b
 	}
 
 	if lhs.kind == SyntaxKindIdentifier {
-		return lhs.escapedText == (rhs /* as Identifier */).escapedText
+		return lhs.escapedText == (rhs.(Identifier)).escapedText
 	}
 
 	if lhs.kind == SyntaxKindThisKeyword {
@@ -1192,11 +1192,11 @@ func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) b
 	}
 
 	if lhs.kind == SyntaxKindJsxNamespacedName {
-		return lhs.namespace.escapedText == (rhs /* as JsxNamespacedName */).namespace.escapedText && lhs.name.escapedText == (rhs /* as JsxNamespacedName */).name.escapedText
+		return lhs.namespace.escapedText == (rhs.(JsxNamespacedName)).namespace.escapedText && lhs.name.escapedText == (rhs.(JsxNamespacedName)).name.escapedText
 	}
 
 	// If we are at this statement then we must have PropertyAccessExpression and because tag name in Jsx element can only
 	// take forms of JsxTagNameExpression which includes an identifier, "this" expression, or another propertyAccessExpression
 	// it is safe to case the expression property as such. See parseJsxElementName for how we parse tag name in Jsx element
-	return (lhs /* as PropertyAccessExpression */).name.escapedText == (rhs /* as PropertyAccessExpression */).name.escapedText && tagNamesAreEquivalent((lhs /* as PropertyAccessExpression */).expression /* as JsxTagNameExpression */, (rhs /* as PropertyAccessExpression */).expression /* as JsxTagNameExpression */)
+	return (lhs.(PropertyAccessExpression)).name.escapedText == (rhs.(PropertyAccessExpression)).name.escapedText && tagNamesAreEquivalent((lhs.(PropertyAccessExpression)).expression.(JsxTagNameExpression), (rhs.(PropertyAccessExpression)).expression.(JsxTagNameExpression))
 }
