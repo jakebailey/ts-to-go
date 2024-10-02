@@ -467,7 +467,7 @@ func (b *Binder) getDisplayName(node Declaration) string {
  * @param excludes - The flags which node cannot be declared alongside in a symbol table. Used to report forbidden declarations.
  */
 
-func (b *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node Declaration, includes SymbolFlags, excludes SymbolFlags, isReplaceableByMethod bool, isComputedName bool) Symbol {
+func (b *Binder) declareSymbol(symbolTable SymbolTable, parent *Symbol, node Declaration, includes SymbolFlags, excludes SymbolFlags, isReplaceableByMethod bool, isComputedName bool) Symbol {
 	Debug.assert(isComputedName || !hasDynamicName(node))
 
 	isDefaultExport := hasSyntacticModifier(node, ModifierFlagsDefault) || isExportSpecifier(node) && moduleExportNameIsDefault(node.name)
@@ -483,7 +483,7 @@ func (b *Binder) declareSymbol(symbolTable SymbolTable, parent Symbol, node Decl
 		name = b.getDeclarationName(node)
 	}
 
-	var symbol Symbol
+	var symbol *Symbol
 	if name == nil {
 		symbol = b.createSymbol(SymbolFlagsNone, InternalSymbolNameMissing)
 	} else {
@@ -1962,7 +1962,7 @@ func (b *Binder) addToContainerChain(next HasLocals) {
 	b.lastContainer = next
 }
 
-func (b *Binder) declareSymbolAndAddToSymbolTable(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) Symbol {
+func (b *Binder) declareSymbolAndAddToSymbolTable(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *Symbol {
 	switch b.container.kind {
 	case SyntaxKindModuleDeclaration:
 		return b.declareModuleMember(node, symbolFlags, symbolExcludes)
@@ -2004,7 +2004,7 @@ func (b *Binder) declareSymbolAndAddToSymbolTable(node Declaration, symbolFlags 
 	}
 }
 
-func (b *Binder) declareClassMember(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) Symbol {
+func (b *Binder) declareClassMember(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *Symbol {
 	if isStatic(node) {
 		return b.declareSymbol(b.container.symbol.exports, b.container.symbol, node, symbolFlags, symbolExcludes)
 	} else {
@@ -2012,7 +2012,7 @@ func (b *Binder) declareClassMember(node Declaration, symbolFlags SymbolFlags, s
 	}
 }
 
-func (b *Binder) declareSourceFileMember(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) Symbol {
+func (b *Binder) declareSourceFileMember(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *Symbol {
 	if isExternalModule(b.file) {
 		return b.declareModuleMember(node, symbolFlags, symbolExcludes)
 	} else {
@@ -2100,19 +2100,19 @@ func (b *Binder) bindFunctionOrConstructorType(node /* TODO(TS-TO-GO) TypeNode U
 	typeLiteralSymbol.members.set(symbol.escapedName, symbol)
 }
 
-func (b *Binder) bindObjectLiteralExpression(node ObjectLiteralExpression) Symbol {
+func (b *Binder) bindObjectLiteralExpression(node ObjectLiteralExpression) *Symbol {
 	return b.bindAnonymousDeclaration(node, SymbolFlagsObjectLiteral, InternalSymbolNameObject)
 }
 
-func (b *Binder) bindJsxAttributes(node JsxAttributes) Symbol {
+func (b *Binder) bindJsxAttributes(node JsxAttributes) *Symbol {
 	return b.bindAnonymousDeclaration(node, SymbolFlagsObjectLiteral, InternalSymbolNameJSXAttributes)
 }
 
-func (b *Binder) bindJsxAttribute(node JsxAttribute, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) Symbol {
+func (b *Binder) bindJsxAttribute(node JsxAttribute, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *Symbol {
 	return b.declareSymbolAndAddToSymbolTable(node, symbolFlags, symbolExcludes)
 }
 
-func (b *Binder) bindAnonymousDeclaration(node Declaration, symbolFlags SymbolFlags, name __String) Symbol {
+func (b *Binder) bindAnonymousDeclaration(node Declaration, symbolFlags SymbolFlags, name __String) *Symbol {
 	symbol := b.createSymbol(symbolFlags, name)
 	if symbolFlags & (SymbolFlagsEnumMember | SymbolFlagsClassMember) {
 		symbol.parent = b.container.symbol
@@ -2760,7 +2760,7 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 	}
 }
 
-func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | PropertySignature */ any) Symbol {
+func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | PropertySignature */ any) *Symbol {
 	isAutoAccessor := isAutoAccessorPropertyDeclaration(node)
 	var includes /* TODO(TS-TO-GO) inferred type SymbolFlags.Property | SymbolFlags.Accessor */ any
 	if isAutoAccessor {
@@ -2777,7 +2777,7 @@ func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: P
 	return b.bindPropertyOrMethodOrAccessor(node, includes|(__COND__(node.questionToken, SymbolFlagsOptional, SymbolFlagsNone)), excludes)
 }
 
-func (b *Binder) bindAnonymousTypeWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral */ any) Symbol {
+func (b *Binder) bindAnonymousTypeWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral */ any) *Symbol {
 	return b.bindAnonymousDeclaration(node.(Declaration), SymbolFlagsTypeLiteral, InternalSymbolNameType)
 }
 
@@ -2881,7 +2881,7 @@ func (b *Binder) bindObjectDefinePropertyExport(node BindableObjectDefinePropert
 	if !b.setCommonJsModuleIndicator(node) {
 		return
 	}
-	symbol := b.forEachIdentifierInEntityName(node.arguments[0] /*parent*/, nil, func(id Declaration, symbol Symbol) Symbol {
+	symbol := b.forEachIdentifierInEntityName(node.arguments[0] /*parent*/, nil, func(id Declaration, symbol *Symbol) *Symbol {
 		if symbol {
 			b.addDeclarationToSymbol(symbol, id, SymbolFlagsModule|SymbolFlagsAssignment)
 		}
@@ -2899,7 +2899,7 @@ func (b *Binder) bindExportsPropertyAssignment(node BindableStaticPropertyAssign
 	if !b.setCommonJsModuleIndicator(node) {
 		return
 	}
-	symbol := b.forEachIdentifierInEntityName(node.left.expression /*parent*/, nil, func(id Declaration, symbol Symbol) Symbol {
+	symbol := b.forEachIdentifierInEntityName(node.left.expression /*parent*/, nil, func(id Declaration, symbol *Symbol) *Symbol {
 		if symbol {
 			b.addDeclarationToSymbol(symbol, id, SymbolFlagsModule|SymbolFlagsAssignment)
 		}
@@ -2962,7 +2962,7 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 	switch thisContainer.kind {
 	case SyntaxKindFunctionDeclaration,
 		SyntaxKindFunctionExpression:
-		var constructorSymbol Symbol = thisContainer.symbol
+		var constructorSymbol *Symbol = thisContainer.symbol
 		if isBinaryExpression(thisContainer.parent) && thisContainer.parent.operatorToken.kind == SyntaxKindEqualsToken {
 			l := thisContainer.parent.left
 			if isBindableStaticAccessExpression(l) && isPrototypeAccess(l.expression) {
@@ -3018,7 +3018,7 @@ func (b *Binder) bindDynamicallyNamedThisPropertyAssignment(node /* TODO(TS-TO-G
 	b.addLateBoundAssignmentDeclarationToSymbol(node, symbol)
 }
 
-func (b *Binder) addLateBoundAssignmentDeclarationToSymbol(node /* TODO(TS-TO-GO) TypeNode UnionType: BinaryExpression | DynamicNamedDeclaration */ any, symbol Symbol) {
+func (b *Binder) addLateBoundAssignmentDeclarationToSymbol(node /* TODO(TS-TO-GO) TypeNode UnionType: BinaryExpression | DynamicNamedDeclaration */ any, symbol *Symbol) {
 	if symbol {
 		(symbol.assignmentDeclarationMembers || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: symbol.assignmentDeclarationMembers = new Map() */ TODO)).set(getNodeId(node), node)
 	}
@@ -3117,7 +3117,7 @@ func (b *Binder) bindStaticPropertyAssignment(node BindableStaticNameExpression)
 	b.bindPropertyAssignment(node.expression, node /*isPrototypeProperty*/, false /*containerIsClass*/, false)
 }
 
-func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol Symbol, entityName BindableStaticNameExpression, isToplevel bool, isPrototypeProperty bool, containerIsClass bool) Symbol {
+func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol *Symbol, entityName BindableStaticNameExpression, isToplevel bool, isPrototypeProperty bool, containerIsClass bool) *Symbol {
 	if namespaceSymbol. /* ? */ flags & SymbolFlagsAlias {
 		return namespaceSymbol
 	}
@@ -3125,7 +3125,7 @@ func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol Symbol, entity
 		// make symbols or add declarations for intermediate containers
 		flags := SymbolFlagsModule | SymbolFlagsAssignment
 		excludeFlags := SymbolFlagsValueModuleExcludes & ~SymbolFlagsAssignment
-		namespaceSymbol = b.forEachIdentifierInEntityName(entityName, namespaceSymbol, func(id Declaration, symbol Symbol, parent Symbol) Symbol {
+		namespaceSymbol = b.forEachIdentifierInEntityName(entityName, namespaceSymbol, func(id Declaration, symbol *Symbol, parent *Symbol) *Symbol {
 			if symbol {
 				b.addDeclarationToSymbol(symbol, id, flags)
 				return symbol
@@ -3146,7 +3146,7 @@ func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol Symbol, entity
 	return namespaceSymbol
 }
 
-func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* TODO(TS-TO-GO) TypeNode UnionType: BindableStaticAccessExpression | CallExpression */ any, namespaceSymbol Symbol, isPrototypeProperty bool) {
+func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* TODO(TS-TO-GO) TypeNode UnionType: BindableStaticAccessExpression | CallExpression */ any, namespaceSymbol *Symbol, isPrototypeProperty bool) {
 	if !namespaceSymbol || !b.isExpandoSymbol(namespaceSymbol) {
 		return
 	}
@@ -3254,7 +3254,7 @@ func (b *Binder) getParentOfBinaryExpression(expr Node) Node {
 	return expr.parent
 }
 
-func (b *Binder) lookupSymbolForPropertyAccess(node BindableStaticNameExpression, lookupContainer /* TODO(TS-TO-GO) TypeNode UnionType: IsContainer | IsBlockScopedContainer | EntityNameExpression */ any /*  = container */) Symbol {
+func (b *Binder) lookupSymbolForPropertyAccess(node BindableStaticNameExpression, lookupContainer /* TODO(TS-TO-GO) TypeNode UnionType: IsContainer | IsBlockScopedContainer | EntityNameExpression */ any /*  = container */) *Symbol {
 	if isIdentifier(node) {
 		return lookupSymbolForName(lookupContainer, node.escapedText)
 	} else {
@@ -3263,7 +3263,7 @@ func (b *Binder) lookupSymbolForPropertyAccess(node BindableStaticNameExpression
 	}
 }
 
-func (b *Binder) forEachIdentifierInEntityName(e BindableStaticNameExpression, parent Symbol, action func(e Declaration, symbol Symbol, parent Symbol) Symbol) Symbol {
+func (b *Binder) forEachIdentifierInEntityName(e BindableStaticNameExpression, parent *Symbol, action func(e Declaration, symbol *Symbol, parent *Symbol) *Symbol) *Symbol {
 	if isExportsOrModuleExportsOrAlias(b.file, e) {
 		return b.file.symbol
 	} else if isIdentifier(e) {
@@ -3408,7 +3408,7 @@ func (b *Binder) bindFunctionDeclaration(node FunctionDeclaration) {
 	}
 }
 
-func (b *Binder) bindFunctionExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionExpression | ArrowFunction */ any) Symbol {
+func (b *Binder) bindFunctionExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionExpression | ArrowFunction */ any) *Symbol {
 	if !b.file.isDeclarationFile && !(node.flags & NodeFlagsAmbient) {
 		if isAsyncFunction(node) {
 			b.emitFlags |= NodeFlagsHasAsyncFunctions
@@ -3427,7 +3427,7 @@ func (b *Binder) bindFunctionExpression(node /* TODO(TS-TO-GO) TypeNode UnionTyp
 	return b.bindAnonymousDeclaration(node, SymbolFlagsFunction, bindingName)
 }
 
-func (b *Binder) bindPropertyOrMethodOrAccessor(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) Symbol {
+func (b *Binder) bindPropertyOrMethodOrAccessor(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *Symbol {
 	if !b.file.isDeclarationFile && !(node.flags & NodeFlagsAmbient) && isAsyncFunction(node) {
 		b.emitFlags |= NodeFlagsHasAsyncFunctions
 	}
@@ -3647,7 +3647,7 @@ func getContainerFlags(node Node) ContainerFlags {
 	return ContainerFlagsNone
 }
 
-func lookupSymbolForName(container Node, name __String) Symbol {
+func lookupSymbolForName(container Node, name __String) *Symbol {
 	local := tryCast(container, canHaveLocals). /* ? */ locals. /* ? */ get(name)
 	if local {
 		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: local.exportSymbol ?? local */ TODO

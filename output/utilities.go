@@ -102,7 +102,7 @@ func createSingleLineStringWriter() EmitTextWriter {
 		"writeLiteral":       writeText,
 		"writeParameter":     writeText,
 		"writeProperty":      writeText,
-		"writeSymbol": func(s string, _ Symbol) {
+		"writeSymbol": func(s string, _ *Symbol) {
 			return writeText(s)
 		},
 		"writeTrailingSemicolon": writeText,
@@ -3518,7 +3518,7 @@ func setValueDeclaration(symbol Symbol, node Declaration) {
 
 /** @internal */
 
-func isFunctionSymbol(symbol Symbol) *bool {
+func isFunctionSymbol(symbol *Symbol) *bool {
 	if !symbol || !symbol.valueDeclaration {
 		return false
 	}
@@ -3975,7 +3975,7 @@ func getNextJSDocCommentLocation(node Node) Node {
  * @internal
  */
 
-func getParameterSymbolFromJSDoc(node JSDocParameterTag) Symbol {
+func getParameterSymbolFromJSDoc(node JSDocParameterTag) *Symbol {
 	if node.symbol {
 		return node.symbol
 	}
@@ -5750,7 +5750,7 @@ func createTextWriter(newLine string) EmitTextWriter {
 		"writePunctuation":   write,
 		"writeSpace":         write,
 		"writeStringLiteral": write,
-		"writeSymbol": func(s string, _ Symbol) {
+		"writeSymbol": func(s string, _ *Symbol) {
 			return write(s)
 		},
 		"writeTrailingSemicolon": write,
@@ -5783,7 +5783,7 @@ func getTrailingSemicolonDeferringWriter(writer EmitTextWriter) EmitTextWriter {
 			commitPendingTrailingSemicolon()
 			writer.writeStringLiteral(s)
 		},
-		"writeSymbol": func(s string, sym Symbol) {
+		"writeSymbol": func(s string, sym *Symbol) {
 			commitPendingTrailingSemicolon()
 			writer.writeSymbol(s, sym)
 		},
@@ -7069,7 +7069,7 @@ func isEmptyArrayLiteral(expression Node) bool {
 
 /** @internal */
 
-func getLocalSymbolForExportDefault(symbol Symbol) Symbol {
+func getLocalSymbolForExportDefault(symbol Symbol) *Symbol {
 	if !isExportDefaultSymbol(symbol) || !symbol.declarations {
 		return nil
 	}
@@ -7840,7 +7840,7 @@ func getObjectFlags(type_ Type) ObjectFlags {
 
 /** @internal */
 
-func isUMDExportSymbol(symbol Symbol) bool {
+func isUMDExportSymbol(symbol *Symbol) bool {
 	return !!symbol && !!symbol.declarations && !!symbol.declarations[0] && isNamespaceExportDeclaration(symbol.declarations[0])
 }
 
@@ -11383,17 +11383,17 @@ type NameResolverOptions struct {
 	globals                          SymbolTable
 	argumentsSymbol                  Symbol
 	requireSymbol                    Symbol
-	lookup                           func(symbols SymbolTable, name __String, meaning SymbolFlags) Symbol
+	lookup                           func(symbols SymbolTable, name __String, meaning SymbolFlags) *Symbol
 	setRequiresScopeChangeCache      *func(node FunctionLikeDeclaration, value bool)
 	getRequiresScopeChangeCache      *func(node FunctionLikeDeclaration) *bool
-	onPropertyWithInvalidInitializer func(location Node, name __String, declaration PropertyDeclaration, result Symbol) bool
+	onPropertyWithInvalidInitializer func(location Node, name __String, declaration PropertyDeclaration, result *Symbol) bool
 	onFailedToResolveSymbol          func(location Node, name /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any, meaning SymbolFlags, nameNotFoundMessage DiagnosticMessage)
 	onSuccessfullyResolvedSymbol     func(location Node, result Symbol, meaning SymbolFlags, lastLocation Node, associatedDeclarationForContainingInitializerOrBindingName /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | BindingElement | undefined */ any, withinDeferredContext bool)
 }
 
 /** @internal */
 
-type NameResolver func(location Node, nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any, meaning SymbolFlags, nameNotFoundMessage *DiagnosticMessage, isUse bool, excludeGlobals bool) Symbol
+type NameResolver func(location Node, nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any, meaning SymbolFlags, nameNotFoundMessage *DiagnosticMessage, isUse bool, excludeGlobals bool) *Symbol
 
 /** @internal */
 
@@ -11409,10 +11409,10 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 	emitStandardClassFields := getEmitStandardClassFields(compilerOptions)
 	emptySymbols := createSymbolTable()
 	return resolveNameHelper
-	resolveNameHelper := func(location Node, nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any, meaning SymbolFlags, nameNotFoundMessage *DiagnosticMessage, isUse bool, excludeGlobals bool) Symbol {
+	resolveNameHelper := func(location Node, nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any, meaning SymbolFlags, nameNotFoundMessage *DiagnosticMessage, isUse bool, excludeGlobals bool) *Symbol {
 		originalLocation := location
 		// needed for did-you-mean error reporting, which gathers candidates starting from the original location
-		var result Symbol
+		var result *Symbol
 		var lastLocation Node
 		var lastSelfReferenceLocation Declaration
 		var propertyWithInvalidInitializer *PropertyDeclaration

@@ -118,12 +118,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case "Declaration":
             case "Expression":
             case "Statement":
-            case "Symbol":
             case "Type":
             case "CancellationToken":
             case "any":
             case "unknown":
             case "void":
+            case "*Symbol":
                 return true;
             default:
                 return false;
@@ -145,6 +145,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 return "any";
             case "unknown":
                 return "any";
+            case "Symbol":
+                return "*Symbol";
         }
 
         if (isIdentifier(text)) {
