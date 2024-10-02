@@ -1,6 +1,6 @@
 import assert from "assert";
+import cp from "child_process";
 import CodeBlockWriter from "code-block-writer";
-import { execa } from "execa";
 import path from "path";
 import {
     ArrowFunction,
@@ -24,6 +24,7 @@ import {
     TypeNode,
     TypeParameteredNode,
 } from "ts-morph";
+import which from "which";
 
 process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
 
@@ -32,7 +33,7 @@ function pathFor(s: string) {
     return path.join(root, s);
 }
 
-const { stdout: tsCommit } = await execa("git", ["rev-parse", "HEAD"], { cwd: root });
+const tsCommit = cp.execFileSync(which.sync("git"), ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 
 const project = new Project({
     tsConfigFilePath: pathFor("tsconfig.json"),
@@ -1666,13 +1667,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
     await Bun.write(outFile, writer.toString());
 
-    const formatted = await execa("gofmt", ["-w", output], { reject: false });
-    if (formatted.exitCode === 0) {
-        // await Bun.write(outFile, formatted.stdout);
+    try {
+        cp.execFileSync(which.sync("gofmt"), ["-w", output]);
         console.log("    All good!");
     }
-    else {
-        console.log(formatted.stderr);
+    catch (e) {
+        console.error(e);
     }
 
     const totalTodo = [...todoCounts.values()].reduce((a, b) => a + b, 0);
@@ -1687,3 +1687,5 @@ await convert("parser.ts", "output/parser.go");
 await convert("utilities.ts", "output/utilities.go");
 await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
 await convert("program.ts", "output/program.go");
+
+console.log("Done!");

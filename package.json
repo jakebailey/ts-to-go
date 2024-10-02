@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/which": "^3.0.4"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -11,7 +12,7 @@
   "dependencies": {
     "code-block-writer": "^13.0.2",
     "dprint": "^0.47.2",
-    "execa": "^9.3.1",
-    "ts-morph": "^23.0.0"
+    "ts-morph": "^23.0.0",
+    "which": "^5.0.0"
   }
 }
