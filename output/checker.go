@@ -6585,7 +6585,7 @@ func (c *TypeChecker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { type
 				if typeArguments.length > 0 {
 					typeParameterCount := 0
 					if type_.target.typeParameters {
-						typeParameterCount = Math.min(type_.target.typeParameters.length, typeArguments.length)
+						typeParameterCount = min(type_.target.typeParameters.length, typeArguments.length)
 
 						// Maybe we should do this for more types, but for now we only elide type arguments that are
 						// identical to their associated type parameters' defaults for `Iterable`, `IterableIterator`,
@@ -13887,7 +13887,7 @@ func (c *TypeChecker) combineSignaturesOfUnionMembers(left Signature, right Sign
 		flags |= SignatureFlagsHasRestParameter
 	}
 	thisParam := c.combineUnionThisParam(left.thisParameter, right.thisParameter, paramMapper)
-	minArgCount := Math.max(left.minArgumentCount, right.minArgumentCount)
+	minArgCount := max(left.minArgumentCount, right.minArgumentCount)
 	result := c.createSignature(declaration, typeParams, thisParam, params, nil, nil, minArgCount, flags)
 	result.compositeKind = TypeFlagsUnion
 	result.compositeSignatures = concatenate(left.compositeKind != TypeFlagsIntersection && left.compositeSignatures || []Signature{left}, []Signature{right})
@@ -22665,9 +22665,9 @@ func (c *TypeChecker) compareSignaturesRelated(source Signature, target Signatur
 
 	var paramCount number
 	if sourceRestType || targetRestType {
-		paramCount = Math.min(sourceCount, targetCount)
+		paramCount = min(sourceCount, targetCount)
 	} else {
-		paramCount = Math.max(sourceCount, targetCount)
+		paramCount = max(sourceCount, targetCount)
 	}
 	var restIndex number
 	if sourceRestType || targetRestType {
@@ -25314,7 +25314,7 @@ func (c *TypeChecker) checkTypeRelatedTo(source Type, target Type, relation Map[
 
 					var targetPosition number
 					if targetHasRestElement && sourcePosition >= targetStartCount {
-						targetPosition = targetArity - 1 - Math.min(sourcePositionFromEnd, targetEndCount)
+						targetPosition = targetArity - 1 - min(sourcePositionFromEnd, targetEndCount)
 					} else {
 						targetPosition = sourcePosition
 					}
@@ -27357,7 +27357,7 @@ func (c *TypeChecker) applyToParameterTypes(source Signature, target Signature, 
 	if sourceRestType {
 		paramCount = targetNonRestCount
 	} else {
-		paramCount = Math.min(sourceCount, targetNonRestCount)
+		paramCount = min(sourceCount, targetNonRestCount)
 	}
 	sourceThisType := c.getThisTypeOfSignature(source)
 	if sourceThisType {
@@ -27777,8 +27777,8 @@ func (c *TypeChecker) templateLiteralTypesDefinitelyUnrelated(source TemplateLit
 	targetStart := target.texts[0]
 	sourceEnd := source.texts[source.texts.length-1]
 	targetEnd := target.texts[target.texts.length-1]
-	startLen := Math.min(sourceStart.length, targetStart.length)
-	endLen := Math.min(sourceEnd.length, targetEnd.length)
+	startLen := min(sourceStart.length, targetStart.length)
+	endLen := min(sourceEnd.length, targetEnd.length)
 	return sourceStart.slice(0, startLen) != targetStart.slice(0, startLen) || sourceEnd.slice(sourceEnd.length-endLen) != targetEnd.slice(targetEnd.length-endLen)
 }
 
@@ -28131,7 +28131,7 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 						c.clearCachedInferences(inferences)
 					}
 				}
-				inferencePriority = Math.min(inferencePriority, priority)
+				inferencePriority = min(inferencePriority, priority)
 				return
 			}
 			// Infer to the simplified version of an indexed access, if possible, to (hopefully) expose more bare type parameters to the inference engine
@@ -28240,7 +28240,7 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 		key := source.id + "," + target.id
 		status := visited && visited.get(key)
 		if status != nil {
-			inferencePriority = Math.min(inferencePriority, status)
+			inferencePriority = min(inferencePriority, status)
 			return
 		}
 		(visited || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: visited = new Map<string, number>() */ TODO)).set(key, InferencePriorityCircularity)
@@ -28266,7 +28266,7 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 		sourceStack.pop()
 		expandingFlags = saveExpandingFlags
 		visited.set(key, inferencePriority)
-		inferencePriority = Math.min(inferencePriority, saveInferencePriority)
+		inferencePriority = min(inferencePriority, saveInferencePriority)
 	}
 
 	inferFromMatchingTypes := func(sources []Type, targets []Type, matches func(s Type, t Type) bool) /* TODO(TS-TO-GO) TypeNode TupleType: [Type[], Type[]] */ any {
@@ -28372,7 +28372,7 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 							matched[i] = true
 						}
 						inferenceCircularity = inferenceCircularity || inferencePriority == InferencePriorityCircularity
-						inferencePriority = Math.min(inferencePriority, saveInferencePriority)
+						inferencePriority = min(inferencePriority, saveInferencePriority)
 					}
 				}
 			}
@@ -28676,11 +28676,11 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 					}
 					var startLength number
 					if c.isTupleType(source) {
-						startLength = Math.min(source.target.fixedLength, target.target.fixedLength)
+						startLength = min(source.target.fixedLength, target.target.fixedLength)
 					} else {
 						startLength = 0
 					}
-					endLength := Math.min(ifelse(c.isTupleType(source), c.getEndElementCount(source.target, ElementFlagsFixed), 0), ifelse(target.target.combinedFlags&ElementFlagsVariable, c.getEndElementCount(target.target, ElementFlagsFixed), 0))
+					endLength := min(ifelse(c.isTupleType(source), c.getEndElementCount(source.target, ElementFlagsFixed), 0), ifelse(target.target.combinedFlags&ElementFlagsVariable, c.getEndElementCount(target.target, ElementFlagsFixed), 0))
 					// Infer between starting fixed elements.
 					for i := 0; i < startLength; i++ {
 						inferFromTypes(c.getTypeArguments(source)[i], elementTypes[i])
@@ -28778,7 +28778,7 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 			targetSignatures := c.getSignaturesOfType(target, kind)
 			targetLen := targetSignatures.length
 			for i := 0; i < targetLen; i++ {
-				sourceIndex := Math.max(sourceLen-targetLen+i, 0)
+				sourceIndex := max(sourceLen-targetLen+i, 0)
 				inferFromSignature(c.getBaseSignature(sourceSignatures[sourceIndex]), c.getErasedSignature(targetSignatures[i]))
 			}
 		}
@@ -34332,7 +34332,7 @@ func (c *TypeChecker) getContextualTypeForElementExpression(type_ Type, index nu
 				return c.getTypeArguments(t)[c.getTypeReferenceArity(t)-offset]
 			}
 			// Return a union of the possible contextual element types with no subtype reduction.
-			return c.getElementTypeOfSliceOfTupleType(t, ifelse(firstSpreadIndex == nil, t.target.fixedLength, Math.min(t.target.fixedLength, firstSpreadIndex)), ifelse(length == nil || lastSpreadIndex == nil, fixedEndLength, Math.min(fixedEndLength, length-lastSpreadIndex)) /*writing*/, false /*noReductions*/, true)
+			return c.getElementTypeOfSliceOfTupleType(t, ifelse(firstSpreadIndex == nil, t.target.fixedLength, min(t.target.fixedLength, firstSpreadIndex)), ifelse(length == nil || lastSpreadIndex == nil, fixedEndLength, min(fixedEndLength, length-lastSpreadIndex)) /*writing*/, false /*noReductions*/, true)
 		}
 		// If element index is known and a contextual property with that name exists, return it. Otherwise return the
 		// iterated or element type of the contextual type.
@@ -34957,7 +34957,7 @@ func (c *TypeChecker) combineSignaturesOfIntersectionMembers(left Signature, rig
 		flags |= SignatureFlagsHasRestParameter
 	}
 	thisParam := c.combineIntersectionThisParam(left.thisParameter, right.thisParameter, paramMapper)
-	minArgCount := Math.max(left.minArgumentCount, right.minArgumentCount)
+	minArgCount := max(left.minArgumentCount, right.minArgumentCount)
 	result := c.createSignature(declaration, typeParams, thisParam, params, nil, nil, minArgCount, flags)
 	result.compositeKind = TypeFlagsIntersection
 	result.compositeSignatures = concatenate(left.compositeKind == TypeFlagsIntersection && left.compositeSignatures || []Signature{left}, []Signature{right})
@@ -37596,7 +37596,7 @@ func (c *TypeChecker) hasCorrectArity(node CallLikeExpression, args []Expression
 			effectiveParameterCount = 1
 		}
 		// class may have argumentless ctor functions - still resolve ctor and compare vs props member type
-		effectiveMinimumArguments = Math.min(effectiveMinimumArguments, 1)
+		effectiveMinimumArguments = min(effectiveMinimumArguments, 1)
 		// sfc may specify context argument - handled by framework and not typechecked
 	} else if !node.arguments {
 		// This only happens when we have something of the form: 'new C'
@@ -37796,7 +37796,7 @@ func (c *TypeChecker) inferTypeArguments(node CallLikeExpression, signature Sign
 	restType := c.getNonArrayRestType(signature)
 	var argCount number
 	if restType {
-		argCount = Math.min(c.getParameterCount(signature)-1, args.length)
+		argCount = min(c.getParameterCount(signature)-1, args.length)
 	} else {
 		argCount = args.length
 	}
@@ -38111,7 +38111,7 @@ func (c *TypeChecker) getSignatureApplicabilityError(node CallLikeExpression, ar
 	restType := c.getNonArrayRestType(signature)
 	var argCount number
 	if restType {
-		argCount = Math.min(c.getParameterCount(signature)-1, args.length)
+		argCount = min(c.getParameterCount(signature)-1, args.length)
 	} else {
 		argCount = args.length
 	}
@@ -38295,7 +38295,7 @@ func (c *TypeChecker) getDecoratorArgumentCount(node Decorator, signature Signat
 	if c.compilerOptions.experimentalDecorators {
 		return c.getLegacyDecoratorArgumentCount(node, signature)
 	} else {
-		return Math.min(Math.max(c.getParameterCount(signature), 1), 2)
+		return min(max(c.getParameterCount(signature), 1), 2)
 	}
 }
 
@@ -38418,7 +38418,7 @@ func (c *TypeChecker) getArgumentArityError(node CallLikeExpression, signatures 
 			min = minParameter
 			closestSignature = sig
 		}
-		max = Math.max(max, maxParameter)
+		max = max(max, maxParameter)
 		// shortest parameter count *longer than the call*/longest parameter count *shorter than the call*
 		if minParameter < args.length && minParameter > maxBelow {
 			maxBelow = minParameter
@@ -38529,9 +38529,9 @@ func (c *TypeChecker) getTypeArgumentArityError(node Node, signatures []Signatur
 		min := c.getMinTypeArgumentCount(sig.typeParameters)
 		max := length(sig.typeParameters)
 		if min > argCount {
-			aboveArgCount = Math.min(aboveArgCount, min)
+			aboveArgCount = min(aboveArgCount, min)
 		} else if max < argCount {
-			belowArgCount = Math.max(belowArgCount, max)
+			belowArgCount = max(belowArgCount, max)
 		}
 	}
 	if belowArgCount != -Infinity && aboveArgCount != Infinity {
@@ -38707,7 +38707,7 @@ func (c *TypeChecker) resolveCall(node CallLikeExpression, signatures []Signatur
 							min = diags.length
 							minIndex = i
 						}
-						max = Math.max(max, diags.length)
+						max = max(max, diags.length)
 						allDiagnostics.push(diags)
 					} else {
 						Debug.fail("No error for 3 or fewer overload signatures")

@@ -6547,7 +6547,7 @@ func writeCommentRange(text string, lineMap []number, writer EmitTextWriter, com
 }
 
 func writeTrimmedCurrentLine(text string, commentEnd number, writer EmitTextWriter, newLine string, pos number, nextLineStart number) {
-	end := Math.min(commentEnd, nextLineStart-1)
+	end := min(commentEnd, nextLineStart-1)
 	currentLineText := text.substring(pos, end).trim()
 	if currentLineText {
 		// trimmed forward and ending spaces text
@@ -7481,7 +7481,7 @@ func getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(pos number, stopP
 
 func getLinesBetweenPositionAndNextNonWhitespaceCharacter(pos number, stopPos number, sourceFile SourceFile, includeComments bool) number {
 	nextPos := skipTrivia(sourceFile.text, pos /*stopAfterLineBreak*/, false, includeComments)
-	return getLinesBetweenPositions(sourceFile, pos, Math.min(stopPos, nextPos))
+	return getLinesBetweenPositions(sourceFile, pos, min(stopPos, nextPos))
 }
 
 func getPreviousNonWhitespacePosition(pos number, stopPos number /*  = 0 */, sourceFile SourceFile) *number {
@@ -10167,7 +10167,7 @@ func rangeOfNode(node Node) TextRange {
 func rangeOfTypeParameters(sourceFile SourceFile, typeParameters NodeArray[TypeParameterDeclaration]) TextRange {
 	// Include the `<>`
 	pos := typeParameters.pos - 1
-	end := Math.min(sourceFile.text.length, skipTrivia(sourceFile.text, typeParameters.end)+1)
+	end := min(sourceFile.text.length, skipTrivia(sourceFile.text, typeParameters.end)+1)
 	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"pos": pos,
 		"end": end,

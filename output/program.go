@@ -40,7 +40,7 @@ func computeCommonSourceDirectoryOfFilenames(fileNames []string, currentDirector
 			return
 		}
 
-		n := Math.min(commonPathComponents.length, sourcePathComponents.length)
+		n := min(commonPathComponents.length, sourcePathComponents.length)
 		for i := 0; i < n; i++ {
 			if getCanonicalFileName(commonPathComponents[i]) != getCanonicalFileName(sourcePathComponents[i]) {
 				if i == 0 {
@@ -461,7 +461,7 @@ func formatCodeSpan(file SourceFile, start number, length number, indent string,
 	hasMoreThanFiveLines := (lastLine - firstLine) >= 4
 	gutterWidth := (lastLine + 1 + "").length
 	if hasMoreThanFiveLines {
-		gutterWidth = Math.max(ellipsis.length, gutterWidth)
+		gutterWidth = max(ellipsis.length, gutterWidth)
 	}
 
 	context := ""

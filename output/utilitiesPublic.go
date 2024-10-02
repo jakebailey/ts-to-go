@@ -109,8 +109,8 @@ func textRangeIntersectsWithTextSpan(range_ TextRange, span TextSpan) bool {
 }
 
 func textSpanIntersection(span1 TextSpan, span2 TextSpan) *TextSpan {
-	start := Math.max(span1.start, span2.start)
-	end := Math.min(textSpanEnd(span1), textSpanEnd(span2))
+	start := max(span1.start, span2.start)
+	end := min(textSpanEnd(span1), textSpanEnd(span2))
 	if start <= end {
 		return createTextSpanFromBounds(start, end)
 	} else {
@@ -141,8 +141,8 @@ func normalizeSpans(spans []TextSpan) []TextSpan {
 		span := spans[i]
 		j := i + 1
 		for j < spans.length && textSpanIntersectsWithTextSpan(span, spans[j]) {
-			start := Math.min(span.start, spans[j].start)
-			end := Math.max(textSpanEnd(span), textSpanEnd(spans[j]))
+			start := min(span.start, spans[j].start)
+			end := max(textSpanEnd(span), textSpanEnd(spans[j]))
 			span = createTextSpanFromBounds(start, end)
 			j++
 		}
@@ -309,9 +309,9 @@ func collapseTextChangeRangesAcrossMultipleVersions(changes []TextChangeRange) T
 		oldEnd2 := textSpanEnd(nextChange.span)
 		newEnd2 := oldStart2 + nextChange.newLength
 
-		oldStartN = Math.min(oldStart1, oldStart2)
-		oldEndN = Math.max(oldEnd1, oldEnd1+(oldEnd2-newEnd1))
-		newEndN = Math.max(newEnd2, newEnd2+(newEnd1-oldEnd2))
+		oldStartN = min(oldStart1, oldStart2)
+		oldEndN = max(oldEnd1, oldEnd1+(oldEnd2-newEnd1))
+		newEndN = max(newEnd2, newEnd2+(newEnd1-oldEnd2))
 	}
 
 	return createTextChangeRange(createTextSpanFromBounds(oldStartN, oldEndN) /*newLength*/, newEndN-oldStartN)

@@ -470,6 +470,34 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                             throw new Error(`Unexpected string property access: ${name.getText()}`);
                     }
                 }
+                else if (Node.isIdentifier(expr) && expr.getText() === "Math") {
+                    switch (name.getText()) {
+                        case "max": {
+                            writer.write("max(");
+                            const args = node.getArguments();
+                            for (let i = 0; i < args.length; i++) {
+                                const arg = args[i];
+                                assert(Node.isExpression(arg));
+                                visitExpression(arg);
+                                writer.conditionalWrite(i < args.length - 1, ", ");
+                            }
+                            writer.write(")");
+                            return;
+                        }
+                        case "min": {
+                            writer.write("min(");
+                            const args = node.getArguments();
+                            for (let i = 0; i < args.length; i++) {
+                                const arg = args[i];
+                                assert(Node.isExpression(arg));
+                                visitExpression(arg);
+                                writer.conditionalWrite(i < args.length - 1, ", ");
+                            }
+                            writer.write(")");
+                            return;
+                        }
+                    }
+                }
             }
 
             visitExpression(expression);

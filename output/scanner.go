@@ -463,7 +463,7 @@ func getLinesBetweenPositions(sourceFile SourceFileLike, pos1 number, pos2 numbe
 		return 0
 	}
 	lineStarts := getLineStarts(sourceFile)
-	lower := Math.min(pos1, pos2)
+	lower := min(pos1, pos2)
 	isNegative := lower == pos2
 	var upper number
 	if isNegative {
