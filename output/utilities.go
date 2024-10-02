@@ -2,14 +2,6 @@
 
 package output
 
-func __COND__[C comparable, T any](cond C, a T, b T) T {
-	var zero C
-	if cond != zero {
-		return a
-	}
-	return b
-}
-
 /** @internal */
 
 var resolvingEmptyArray []never = []never{}
@@ -278,7 +270,7 @@ func getResolvedTypeReferenceDirectiveFromResolution(resolution ResolvedTypeRefe
 
 func createModuleNotFoundChain(sourceFile SourceFile, host TypeCheckerHost, moduleReference string, mode ResolutionMode, packageName string) DiagnosticMessageChain {
 	alternateResult := host.getResolvedModule(sourceFile, moduleReference, mode). /* ? */ alternateResult
-	alternateResultMessage := alternateResult && (__COND__(getEmitModuleResolutionKind(host.getCompilerOptions()) == ModuleResolutionKindNode10, []any{Diagnostics.There_are_types_at_0_but_this_result_could_not_be_resolved_under_your_current_moduleResolution_setting_Consider_updating_to_node16_nodenext_or_bundler, []any{alternateResult}}.(const_), []any{Diagnostics.There_are_types_at_0_but_this_result_could_not_be_resolved_when_respecting_package_json_exports_The_1_library_may_need_to_update_its_package_json_or_typings, []any{alternateResult, __COND__(alternateResult.includes(nodeModulesPathPart+"@types/"), __TEMPLATE__("@types/", mangleScopedPackageName(packageName)), packageName)}}.(const_)))
+	alternateResultMessage := alternateResult && (ifelse(getEmitModuleResolutionKind(host.getCompilerOptions()) == ModuleResolutionKindNode10, []any{Diagnostics.There_are_types_at_0_but_this_result_could_not_be_resolved_under_your_current_moduleResolution_setting_Consider_updating_to_node16_nodenext_or_bundler, []any{alternateResult}}.(const_), []any{Diagnostics.There_are_types_at_0_but_this_result_could_not_be_resolved_when_respecting_package_json_exports_The_1_library_may_need_to_update_its_package_json_or_typings, []any{alternateResult, ifelse(alternateResult.includes(nodeModulesPathPart+"@types/"), __TEMPLATE__("@types/", mangleScopedPackageName(packageName)), packageName)}}.(const_)))
 	var result DiagnosticMessageChain
 	switch {
 	case alternateResultMessage:
@@ -295,7 +287,7 @@ func createModuleNotFoundChain(sourceFile SourceFile, host TypeCheckerHost, modu
 			return (map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"moduleReference": moduleReference,
 				"mode":            mode,
-				"packageName":     __COND__(packageName == moduleReference, nil, packageName),
+				"packageName":     ifelse(packageName == moduleReference, nil, packageName),
 			})
 		}
 	}
@@ -818,7 +810,7 @@ func moduleExportNameTextEscaped(node ModuleExportName) __String {
  */
 
 func moduleExportNameIsDefault(node ModuleExportName) bool {
-	return (__COND__(node.kind == SyntaxKindStringLiteral, node.text, node.escapedText)) == InternalSymbolNameDefault
+	return (ifelse(node.kind == SyntaxKindStringLiteral, node.text, node.escapedText)) == InternalSymbolNameDefault
 }
 
 /** @internal */
@@ -828,7 +820,7 @@ func getTextOfNodeFromSourceText(sourceText string, node Node, includeTrivia boo
 		return ""
 	}
 
-	text := sourceText.substring(__COND__(includeTrivia, node.pos, skipTrivia(sourceText, node.pos)), node.end)
+	text := sourceText.substring(ifelse(includeTrivia, node.pos, skipTrivia(sourceText, node.pos)), node.end)
 
 	if isJSDocTypeExpressionOrChild(node) {
 		// strip space + asterisk at line start
@@ -1132,7 +1124,7 @@ func getLiteralText(node LiteralLikeNode, sourceFile *SourceFile, flags GetLiter
 		return node.text
 	case SyntaxKindRegularExpressionLiteral:
 		if flags&GetLiteralTextFlagsTerminateUnterminatedLiterals && node.isUnterminated {
-			return node.text + (__COND__(node.text.charCodeAt(node.text.length-1) == CharacterCodesbackslash, " /", "/"))
+			return node.text + (ifelse(node.text.charCodeAt(node.text.length-1) == CharacterCodesbackslash, " /", "/"))
 		}
 		return node.text
 	}
@@ -1624,7 +1616,7 @@ func createFileDiagnosticFromMessageChain(file SourceFile, start number, length 
 		"length":             length,
 		"code":               messageChain.code,
 		"category":           messageChain.category,
-		"messageText":        __COND__(messageChain.next, messageChain, messageChain.messageText),
+		"messageText":        ifelse(messageChain.next, messageChain, messageChain.messageText),
 		"relatedInformation": relatedInformation,
 		"canonicalHead":      messageChain.canonicalHead,
 	}
@@ -1639,7 +1631,7 @@ func createDiagnosticForFileFromMessageChain(sourceFile SourceFile, messageChain
 		"length":             0,
 		"code":               messageChain.code,
 		"category":           messageChain.category,
-		"messageText":        __COND__(messageChain.next, messageChain, messageChain.messageText),
+		"messageText":        ifelse(messageChain.next, messageChain, messageChain.messageText),
 		"relatedInformation": relatedInformation,
 	}
 }
@@ -2214,7 +2206,7 @@ func isCommonJsExportPropertyAssignment(node Node) bool {
 /** @internal */
 
 func isValidESSymbolDeclaration(node Node) bool {
-	return (__COND__(isVariableDeclaration(node), isVarConst(node) && isIdentifier(node.name) && isVariableDeclarationInVariableStatement(node), __COND__(isPropertyDeclaration(node), hasEffectiveReadonlyModifier(node) && hasStaticModifier(node), isPropertySignature(node) && hasEffectiveReadonlyModifier(node)))) || isCommonJsExportPropertyAssignment(node)
+	return (ifelse(isVariableDeclaration(node), isVarConst(node) && isIdentifier(node.name) && isVariableDeclarationInVariableStatement(node), ifelse(isPropertyDeclaration(node), hasEffectiveReadonlyModifier(node) && hasStaticModifier(node), isPropertySignature(node) && hasEffectiveReadonlyModifier(node)))) || isCommonJsExportPropertyAssignment(node)
 }
 
 /** @internal */
@@ -2684,11 +2676,11 @@ func nodeCanBeDecorated(useLegacyDecorators bool, node Node, parent Node, grandp
 	case SyntaxKindClassExpression:
 		return !useLegacyDecorators
 	case SyntaxKindPropertyDeclaration:
-		return parent != nil && (__COND__(useLegacyDecorators, isClassDeclaration(parent), isClassLike(parent) && !hasAbstractModifier(node) && !hasAmbientModifier(node)))
+		return parent != nil && (ifelse(useLegacyDecorators, isClassDeclaration(parent), isClassLike(parent) && !hasAbstractModifier(node) && !hasAmbientModifier(node)))
 	case SyntaxKindGetAccessor,
 		SyntaxKindSetAccessor,
 		SyntaxKindMethodDeclaration:
-		return (node.(FunctionLikeDeclaration)).body != nil && parent != nil && (__COND__(useLegacyDecorators, isClassDeclaration(parent), isClassLike(parent)))
+		return (node.(FunctionLikeDeclaration)).body != nil && parent != nil && (ifelse(useLegacyDecorators, isClassDeclaration(parent), isClassLike(parent)))
 	case SyntaxKindParameter:
 		if !useLegacyDecorators {
 			return false
@@ -3096,7 +3088,7 @@ func isBindingElementOfBareOrAccessedRequire(node Node) /* TODO(TS-TO-GO) TypeNo
 }
 
 func isVariableDeclarationInitializedWithRequireHelper(node Node, allowAccessedRequire bool) bool {
-	return isVariableDeclaration(node) && !!node.initializer && isRequireCall(__COND__(allowAccessedRequire, getLeftmostAccessExpression(node.initializer), node.initializer) /*requireStringLiteralLikeArgument*/, true)
+	return isVariableDeclaration(node) && !!node.initializer && isRequireCall(ifelse(allowAccessedRequire, getLeftmostAccessExpression(node.initializer), node.initializer) /*requireStringLiteralLikeArgument*/, true)
 }
 
 /** @internal */
@@ -3917,11 +3909,11 @@ func getJSDocCommentsAndTags(hostNode Node, noCache bool) [] /* TODO(TS-TO-GO) T
 		}
 
 		if node.kind == SyntaxKindParameter {
-			result = addRange(result, (__COND__(noCache, getJSDocParameterTagsNoCache, getJSDocParameterTags))(node.(ParameterDeclaration)))
+			result = addRange(result, (ifelse(noCache, getJSDocParameterTagsNoCache, getJSDocParameterTags))(node.(ParameterDeclaration)))
 			break
 		}
 		if node.kind == SyntaxKindTypeParameter {
-			result = addRange(result, (__COND__(noCache, getJSDocTypeParameterTagsNoCache, getJSDocTypeParameterTags))(node.(TypeParameterDeclaration)))
+			result = addRange(result, (ifelse(noCache, getJSDocTypeParameterTagsNoCache, getJSDocTypeParameterTags))(node.(TypeParameterDeclaration)))
 			break
 		}
 		node = getNextJSDocCommentLocation(node)
@@ -5450,7 +5442,7 @@ func containsInvalidEscapeFlag(node TemplateLiteralToken) bool {
 /** @internal */
 
 func hasInvalidEscape(template TemplateLiteral) bool {
-	return template && !!(__COND__(isNoSubstitutionTemplateLiteral(template), containsInvalidEscapeFlag(template), (containsInvalidEscapeFlag(template.head) || some(template.templateSpans, func(span TemplateSpan) bool {
+	return template && !!(ifelse(isNoSubstitutionTemplateLiteral(template), containsInvalidEscapeFlag(template), (containsInvalidEscapeFlag(template.head) || some(template.templateSpans, func(span TemplateSpan) bool {
 		return containsInvalidEscapeFlag(span.literal)
 	}))))
 }
@@ -5887,7 +5879,7 @@ func getExternalModuleNameFromPath(host ResolveModuleNameResolutionHost, fileNam
 	getCanonicalFileName := func(f string) string {
 		return host.getCanonicalFileName(f)
 	}
-	dir := toPath(__COND__(referencePath, getDirectoryPath(referencePath), host.getCommonSourceDirectory()), host.getCurrentDirectory(), getCanonicalFileName)
+	dir := toPath(ifelse(referencePath, getDirectoryPath(referencePath), host.getCommonSourceDirectory()), host.getCurrentDirectory(), getCanonicalFileName)
 	filePath := getNormalizedAbsolutePath(fileName, host.getCurrentDirectory())
 	relativePath := getRelativePathToDirectoryOrUrl(dir, filePath, dir, getCanonicalFileName /*isAbsolutePathAnUrl*/, false)
 	extensionless := removeFileExtension(relativePath)
@@ -6157,7 +6149,7 @@ func getFirstConstructorWithBody(node ClassLikeDeclaration) * /* TODO(TS-TO-GO) 
 func getSetAccessorValueParameter(accessor SetAccessorDeclaration) *ParameterDeclaration {
 	if accessor && accessor.parameters.length > 0 {
 		hasThis := accessor.parameters.length == 2 && parameterIsThisKeyword(accessor.parameters[0])
-		return accessor.parameters[__COND__(hasThis, 1, 0)]
+		return accessor.parameters[ifelse(hasThis, 1, 0)]
 	}
 }
 
@@ -6327,7 +6319,7 @@ func getEffectiveReturnTypeNode(node /* TODO(TS-TO-GO) TypeNode UnionType: Signa
 	if isJSDocSignature(node) {
 		return node.type_ && node.type_.typeExpression && node.type_.typeExpression.type_
 	} else {
-		return node.type_ || (__COND__(isInJSFile(node), getJSDocReturnType(node), nil))
+		return node.type_ || (ifelse(isInJSFile(node), getJSDocReturnType(node), nil))
 	}
 }
 
@@ -6941,7 +6933,7 @@ func tryGetClassImplementingOrExtendingExpressionWithTypeArguments(node Node) *C
 /** @internal */
 
 func isAssignmentExpression(node Node, excludeCompoundAssignment bool) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is AssignmentExpression<AssignmentOperatorToken> */ any {
-	return isBinaryExpression(node) && (__COND__(excludeCompoundAssignment, node.operatorToken.kind == SyntaxKindEqualsToken, isAssignmentOperator(node.operatorToken.kind))) && isLeftHandSideExpression(node.left)
+	return isBinaryExpression(node) && (ifelse(excludeCompoundAssignment, node.operatorToken.kind == SyntaxKindEqualsToken, isAssignmentOperator(node.operatorToken.kind))) && isLeftHandSideExpression(node.left)
 }
 
 /** @internal */
@@ -8324,7 +8316,7 @@ func createCompilerDiagnosticFromMessageChain(chain DiagnosticMessageChain, rela
 		"length":             nil,
 		"code":               chain.code,
 		"category":           chain.category,
-		"messageText":        __COND__(chain.next, chain, chain.messageText),
+		"messageText":        ifelse(chain.next, chain, chain.messageText),
 		"relatedInformation": relatedInformation,
 	}
 }
@@ -8341,7 +8333,7 @@ func chainDiagnosticMessages(details /* TODO(TS-TO-GO) TypeNode UnionType: Diagn
 		"messageText": text,
 		"category":    message.category,
 		"code":        message.code,
-		"next":        __COND__(details == nil || Array.isArray(details), details, []DiagnosticMessageChain{details}),
+		"next":        ifelse(details == nil || Array.isArray(details), details, []DiagnosticMessageChain{details}),
 	}
 }
 
@@ -8683,7 +8675,7 @@ var _computedOptions = createComputedCompilerOptions(map[any]any{ /* TODO(TS-TO-
 	"moduleDetection": map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"dependencies": [] /* TODO(TS-TO-GO) inferred type "module" | "target" */ any{"module", "target"},
 		"computeValue": func(compilerOptions /* TODO(TS-TO-GO) inferred type Pick<CompilerOptions, "module" | "moduleDetection" | "target"> */ any) ModuleDetectionKind {
-			return compilerOptions.moduleDetection || (__COND__(_computedOptions.module.computeValue(compilerOptions) == ModuleKindNode16 || _computedOptions.module.computeValue(compilerOptions) == ModuleKindNodeNext, ModuleDetectionKindForce, ModuleDetectionKindAuto))
+			return compilerOptions.moduleDetection || (ifelse(_computedOptions.module.computeValue(compilerOptions) == ModuleKindNode16 || _computedOptions.module.computeValue(compilerOptions) == ModuleKindNodeNext, ModuleDetectionKindForce, ModuleDetectionKindAuto))
 		},
 	},
 	"isolatedModules": map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -9068,7 +9060,7 @@ func getJSXImplicitImportBase(compilerOptions CompilerOptions, file SourceFile) 
 
 func getJSXRuntimeImport(base *string, options CompilerOptions) *string {
 	if base {
-		return __TEMPLATE__(base, "/", __COND__(options.jsx == JsxEmitReactJSXDev, "jsx-dev-runtime", "jsx-runtime"))
+		return __TEMPLATE__(base, "/", ifelse(options.jsx == JsxEmitReactJSXDev, "jsx-dev-runtime", "jsx-runtime"))
 	} else {
 		return nil
 	}
@@ -9344,7 +9336,7 @@ func isImplicitGlob(lastPathComponent string) bool {
 
 func getPatternFromSpec(spec string, basePath string, usage /* TODO(TS-TO-GO) TypeNode UnionType: "files" | "directories" | "exclude" */ any) *string {
 	pattern := spec && getSubPatternFromSpec(spec, basePath, usage, wildcardMatchers[usage])
-	return pattern && __TEMPLATE__("^(", pattern, ")", __COND__(usage == "exclude", "($|/)", "$"))
+	return pattern && __TEMPLATE__("^(", pattern, ")", ifelse(usage == "exclude", "($|/)", "$"))
 }
 
 /** @internal */
@@ -9475,7 +9467,7 @@ func getFileMatcherPatterns(path string, excludes *[]string, includes *[]string,
 /** @internal */
 
 func getRegexFromPattern(pattern string, useCaseSensitiveFileNames bool) RegExp {
-	return NewRegExp(pattern, __COND__(useCaseSensitiveFileNames, "", "i"))
+	return NewRegExp(pattern, ifelse(useCaseSensitiveFileNames, "", "i"))
 }
 
 /**
@@ -10269,7 +10261,7 @@ func parsePseudoBigInt(stringValue string) string {
 	bitsNeeded := (endIndex - startIndex) * log2Base
 	// Stores the value specified by the string as a LE array of 16-bit integers
 	// using Uint16 instead of Uint32 so combining steps can use bitwise operators
-	segments := NewUint16Array(( /* TODO(TS-TO-GO) GreaterThanGreaterThanGreaterThanToken BinaryExpression: bitsNeeded >>> 4 */ TODO) + (__COND__(bitsNeeded&15, 1, 0)))
+	segments := NewUint16Array(( /* TODO(TS-TO-GO) GreaterThanGreaterThanGreaterThanToken BinaryExpression: bitsNeeded >>> 4 */ TODO) + (ifelse(bitsNeeded&15, 1, 0)))
 	// Add the digits, one at a time
 	for ; /* TODO(TS-TO-GO) Node VariableDeclarationList: let i = endIndex - 1, bitOffset = 0 */ i >= startIndex; /* TODO(TS-TO-GO) CommaToken BinaryExpression: i--, bitOffset += log2Base */ TODO {
 		segment := /* TODO(TS-TO-GO) GreaterThanGreaterThanGreaterThanToken BinaryExpression: bitOffset >>> 4 */ TODO
@@ -10279,7 +10271,7 @@ func parsePseudoBigInt(stringValue string) string {
 		if digitChar <= CharacterCodes_9 {
 			digit = digitChar - CharacterCodes_0
 		} else {
-			digit = 10 + digitChar - (__COND__(digitChar <= CharacterCodesF, CharacterCodesA, CharacterCodesa))
+			digit = 10 + digitChar - (ifelse(digitChar <= CharacterCodesF, CharacterCodesA, CharacterCodesa))
 		}
 		shiftedDigit := /* TODO(TS-TO-GO) LessThanLessThanToken BinaryExpression: digit << (bitOffset & 15) */ TODO
 		segments[segment] |= shiftedDigit
@@ -10315,7 +10307,7 @@ func parsePseudoBigInt(stringValue string) string {
 /** @internal */
 
 func pseudoBigIntToString(TODO_IDENTIFIER PseudoBigInt) string {
-	return (__COND__(negative && base10Value != "0", "-", "")) + base10Value
+	return (ifelse(negative && base10Value != "0", "-", "")) + base10Value
 }
 
 /** @internal */
@@ -10334,7 +10326,7 @@ func parseBigInt(text string) *PseudoBigInt {
 
 func parseValidBigInt(text string) PseudoBigInt {
 	negative := text.startsWith("-")
-	base10Value := parsePseudoBigInt(__TEMPLATE__(__COND__(negative, text.slice(1), text), "n"))
+	base10Value := parsePseudoBigInt(__TEMPLATE__(ifelse(negative, text.slice(1), text), "n"))
 	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"negative":    negative,
 		"base10Value": base10Value,
@@ -10541,7 +10533,7 @@ func setParentRecursive(rootNode *T, incremental bool) *T {
 	if !rootNode {
 		return rootNode
 	}
-	forEachChildRecursively(rootNode, __COND__(isJSDocNode(rootNode), bindParentToChildIgnoringJSDoc, bindParentToChild))
+	forEachChildRecursively(rootNode, ifelse(isJSDocNode(rootNode), bindParentToChildIgnoringJSDoc, bindParentToChild))
 	return rootNode
 
 	bindParentToChildIgnoringJSDoc := func(child Node, parent Node) /* TODO(TS-TO-GO) TypeNode UnionType: void | "skip" */ any {

@@ -2,14 +2,6 @@
 
 package output
 
-func __COND__[C comparable, T any](cond C, a T, b T) T {
-	var zero C
-	if cond != zero {
-		return a
-	}
-	return b
-}
-
 type SignatureFlags int32
 
 const (
@@ -502,10 +494,10 @@ var forEachChildTable ForEachChildTable = map[any]any{ /* TODO(TS-TO-GO): was ob
 		return visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDoc */ (node JSDoc, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))) || visitNodes(cbNode, cbNodes, node.tags)
+		return (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))) || visitNodes(cbNode, cbNodes, node.tags)
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocSeeTag */ (node JSDocSeeTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.name) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.name) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocNameReference */ (node JSDocNameReference, cbNode func(node Node) *T, _cbNodes func(nodes NodeArray[Node]) *T) *T {
 		return visitNode(cbNode, node.name)
@@ -516,22 +508,22 @@ var forEachChildTable ForEachChildTable = map[any]any{ /* TODO(TS-TO-GO): was ob
 	"TODO_IDENTIFIER": forEachChildInJSDocParameterOrPropertyTag,
 	"TODO_IDENTIFIER": forEachChildInJSDocParameterOrPropertyTag,
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocAuthorTag */ (node JSDocAuthorTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocImplementsTag */ (node JSDocImplementsTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocAugmentsTag */ (node JSDocAugmentsTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocTemplateTag */ (node JSDocTemplateTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.constraint) || visitNodes(cbNode, cbNodes, node.typeParameters) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.constraint) || visitNodes(cbNode, cbNodes, node.typeParameters) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocTypedefTag */ (node JSDocTypedefTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || (__COND__(node.typeExpression && node.typeExpression.kind == SyntaxKindJSDocTypeExpression, visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.fullName) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))), visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))))
+		return visitNode(cbNode, node.tagName) || (ifelse(node.typeExpression && node.typeExpression.kind == SyntaxKindJSDocTypeExpression, visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.fullName) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))), visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))))
 	},
 	"TODO_IDENTIFIER": func /* forEachChildInJSDocCallbackTag */ (node JSDocCallbackTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
 	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
@@ -612,11 +604,11 @@ func forEachChildInOptionalRestOrJSDocParameterModifier(node /* TODO(TS-TO-GO) T
 }
 
 func forEachChildInJSDocParameterOrPropertyTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocParameterTag | JSDocPropertyTag */ any, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || (__COND__(node.isNameFirst, visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression), visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name))) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || (ifelse(node.isNameFirst, visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression), visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name))) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInJSDocTypeLikeTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocReturnTag | JSDocTypeTag | JSDocThisTag | JSDocEnumTag | JSDocThrowsTag | JSDocOverloadTag | JSDocSatisfiesTag */ any, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.typeExpression) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.typeExpression) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInJSDocLinkCodeOrPlain(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocLink | JSDocLinkCode | JSDocLinkPlain */ any, cbNode func(node Node) *T, _cbNodes func(nodes NodeArray[Node]) *T) *T {
@@ -624,11 +616,11 @@ func forEachChildInJSDocLinkCodeOrPlain(node /* TODO(TS-TO-GO) TypeNode UnionTyp
 }
 
 func forEachChildInJSDocTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocUnknownTag | JSDocClassTag | JSDocPublicTag | JSDocPrivateTag | JSDocProtectedTag | JSDocReadonlyTag | JSDocDeprecatedTag | JSDocOverrideTag */ any, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInJSDocImportTag(node JSDocImportTag, cbNode func(node Node) *T, cbNodes func(nodes NodeArray[Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes) || (__COND__( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes) || (ifelse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInPartiallyEmittedExpression(node PartiallyEmittedExpression, cbNode func(node Node) *T, _cbNodes func(nodes NodeArray[Node]) *T) *T {

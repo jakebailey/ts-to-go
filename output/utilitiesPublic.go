@@ -2,14 +2,6 @@
 
 package output
 
-func __COND__[C comparable, T any](cond C, a T, b T) T {
-	var zero C
-	if cond != zero {
-		return a
-	}
-	return b
-}
-
 func isExternalModuleNameRelative(moduleName string) bool {
 	// TypeScript 1.0 spec (April 2014): 11.2.1
 	// An external module name is "relative" if the first term is "." or "..".
@@ -576,7 +568,7 @@ func getParseTreeNode(node Node, nodeTest func(node Node) bool) Node {
 /** Add an extra underscore to identifiers that start with two underscores to avoid issues with magic names like '__proto__' */
 
 func escapeLeadingUnderscores(identifier string) __String {
-	return (__COND__(identifier.length >= 2 && identifier.charCodeAt(0) == CharacterCodes_ && identifier.charCodeAt(1) == CharacterCodes_, "_"+identifier, identifier)).(__String)
+	return (ifelse(identifier.length >= 2 && identifier.charCodeAt(0) == CharacterCodes_ && identifier.charCodeAt(1) == CharacterCodes_, "_"+identifier, identifier)).(__String)
 }
 
 /**
@@ -756,7 +748,7 @@ func getNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Decl
 	if declaration == nil {
 		return nil
 	}
-	return getNonAssignedNameOfDeclaration(declaration) || (__COND__(isFunctionExpression(declaration) || isArrowFunction(declaration) || isClassExpression(declaration), getAssignedName(declaration), nil))
+	return getNonAssignedNameOfDeclaration(declaration) || (ifelse(isFunctionExpression(declaration) || isArrowFunction(declaration) || isClassExpression(declaration), getAssignedName(declaration), nil))
 }
 
 /** @internal */

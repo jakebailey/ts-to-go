@@ -2,14 +2,6 @@
 
 package output
 
-func __COND__[C comparable, T any](cond C, a T, b T) T {
-	var zero C
-	if cond != zero {
-		return a
-	}
-	return b
-}
-
 type Binder struct {
 	file            SourceFile
 	options         CompilerOptions
@@ -383,7 +375,7 @@ func (b *Binder) getDeclarationName(node Declaration) *__String {
 	if name {
 		if isAmbientModule(node) {
 			moduleName := getTextOfIdentifierOrLiteral(name /* as Identifier | StringLiteral */)
-			return (__COND__(isGlobalScopeAugmentation(node.(ModuleDeclaration)), "__global", __TEMPLATE__("\"", moduleName, "\""))).(__String)
+			return (ifelse(isGlobalScopeAugmentation(node.(ModuleDeclaration)), "__global", __TEMPLATE__("\"", moduleName, "\""))).(__String)
 		}
 		if name.kind == SyntaxKindComputedPropertyName {
 			nameExpression := name.expression
@@ -439,7 +431,7 @@ func (b *Binder) getDeclarationName(node Declaration) *__String {
 		}
 		Debug.fail("Unknown binary declaration kind")
 	case SyntaxKindJSDocFunctionType:
-		return (__COND__(isJSDocConstructSignature(node), InternalSymbolNameNew, InternalSymbolNameCall))
+		return (ifelse(isJSDocConstructSignature(node), InternalSymbolNameNew, InternalSymbolNameCall))
 	case SyntaxKindParameter:
 		Debug.assert(node.parent.kind == SyntaxKindJSDocFunctionType, "Impossible parameter parent kind", func() string {
 			return __TEMPLATE__("parent is: ", Debug.formatSyntaxKind(node.parent.kind), ", expected JSDocFunctionType")
@@ -586,7 +578,7 @@ func (b *Binder) declareSymbol(symbolTable SymbolTable, parent *Symbol, node Dec
 					} else {
 						diag = b.createDiagnosticForNode(decl, message)
 					}
-					b.file.bindDiagnostics.push(__COND__(multipleDefaultExports, addRelatedInfo(diag, b.createDiagnosticForNode(declarationName, __COND__(index == 0, Diagnostics.Another_export_default_is_here, Diagnostics.and_here))), diag))
+					b.file.bindDiagnostics.push(ifelse(multipleDefaultExports, addRelatedInfo(diag, b.createDiagnosticForNode(declarationName, ifelse(index == 0, Diagnostics.Another_export_default_is_here, Diagnostics.and_here))), diag))
 					if multipleDefaultExports {
 						relatedInformation.push(b.createDiagnosticForNode(decl, Diagnostics.The_first_export_default_is_here))
 					}
@@ -1456,7 +1448,7 @@ func (b *Binder) bindCaseBlock(node CaseBlock) {
 			i++
 		}
 		preCaseLabel := b.createBranchLabel()
-		b.addAntecedent(preCaseLabel, __COND__(isNarrowingSwitch, b.createFlowSwitchClause(b.preSwitchCaseFlow, node.parent, clauseStart, i+1), b.preSwitchCaseFlow))
+		b.addAntecedent(preCaseLabel, ifelse(isNarrowingSwitch, b.createFlowSwitchClause(b.preSwitchCaseFlow, node.parent, clauseStart, i+1), b.preSwitchCaseFlow))
 		b.addAntecedent(preCaseLabel, fallthroughFlow)
 		b.currentFlow = b.finishFlowLabel(preCaseLabel)
 		clause := clauses[i]
@@ -2061,7 +2053,7 @@ func (b *Binder) bindModuleDeclaration(node ModuleDeclaration) {
 			}
 
 			symbol := b.declareSymbolAndAddToSymbolTable(node, SymbolFlagsValueModule, SymbolFlagsValueModuleExcludes)
-			b.file.patternAmbientModules = append(b.file.patternAmbientModules, __COND__(pattern && !isString(pattern), map[any]any{ /* TODO(TS-TO-GO): was object literal */
+			b.file.patternAmbientModules = append(b.file.patternAmbientModules, ifelse(pattern && !isString(pattern), map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"pattern": pattern,
 				"symbol":  symbol,
 			}, nil))
@@ -2079,7 +2071,7 @@ func (b *Binder) bindModuleDeclaration(node ModuleDeclaration) {
 func (b *Binder) declareModuleSymbol(node ModuleDeclaration) ModuleInstanceState {
 	state := getModuleInstanceState(node)
 	instantiated := state != ModuleInstanceStateNonInstantiated
-	b.declareSymbolAndAddToSymbolTable(node, __COND__(instantiated, SymbolFlagsValueModule, SymbolFlagsNamespaceModule), __COND__(instantiated, SymbolFlagsValueModuleExcludes, SymbolFlagsNamespaceModuleExcludes))
+	b.declareSymbolAndAddToSymbolTable(node, ifelse(instantiated, SymbolFlagsValueModule, SymbolFlagsNamespaceModule), ifelse(instantiated, SymbolFlagsValueModuleExcludes, SymbolFlagsNamespaceModuleExcludes))
 	return state
 }
 
@@ -2652,7 +2644,7 @@ func (b *Binder) bindWorker(node Node) /* TODO(TS-TO-GO) inferred type number | 
 		return b.declareSymbolAndAddToSymbolTable(node.(Declaration), SymbolFlagsSignature, SymbolFlagsNone)
 	case SyntaxKindMethodDeclaration,
 		SyntaxKindMethodSignature:
-		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsMethod|(__COND__((node.(MethodDeclaration)).questionToken, SymbolFlagsOptional, SymbolFlagsNone)), __COND__(isObjectLiteralMethod(node), SymbolFlagsPropertyExcludes, SymbolFlagsMethodExcludes))
+		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsMethod|(ifelse((node.(MethodDeclaration)).questionToken, SymbolFlagsOptional, SymbolFlagsNone)), ifelse(isObjectLiteralMethod(node), SymbolFlagsPropertyExcludes, SymbolFlagsMethodExcludes))
 	case SyntaxKindFunctionDeclaration:
 		return b.bindFunctionDeclaration(node.(FunctionDeclaration))
 	case SyntaxKindConstructor:
@@ -2774,7 +2766,7 @@ func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: P
 	} else {
 		excludes = SymbolFlagsPropertyExcludes
 	}
-	return b.bindPropertyOrMethodOrAccessor(node, includes|(__COND__(node.questionToken, SymbolFlagsOptional, SymbolFlagsNone)), excludes)
+	return b.bindPropertyOrMethodOrAccessor(node, includes|(ifelse(node.questionToken, SymbolFlagsOptional, SymbolFlagsNone)), excludes)
 }
 
 func (b *Binder) bindAnonymousTypeWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral */ any) *Symbol {
@@ -3241,8 +3233,8 @@ func (b *Binder) isExpandoSymbol(symbol Symbol) bool {
 	}
 	init = init && getRightMostAssignedExpression(init)
 	if init {
-		isPrototypeAssignment := isPrototypeAccess(__COND__(isVariableDeclaration(node), node.name, __COND__(isBinaryExpression(node), node.left, node)))
-		return !!getExpandoInitializer(__COND__(isBinaryExpression(init) && (init.operatorToken.kind == SyntaxKindBarBarToken || init.operatorToken.kind == SyntaxKindQuestionQuestionToken), init.right, init), isPrototypeAssignment)
+		isPrototypeAssignment := isPrototypeAccess(ifelse(isVariableDeclaration(node), node.name, ifelse(isBinaryExpression(node), node.left, node)))
+		return !!getExpandoInitializer(ifelse(isBinaryExpression(init) && (init.operatorToken.kind == SyntaxKindBarBarToken || init.operatorToken.kind == SyntaxKindQuestionQuestionToken), init.right, init), isPrototypeAssignment)
 	}
 	return false
 }
@@ -3388,7 +3380,7 @@ func (b *Binder) bindParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: Parame
 	// containing class.
 	if isParameterPropertyDeclaration(node, node.parent) {
 		classDeclaration := node.parent.parent
-		b.declareSymbol(classDeclaration.symbol.members, classDeclaration.symbol, node, SymbolFlagsProperty|(__COND__(node.questionToken, SymbolFlagsOptional, SymbolFlagsNone)), SymbolFlagsPropertyExcludes)
+		b.declareSymbol(classDeclaration.symbol.members, classDeclaration.symbol, node, SymbolFlagsProperty|(ifelse(node.questionToken, SymbolFlagsOptional, SymbolFlagsNone)), SymbolFlagsPropertyExcludes)
 	}
 }
 

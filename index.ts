@@ -71,18 +71,18 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     writer.writeLine("package output");
     writer.newLine();
 
-    writer.writeLine("func __COND__[C comparable, T any](cond C, a T, b T) T {");
-    writer.indent(() => {
-        writer.writeLine("var zero C");
-        writer.writeLine("if cond != zero {");
-        writer.indent(() => {
-            writer.writeLine("return a");
-        });
-        writer.writeLine("}");
-        writer.writeLine("return b");
-    });
-    writer.writeLine("}");
-    writer.newLine();
+    // writer.writeLine("func __COND__[C comparable, T any](cond C, a T, b T) T {");
+    // writer.indent(() => {
+    //     writer.writeLine("var zero C");
+    //     writer.writeLine("if cond != zero {");
+    //     writer.indent(() => {
+    //         writer.writeLine("return a");
+    //     });
+    //     writer.writeLine("}");
+    //     writer.writeLine("return b");
+    // });
+    // writer.writeLine("}");
+    // writer.newLine();
 
     function asComment(text: string) {
         text = text.replaceAll("*/", "* /");
@@ -707,7 +707,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             const whenTrue = node.getWhenTrue();
             const whenFalse = node.getWhenFalse();
             // TODO: this causes side effects; should these be funcs?
-            writer.write("__COND__(");
+            writer.write("ifelse(");
             visitExpression(cond);
             writer.write(", ");
             visitExpression(whenTrue);
