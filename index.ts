@@ -1108,7 +1108,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
         }
 
-        const isGlobal = node.getParentIfKind(ts.SyntaxKind.SourceFile) !== undefined;
+        const isGlobal = node.getParentIf(p => Node.isSourceFile(p) || Node.isModuleBlock(p)) !== undefined;
 
         if (Node.isImportDeclaration(node)) {
             return;
@@ -1130,7 +1130,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 return;
             }
 
-            const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
+            const isGlobal = node.getParentIf(p => Node.isSourceFile(p) || Node.isModuleBlock(p)) !== undefined;
 
             if (isStructMethod) {
                 writer.write(`func (${methodReceiver} *${mainStruct}) ${getNameOfNamed(node)}`);
@@ -1189,7 +1189,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
 
         if (Node.isVariableStatement(node)) {
-            const isGlobal = node.getParentIf((p): p is Node => Node.isSourceFile(p)) !== undefined;
+            const isGlobal = node.getParentIf(p => Node.isSourceFile(p) || Node.isModuleBlock(p)) !== undefined;
 
             const declarations = node.getDeclarations();
 
@@ -1345,9 +1345,20 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 return;
             }
 
-            writeTodoNode(node);
+            writer.writeLine(`// #region ${node.getName()}`);
+            writer.newLine();
+            writer.newLine();
 
-            writer.newLineIfLastNot();
+            const statements = node.getStatementsWithComments();
+
+            for (const statement of statements) {
+                visitStatement(statement);
+            }
+
+            writer.writeLine(`// #endregion ${node.getName()}`);
+            writer.newLine();
+            writer.newLine();
+
             return;
         }
 
