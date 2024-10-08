@@ -22487,7 +22487,7 @@ func (c *TypeChecker) elaborateJsxComponents(node JsxAttributes, source Type, ta
 				child := validChildren[0]
 				elem := c.getElaborationElementForJsxChild(child, childrenNameType, getInvalidTextualChildDiagnostic)
 				if elem {
-					result = c.elaborateElementwise((func /* generator */ () /* TODO(TS-TO-GO) inferred type Generator<{ errorNode: JsxExpression; innerExpression: Expression | undefined; nameType: LiteralType; errorMessage?: undefined; } | { errorNode: JsxText; innerExpression: undefined; nameType: LiteralType; errorMessage: DiagnosticMessage; } | { errorNode: JsxElement | JsxSelfClosingElement | JsxFragment; innerExpression: JsxElement | JsxSelfClosingElement | JsxFragment; nameType: LiteralType; errorMessage?: undefined; }, void, undefined> */ any {
+					result = c.elaborateElementwise((func /* generator */ () /* TODO(TS-TO-GO) inferred type Generator<{ errorNode: JsxExpression; innerExpression: Expression | undefined; nameType: LiteralType; errorMessage?: undefined; } | { errorNode: JsxText; innerExpression: undefined; nameType: LiteralType; errorMessage: DiagnosticMessage; } | { errorNode: JsxElement | JsxSelfClosingElement | JsxFragment; innerExpression: JsxElement | JsxSelfClosingElement | JsxFragment; nameType: LiteralType; errorMessage?: undefined; }, void, any> */ any {
 						yield(elem)
 					})(), source, target, relation, containingMessageChain, errorOutputContainer) || result
 				}
@@ -26038,7 +26038,7 @@ func (c *TypeChecker) isMarkerType(type_ Type) bool {
 }
 
 func (c *TypeChecker) getTypeParameterModifiers(tp TypeParameter) ModifierFlags {
-	return reduceLeft(tp.symbol. /* ? */ declarations, func(modifiers ModifierFlags, d Declaration) number {
+	return reduceLeft(tp.symbol. /* ? */ declarations, func(modifiers number, d Declaration) number {
 		return modifiers | getEffectiveModifierFlags(d)
 	}, ModifierFlagsNone) & (ModifierFlagsIn | ModifierFlagsOut | ModifierFlagsConst)
 }
@@ -26455,7 +26455,7 @@ func (c *TypeChecker) literalTypesWithSameBaseType(types []Type) bool {
 }
 
 func (c *TypeChecker) getCombinedTypeFlags(types []Type) TypeFlags {
-	return reduceLeft(types, func(flags TypeFlags, t Type) number {
+	return reduceLeft(types, func(flags number, t Type) number {
 		return flags | (ifelse(t.flags&TypeFlagsUnion, c.getCombinedTypeFlags((t.(UnionType)).types), t.flags))
 	}, 0.(TypeFlags))
 }
@@ -28566,7 +28566,7 @@ func (c *TypeChecker) inferTypes(inferences []InferenceInfo, originalSource Type
 						} else {
 							constraintTypes = []Type{constraint}
 						}
-						var allTypeFlags TypeFlags = reduceLeft(constraintTypes, func(flags TypeFlags, t Type) number {
+						var allTypeFlags TypeFlags = reduceLeft(constraintTypes, func(flags number, t Type) number {
 							return flags | t.flags
 						}, 0.(TypeFlags))
 
@@ -29709,7 +29709,7 @@ func (c *TypeChecker) getTypeFactsWorker(type_ Type, callerOnlyNeeds TypeFacts) 
 		return TypeFactsNone
 	}
 	if flags & TypeFlagsUnion {
-		return reduceLeft((type_.(UnionType)).types, func(facts /* TODO(TS-TO-GO) inferred type TypeFacts.None */ any, t Type) number {
+		return reduceLeft((type_.(UnionType)).types, func(facts number, t Type) number {
 			return facts | c.getTypeFactsWorker(t, callerOnlyNeeds)
 		}, TypeFactsNone)
 	}

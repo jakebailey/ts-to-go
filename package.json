@@ -3,16 +3,16 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest",
+    "@types/bun": "^1.1.10",
     "@types/which": "^3.0.4"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.6.2"
   },
   "dependencies": {
-    "code-block-writer": "^13.0.2",
+    "code-block-writer": "^13.0.3",
     "dprint": "^0.47.2",
-    "ts-morph": "^23.0.0",
+    "ts-morph": "^24.0.0",
     "which": "^5.0.0"
   }
 }

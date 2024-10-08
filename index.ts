@@ -26,8 +26,6 @@ import {
 } from "ts-morph";
 import which from "which";
 
-process.stdout.write("\x1B[2J\x1B[3J\x1B[H");
-
 const root = "/home/jabaile/work/ts-native-pin/src/compiler";
 function pathFor(s: string) {
     return path.join(root, s);
