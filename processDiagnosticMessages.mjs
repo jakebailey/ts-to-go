@@ -97,10 +97,6 @@ function buildInfoFileOutput(messageTable) {
         `func (m *Message) ElidedInCompatabilityPyramid() bool { return m.elidedInCompatabilityPyramid }`,
         `func (m *Message) ReportsDeprecated() bool { return m.reportsDeprecated }`,
         "",
-        `func diag(code int32, category DiagnosticCategory, key string, text string, reportsUnnecessary bool, elidedInCompatabilityPyramid bool, reportsDeprecated bool) *Message {`,
-        `\treturn &Message{code, category, key, text, reportsUnnecessary, elidedInCompatabilityPyramid, reportsDeprecated}`,
-        `}`,
-        ``,
     ];
 
     const typeDeclaration = [
@@ -117,9 +113,9 @@ function buildInfoFileOutput(messageTable) {
 
             typeDeclaration.push(`\t${propName} *Message`);
             valueDeclaration.push(
-                `\t${propName}: diag(${code}, Category${category}, "${key}", ${
+                `\t${propName}: &Message{code: ${code}, category: Category${category}, key: "${key}", text: ${
                     JSON.stringify(name)
-                }, ${!!reportsUnnecessary}, ${!!elidedInCompatabilityPyramid}, ${!!reportsDeprecated}),`,
+                }, reportsUnnecessary: ${!!reportsUnnecessary}, elidedInCompatabilityPyramid: ${!!elidedInCompatabilityPyramid}, reportsDeprecated: ${!!reportsDeprecated}},`,
             );
         },
     );
