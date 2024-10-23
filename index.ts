@@ -1746,5 +1746,6 @@ await convert("parser.ts", "output/parser.go");
 await convert("utilities.ts", "output/utilities.go");
 await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
 await convert("program.ts", "output/program.go");
+await convert("emitter.ts", "output/emitter.go");
 
 console.log("Done!");
