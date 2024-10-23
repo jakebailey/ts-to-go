@@ -51,6 +51,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case "Scanner":
                 methodReceiver = "scanner";
                 break;
+            case "Printer":
+                methodReceiver = "printer";
+                break;
             default:
                 throw new Error(`Unknown main struct: ${mainStruct}`);
         }
@@ -432,7 +435,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             else {
                 const id = sanitizeName(node.getText());
                 if (structFields.has(id)) {
-                    const decl = node.getSymbolOrThrow().getValueDeclarationOrThrow();
+                    const nodeSym = node.getSymbolOrThrow();
+                    const decl = nodeSym.getValueDeclaration() ?? nodeSym.getDeclarations()[0];
                     if (isVariableForMainStruct(decl)) {
                         writer.write(`${methodReceiver}.${id}`);
                     }
@@ -1746,6 +1750,6 @@ await convert("parser.ts", "output/parser.go");
 await convert("utilities.ts", "output/utilities.go");
 await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
 await convert("program.ts", "output/program.go");
-await convert("emitter.ts", "output/emitter.go");
+await convert("emitter.ts", "output/emitter.go", "Printer");
 
 console.log("Done!");
