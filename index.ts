@@ -1731,7 +1731,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     await Bun.write(outFile, writer.toString());
 
     try {
-        cp.execFileSync(which.sync("gofmt"), ["-w", output]);
+        cp.execFileSync(which.sync("gofmt"), ["-w", "-s", output]);
         console.log("    All good!");
     }
     catch (e) {

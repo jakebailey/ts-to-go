@@ -9529,7 +9529,7 @@ func matchFiles(path string, extensions *[]string, excludes *[]string, includes 
 			return []never{}
 		})
 	} else {
-		results = [][]never{[]never{}}
+		results = [][]never{{}}
 	}
 	visited := NewMap[string /* TODO(TS-TO-GO) TypeNode LiteralType: true */, any]()
 	toCanonical := createGetCanonicalFileName(useCaseSensitiveFileNames)
@@ -9680,7 +9680,7 @@ func getScriptKindFromFileName(fileName string) ScriptKind {
  *  Groups of supported extensions in order of file resolution precedence. (eg, TS > TSX > DTS and seperately, CTS > DCTS)
  */
 
-var supportedTSExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Ts | Extension.Tsx | Extension.Dts)[] | (Extension.Cts | Extension.Dcts)[] | (Extension.Mts | Extension.Dmts) */ any{[] /* TODO(TS-TO-GO) inferred type Extension.Ts | Extension.Tsx | Extension.Dts */ any{ExtensionTs, ExtensionTsx, ExtensionDts}, [] /* TODO(TS-TO-GO) inferred type Extension.Cts | Extension.Dcts */ any{ExtensionCts, ExtensionDcts}, [] /* TODO(TS-TO-GO) inferred type Extension.Mts | Extension.Dmts */ any{ExtensionMts, ExtensionDmts}}
+var supportedTSExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Ts | Extension.Tsx | Extension.Dts)[] | (Extension.Cts | Extension.Dcts)[] | (Extension.Mts | Extension.Dmts) */ any{ /* TODO(TS-TO-GO) inferred type Extension.Ts | Extension.Tsx | Extension.Dts */ {ExtensionTs, ExtensionTsx, ExtensionDts} /* TODO(TS-TO-GO) inferred type Extension.Cts | Extension.Dcts */, {ExtensionCts, ExtensionDcts} /* TODO(TS-TO-GO) inferred type Extension.Mts | Extension.Dmts */, {ExtensionMts, ExtensionDmts}}
 
 /** @internal */
 
@@ -9690,12 +9690,12 @@ var supportedTSExtensionsWithJson [][]Extension = [][]Extension{ /* TODO(TS-TO-G
 /** Must have ".d.ts" first because if ".ts" goes first, that will be detected as the extension instead of ".d.ts". */
 
 var supportedTSExtensionsForExtractExtension []Extension = [] /* TODO(TS-TO-GO) inferred type Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Mts | Extension.Dmts | Extension.Cts | Extension.Dcts */ any{ExtensionDts, ExtensionDcts, ExtensionDmts, ExtensionCts, ExtensionMts, ExtensionTs, ExtensionTsx}
-var supportedJSExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Js | Extension.Jsx)[] | Extension.Mjs[] | Extension.Cjs */ any{[] /* TODO(TS-TO-GO) inferred type Extension.Js | Extension.Jsx */ any{ExtensionJs, ExtensionJsx}, [] /* TODO(TS-TO-GO) inferred type Extension.Mjs */ any{ExtensionMjs}, [] /* TODO(TS-TO-GO) inferred type Extension.Cjs */ any{ExtensionCjs}}
+var supportedJSExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Js | Extension.Jsx)[] | Extension.Mjs[] | Extension.Cjs */ any{ /* TODO(TS-TO-GO) inferred type Extension.Js | Extension.Jsx */ {ExtensionJs, ExtensionJsx} /* TODO(TS-TO-GO) inferred type Extension.Mjs */, {ExtensionMjs} /* TODO(TS-TO-GO) inferred type Extension.Cjs */, {ExtensionCjs}}
 
 /** @internal */
 
 var supportedJSExtensionsFlat []Extension = flatten(supportedJSExtensions)
-var allSupportedExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Js | Extension.Jsx)[] | (Extension.Cjs | Extension.Cts | Extension.Dcts)[] | (Extension.Mjs | Extension.Mts | Extension.Dmts) */ any{[] /* TODO(TS-TO-GO) inferred type Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Js | Extension.Jsx */ any{ExtensionTs, ExtensionTsx, ExtensionDts, ExtensionJs, ExtensionJsx}, [] /* TODO(TS-TO-GO) inferred type Extension.Cjs | Extension.Cts | Extension.Dcts */ any{ExtensionCts, ExtensionDcts, ExtensionCjs}, [] /* TODO(TS-TO-GO) inferred type Extension.Mjs | Extension.Mts | Extension.Dmts */ any{ExtensionMts, ExtensionDmts, ExtensionMjs}}
+var allSupportedExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Js | Extension.Jsx)[] | (Extension.Cjs | Extension.Cts | Extension.Dcts)[] | (Extension.Mjs | Extension.Mts | Extension.Dmts) */ any{ /* TODO(TS-TO-GO) inferred type Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Js | Extension.Jsx */ {ExtensionTs, ExtensionTsx, ExtensionDts, ExtensionJs, ExtensionJsx} /* TODO(TS-TO-GO) inferred type Extension.Cjs | Extension.Cts | Extension.Dcts */, {ExtensionCts, ExtensionDcts, ExtensionCjs} /* TODO(TS-TO-GO) inferred type Extension.Mjs | Extension.Mts | Extension.Dmts */, {ExtensionMts, ExtensionDmts, ExtensionMjs}}
 var allSupportedExtensionsWithJson [][]Extension = [][]Extension{ /* TODO(TS-TO-GO) Node SpreadElement: ...allSupportedExtensions */ [] /* TODO(TS-TO-GO) inferred type Extension.Json */ any{ExtensionJson}}
 
 /** @internal */
