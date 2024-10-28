@@ -518,7 +518,10 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.write(")");
         }
         else if (Node.isPrefixUnaryExpression(node)) {
-            const token = ts.tokenToString(node.getOperatorToken())!;
+            let token = ts.tokenToString(node.getOperatorToken())!;
+            if (token === "~") {
+                token = "^";
+            }
             if (inStatement && (token === "++" || token === "--")) {
                 visitExpression(node.getOperand());
                 writer.write(token);
@@ -800,7 +803,10 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
     function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
         const op = node.getOperatorToken();
-        let tok: string;
+        const left = node.getLeft();
+        let right = node.getRight();
+
+        let tok: string | undefined;
         switch (op.getKind()) {
             case ts.SyntaxKind.AmpersandAmpersandToken:
             case ts.SyntaxKind.BarBarToken:
@@ -825,12 +831,16 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case ts.SyntaxKind.ExclamationEqualsEqualsToken:
                 tok = "!=";
                 break;
+            case ts.SyntaxKind.AmpersandEqualsToken:
+                if (Node.isPrefixUnaryExpression(right) && right.getOperatorToken() === ts.SyntaxKind.TildeToken) {
+                    tok = "&^=";
+                    right = right.getOperand();
+                }
+                // falls through
             default:
                 if (isStatement && isAssignmentOperator(op.getKind())) {
-                    tok = ts.tokenToString(op.getKind())!;
+                    tok ??= ts.tokenToString(op.getKind())!;
 
-                    const left = node.getLeft();
-                    const right = node.getRight();
                     if (Node.isConditionalExpression(right)) {
                         writeConditionalExpression(right, () => {
                             visitExpression(left);
@@ -854,16 +864,18 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 return;
         }
 
-        visitExpression(node.getLeft());
+        assert(tok);
+
+        visitExpression(left);
         if (tok === "||=") {
             writer.write(" = ");
-            visitExpression(node.getLeft());
+            visitExpression(left);
             writer.write(" || ");
         }
         else {
             writer.write(` ${tok} `);
         }
-        visitExpression(node.getRight());
+        visitExpression(right);
     }
 
     function sanitizeName(name: string | undefined) {
@@ -1292,6 +1304,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                         for (const [name, value] of replacements) {
                             initializerText = initializerText.replaceAll(name, value);
                         }
+
+                        initializerText = initializerText.replaceAll("~", "^");
 
                         writer.write(`${enumName} = ${initializerText}`);
                     }

@@ -3341,7 +3341,7 @@ func (printer *Printer) emitEnumDeclaration(node EnumDeclaration) {
 
 func (printer *Printer) emitModuleDeclaration(node ModuleDeclaration) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
-	if ~node.flags & NodeFlagsGlobalAugmentation {
+	if ^node.flags & NodeFlagsGlobalAugmentation {
 		printer.writeKeyword(ifelse(node.flags&NodeFlagsNamespace, "namespace", "module"))
 		printer.writeSpace()
 	}
@@ -3726,7 +3726,7 @@ func (printer *Printer) emitCaseOrDefaultClauseRest(parentNode Node, statements 
 	if emitAsSingleStatement {
 		printer.writeToken(SyntaxKindColonToken, colonPos, printer.writePunctuation, parentNode)
 		printer.writeSpace()
-		format &= ~(ListFormatMultiLine | ListFormatIndented)
+		format &^= (ListFormatMultiLine | ListFormatIndented)
 	} else {
 		printer.emitTokenWithComment(SyntaxKindColonToken, colonPos, printer.writePunctuation, parentNode)
 	}
@@ -4339,7 +4339,7 @@ func (printer *Printer) canEmitSimpleArrowHead(parentNode /* TODO(TS-TO-GO) Type
 
 func (printer *Printer) emitParametersForArrow(parentNode /* TODO(TS-TO-GO) TypeNode UnionType: FunctionTypeNode | ConstructorTypeNode | ArrowFunction */ any, parameters NodeArray[ParameterDeclaration]) {
 	if printer.canEmitSimpleArrowHead(parentNode, parameters) {
-		printer.emitList(parentNode, parameters, ListFormatParameters&~ListFormatParenthesis)
+		printer.emitList(parentNode, parameters, ListFormatParameters & ^ListFormatParenthesis)
 	} else {
 		printer.emitParameters(parentNode, parameters)
 	}

@@ -450,7 +450,7 @@ func computeLineOfPosition(lineStarts []number, position number, lowerBound numb
 		//
 		// We want the index of the previous line start, so we subtract 1.
 		// Review 2's-complement if this is confusing.
-		lineNumber = ~lineNumber - 1
+		lineNumber = ^lineNumber - 1
 		Debug.assert(lineNumber != -1, "position cannot precede the beginning of the file")
 	}
 	return lineNumber

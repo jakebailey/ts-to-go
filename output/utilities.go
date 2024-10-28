@@ -5406,8 +5406,8 @@ func createDiagnosticCollection() DiagnosticCollection {
 		if result >= 0 {
 			return diagnostics[result]
 		}
-		if ~result > 0 && diagnosticsEqualityComparer(diagnostic, diagnostics[~result-1]) {
-			return diagnostics[~result-1]
+		if ^result > 0 && diagnosticsEqualityComparer(diagnostic, diagnostics[^result-1]) {
+			return diagnostics[^result-1]
 		}
 		return nil
 	}
@@ -7587,7 +7587,7 @@ func getDeclarationModifierFlagsFromSymbol(s Symbol, isWrite bool /*  = false */
 		if s.parent && s.parent.flags&SymbolFlagsClass {
 			return flags
 		} else {
-			return flags & ~ModifierFlagsAccessibilityModifier
+			return flags & ^ModifierFlagsAccessibilityModifier
 		}
 	}
 	if getCheckFlags(s) & CheckFlagsSynthetic {
@@ -11301,7 +11301,7 @@ func createEvaluator(TODO_IDENTIFIER EvaluationResolver) /* TODO(TS-TO-GO) TypeN
 				case SyntaxKindMinusToken:
 					return evaluatorResult(-result.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
 				case SyntaxKindTildeToken:
-					return evaluatorResult(~result.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
+					return evaluatorResult(^result.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
 				}
 			}
 		case SyntaxKindBinaryExpression:

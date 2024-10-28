@@ -773,7 +773,7 @@ func (b *Binder) bindContainer(node Mutable[HasContainerFlags], containerFlags C
 		b.hasExplicitReturn = false
 		b.bindChildren(node)
 		// Reset all reachability check related flags on node (for incremental scenarios)
-		node.flags &= ~NodeFlagsReachabilityAndEmitFlags
+		node.flags &^= NodeFlagsReachabilityAndEmitFlags
 		if !(b.currentFlow.flags & FlowFlagsUnreachable) && containerFlags&ContainerFlagsIsFunctionLike && nodeIsPresent((node /* as FunctionLikeDeclaration | ClassStaticBlockDeclaration */).body) {
 			node.flags |= NodeFlagsHasImplicitReturn
 			if b.hasExplicitReturn {
@@ -810,7 +810,7 @@ func (b *Binder) bindContainer(node Mutable[HasContainerFlags], containerFlags C
 		if b.seenThisKeyword {
 			node.flags = node.flags | NodeFlagsContainsThis
 		} else {
-			node.flags = node.flags & ~NodeFlagsContainsThis
+			node.flags = node.flags & ^NodeFlagsContainsThis
 		}
 	} else {
 		b.bindChildren(node)
@@ -2054,7 +2054,7 @@ func (b *Binder) setExportContextFlag(node Mutable[ /* TODO(TS-TO-GO) TypeNode U
 	if node.flags&NodeFlagsAmbient && !b.hasExportDeclarations(node) {
 		node.flags |= NodeFlagsExportContext
 	} else {
-		node.flags &= ~NodeFlagsExportContext
+		node.flags &^= NodeFlagsExportContext
 	}
 }
 
@@ -3010,7 +3010,7 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 			if hasDynamicName(node) {
 				b.bindDynamicallyNamedThisPropertyAssignment(node, constructorSymbol, constructorSymbol.members)
 			} else {
-				b.declareSymbol(constructorSymbol.members, constructorSymbol, node, SymbolFlagsProperty|SymbolFlagsAssignment, SymbolFlagsPropertyExcludes&~SymbolFlagsProperty)
+				b.declareSymbol(constructorSymbol.members, constructorSymbol, node, SymbolFlagsProperty|SymbolFlagsAssignment, SymbolFlagsPropertyExcludes & ^SymbolFlagsProperty)
 			}
 			b.addDeclarationToSymbol(constructorSymbol, constructorSymbol.valueDeclaration, SymbolFlagsClass)
 		}
@@ -3161,7 +3161,7 @@ func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol *Symbol, entit
 	if isToplevel && !isPrototypeProperty {
 		// make symbols or add declarations for intermediate containers
 		flags := SymbolFlagsModule | SymbolFlagsAssignment
-		excludeFlags := SymbolFlagsValueModuleExcludes & ~SymbolFlagsAssignment
+		excludeFlags := SymbolFlagsValueModuleExcludes & ^SymbolFlagsAssignment
 		namespaceSymbol = b.forEachIdentifierInEntityName(entityName, namespaceSymbol, func(id Declaration, symbol *Symbol, parent *Symbol) *Symbol {
 			if symbol {
 				b.addDeclarationToSymbol(symbol, id, flags)
@@ -3226,7 +3226,7 @@ func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* TODO(
 		excludes = SymbolFlagsPropertyExcludes
 	}
 
-	b.declareSymbol(symbolTable, namespaceSymbol, declaration, includes|SymbolFlagsAssignment, excludes&~SymbolFlagsAssignment)
+	b.declareSymbol(symbolTable, namespaceSymbol, declaration, includes|SymbolFlagsAssignment, excludes & ^SymbolFlagsAssignment)
 }
 
 func (b *Binder) isTopLevelNamespaceAssignment(propertyAccess BindableAccessExpression) bool {

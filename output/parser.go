@@ -1423,7 +1423,7 @@ func setContextFlag(val bool, flag NodeFlags) {
 	if val {
 		contextFlags |= flag
 	} else {
-		contextFlags &= ~flag
+		contextFlags &^= flag
 	}
 }
 
@@ -1471,7 +1471,7 @@ func doInsideOfContext(context NodeFlags, func_ func() T) T {
 	// that we do not mutate cached flags for the incremental
 	// parser (ThisNodeHasError, ThisNodeOrAnySubNodesHasError, and
 	// HasAggregatedChildData).
-	contextFlagsToSet := context & ~contextFlags
+	contextFlagsToSet := context & ^contextFlags
 	if contextFlagsToSet {
 		// set the requested context flags
 		setContextFlag(true, contextFlagsToSet)
