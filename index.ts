@@ -877,6 +877,11 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             visitExpression(left);
             writer.write(" || ");
         }
+        else if (tok === "&&=") {
+            writer.write(" = ");
+            visitExpression(left);
+            writer.write(" && ");
+        }
         else {
             writer.write(` ${tok} `);
         }
