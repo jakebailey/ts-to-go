@@ -881,13 +881,14 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case ts.SyntaxKind.ExclamationEqualsEqualsToken:
                 tok = "!=";
                 break;
-            case ts.SyntaxKind.AmpersandEqualsToken:
-                if (Node.isPrefixUnaryExpression(right) && right.getOperatorToken() === ts.SyntaxKind.TildeToken) {
-                    tok = "&^=";
-                    right = right.getOperand();
-                }
-                // falls through
             default:
+                if (op.getKind() === ts.SyntaxKind.AmpersandEqualsToken) {
+                    if (Node.isPrefixUnaryExpression(right) && right.getOperatorToken() === ts.SyntaxKind.TildeToken) {
+                        tok = "&^=";
+                        right = right.getOperand();
+                    }
+                }
+
                 if (isStatement && isAssignmentOperator(op.getKind())) {
                     tok ??= ts.tokenToString(op.getKind())!;
 
