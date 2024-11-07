@@ -1872,7 +1872,7 @@ func getSpaceSuggestion(expressionText string) *string {
 	return nil
 }
 
-func parseSemicolonAfterPropertyName(name PropertyName, type_ *TypeNode, initializer Expression) {
+func parseSemicolonAfterPropertyName(name PropertyName, t *TypeNode, initializer Expression) {
 	if token() == SyntaxKindAtToken && !scanner.hasPrecedingLineBreak() {
 		parseErrorAtCurrentToken(Diagnostics.Decorators_must_precede_the_name_and_all_keywords_of_property_declarations)
 		return
@@ -1884,7 +1884,7 @@ func parseSemicolonAfterPropertyName(name PropertyName, type_ *TypeNode, initial
 		return
 	}
 
-	if type_ && !canParseSemicolon() {
+	if t && !canParseSemicolon() {
 		if initializer {
 			parseErrorAtCurrentToken(Diagnostics._0_expected, tokenToString(SyntaxKindSemicolonToken))
 		} else {
@@ -3209,7 +3209,7 @@ func typeHasArrowFunctionBlockingParseError(node TypeNode) bool {
 	case SyntaxKindFunctionType,
 		SyntaxKindConstructorType:
 		TODO_IDENTIFIER := node.AsFunctionOrConstructorTypeNode()
-		return isMissingList(parameters) || typeHasArrowFunctionBlockingParseError(type_)
+		return isMissingList(parameters) || typeHasArrowFunctionBlockingParseError(t)
 	case SyntaxKindParenthesizedType:
 		return typeHasArrowFunctionBlockingParseError((node.AsParenthesizedTypeNode()).type_)
 	default:
@@ -3267,8 +3267,8 @@ func parseJSDocFunctionType() /* TODO(TS-TO-GO) TypeNode UnionType: JSDocFunctio
 	hasJSDoc := hasPrecedingJSDocComment()
 	if tryParse(nextTokenIsOpenParen) {
 		parameters := parseParameters(SignatureFlagsType | SignatureFlagsJSDoc)
-		type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
-		return withJSDoc(finishNode(factory.createJSDocFunctionType(parameters, type_), pos), hasJSDoc)
+		t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+		return withJSDoc(finishNode(factory.createJSDocFunctionType(parameters, t), pos), hasJSDoc)
 	}
 	return finishNode(factory.createTypeReferenceNode(parseIdentifierName() /*typeArguments*/, nil), pos)
 }
@@ -3306,16 +3306,16 @@ func parseJSDocType() TypeNode {
 	}
 
 	hasDotDotDot := parseOptional(SyntaxKindDotDotDotToken)
-	type_ := parseTypeOrTypePredicate()
+	t := parseTypeOrTypePredicate()
 	scanner.setSkipJsDocLeadingAsterisks(false)
 	if hasDotDotDot {
-		type_ = finishNode(factory.createJSDocVariadicType(type_), pos)
+		t = finishNode(factory.createJSDocVariadicType(t), pos)
 	}
 	if token() == SyntaxKindEqualsToken {
 		nextToken()
-		return finishNode(factory.createJSDocOptionalType(type_), pos)
+		return finishNode(factory.createJSDocOptionalType(t), pos)
 	}
-	return type_
+	return t
 }
 
 func parseTypeQuery() TypeQueryNode {
@@ -3564,13 +3564,13 @@ func parseSignatureMember(kind /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.
 
 	typeParameters := parseTypeParameters()
 	parameters := parseParameters(SignatureFlagsType)
-	type_ := parseReturnType(SyntaxKindColonToken /*isType*/, true)
+	t := parseReturnType(SyntaxKindColonToken /*isType*/, true)
 	parseTypeMemberSemicolon()
 	var node /* TODO(TS-TO-GO) inferred type CallSignatureDeclaration | ConstructSignatureDeclaration */ any
 	if kind == SyntaxKindCallSignature {
-		node = factory.createCallSignature(typeParameters, parameters, type_)
+		node = factory.createCallSignature(typeParameters, parameters, t)
 	} else {
-		node = factory.createConstructSignature(typeParameters, parameters, type_)
+		node = factory.createConstructSignature(typeParameters, parameters, t)
 	}
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
@@ -3636,9 +3636,9 @@ func parseIndexSignatureDeclaration(pos number, hasJSDoc bool, modifiers *NodeAr
 	parameters := parseBracketedList(ParsingContextParameters, func() ParameterDeclaration {
 		return parseParameter(false)
 	}, SyntaxKindOpenBracketToken, SyntaxKindCloseBracketToken)
-	type_ := parseTypeAnnotation()
+	t := parseTypeAnnotation()
 	parseTypeMemberSemicolon()
-	node := factory.createIndexSignature(modifiers, parameters, type_)
+	node := factory.createIndexSignature(modifiers, parameters, t)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -3651,11 +3651,11 @@ func parsePropertyOrMethodSignature(pos number, hasJSDoc bool, modifiers *NodeAr
 		// [Yield] nor [Await]
 		typeParameters := parseTypeParameters()
 		parameters := parseParameters(SignatureFlagsType)
-		type_ := parseReturnType(SyntaxKindColonToken /*isType*/, true)
-		node = factory.createMethodSignature(modifiers, name, questionToken, typeParameters, parameters, type_)
+		t := parseReturnType(SyntaxKindColonToken /*isType*/, true)
+		node = factory.createMethodSignature(modifiers, name, questionToken, typeParameters, parameters, t)
 	} else {
-		type_ := parseTypeAnnotation()
-		node = factory.createPropertySignature(modifiers, name, questionToken, type_)
+		t := parseTypeAnnotation()
+		node = factory.createPropertySignature(modifiers, name, questionToken, t)
 		// Although type literal properties cannot not have initializers, we attempt
 		// to parse an initializer so we can report in the checker that an interface
 		// property or type literal property cannot have an initializer.
@@ -3770,8 +3770,8 @@ func parseMappedTypeParameter() TypeParameterDeclaration {
 	pos := getNodePos()
 	name := parseIdentifierName()
 	parseExpected(SyntaxKindInKeyword)
-	type_ := parseType()
-	return finishNode(factory.createTypeParameterDeclaration(nil, name, type_ /*defaultType*/, nil), pos)
+	t := parseType()
+	return finishNode(factory.createTypeParameterDeclaration(nil, name, t /*defaultType*/, nil), pos)
 }
 
 func parseMappedType() MappedTypeNode {
@@ -3800,11 +3800,11 @@ func parseMappedType() MappedTypeNode {
 			parseExpected(SyntaxKindQuestionToken)
 		}
 	}
-	type_ := parseTypeAnnotation()
+	t := parseTypeAnnotation()
 	parseSemicolon()
 	members := parseList(ParsingContextTypeMembers, parseTypeMember)
 	parseExpected(SyntaxKindCloseBraceToken)
-	return finishNode(factory.createMappedTypeNode(readonlyToken, typeParameter, nameType, questionToken, type_, members), pos)
+	return finishNode(factory.createMappedTypeNode(readonlyToken, typeParameter, nameType, questionToken, t, members), pos)
 }
 
 func parseTupleElementType() TypeNode {
@@ -3812,14 +3812,14 @@ func parseTupleElementType() TypeNode {
 	if parseOptional(SyntaxKindDotDotDotToken) {
 		return finishNode(factory.createRestTypeNode(parseType()), pos)
 	}
-	type_ := parseType()
-	if isJSDocNullableType(type_) && type_.pos == type_.type_.pos {
-		node := factory.createOptionalTypeNode(type_.type_)
-		setTextRange(node, type_)
-		(node.(Mutable[*Node])).flags = type_.flags
+	t := parseType()
+	if isJSDocNullableType(t) && t.pos == t.type_.pos {
+		node := factory.createOptionalTypeNode(t.type_)
+		setTextRange(node, t)
+		(node.(Mutable[*Node])).flags = t.flags
 		return node
 	}
-	return type_
+	return t
 }
 
 func isNextTokenColonOrQuestionColon() bool {
@@ -3841,8 +3841,8 @@ func parseTupleElementNameOrTupleElementType() TypeNode {
 		name := parseIdentifierName()
 		questionToken := parseOptionalToken(SyntaxKindQuestionToken)
 		parseExpected(SyntaxKindColonToken)
-		type_ := parseTupleElementType()
-		node := factory.createNamedTupleMember(dotDotDotToken, name, questionToken, type_)
+		t := parseTupleElementType()
+		node := factory.createNamedTupleMember(dotDotDotToken, name, questionToken, t)
 		return withJSDoc(finishNode(node, pos), hasJSDoc)
 	}
 	return parseTupleElementType()
@@ -3856,9 +3856,9 @@ func parseTupleType() TupleTypeNode {
 func parseParenthesizedType() TypeNode {
 	pos := getNodePos()
 	parseExpected(SyntaxKindOpenParenToken)
-	type_ := parseType()
+	t := parseType()
 	parseExpected(SyntaxKindCloseParenToken)
-	return finishNode(factory.createParenthesizedType(type_), pos)
+	return finishNode(factory.createParenthesizedType(t), pos)
 }
 
 func parseModifiersForConstructorType() *NodeArray[Modifier] {
@@ -3880,12 +3880,12 @@ func parseFunctionOrConstructorType() TypeNode {
 	Debug.assert(!modifiers || isConstructorType, "Per isStartOfFunctionOrConstructorType, a function type cannot have modifiers.")
 	typeParameters := parseTypeParameters()
 	parameters := parseParameters(SignatureFlagsType)
-	type_ := parseReturnType(SyntaxKindEqualsGreaterThanToken /*isType*/, false)
+	t := parseReturnType(SyntaxKindEqualsGreaterThanToken /*isType*/, false)
 	var node /* TODO(TS-TO-GO) inferred type FunctionTypeNode | ConstructorTypeNode */ any
 	if isConstructorType {
-		node = factory.createConstructorTypeNode(modifiers, typeParameters, parameters, type_)
+		node = factory.createConstructorTypeNode(modifiers, typeParameters, parameters, t)
 	} else {
-		node = factory.createFunctionTypeNode(typeParameters, parameters, type_)
+		node = factory.createFunctionTypeNode(typeParameters, parameters, t)
 	}
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
@@ -3927,7 +3927,7 @@ func parseImportType() ImportTypeNode {
 	isTypeOf := parseOptional(SyntaxKindTypeOfKeyword)
 	parseExpected(SyntaxKindImportKeyword)
 	parseExpected(SyntaxKindOpenParenToken)
-	type_ := parseType()
+	t := parseType()
 	var attributes *ImportAttributes
 	if parseOptional(SyntaxKindCommaToken) {
 		openBracePosition := scanner.getTokenStart()
@@ -3955,7 +3955,7 @@ func parseImportType() ImportTypeNode {
 		qualifier = nil
 	}
 	typeArguments := parseTypeArgumentsOfTypeReference()
-	return finishNode(factory.createImportTypeNode(type_, attributes, qualifier, typeArguments, isTypeOf), pos)
+	return finishNode(factory.createImportTypeNode(t, attributes, qualifier, typeArguments, isTypeOf), pos)
 }
 
 func nextTokenIsNumericOrBigIntLiteral() bool {
@@ -4107,34 +4107,34 @@ func isStartOfParenthesizedOrFunctionType() bool {
 
 func parsePostfixTypeOrHigher() TypeNode {
 	pos := getNodePos()
-	type_ := parseNonArrayType()
+	t := parseNonArrayType()
 	for !scanner.hasPrecedingLineBreak() {
 		switch token() {
 		case SyntaxKindExclamationToken:
 			nextToken()
-			type_ = finishNode(factory.createJSDocNonNullableType(type_ /*postfix*/, true), pos)
+			t = finishNode(factory.createJSDocNonNullableType(t /*postfix*/, true), pos)
 		case SyntaxKindQuestionToken:
 			// If next token is start of a type we have a conditional type
 			if lookAhead(nextTokenIsStartOfType) {
-				return type_
+				return t
 			}
 			nextToken()
-			type_ = finishNode(factory.createJSDocNullableType(type_ /*postfix*/, true), pos)
+			t = finishNode(factory.createJSDocNullableType(t /*postfix*/, true), pos)
 		case SyntaxKindOpenBracketToken:
 			parseExpected(SyntaxKindOpenBracketToken)
 			if isStartOfType() {
 				indexType := parseType()
 				parseExpected(SyntaxKindCloseBracketToken)
-				type_ = finishNode(factory.createIndexedAccessTypeNode(type_, indexType), pos)
+				t = finishNode(factory.createIndexedAccessTypeNode(t, indexType), pos)
 			} else {
 				parseExpected(SyntaxKindCloseBracketToken)
-				type_ = finishNode(factory.createArrayTypeNode(type_), pos)
+				t = finishNode(factory.createArrayTypeNode(t), pos)
 			}
 		default:
-			return type_
+			return t
 		}
 	}
-	return type_
+	return t
 }
 
 func parseTypeOperator(operator /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.KeyOfKeyword | SyntaxKind.UniqueKeyword | SyntaxKind.ReadonlyKeyword */ any) TypeOperatorNode {
@@ -4184,9 +4184,9 @@ func parseFunctionOrConstructorTypeToError(isInUnionType bool) *TypeNode {
 	// are not allowed directly in unions and intersections, but we'll
 	// try to parse them gracefully and issue a helpful message.
 	if isStartOfFunctionTypeOrConstructorType() {
-		type_ := parseFunctionOrConstructorType()
+		t := parseFunctionOrConstructorType()
 		var diagnostic DiagnosticMessage
-		if isFunctionTypeNode(type_) {
+		if isFunctionTypeNode(t) {
 			if isInUnionType {
 				diagnostic = Diagnostics.Function_type_notation_must_be_parenthesized_when_used_in_a_union_type
 			} else {
@@ -4199,8 +4199,8 @@ func parseFunctionOrConstructorTypeToError(isInUnionType bool) *TypeNode {
 				diagnostic = Diagnostics.Constructor_type_notation_must_be_parenthesized_when_used_in_an_intersection_type
 			}
 		}
-		parseErrorAtRange(type_, diagnostic)
-		return type_
+		parseErrorAtRange(t, diagnostic)
+		return t
 	}
 	return nil
 }
@@ -4209,15 +4209,15 @@ func parseUnionOrIntersectionType(operator /* TODO(TS-TO-GO) TypeNode UnionType:
 	pos := getNodePos()
 	isUnionType := operator == SyntaxKindBarToken
 	hasLeadingOperator := parseOptional(operator)
-	type_ := hasLeadingOperator && parseFunctionOrConstructorTypeToError(isUnionType) || parseConstituentType()
+	t := hasLeadingOperator && parseFunctionOrConstructorTypeToError(isUnionType) || parseConstituentType()
 	if token() == operator || hasLeadingOperator {
-		types := []TypeNode{type_}
+		types := []TypeNode{t}
 		for parseOptional(operator) {
 			types.push(parseFunctionOrConstructorTypeToError(isUnionType) || parseConstituentType())
 		}
-		type_ = finishNode(createTypeNode(createNodeArray(types, pos)), pos)
+		t = finishNode(createTypeNode(createNodeArray(types, pos)), pos)
 	}
-	return type_
+	return t
 }
 
 func parseIntersectionTypeOrHigher() TypeNode {
@@ -4292,11 +4292,11 @@ func isUnambiguouslyStartOfFunctionType() bool {
 func parseTypeOrTypePredicate() TypeNode {
 	pos := getNodePos()
 	typePredicateVariable := isIdentifier() && tryParse(parseTypePredicatePrefix)
-	type_ := parseType()
+	t := parseType()
 	if typePredicateVariable {
-		return finishNode(factory.createTypePredicateNode(nil, typePredicateVariable, type_), pos)
+		return finishNode(factory.createTypePredicateNode(nil, typePredicateVariable, t), pos)
 	} else {
-		return type_
+		return t
 	}
 }
 
@@ -4317,13 +4317,13 @@ func parseAssertsTypePredicate() TypeNode {
 	} else {
 		parameterName = parseIdentifier()
 	}
-	var type_ *TypeNode
+	var t *TypeNode
 	if parseOptional(SyntaxKindIsKeyword) {
-		type_ = parseType()
+		t = parseType()
 	} else {
-		type_ = nil
+		t = nil
 	}
-	return finishNode(factory.createTypePredicateNode(assertsModifier, parameterName, type_), pos)
+	return finishNode(factory.createTypePredicateNode(assertsModifier, parameterName, t), pos)
 }
 
 func parseType() TypeNode {
@@ -4334,7 +4334,7 @@ func parseType() TypeNode {
 		return parseFunctionOrConstructorType()
 	}
 	pos := getNodePos()
-	type_ := parseUnionTypeOrHigher()
+	t := parseUnionTypeOrHigher()
 	if !inDisallowConditionalTypesContext() && !scanner.hasPrecedingLineBreak() && parseOptional(SyntaxKindExtendsKeyword) {
 		// The type following 'extends' is not permitted to be another conditional type
 		extendsType := disallowConditionalTypesAnd(parseType)
@@ -4342,9 +4342,9 @@ func parseType() TypeNode {
 		trueType := allowConditionalTypesAnd(parseType)
 		parseExpected(SyntaxKindColonToken)
 		falseType := allowConditionalTypesAnd(parseType)
-		return finishNode(factory.createConditionalTypeNode(type_, extendsType, trueType, falseType), pos)
+		return finishNode(factory.createConditionalTypeNode(t, extendsType, trueType, falseType), pos)
 	}
-	return type_
+	return t
 }
 
 func parseTypeAnnotation() *TypeNode {
@@ -4847,8 +4847,8 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 	}
 
 	hasReturnColon := token() == SyntaxKindColonToken
-	type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
-	if type_ && !allowAmbiguity && typeHasArrowFunctionBlockingParseError(type_) {
+	t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+	if t && !allowAmbiguity && typeHasArrowFunctionBlockingParseError(t) {
 		return nil
 	}
 
@@ -4863,7 +4863,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 	//
 	// So we need just a bit of lookahead to ensure that it can only be a signature.
 
-	unwrappedType := type_
+	unwrappedType := t
 	for unwrappedType. /* ? */ kind == SyntaxKindParenthesizedType {
 		unwrappedType = (unwrappedType.AsParenthesizedTypeNode()).type_
 		// Skip parens if need be
@@ -4912,7 +4912,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 		}
 	}
 
-	node := factory.createArrowFunction(modifiers, typeParameters, parameters, type_, equalsGreaterThanToken, body)
+	node := factory.createArrowFunction(modifiers, typeParameters, parameters, t, equalsGreaterThanToken, body)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -5742,10 +5742,10 @@ func parseTypeAssertion() TypeAssertion {
 	Debug.assert(languageVariant != LanguageVariantJSX, "Type assertions should never be parsed in JSX; they should be parsed as comparisons or JSX elements/fragments.")
 	pos := getNodePos()
 	parseExpected(SyntaxKindLessThanToken)
-	type_ := parseType()
+	t := parseType()
 	parseExpected(SyntaxKindGreaterThanToken)
 	expression := parseSimpleUnaryExpression()
-	return finishNode(factory.createTypeAssertion(type_, expression), pos)
+	return finishNode(factory.createTypeAssertion(t, expression), pos)
 }
 
 func nextTokenIsIdentifierOrKeywordOrOpenBracketOrTemplate() bool {
@@ -6187,12 +6187,12 @@ func parseFunctionExpression() FunctionExpression {
 
 	typeParameters := parseTypeParameters()
 	parameters := parseParameters(isGenerator | isAsync)
-	type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+	t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
 	body := parseFunctionBlock(isGenerator | isAsync)
 
 	setDecoratorContext(savedDecoratorContext)
 
-	node := factory.createFunctionExpression(modifiers, asteriskToken, name, typeParameters, parameters, type_, body)
+	node := factory.createFunctionExpression(modifiers, asteriskToken, name, typeParameters, parameters, t, body)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -7064,14 +7064,14 @@ func parseVariableDeclaration(allowExclamation bool) VariableDeclaration {
 	if allowExclamation && name.kind == SyntaxKindIdentifier && token() == SyntaxKindExclamationToken && !scanner.hasPrecedingLineBreak() {
 		exclamationToken = parseTokenNode()
 	}
-	type_ := parseTypeAnnotation()
+	t := parseTypeAnnotation()
 	var initializer Expression
 	if isInOrOfKeyword(token()) {
 		initializer = nil
 	} else {
 		initializer = parseInitializer()
 	}
-	node := factoryCreateVariableDeclaration(name, exclamationToken, type_, initializer)
+	node := factoryCreateVariableDeclaration(name, exclamationToken, t, initializer)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -7161,10 +7161,10 @@ func parseFunctionDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Mo
 		setAwaitContext(true)
 	}
 	parameters := parseParameters(isGenerator | isAsync)
-	type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+	t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
 	body := parseFunctionBlockOrSemicolon(isGenerator|isAsync, Diagnostics.or_expected)
 	setAwaitContext(savedAwaitContext)
-	node := factory.createFunctionDeclaration(modifiers, asteriskToken, name, typeParameters, parameters, type_, body)
+	node := factory.createFunctionDeclaration(modifiers, asteriskToken, name, typeParameters, parameters, t, body)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -7189,13 +7189,13 @@ func tryParseConstructorDeclaration(pos number, hasJSDoc bool, modifiers *NodeAr
 		if parseConstructorName() {
 			typeParameters := parseTypeParameters()
 			parameters := parseParameters(SignatureFlagsNone)
-			type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+			t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
 			body := parseFunctionBlockOrSemicolon(SignatureFlagsNone, Diagnostics.or_expected)
 			node := factory.createConstructorDeclaration(modifiers, parameters, body)
 
 			// Attach invalid nodes if they exist so that we can report them in the grammar checker.
 			(node.(Mutable[ConstructorDeclaration])).typeParameters = typeParameters
-			(node.(Mutable[ConstructorDeclaration])).type_ = type_
+			(node.(Mutable[ConstructorDeclaration])).type_ = t
 			return withJSDoc(finishNode(node, pos), hasJSDoc)
 		}
 	})
@@ -7216,9 +7216,9 @@ func parseMethodDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Modi
 	}
 	typeParameters := parseTypeParameters()
 	parameters := parseParameters(isGenerator | isAsync)
-	type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+	t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
 	body := parseFunctionBlockOrSemicolon(isGenerator|isAsync, diagnosticMessage)
-	node := factory.createMethodDeclaration(modifiers, asteriskToken, name, questionToken, typeParameters, parameters, type_, body)
+	node := factory.createMethodDeclaration(modifiers, asteriskToken, name, questionToken, typeParameters, parameters, t, body)
 
 	// An exclamation token on a method is invalid syntax and will be handled by the grammar checker
 	(node.(Mutable[MethodDeclaration])).exclamationToken = exclamationToken
@@ -7232,10 +7232,10 @@ func parsePropertyDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Mo
 	} else {
 		exclamationToken = nil
 	}
-	type_ := parseTypeAnnotation()
+	t := parseTypeAnnotation()
 	initializer := doOutsideOfContext(NodeFlagsYieldContext|NodeFlagsAwaitContext|NodeFlagsDisallowInContext, parseInitializer)
-	parseSemicolonAfterPropertyName(name, type_, initializer)
-	node := factory.createPropertyDeclaration(modifiers, name, questionToken || exclamationToken, type_, initializer)
+	parseSemicolonAfterPropertyName(name, t, initializer)
+	node := factory.createPropertyDeclaration(modifiers, name, questionToken || exclamationToken, t, initializer)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -7255,18 +7255,18 @@ func parseAccessorDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Mo
 	name := parsePropertyName()
 	typeParameters := parseTypeParameters()
 	parameters := parseParameters(SignatureFlagsNone)
-	type_ := parseReturnType(SyntaxKindColonToken /*isType*/, false)
+	t := parseReturnType(SyntaxKindColonToken /*isType*/, false)
 	body := parseFunctionBlockOrSemicolon(flags)
 	var node /* TODO(TS-TO-GO) inferred type GetAccessorDeclaration | SetAccessorDeclaration */ any
 	if kind == SyntaxKindGetAccessor {
-		node = factory.createGetAccessorDeclaration(modifiers, name, parameters, type_, body)
+		node = factory.createGetAccessorDeclaration(modifiers, name, parameters, t, body)
 	} else {
 		node = factory.createSetAccessorDeclaration(modifiers, name, parameters, body)
 	}
 	// Keep track of `typeParameters` (for both) and `type` (for setters) if they were parsed those indicate grammar errors
 	(node.(Mutable[AccessorDeclaration])).typeParameters = typeParameters
 	if isSetAccessorDeclaration(node) {
-		(node.(Mutable[SetAccessorDeclaration])).type_ = type_
+		(node.(Mutable[SetAccessorDeclaration])).type_ = t
 	}
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
@@ -7671,9 +7671,9 @@ func parseTypeAliasDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[M
 	name := parseIdentifier()
 	typeParameters := parseTypeParameters()
 	parseExpected(SyntaxKindEqualsToken)
-	type_ := token() == SyntaxKindIntrinsicKeyword && tryParse(parseKeywordAndNoDot) || parseType()
+	t := token() == SyntaxKindIntrinsicKeyword && tryParse(parseKeywordAndNoDot) || parseType()
 	parseSemicolon()
-	node := factory.createTypeAliasDeclaration(modifiers, name, typeParameters, type_)
+	node := factory.createTypeAliasDeclaration(modifiers, name, typeParameters, t)
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -8236,12 +8236,12 @@ func parseJSDocTypeExpressionForTests(content string, start *number, length *num
 func parseJSDocTypeExpression(mayOmitBraces bool) JSDocTypeExpression {
 	pos := getNodePos()
 	hasBrace := (ifElse(mayOmitBraces, parseOptional, parseExpected))(SyntaxKindOpenBraceToken)
-	type_ := doInsideOfContext(NodeFlagsJSDoc, parseJSDocType)
+	t := doInsideOfContext(NodeFlagsJSDoc, parseJSDocType)
 	if !mayOmitBraces || hasBrace {
 		parseExpectedJSDoc(SyntaxKindCloseBraceToken)
 	}
 
-	result := factory.createJSDocTypeExpression(type_)
+	result := factory.createJSDocTypeExpression(t)
 	fixupParentReferences(result)
 	return finishNode(result, pos)
 }
@@ -9508,7 +9508,7 @@ func getNewCommentDirectives(oldDirectives *[]CommentDirective, newDirectives *[
 					"pos": range_.pos + delta,
 					"end": range_.end + delta,
 				},
-				"type_": type_,
+				"t": t,
 			}
 			commentDirectives = append(commentDirectives, updatedDirective)
 			if aggressiveChecks {

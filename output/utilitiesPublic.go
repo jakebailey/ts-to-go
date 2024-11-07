@@ -1018,13 +1018,13 @@ func getJSDocReturnType(node *Node) *TypeNode {
 	}
 	typeTag := getJSDocTypeTag(node)
 	if typeTag && typeTag.typeExpression {
-		type_ := typeTag.typeExpression.type_
-		if isTypeLiteralNode(type_) {
-			sig := find(type_.members, isCallSignatureDeclaration)
+		t := typeTag.typeExpression.type_
+		if isTypeLiteralNode(t) {
+			sig := find(t.members, isCallSignatureDeclaration)
 			return sig && sig.type_
 		}
-		if isFunctionTypeNode(type_) || isJSDocFunctionType(type_) {
-			return type_.type_
+		if isFunctionTypeNode(t) || isJSDocFunctionType(t) {
+			return t.type_
 		}
 	}
 }
@@ -2349,13 +2349,13 @@ func hasRestParameter(s /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclarati
 }
 
 func isRestParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any) bool {
-	var type_ *TypeNode
+	var t *TypeNode
 	if isJSDocParameterTag(node) {
-		type_ = (node.typeExpression && node.typeExpression.type_)
+		t = (node.typeExpression && node.typeExpression.type_)
 	} else {
-		type_ = node.type_
+		t = node.type_
 	}
-	return (node.AsParameterDeclaration()).dotDotDotToken != nil || !!type_ && type_.kind == SyntaxKindJSDocVariadicType
+	return (node.AsParameterDeclaration()).dotDotDotToken != nil || !!t && t.kind == SyntaxKindJSDocVariadicType
 }
 
 func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {

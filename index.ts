@@ -2,6 +2,7 @@ import assert from "assert";
 import cp from "child_process";
 import CodeBlockWriter from "code-block-writer";
 import path from "path";
+import prettyMilliseconds from "pretty-ms";
 import {
     ArrowFunction,
     BinaryExpression,
@@ -40,6 +41,8 @@ const project = new Project({
 const checker = project.getTypeChecker();
 
 async function convert(filename: string, output: string, mainStruct?: string) {
+    const start = performance.now();
+
     const createFunction = mainStruct ? `create${mainStruct}` : undefined;
     let methodReceiver: string | undefined;
     if (mainStruct) {
@@ -396,6 +399,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     }
 
     function visitExpression(node: Expression, inStatement?: boolean): void {
+        const text = node.getText();
         if (Node.isRegularExpressionLiteral(node)) {
             const re = node.getLiteralValue();
             let source = re.source.replaceAll("`", "\\`");
@@ -419,7 +423,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 writer.write(JSON.stringify(node.getLiteralValue()));
             }
             else {
-                writer.write(node.getText());
+                writer.write(text);
             }
         }
         else if (Node.isAsExpression(node)) {
@@ -469,11 +473,16 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             visitExpression(node.getExpression());
             // writer.write("/* TODO(TS-TO-GO): was ! */");
         }
-        else if (Node.isIdentifier(node) || node.getText() === "this") {
-            if (node.getText() === "undefined") {
+        else if (Node.isIdentifier(node) || text === "this") {
+            if (text === "undefined") {
                 writer.write("nil");
             }
             else {
+                if (text === "type" && canRename(node, "t")) {
+                    writer.write("t");
+                    return;
+                }
+
                 const id = sanitizeName(node.getText());
                 if (structFields.has(id)) {
                     const nodeSym = node.getSymbolOrThrow();
@@ -929,6 +938,45 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         visitExpression(right);
     }
 
+    const referencesCache = new Map<Node, Node[]>();
+    function findReferencesAsNodes(node: Node): Node[] {
+        if (!Node.isReferenceFindable(node)) {
+            return [];
+        }
+
+        if (referencesCache.has(node)) {
+            return referencesCache.get(node)!;
+        }
+
+        const references = node.findReferencesAsNodes();
+        referencesCache.set(node, references);
+        return references;
+    }
+
+    function canRename(node: Node, name: string) {
+        // return false; // uncomment to go fast
+
+        if (checker.getSymbolsInScope(node, ts.SymbolFlags.Value).some(sym => sym.getName() === name)) {
+            return false;
+        }
+
+        // This is really slow
+        const symbol = node.getSymbol();
+        if (symbol) {
+            const declarations = symbol!.getDeclarations();
+            for (const decl of declarations) {
+                for (const ref of findReferencesAsNodes(decl)) {
+                    if (checker.getSymbolsInScope(ref, ts.SymbolFlags.Value).some(sym => sym.getName() === name)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
     function sanitizeName(name: string | undefined) {
         switch (name) {
             case "break":
@@ -968,7 +1016,11 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         return name;
     }
 
-    function getNameOfNamed(node: { getName(): string | undefined; }) {
+    function getNameOfNamed(node: Node & { getName(): string | undefined; }) {
+        const unsanitized = node.getName();
+        if (unsanitized === "type" && canRename(node, "t")) {
+            return "t";
+        }
         const name = sanitizeName(node.getName());
         if (/^[a-zA-Z0-9_]+$/.test(name)) {
             return name;
@@ -1812,6 +1864,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     catch (e) {
         console.error(e);
     }
+    console.log(`    took ${prettyMilliseconds(performance.now() - start)}`);
 
     const totalTodo = [...todoCounts.values()].reduce((a, b) => a + b, 0);
     console.log(`    Total TODOs: ${totalTodo}`);

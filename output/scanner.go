@@ -108,7 +108,7 @@ var textToKeywordObj MapLike[KeywordSyntaxKind] = map[any]any{ /* TODO(TS-TO-GO)
 	"throw":           SyntaxKindThrowKeyword,
 	"true":            SyntaxKindTrueKeyword,
 	"try":             SyntaxKindTryKeyword,
-	"type_":           SyntaxKindTypeKeyword,
+	"t":               SyntaxKindTypeKeyword,
 	"typeof":          SyntaxKindTypeOfKeyword,
 	"undefined":       SyntaxKindUndefinedKeyword,
 	"unique":          SyntaxKindUniqueKeyword,
@@ -1274,10 +1274,10 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		return SyntaxKindNumericLiteral
 	} else {
 		scanner.tokenValue = result
-		type_ := scanner.checkBigIntSuffix()
+		t := scanner.checkBigIntSuffix()
 		// if value is an integer, check whether it is a bigint
 		scanner.checkForIdentifierStartAfterNumericLiteral(start)
-		return type_
+		return t
 	}
 }
 
@@ -3573,8 +3573,8 @@ func (scanner *Scanner) checkRegularExpressionFlagAvailability(flag RegularExpre
 }
 
 func (scanner *Scanner) appendIfCommentDirective(commentDirectives *[]CommentDirective, text string, commentDirectiveRegEx RegExp, lineStart number) *[]CommentDirective {
-	type_ := scanner.getDirectiveFromComment(scanner.text.trimStart(), commentDirectiveRegEx)
-	if type_ == nil {
+	t := scanner.getDirectiveFromComment(scanner.text.trimStart(), commentDirectiveRegEx)
+	if t == nil {
 		return scanner.commentDirectives
 	}
 
@@ -3583,7 +3583,7 @@ func (scanner *Scanner) appendIfCommentDirective(commentDirectives *[]CommentDir
 			"pos": lineStart,
 			"end": scanner.pos,
 		},
-		"type_": type_,
+		"t": t,
 	})
 }
 

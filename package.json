@@ -12,6 +12,7 @@
   "dependencies": {
     "code-block-writer": "^13.0.3",
     "dprint": "^0.47.2",
+    "pretty-ms": "^9.1.0",
     "ts-morph": "^24.0.0",
     "which": "^5.0.0"
   }

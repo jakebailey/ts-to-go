@@ -6323,9 +6323,9 @@ func getEffectiveTypeAnnotationNode(node *Node) *TypeNode {
 		// has a .type, is not a type annotation
 	}
 	// has a .type, is not a type annotation
-	type_ := (node.AsHasType()).type_
-	if type_ || !isInJSFile(node) {
-		return type_
+	t := (node.AsHasType()).type_
+	if t || !isInJSFile(node) {
+		return t
 	}
 	if isJSDocPropertyLikeTag(node) {
 		return node.typeExpression && node.typeExpression.type_
@@ -7854,9 +7854,9 @@ func getClassLikeDeclarationOfSymbol(symbol *Symbol) *ClassLikeDeclaration {
 
 /** @internal */
 
-func getObjectFlags(type_ *Type) ObjectFlags {
-	if type_.flags & TypeFlagsObjectFlagsType {
-		return (type_.AsObjectFlagsType()).objectFlags
+func getObjectFlags(t *Type) ObjectFlags {
+	if t.flags & TypeFlagsObjectFlagsType {
+		return (t.AsObjectFlagsType()).objectFlags
 	} else {
 		return 0
 	}
@@ -10858,8 +10858,8 @@ func createPropertyNameNodeForIdentifierOrLiteral(name string, target ScriptTarg
 
 /** @internal */
 
-func isThisTypeParameter(type_ *Type) bool {
-	return !!(type_.flags&TypeFlagsTypeParameter && (type_.AsTypeParameter()).isThisType)
+func isThisTypeParameter(t *Type) bool {
+	return !!(t.flags&TypeFlagsTypeParameter && (t.AsTypeParameter()).isThisType)
 }
 
 /** @internal */
@@ -11098,8 +11098,8 @@ func intrinsicTagNameToString(node /* TODO(TS-TO-GO) TypeNode UnionType: Identif
  * @internal
  */
 
-func isTypeUsableAsPropertyName(type_ *Type) bool {
-	return !!(type_.flags & TypeFlagsStringOrNumberLiteralOrUnique)
+func isTypeUsableAsPropertyName(t *Type) bool {
+	return !!(t.flags & TypeFlagsStringOrNumberLiteralOrUnique)
 }
 
 /**
@@ -11107,12 +11107,12 @@ func isTypeUsableAsPropertyName(type_ *Type) bool {
  * @internal
  */
 
-func getPropertyNameFromType(type_ /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteralType | NumberLiteralType | UniqueESSymbolType */ any) string {
-	if type_.flags & TypeFlagsUniqueESSymbol {
-		return (type_.AsUniqueESSymbolType()).escapedName
+func getPropertyNameFromType(t /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteralType | NumberLiteralType | UniqueESSymbolType */ any) string {
+	if t.flags & TypeFlagsUniqueESSymbol {
+		return (t.AsUniqueESSymbolType()).escapedName
 	}
-	if type_.flags & (TypeFlagsStringLiteral | TypeFlagsNumberLiteral) {
-		return escapeLeadingUnderscores("" + (type_ /* as StringLiteralType | NumberLiteralType */).value)
+	if t.flags & (TypeFlagsStringLiteral | TypeFlagsNumberLiteral) {
+		return escapeLeadingUnderscores("" + (t /* as StringLiteralType | NumberLiteralType */).value)
 	}
 	return Debug.fail()
 }
