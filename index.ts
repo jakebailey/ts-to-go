@@ -1046,7 +1046,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.write(" ");
             const retNode = node.getReturnTypeNode();
             if (retNode) {
-                visitTypeNode(retNode);
+                if (Node.isTypePredicate(retNode)) {
+                    writer.write("bool");
+                }
+                else {
+                    visitTypeNode(retNode);
+                }
             }
             else {
                 writeType(node, ret, true);

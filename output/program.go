@@ -977,7 +977,7 @@ func getLibFileNameFromLibReference(libReference FileReference) *string {
 
 /** @internal */
 
-func isReferencedFile(reason *FileIncludeReason) /* TODO(TS-TO-GO) TypeNode TypePredicate: reason is ReferencedFile */ any {
+func isReferencedFile(reason *FileIncludeReason) bool {
 	switch reason. /* ? */ kind {
 	case FileIncludeKindImport,
 		FileIncludeKindReferenceFile,
@@ -1008,7 +1008,7 @@ type SyntheticReferenceFileLocation struct {
 
 /** @internal */
 
-func isReferenceFileLocation(location /* TODO(TS-TO-GO) TypeNode UnionType: ReferenceFileLocation | SyntheticReferenceFileLocation */ any) /* TODO(TS-TO-GO) TypeNode TypePredicate: location is ReferenceFileLocation */ any {
+func isReferenceFileLocation(location /* TODO(TS-TO-GO) TypeNode UnionType: ReferenceFileLocation | SyntheticReferenceFileLocation */ any) bool {
 	return (location.(ReferenceFileLocation)).pos != nil
 }
 

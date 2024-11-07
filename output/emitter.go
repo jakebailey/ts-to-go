@@ -859,7 +859,7 @@ var notImplementedResolver EmitResolver = map[any]any{ /* TODO(TS-TO-GO): was ob
 	"isTopLevelValueImportEqualsWithEntityName": notImplemented,
 	"hasNodeCheckFlag":                          notImplemented,
 	"isDeclarationVisible":                      notImplemented,
-	"isLateBound": func(_node /* TODO(TS-TO-GO) inferred type ts.Declaration */ any) /* TODO(TS-TO-GO) TypeNode TypePredicate: _node is LateBoundDeclaration */ any {
+	"isLateBound": func(_node /* TODO(TS-TO-GO) inferred type ts.Declaration */ any) bool {
 		return false
 	},
 	"collectLinkedAliases":                   notImplemented,

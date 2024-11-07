@@ -329,11 +329,11 @@ func getTypeParameterOwner(d Declaration) Declaration {
 
 type ParameterPropertyDeclaration /* TODO(TS-TO-GO) TypeNode IntersectionType: ParameterDeclaration & { parent: ConstructorDeclaration; name: Identifier; } */ any
 
-func isParameterPropertyDeclaration(node *Node, parent *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ParameterPropertyDeclaration */ any {
+func isParameterPropertyDeclaration(node *Node, parent *Node) bool {
 	return isParameter(node) && hasSyntacticModifier(node, ModifierFlagsParameterPropertyModifier) && parent.kind == SyntaxKindConstructor
 }
 
-func isEmptyBindingPattern(node BindingName) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BindingPattern */ any {
+func isEmptyBindingPattern(node BindingName) bool {
 	if isBindingPattern(node) {
 		return every(node.elements, isEmptyBindingElement)
 	}
@@ -685,7 +685,7 @@ func getNameOfJSDocTypedef(declaration JSDocTypedefTag) /* TODO(TS-TO-GO) TypeNo
 
 /** @internal */
 
-func isNamedDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NamedDeclaration & { name: DeclarationName; } */ any {
+func isNamedDeclaration(node *Node) bool {
 	return !!(node.(NamedDeclaration)).name
 	// A 'name' property should always be a DeclarationName.
 }
@@ -780,7 +780,7 @@ func getJSDocParameterTagsWorker(param ParameterDeclaration, noCache bool) []JSD
 	if param.name {
 		if isIdentifier(param.name) {
 			name := param.name.escapedText
-			return getJSDocTagsWorker(param.parent, noCache).filter(func(tag JSDocTag) /* TODO(TS-TO-GO) TypeNode TypePredicate: tag is JSDocParameterTag */ any {
+			return getJSDocTagsWorker(param.parent, noCache).filter(func(tag JSDocTag) bool {
 				return isJSDocParameterTag(tag) && isIdentifier(tag.name) && tag.name.escapedText == name
 			})
 		} else {
@@ -821,7 +821,7 @@ func getJSDocParameterTagsNoCache(param ParameterDeclaration) []JSDocParameterTa
 
 func getJSDocTypeParameterTagsWorker(param TypeParameterDeclaration, noCache bool) []JSDocTemplateTag {
 	name := param.name.escapedText
-	return getJSDocTagsWorker(param.parent, noCache).filter(func(tag JSDocTag) /* TODO(TS-TO-GO) TypeNode TypePredicate: tag is JSDocTemplateTag */ any {
+	return getJSDocTagsWorker(param.parent, noCache).filter(func(tag JSDocTag) bool {
 		return isJSDocTemplateTag(tag) && tag.typeParameters.some(func(tp TypeParameterDeclaration) bool {
 			return tp.name.escapedText == name
 		})
@@ -1189,36 +1189,36 @@ func getEffectiveConstraintOfTypeParameter(node TypeParameterDeclaration) *TypeN
 
 // #region
 
-func isMemberName(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is MemberName */ any {
+func isMemberName(node *Node) bool {
 	return node.kind == SyntaxKindIdentifier || node.kind == SyntaxKindPrivateIdentifier
 }
 
 /** @internal */
 
-func isGetOrSetAccessorDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is AccessorDeclaration */ any {
+func isGetOrSetAccessorDeclaration(node *Node) bool {
 	return node.kind == SyntaxKindSetAccessor || node.kind == SyntaxKindGetAccessor
 }
 
-func isPropertyAccessChain(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PropertyAccessChain */ any {
+func isPropertyAccessChain(node *Node) bool {
 	return isPropertyAccessExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
 }
 
-func isElementAccessChain(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ElementAccessChain */ any {
+func isElementAccessChain(node *Node) bool {
 	return isElementAccessExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
 }
 
-func isCallChain(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is CallChain */ any {
+func isCallChain(node *Node) bool {
 	return isCallExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
 }
 
-func isOptionalChain(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PropertyAccessChain | ElementAccessChain | CallChain | NonNullChain */ any {
+func isOptionalChain(node *Node) bool {
 	kind := node.kind
 	return !!(node.flags & NodeFlagsOptionalChain) && (kind == SyntaxKindPropertyAccessExpression || kind == SyntaxKindElementAccessExpression || kind == SyntaxKindCallExpression || kind == SyntaxKindNonNullExpression)
 }
 
 /** @internal */
 
-func isOptionalChainRoot(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is OptionalChainRoot */ any {
+func isOptionalChainRoot(node *Node) bool {
 	return isOptionalChain(node) && !isNonNullExpression(node) && !!node.questionDotToken
 }
 
@@ -1228,7 +1228,7 @@ func isOptionalChainRoot(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: n
  * @internal
  */
 
-func isExpressionOfOptionalChainRoot(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Expression & { parent: OptionalChainRoot; } */ any {
+func isExpressionOfOptionalChainRoot(node *Node) bool {
 	return isOptionalChainRoot(node.parent) && node.parent.expression == node
 }
 
@@ -1265,19 +1265,19 @@ func skipPartiallyEmittedExpressions(node *Node) *Node {
 	return skipOuterExpressions(node, OuterExpressionKindsPartiallyEmittedExpressions)
 }
 
-func isNonNullChain(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NonNullChain */ any {
+func isNonNullChain(node *Node) bool {
 	return isNonNullExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
 }
 
-func isBreakOrContinueStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BreakOrContinueStatement */ any {
+func isBreakOrContinueStatement(node *Node) bool {
 	return node.kind == SyntaxKindBreakStatement || node.kind == SyntaxKindContinueStatement
 }
 
-func isNamedExportBindings(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NamedExportBindings */ any {
+func isNamedExportBindings(node *Node) bool {
 	return node.kind == SyntaxKindNamespaceExport || node.kind == SyntaxKindNamedExports
 }
 
-func isJSDocPropertyLikeTag(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JSDocPropertyLikeTag */ any {
+func isJSDocPropertyLikeTag(node *Node) bool {
 	return node.kind == SyntaxKindJSDocPropertyTag || node.kind == SyntaxKindJSDocParameterTag
 }
 
@@ -1315,17 +1315,17 @@ func isToken(n *Node) bool {
 
 // Node Arrays
 
-func isNodeArray(array []T) /* TODO(TS-TO-GO) TypeNode TypePredicate: array is NodeArray<T> */ any {
+func isNodeArray(array []T) bool {
 	return hasProperty(array, "pos") && hasProperty(array, "end")
 }
 
 // Literals
 
-func isLiteralKind(kind SyntaxKind) /* TODO(TS-TO-GO) TypeNode TypePredicate: kind is LiteralToken["kind"] */ any {
+func isLiteralKind(kind SyntaxKind) bool {
 	return SyntaxKindFirstLiteralToken <= kind && kind <= SyntaxKindLastLiteralToken
 }
 
-func isLiteralExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is LiteralExpression */ any {
+func isLiteralExpression(node *Node) bool {
 	return isLiteralKind(node.kind)
 }
 
@@ -1345,24 +1345,24 @@ func isLiteralExpressionOfObject(node *Node) bool {
 
 // Pseudo-literals
 
-func isTemplateLiteralKind(kind SyntaxKind) /* TODO(TS-TO-GO) TypeNode TypePredicate: kind is TemplateLiteralToken["kind"] */ any {
+func isTemplateLiteralKind(kind SyntaxKind) bool {
 	return SyntaxKindFirstTemplateToken <= kind && kind <= SyntaxKindLastTemplateToken
 }
 
-func isTemplateLiteralToken(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TemplateLiteralToken */ any {
+func isTemplateLiteralToken(node *Node) bool {
 	return isTemplateLiteralKind(node.kind)
 }
 
-func isTemplateMiddleOrTemplateTail(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TemplateMiddle | TemplateTail */ any {
+func isTemplateMiddleOrTemplateTail(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindTemplateMiddle || kind == SyntaxKindTemplateTail
 }
 
-func isImportOrExportSpecifier(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ImportSpecifier | ExportSpecifier */ any {
+func isImportOrExportSpecifier(node *Node) bool {
 	return isImportSpecifier(node) || isExportSpecifier(node)
 }
 
-func isTypeOnlyImportDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeOnlyImportDeclaration */ any {
+func isTypeOnlyImportDeclaration(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindImportSpecifier:
 		return (node.(ImportSpecifier)).isTypeOnly || (node.(ImportSpecifier)).parent.parent.isTypeOnly
@@ -1375,7 +1375,7 @@ func isTypeOnlyImportDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePred
 	return false
 }
 
-func isTypeOnlyExportDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeOnlyExportDeclaration */ any {
+func isTypeOnlyExportDeclaration(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindExportSpecifier:
 		return (node.(ExportSpecifier)).isTypeOnly || (node.(ExportSpecifier)).parent.parent.isTypeOnly
@@ -1387,27 +1387,27 @@ func isTypeOnlyExportDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePred
 	return false
 }
 
-func isTypeOnlyImportOrExportDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeOnlyAliasDeclaration */ any {
+func isTypeOnlyImportOrExportDeclaration(node *Node) bool {
 	return isTypeOnlyImportDeclaration(node) || isTypeOnlyExportDeclaration(node)
 }
 
-func isStringTextContainingNode(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is StringLiteral | TemplateLiteralToken */ any {
+func isStringTextContainingNode(node *Node) bool {
 	return node.kind == SyntaxKindStringLiteral || isTemplateLiteralKind(node.kind)
 }
 
-func isImportAttributeName(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ImportAttributeName */ any {
+func isImportAttributeName(node *Node) bool {
 	return isStringLiteral(node) || isIdentifier(node)
 }
 
 // Identifiers
 
-func isGeneratedIdentifier(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is GeneratedIdentifier */ any {
+func isGeneratedIdentifier(node *Node) bool {
 	return isIdentifier(node) && node.emitNode. /* ? */ autoGenerate != nil
 }
 
 /** @internal */
 
-func isGeneratedPrivateIdentifier(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is GeneratedPrivateIdentifier */ any {
+func isGeneratedPrivateIdentifier(node *Node) bool {
 	return isPrivateIdentifier(node) && node.emitNode. /* ? */ autoGenerate != nil
 }
 
@@ -1420,19 +1420,19 @@ func isFileLevelReservedGeneratedIdentifier(node GeneratedIdentifier) bool {
 
 // Private Identifiers
 
-func isPrivateIdentifierClassElementDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PrivateClassElementDeclaration */ any {
+func isPrivateIdentifierClassElementDeclaration(node *Node) bool {
 	return (isPropertyDeclaration(node) || isMethodOrAccessor(node)) && isPrivateIdentifier(node.name)
 }
 
 /** @internal */
 
-func isPrivateIdentifierPropertyAccessExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PrivateIdentifierPropertyAccessExpression */ any {
+func isPrivateIdentifierPropertyAccessExpression(node *Node) bool {
 	return isPropertyAccessExpression(node) && isPrivateIdentifier(node.name)
 }
 
 // Keywords
 
-func isModifierKind(token SyntaxKind) /* TODO(TS-TO-GO) TypeNode TypePredicate: token is Modifier["kind"] */ any {
+func isModifierKind(token SyntaxKind) bool {
 	switch token {
 	case SyntaxKindAbstractKeyword,
 		SyntaxKindAccessorKeyword,
@@ -1466,46 +1466,46 @@ func isClassMemberModifier(idToken SyntaxKind) bool {
 	return isParameterPropertyModifier(idToken) || idToken == SyntaxKindStaticKeyword || idToken == SyntaxKindOverrideKeyword || idToken == SyntaxKindAccessorKeyword
 }
 
-func isModifier(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Modifier */ any {
+func isModifier(node *Node) bool {
 	return isModifierKind(node.kind)
 }
 
-func isEntityName(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is EntityName */ any {
+func isEntityName(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindQualifiedName || kind == SyntaxKindIdentifier
 }
 
-func isPropertyName(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PropertyName */ any {
+func isPropertyName(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindIdentifier || kind == SyntaxKindPrivateIdentifier || kind == SyntaxKindStringLiteral || kind == SyntaxKindNumericLiteral || kind == SyntaxKindComputedPropertyName
 }
 
-func isBindingName(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BindingName */ any {
+func isBindingName(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindIdentifier || kind == SyntaxKindObjectBindingPattern || kind == SyntaxKindArrayBindingPattern
 }
 
 // Functions
 
-func isFunctionLike(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is SignatureDeclaration */ any {
+func isFunctionLike(node *Node) bool {
 	return !!node && isFunctionLikeKind(node.kind)
 }
 
 /** @internal */
 
-func isFunctionLikeOrClassStaticBlockDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is SignatureDeclaration | ClassStaticBlockDeclaration */ any {
+func isFunctionLikeOrClassStaticBlockDeclaration(node *Node) bool {
 	return !!node && (isFunctionLikeKind(node.kind) || isClassStaticBlockDeclaration(node))
 }
 
 /** @internal */
 
-func isFunctionLikeDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is FunctionLikeDeclaration */ any {
+func isFunctionLikeDeclaration(node *Node) bool {
 	return node && isFunctionLikeDeclarationKind(node.kind)
 }
 
 /** @internal */
 
-func isBooleanLiteral(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BooleanLiteral */ any {
+func isBooleanLiteral(node *Node) bool {
 	return node.kind == SyntaxKindTrueKeyword || node.kind == SyntaxKindFalseKeyword
 }
 
@@ -1549,20 +1549,20 @@ func isFunctionOrModuleBlock(node *Node) bool {
 }
 
 // Classes
-func isClassElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ClassElement */ any {
+func isClassElement(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindConstructor || kind == SyntaxKindPropertyDeclaration || kind == SyntaxKindMethodDeclaration || kind == SyntaxKindGetAccessor || kind == SyntaxKindSetAccessor || kind == SyntaxKindIndexSignature || kind == SyntaxKindClassStaticBlockDeclaration || kind == SyntaxKindSemicolonClassElement
 }
 
-func isClassLike(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ClassLikeDeclaration */ any {
+func isClassLike(node *Node) bool {
 	return node && (node.kind == SyntaxKindClassDeclaration || node.kind == SyntaxKindClassExpression)
 }
 
-func isAccessor(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is AccessorDeclaration */ any {
+func isAccessor(node *Node) bool {
 	return node && (node.kind == SyntaxKindGetAccessor || node.kind == SyntaxKindSetAccessor)
 }
 
-func isAutoAccessorPropertyDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is AutoAccessorPropertyDeclaration */ any {
+func isAutoAccessorPropertyDeclaration(node *Node) bool {
 	return isPropertyDeclaration(node) && hasAccessorModifier(node)
 }
 
@@ -1577,7 +1577,7 @@ func isClassInstanceProperty(node Declaration) bool {
 
 /** @internal */
 
-func isMethodOrAccessor(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is MethodDeclaration | AccessorDeclaration */ any {
+func isMethodOrAccessor(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindMethodDeclaration,
 		SyntaxKindGetAccessor,
@@ -1590,31 +1590,31 @@ func isMethodOrAccessor(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: no
 
 // Type members
 
-func isModifierLike(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ModifierLike */ any {
+func isModifierLike(node *Node) bool {
 	return isModifier(node) || isDecorator(node)
 }
 
-func isTypeElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeElement */ any {
+func isTypeElement(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindConstructSignature || kind == SyntaxKindCallSignature || kind == SyntaxKindPropertySignature || kind == SyntaxKindMethodSignature || kind == SyntaxKindIndexSignature || kind == SyntaxKindGetAccessor || kind == SyntaxKindSetAccessor || kind == SyntaxKindNotEmittedTypeElement
 }
 
-func isClassOrTypeElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ClassElement | TypeElement */ any {
+func isClassOrTypeElement(node *Node) bool {
 	return isTypeElement(node) || isClassElement(node)
 }
 
-func isObjectLiteralElementLike(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ObjectLiteralElementLike */ any {
+func isObjectLiteralElementLike(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindPropertyAssignment || kind == SyntaxKindShorthandPropertyAssignment || kind == SyntaxKindSpreadAssignment || kind == SyntaxKindMethodDeclaration || kind == SyntaxKindGetAccessor || kind == SyntaxKindSetAccessor
 }
 
 // Type
 
-func isTypeNode(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeNode */ any {
+func isTypeNode(node *Node) bool {
 	return isTypeNodeKind(node.kind)
 }
 
-func isFunctionOrConstructorTypeNode(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is FunctionTypeNode | ConstructorTypeNode */ any {
+func isFunctionOrConstructorTypeNode(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindFunctionType,
 		SyntaxKindConstructorType:
@@ -1626,7 +1626,7 @@ func isFunctionOrConstructorTypeNode(node *Node) /* TODO(TS-TO-GO) TypeNode Type
 
 // Binding patterns
 
-func isBindingPattern(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BindingPattern */ any {
+func isBindingPattern(node *Node) bool {
 	if node {
 		kind := node.kind
 		return kind == SyntaxKindArrayBindingPattern || kind == SyntaxKindObjectBindingPattern
@@ -1637,12 +1637,12 @@ func isBindingPattern(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node
 
 /** @internal */
 
-func isAssignmentPattern(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is AssignmentPattern */ any {
+func isAssignmentPattern(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindArrayLiteralExpression || kind == SyntaxKindObjectLiteralExpression
 }
 
-func isArrayBindingElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ArrayBindingElement */ any {
+func isArrayBindingElement(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindBindingElement || kind == SyntaxKindOmittedExpression
 }
@@ -1653,7 +1653,7 @@ func isArrayBindingElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate:
  * @internal
  */
 
-func isDeclarationBindingElement(bindingElement BindingOrAssignmentElement) /* TODO(TS-TO-GO) TypeNode TypePredicate: bindingElement is VariableDeclaration | ParameterDeclaration | BindingElement */ any {
+func isDeclarationBindingElement(bindingElement BindingOrAssignmentElement) bool {
 	switch bindingElement.kind {
 	case SyntaxKindVariableDeclaration,
 		SyntaxKindParameter,
@@ -1666,7 +1666,7 @@ func isDeclarationBindingElement(bindingElement BindingOrAssignmentElement) /* T
 
 /** @internal */
 
-func isBindingOrAssignmentElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BindingOrAssignmentElement */ any {
+func isBindingOrAssignmentElement(node *Node) bool {
 	return isVariableDeclaration(node) || isParameter(node) || isObjectBindingOrAssignmentElement(node) || isArrayBindingOrAssignmentElement(node)
 }
 
@@ -1676,7 +1676,7 @@ func isBindingOrAssignmentElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePre
  * @internal
  */
 
-func isBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is BindingOrAssignmentPattern */ any {
+func isBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) bool {
 	return isObjectBindingOrAssignmentPattern(node) || isArrayBindingOrAssignmentPattern(node)
 }
 
@@ -1686,7 +1686,7 @@ func isBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) /* TODO
  * @internal
  */
 
-func isObjectBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ObjectBindingOrAssignmentPattern */ any {
+func isObjectBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) bool {
 	switch node.kind {
 	case SyntaxKindObjectBindingPattern,
 		SyntaxKindObjectLiteralExpression:
@@ -1698,7 +1698,7 @@ func isObjectBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) /
 
 /** @internal */
 
-func isObjectBindingOrAssignmentElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ObjectBindingOrAssignmentElement */ any {
+func isObjectBindingOrAssignmentElement(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindBindingElement,
 		SyntaxKindPropertyAssignment,
@@ -1715,7 +1715,7 @@ func isObjectBindingOrAssignmentElement(node *Node) /* TODO(TS-TO-GO) TypeNode T
  * @internal
  */
 
-func isArrayBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ArrayBindingOrAssignmentPattern */ any {
+func isArrayBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) bool {
 	switch node.kind {
 	case SyntaxKindArrayBindingPattern,
 		SyntaxKindArrayLiteralExpression:
@@ -1727,7 +1727,7 @@ func isArrayBindingOrAssignmentPattern(node BindingOrAssignmentElementTarget) /*
 
 /** @internal */
 
-func isArrayBindingOrAssignmentElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ArrayBindingOrAssignmentElement */ any {
+func isArrayBindingOrAssignmentElement(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindBindingElement,
 		SyntaxKindOmittedExpression,
@@ -1745,25 +1745,25 @@ func isArrayBindingOrAssignmentElement(node *Node) /* TODO(TS-TO-GO) TypeNode Ty
 
 /** @internal */
 
-func isPropertyAccessOrQualifiedNameOrImportTypeNode(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PropertyAccessExpression | QualifiedName | ImportTypeNode */ any {
+func isPropertyAccessOrQualifiedNameOrImportTypeNode(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindPropertyAccessExpression || kind == SyntaxKindQualifiedName || kind == SyntaxKindImportType
 }
 
 // Expression
 
-func isPropertyAccessOrQualifiedName(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is PropertyAccessExpression | QualifiedName */ any {
+func isPropertyAccessOrQualifiedName(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindPropertyAccessExpression || kind == SyntaxKindQualifiedName
 }
 
 /** @internal */
 
-func isCallLikeOrFunctionLikeExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is CallLikeExpression | FunctionExpression | ArrowFunction */ any {
+func isCallLikeOrFunctionLikeExpression(node *Node) bool {
 	return isCallLikeExpression(node) || isFunctionExpressionOrArrowFunction(node)
 }
 
-func isCallLikeExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is CallLikeExpression */ any {
+func isCallLikeExpression(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindJsxOpeningElement,
 		SyntaxKindJsxSelfClosingElement,
@@ -1777,16 +1777,16 @@ func isCallLikeExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: 
 	}
 }
 
-func isCallOrNewExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is CallExpression | NewExpression */ any {
+func isCallOrNewExpression(node *Node) bool {
 	return node.kind == SyntaxKindCallExpression || node.kind == SyntaxKindNewExpression
 }
 
-func isTemplateLiteral(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TemplateLiteral */ any {
+func isTemplateLiteral(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindTemplateExpression || kind == SyntaxKindNoSubstitutionTemplateLiteral
 }
 
-func isLeftHandSideExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is LeftHandSideExpression */ any {
+func isLeftHandSideExpression(node *Node) bool {
 	return isLeftHandSideExpressionKind(skipPartiallyEmittedExpressions(node).kind)
 }
 
@@ -1831,7 +1831,7 @@ func isLeftHandSideExpressionKind(kind SyntaxKind) bool {
 
 /** @internal */
 
-func isUnaryExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is UnaryExpression */ any {
+func isUnaryExpression(node *Node) bool {
 	return isUnaryExpressionKind(skipPartiallyEmittedExpressions(node).kind)
 }
 
@@ -1852,7 +1852,7 @@ func isUnaryExpressionKind(kind SyntaxKind) bool {
 
 /** @internal */
 
-func isUnaryExpressionWithWrite(expr *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: expr is PrefixUnaryExpression | PostfixUnaryExpression */ any {
+func isUnaryExpressionWithWrite(expr *Node) bool {
 	switch expr.kind {
 	case SyntaxKindPostfixUnaryExpression:
 		return true
@@ -1863,7 +1863,7 @@ func isUnaryExpressionWithWrite(expr *Node) /* TODO(TS-TO-GO) TypeNode TypePredi
 	}
 }
 
-func isLiteralTypeLiteral(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NullLiteral | BooleanLiteral | LiteralExpression | PrefixUnaryExpression */ any {
+func isLiteralTypeLiteral(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindNullKeyword,
 		SyntaxKindTrueKeyword,
@@ -1879,7 +1879,7 @@ func isLiteralTypeLiteral(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: 
  * Determines whether a node is an expression based only on its kind.
  */
 
-func isExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Expression */ any {
+func isExpression(node *Node) bool {
 	return isExpressionKind(skipPartiallyEmittedExpressions(node).kind)
 }
 
@@ -1901,7 +1901,7 @@ func isExpressionKind(kind SyntaxKind) bool {
 	}
 }
 
-func isAssertionExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is AssertionExpression */ any {
+func isAssertionExpression(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindTypeAssertionExpression || kind == SyntaxKindAsExpression
 }
@@ -1910,7 +1910,7 @@ func isAssertionExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate:
 
 /* OVERLOAD: export function isIterationStatement(node: Node, lookInLabeledStatements: false): node is IterationStatement; */
 /* OVERLOAD: export function isIterationStatement(node: Node, lookInLabeledStatements: boolean): node is IterationStatement | LabeledStatement; */
-func isIterationStatement(node *Node, lookInLabeledStatements bool) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is IterationStatement */ any {
+func isIterationStatement(node *Node, lookInLabeledStatements bool) bool {
 	switch node.kind {
 	case SyntaxKindForStatement,
 		SyntaxKindForInStatement,
@@ -1950,59 +1950,59 @@ func isExternalModuleIndicator(result Statement) bool {
 
 /** @internal */
 
-func isForInOrOfStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ForInOrOfStatement */ any {
+func isForInOrOfStatement(node *Node) bool {
 	return node.kind == SyntaxKindForInStatement || node.kind == SyntaxKindForOfStatement
 }
 
 // Element
 
-func isConciseBody(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ConciseBody */ any {
+func isConciseBody(node *Node) bool {
 	return isBlock(node) || isExpression(node)
 }
 
 /** @internal */
 
-func isFunctionBody(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is FunctionBody */ any {
+func isFunctionBody(node *Node) bool {
 	return isBlock(node)
 }
 
-func isForInitializer(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ForInitializer */ any {
+func isForInitializer(node *Node) bool {
 	return isVariableDeclarationList(node) || isExpression(node)
 }
 
-func isModuleBody(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ModuleBody */ any {
+func isModuleBody(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindModuleBlock || kind == SyntaxKindModuleDeclaration || kind == SyntaxKindIdentifier
 }
 
 /** @internal @knipignore */
 
-func isNamespaceBody(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NamespaceBody */ any {
+func isNamespaceBody(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindModuleBlock || kind == SyntaxKindModuleDeclaration
 }
 
 /** @internal @knipignore */
 
-func isJSDocNamespaceBody(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JSDocNamespaceBody */ any {
+func isJSDocNamespaceBody(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindIdentifier || kind == SyntaxKindModuleDeclaration
 }
 
-func isNamedImportBindings(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NamedImportBindings */ any {
+func isNamedImportBindings(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindNamedImports || kind == SyntaxKindNamespaceImport
 }
 
 /** @internal */
 
-func isModuleOrEnumDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ModuleDeclaration | EnumDeclaration */ any {
+func isModuleOrEnumDeclaration(node *Node) bool {
 	return node.kind == SyntaxKindModuleDeclaration || node.kind == SyntaxKindEnumDeclaration
 }
 
 /** @internal */
 
-func canHaveSymbol(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Declaration */ any {
+func canHaveSymbol(node *Node) bool {
 	// NOTE: This should cover all possible declarations except MissingDeclaration and SemicolonClassElement
 	//       since they aren't actually declarations and can't have a symbol.
 	switch node.kind {
@@ -2078,7 +2078,7 @@ func canHaveSymbol(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is
 
 /** @internal */
 
-func canHaveLocals(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasLocals */ any {
+func canHaveLocals(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindArrowFunction,
 		SyntaxKindBlock,
@@ -2130,7 +2130,7 @@ func isStatementKindButNotDeclarationKind(kind SyntaxKind) bool {
 
 /** @internal */
 
-func isDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is NamedDeclaration */ any {
+func isDeclaration(node *Node) bool {
 	if node.kind == SyntaxKindTypeParameter {
 		return (node.parent && node.parent.kind != SyntaxKindJSDocTemplateTag) || isInJSFile(node)
 	}
@@ -2138,7 +2138,7 @@ func isDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is
 	return isDeclarationKind(node.kind)
 }
 
-func isDeclarationStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is DeclarationStatement */ any {
+func isDeclarationStatement(node *Node) bool {
 	return isDeclarationStatementKind(node.kind)
 }
 
@@ -2148,16 +2148,16 @@ func isDeclarationStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate
  * @internal
  */
 
-func isStatementButNotDeclaration(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Statement */ any {
+func isStatementButNotDeclaration(node *Node) bool {
 	return isStatementKindButNotDeclarationKind(node.kind)
 }
 
-func isStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Statement */ any {
+func isStatement(node *Node) bool {
 	kind := node.kind
 	return isStatementKindButNotDeclarationKind(kind) || isDeclarationStatementKind(kind) || isBlockStatement(node)
 }
 
-func isBlockStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Block */ any {
+func isBlockStatement(node *Node) bool {
 	if node.kind != SyntaxKindBlock {
 		return false
 	}
@@ -2171,48 +2171,48 @@ func isBlockStatement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node
 
 // TODO(jakebailey): should we be exporting this function and not isStatement?
 
-func isStatementOrBlock(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is Statement | Block */ any {
+func isStatementOrBlock(node *Node) bool {
 	kind := node.kind
 	return isStatementKindButNotDeclarationKind(kind) || isDeclarationStatementKind(kind) || kind == SyntaxKindBlock
 }
 
 // Module references
 
-func isModuleReference(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ModuleReference */ any {
+func isModuleReference(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindExternalModuleReference || kind == SyntaxKindQualifiedName || kind == SyntaxKindIdentifier
 }
 
 // JSX
 
-func isJsxTagNameExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JsxTagNameExpression */ any {
+func isJsxTagNameExpression(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindThisKeyword || kind == SyntaxKindIdentifier || kind == SyntaxKindPropertyAccessExpression || kind == SyntaxKindJsxNamespacedName
 }
 
-func isJsxChild(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JsxChild */ any {
+func isJsxChild(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindJsxElement || kind == SyntaxKindJsxExpression || kind == SyntaxKindJsxSelfClosingElement || kind == SyntaxKindJsxText || kind == SyntaxKindJsxFragment
 }
 
-func isJsxAttributeLike(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JsxAttributeLike */ any {
+func isJsxAttributeLike(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindJsxAttribute || kind == SyntaxKindJsxSpreadAttribute
 }
 
-func isStringLiteralOrJsxExpression(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is StringLiteral | JsxExpression */ any {
+func isStringLiteralOrJsxExpression(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindStringLiteral || kind == SyntaxKindJsxExpression
 }
 
-func isJsxOpeningLikeElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JsxOpeningLikeElement */ any {
+func isJsxOpeningLikeElement(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindJsxOpeningElement || kind == SyntaxKindJsxSelfClosingElement
 }
 
 // Clauses
 
-func isCaseOrDefaultClause(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is CaseOrDefaultClause */ any {
+func isCaseOrDefaultClause(node *Node) bool {
 	kind := node.kind
 	return kind == SyntaxKindCaseClause || kind == SyntaxKindDefaultClause
 }
@@ -2231,15 +2231,15 @@ func isJSDocCommentContainingNode(node *Node) bool {
 
 // TODO: determine what this does before making it public.
 
-func isJSDocTag(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JSDocTag */ any {
+func isJSDocTag(node *Node) bool {
 	return node.kind >= SyntaxKindFirstJSDocTagNode && node.kind <= SyntaxKindLastJSDocTagNode
 }
 
-func isSetAccessor(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is SetAccessorDeclaration */ any {
+func isSetAccessor(node *Node) bool {
 	return node.kind == SyntaxKindSetAccessor
 }
 
-func isGetAccessor(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is GetAccessorDeclaration */ any {
+func isGetAccessor(node *Node) bool {
 	return node.kind == SyntaxKindGetAccessor
 }
 
@@ -2250,7 +2250,7 @@ func isGetAccessor(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is
  */
 // TODO: GH#19856 Would like to return `node is Node & { jsDoc: JSDoc[] }` but it causes long compile times
 
-func hasJSDocNodes(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasJSDoc */ any {
+func hasJSDocNodes(node *Node) bool {
 	if !canHaveJSDoc(node) {
 		return false
 	}
@@ -2265,7 +2265,7 @@ func hasJSDocNodes(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is
  * @internal
  */
 
-func hasType(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasType */ any {
+func hasType(node *Node) bool {
 	return !!(node.(HasType)).type_
 }
 
@@ -2275,13 +2275,13 @@ func hasType(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasTy
  * @internal
  */
 
-func hasInitializer(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasInitializer */ any {
+func hasInitializer(node *Node) bool {
 	return !!(node.(HasInitializer)).initializer
 }
 
 /** True if has initializer node attached to it. */
 
-func hasOnlyExpressionInitializer(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is HasExpressionInitializer */ any {
+func hasOnlyExpressionInitializer(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindVariableDeclaration,
 		SyntaxKindParameter,
@@ -2295,13 +2295,13 @@ func hasOnlyExpressionInitializer(node *Node) /* TODO(TS-TO-GO) TypeNode TypePre
 	}
 }
 
-func isObjectLiteralElement(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is ObjectLiteralElement */ any {
+func isObjectLiteralElement(node *Node) bool {
 	return node.kind == SyntaxKindJsxAttribute || node.kind == SyntaxKindJsxSpreadAttribute || isObjectLiteralElementLike(node)
 }
 
 /** @internal */
 
-func isTypeReferenceType(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is TypeReferenceType */ any {
+func isTypeReferenceType(node *Node) bool {
 	return node.kind == SyntaxKindTypeReference || node.kind == SyntaxKindExpressionWithTypeArguments
 }
 
@@ -2335,11 +2335,11 @@ func guessIndentation(lines []string) *number {
 	}
 }
 
-func isStringLiteralLike(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | FileReference */ any) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is StringLiteralLike */ any {
+func isStringLiteralLike(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | FileReference */ any) bool {
 	return (node.(*Node)).kind == SyntaxKindStringLiteral || (node.(*Node)).kind == SyntaxKindNoSubstitutionTemplateLiteral
 }
 
-func isJSDocLinkLike(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is JSDocLink | JSDocLinkCode | JSDocLinkPlain */ any {
+func isJSDocLinkLike(node *Node) bool {
 	return node.kind == SyntaxKindJSDocLink || node.kind == SyntaxKindJSDocLinkCode || node.kind == SyntaxKindJSDocLinkPlain
 }
 
