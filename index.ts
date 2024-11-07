@@ -117,14 +117,17 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     function isInterfaceTypeName(name: string) {
         switch (name) {
             case "Node":
+            case "*Node":
             case "Declaration":
             case "Expression":
             case "Statement":
             case "Type":
+            case "*Type":
             case "CancellationToken":
             case "any":
             case "unknown":
             case "void":
+            case "Symbol":
             case "*Symbol":
                 return true;
             default:
@@ -137,6 +140,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         text = text.trim();
 
         switch (text) {
+            case "__String":
+                return "string";
             case "boolean":
                 return "bool";
             case "void":
@@ -149,6 +154,10 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 return "any";
             case "Symbol":
                 return "*Symbol";
+            case "Node":
+                return "*Node";
+            case "Type":
+                return "*Type";
         }
 
         if (isIdentifier(text)) {
@@ -156,7 +165,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
 
         const orUndefined = " | undefined";
-        if (text.endsWith(orUndefined)) {
+        if (!text.startsWith("*") && text.endsWith(orUndefined)) {
             text = text.slice(0, -orUndefined.length);
             const goType = typeStringToGo(text);
             if (isInterfaceTypeName(goType)) {
@@ -262,7 +271,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         else if (Node.isTypeReference(type)) {
             const name = type.getTypeName();
             if (Node.isIdentifier(name)) {
-                writer.write(sanitizeName(name.getText()));
+                writer.write(typeStringToGo(sanitizeName(name.getText())));
             }
             else {
                 writeTodoNode(name);
@@ -740,7 +749,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             const whenTrue = node.getWhenTrue();
             const whenFalse = node.getWhenFalse();
             // TODO: this causes side effects; should these be funcs?
-            writer.write("ifelse(");
+            writer.write("ifElse(");
             visitExpression(cond);
             writer.write(", ");
             visitExpression(whenTrue);

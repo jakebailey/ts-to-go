@@ -392,7 +392,7 @@ func computePositionOfLineAndCharacter(lineStarts []number, line number, charact
 				line = line
 			}
 		} else {
-			Debug.fail(__TEMPLATE__("Bad line number. Line: ", line, ", lineStarts.length: ", lineStarts.length, " , line map is correct? ", ifelse(debugText != nil, arrayIsEqualTo(lineStarts, computeLineStarts(debugText)), "unknown")))
+			Debug.fail(__TEMPLATE__("Bad line number. Line: ", line, ", lineStarts.length: ", lineStarts.length, " , line map is correct? ", ifElse(debugText != nil, arrayIsEqualTo(lineStarts, computeLineStarts(debugText)), "unknown")))
 		}
 	}
 
@@ -894,7 +894,7 @@ func isIdentifierStart(ch number, languageVersion *ScriptTarget) bool {
 }
 
 func isIdentifierPart(ch number, languageVersion *ScriptTarget, identifierVariant LanguageVariant) bool {
-	return isWordCharacter(ch) || ch == CharacterCodes_DOLLAR_ || (ifelse(identifierVariant == LanguageVariantJSX, (ch == CharacterCodesminus || ch == CharacterCodescolon), false)) || ch > CharacterCodesmaxAsciiCharacter && isUnicodeIdentifierPart(ch, languageVersion)
+	return isWordCharacter(ch) || ch == CharacterCodes_DOLLAR_ || (ifElse(identifierVariant == LanguageVariantJSX, (ch == CharacterCodesminus || ch == CharacterCodescolon), false)) || ch > CharacterCodesmaxAsciiCharacter && isUnicodeIdentifierPart(ch, languageVersion)
 }
 
 /** @internal */
@@ -1214,7 +1214,7 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 			scanner.tokenValue = "" + parseInt(scanner.tokenValue, 8)
 			scanner.tokenFlags |= TokenFlagsOctal
 			withMinus := scanner.token == SyntaxKindMinusToken
-			literal := (ifelse(withMinus, "-", "")) + "0o" + (+scanner.tokenValue).toString(8)
+			literal := (ifElse(withMinus, "-", "")) + "0o" + (+scanner.tokenValue).toString(8)
 			if withMinus {
 				start--
 			}
@@ -1467,7 +1467,7 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 		// Escape character
 		if currChar == CharacterCodesbackslash {
 			contents += scanner.text.substring(start, scanner.pos)
-			contents += scanner.scanEscapeSequence(EscapeSequenceScanningFlagsString | (ifelse(shouldEmitInvalidEscapeError, EscapeSequenceScanningFlagsReportErrors, 0)))
+			contents += scanner.scanEscapeSequence(EscapeSequenceScanningFlagsString | (ifElse(shouldEmitInvalidEscapeError, EscapeSequenceScanningFlagsReportErrors, 0)))
 			start = scanner.pos
 			continue
 		}
@@ -2978,7 +2978,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 			return String.fromCharCode(ch)
 		default:
 			scanner.pos--
-			return scanner.scanEscapeSequence(EscapeSequenceScanningFlagsRegularExpression | (ifelse(annexB, EscapeSequenceScanningFlagsAnnexB, 0)) | (ifelse(anyUnicodeMode, EscapeSequenceScanningFlagsAnyUnicodeMode, 0)) | (ifelse(atomEscape, EscapeSequenceScanningFlagsAtomEscape, 0)))
+			return scanner.scanEscapeSequence(EscapeSequenceScanningFlagsRegularExpression | (ifElse(annexB, EscapeSequenceScanningFlagsAnnexB, 0)) | (ifElse(anyUnicodeMode, EscapeSequenceScanningFlagsAnyUnicodeMode, 0)) | (ifElse(atomEscape, EscapeSequenceScanningFlagsAtomEscape, 0)))
 		}
 	}
 
@@ -4055,7 +4055,7 @@ func utf16EncodeAsStringFallback(codePoint number) string {
 	return String.fromCharCode(codeUnit1, codeUnit2)
 }
 
-var utf16EncodeAsStringWorker func(codePoint number) string = ifelse((String /* as any */).fromCodePoint, func(codePoint number) any {
+var utf16EncodeAsStringWorker func(codePoint number) string = ifElse((String /* as any */).fromCodePoint, func(codePoint number) any {
 	return (String /* as any */).fromCodePoint(codePoint)
 }, utf16EncodeAsStringFallback)
 
