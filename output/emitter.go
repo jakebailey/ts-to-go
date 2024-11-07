@@ -656,7 +656,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 	collectLinkedAliases := func(node *Node) {
 		if isExportAssignment(node) {
 			if node.expression.kind == SyntaxKindIdentifier {
-				resolver.collectLinkedAliases(node.expression.(Identifier) /*setVisibility*/, true)
+				resolver.collectLinkedAliases(node.expression.AsIdentifier() /*setVisibility*/, true)
 			}
 			return
 		} else if isExportSpecifier(node) {
@@ -1018,9 +1018,9 @@ func (printer *Printer) printNode(hint EmitHint, node *Node, sourceFile SourceFi
 	}
 	switch node.kind {
 	case SyntaxKindSourceFile:
-		return printer.printFile(node.(SourceFile))
+		return printer.printFile(node.AsSourceFile())
 	case SyntaxKindBundle:
-		return printer.printBundle(node.(Bundle))
+		return printer.printBundle(node.AsBundle())
 	}
 	printer.writeNode(hint, node, sourceFile, printer.beginPrint())
 	return printer.endPrint()
@@ -1298,295 +1298,295 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 		case SyntaxKindTemplateHead,
 			SyntaxKindTemplateMiddle,
 			SyntaxKindTemplateTail:
-			return printer.emitLiteral(node.(LiteralExpression) /*jsxAttributeEscape*/, false)
+			return printer.emitLiteral(node.AsLiteralExpression() /*jsxAttributeEscape*/, false)
 
 			// Identifiers
 		case SyntaxKindIdentifier:
-			return printer.emitIdentifier(node.(Identifier))
+			return printer.emitIdentifier(node.AsIdentifier())
 
 			// PrivateIdentifiers
 		case SyntaxKindPrivateIdentifier:
-			return printer.emitPrivateIdentifier(node.(PrivateIdentifier))
+			return printer.emitPrivateIdentifier(node.AsPrivateIdentifier())
 
 			// Parse tree nodes
 			// Names
 		case SyntaxKindQualifiedName:
-			return printer.emitQualifiedName(node.(QualifiedName))
+			return printer.emitQualifiedName(node.AsQualifiedName())
 		case SyntaxKindComputedPropertyName:
-			return printer.emitComputedPropertyName(node.(ComputedPropertyName))
+			return printer.emitComputedPropertyName(node.AsComputedPropertyName())
 
 			// Signature elements
 		case SyntaxKindTypeParameter:
-			return printer.emitTypeParameter(node.(TypeParameterDeclaration))
+			return printer.emitTypeParameter(node.AsTypeParameterDeclaration())
 		case SyntaxKindParameter:
-			return printer.emitParameter(node.(ParameterDeclaration))
+			return printer.emitParameter(node.AsParameterDeclaration())
 		case SyntaxKindDecorator:
-			return printer.emitDecorator(node.(Decorator))
+			return printer.emitDecorator(node.AsDecorator())
 
 			// Type members
 		case SyntaxKindPropertySignature:
-			return printer.emitPropertySignature(node.(PropertySignature))
+			return printer.emitPropertySignature(node.AsPropertySignature())
 		case SyntaxKindPropertyDeclaration:
-			return printer.emitPropertyDeclaration(node.(PropertyDeclaration))
+			return printer.emitPropertyDeclaration(node.AsPropertyDeclaration())
 		case SyntaxKindMethodSignature:
-			return printer.emitMethodSignature(node.(MethodSignature))
+			return printer.emitMethodSignature(node.AsMethodSignature())
 		case SyntaxKindMethodDeclaration:
-			return printer.emitMethodDeclaration(node.(MethodDeclaration))
+			return printer.emitMethodDeclaration(node.AsMethodDeclaration())
 		case SyntaxKindClassStaticBlockDeclaration:
-			return printer.emitClassStaticBlockDeclaration(node.(ClassStaticBlockDeclaration))
+			return printer.emitClassStaticBlockDeclaration(node.AsClassStaticBlockDeclaration())
 		case SyntaxKindConstructor:
-			return printer.emitConstructor(node.(ConstructorDeclaration))
+			return printer.emitConstructor(node.AsConstructorDeclaration())
 		case SyntaxKindGetAccessor,
 			SyntaxKindSetAccessor:
-			return printer.emitAccessorDeclaration(node.(AccessorDeclaration))
+			return printer.emitAccessorDeclaration(node.AsAccessorDeclaration())
 		case SyntaxKindCallSignature:
-			return printer.emitCallSignature(node.(CallSignatureDeclaration))
+			return printer.emitCallSignature(node.AsCallSignatureDeclaration())
 		case SyntaxKindConstructSignature:
-			return printer.emitConstructSignature(node.(ConstructSignatureDeclaration))
+			return printer.emitConstructSignature(node.AsConstructSignatureDeclaration())
 		case SyntaxKindIndexSignature:
-			return printer.emitIndexSignature(node.(IndexSignatureDeclaration))
+			return printer.emitIndexSignature(node.AsIndexSignatureDeclaration())
 
 			// Types
 		case SyntaxKindTypePredicate:
-			return printer.emitTypePredicate(node.(TypePredicateNode))
+			return printer.emitTypePredicate(node.AsTypePredicateNode())
 		case SyntaxKindTypeReference:
-			return printer.emitTypeReference(node.(TypeReferenceNode))
+			return printer.emitTypeReference(node.AsTypeReferenceNode())
 		case SyntaxKindFunctionType:
-			return printer.emitFunctionType(node.(FunctionTypeNode))
+			return printer.emitFunctionType(node.AsFunctionTypeNode())
 		case SyntaxKindConstructorType:
-			return printer.emitConstructorType(node.(ConstructorTypeNode))
+			return printer.emitConstructorType(node.AsConstructorTypeNode())
 		case SyntaxKindTypeQuery:
-			return printer.emitTypeQuery(node.(TypeQueryNode))
+			return printer.emitTypeQuery(node.AsTypeQueryNode())
 		case SyntaxKindTypeLiteral:
-			return printer.emitTypeLiteral(node.(TypeLiteralNode))
+			return printer.emitTypeLiteral(node.AsTypeLiteralNode())
 		case SyntaxKindArrayType:
-			return printer.emitArrayType(node.(ArrayTypeNode))
+			return printer.emitArrayType(node.AsArrayTypeNode())
 		case SyntaxKindTupleType:
-			return printer.emitTupleType(node.(TupleTypeNode))
+			return printer.emitTupleType(node.AsTupleTypeNode())
 		case SyntaxKindOptionalType:
-			return printer.emitOptionalType(node.(OptionalTypeNode))
+			return printer.emitOptionalType(node.AsOptionalTypeNode())
 			// SyntaxKind.RestType is handled below
 		case SyntaxKindUnionType:
-			return printer.emitUnionType(node.(UnionTypeNode))
+			return printer.emitUnionType(node.AsUnionTypeNode())
 		case SyntaxKindIntersectionType:
-			return printer.emitIntersectionType(node.(IntersectionTypeNode))
+			return printer.emitIntersectionType(node.AsIntersectionTypeNode())
 		case SyntaxKindConditionalType:
-			return printer.emitConditionalType(node.(ConditionalTypeNode))
+			return printer.emitConditionalType(node.AsConditionalTypeNode())
 		case SyntaxKindInferType:
-			return printer.emitInferType(node.(InferTypeNode))
+			return printer.emitInferType(node.AsInferTypeNode())
 		case SyntaxKindParenthesizedType:
-			return printer.emitParenthesizedType(node.(ParenthesizedTypeNode))
+			return printer.emitParenthesizedType(node.AsParenthesizedTypeNode())
 		case SyntaxKindExpressionWithTypeArguments:
-			return printer.emitExpressionWithTypeArguments(node.(ExpressionWithTypeArguments))
+			return printer.emitExpressionWithTypeArguments(node.AsExpressionWithTypeArguments())
 		case SyntaxKindThisType:
 			return printer.emitThisType()
 		case SyntaxKindTypeOperator:
-			return printer.emitTypeOperator(node.(TypeOperatorNode))
+			return printer.emitTypeOperator(node.AsTypeOperatorNode())
 		case SyntaxKindIndexedAccessType:
-			return printer.emitIndexedAccessType(node.(IndexedAccessTypeNode))
+			return printer.emitIndexedAccessType(node.AsIndexedAccessTypeNode())
 		case SyntaxKindMappedType:
-			return printer.emitMappedType(node.(MappedTypeNode))
+			return printer.emitMappedType(node.AsMappedTypeNode())
 		case SyntaxKindLiteralType:
-			return printer.emitLiteralType(node.(LiteralTypeNode))
+			return printer.emitLiteralType(node.AsLiteralTypeNode())
 		case SyntaxKindNamedTupleMember:
-			return printer.emitNamedTupleMember(node.(NamedTupleMember))
+			return printer.emitNamedTupleMember(node.AsNamedTupleMember())
 		case SyntaxKindTemplateLiteralType:
-			return printer.emitTemplateType(node.(TemplateLiteralTypeNode))
+			return printer.emitTemplateType(node.AsTemplateLiteralTypeNode())
 		case SyntaxKindTemplateLiteralTypeSpan:
-			return printer.emitTemplateTypeSpan(node.(TemplateLiteralTypeSpan))
+			return printer.emitTemplateTypeSpan(node.AsTemplateLiteralTypeSpan())
 		case SyntaxKindImportType:
-			return printer.emitImportTypeNode(node.(ImportTypeNode))
+			return printer.emitImportTypeNode(node.AsImportTypeNode())
 
 			// Binding patterns
 		case SyntaxKindObjectBindingPattern:
-			return printer.emitObjectBindingPattern(node.(ObjectBindingPattern))
+			return printer.emitObjectBindingPattern(node.AsObjectBindingPattern())
 		case SyntaxKindArrayBindingPattern:
-			return printer.emitArrayBindingPattern(node.(ArrayBindingPattern))
+			return printer.emitArrayBindingPattern(node.AsArrayBindingPattern())
 		case SyntaxKindBindingElement:
-			return printer.emitBindingElement(node.(BindingElement))
+			return printer.emitBindingElement(node.AsBindingElement())
 
 			// Misc
 		case SyntaxKindTemplateSpan:
-			return printer.emitTemplateSpan(node.(TemplateSpan))
+			return printer.emitTemplateSpan(node.AsTemplateSpan())
 		case SyntaxKindSemicolonClassElement:
 			return printer.emitSemicolonClassElement()
 
 			// Statements
 		case SyntaxKindBlock:
-			return printer.emitBlock(node.(Block))
+			return printer.emitBlock(node.AsBlock())
 		case SyntaxKindVariableStatement:
-			return printer.emitVariableStatement(node.(VariableStatement))
+			return printer.emitVariableStatement(node.AsVariableStatement())
 		case SyntaxKindEmptyStatement:
 			return printer.emitEmptyStatement(false)
 		case SyntaxKindExpressionStatement:
-			return printer.emitExpressionStatement(node.(ExpressionStatement))
+			return printer.emitExpressionStatement(node.AsExpressionStatement())
 		case SyntaxKindIfStatement:
-			return printer.emitIfStatement(node.(IfStatement))
+			return printer.emitIfStatement(node.AsIfStatement())
 		case SyntaxKindDoStatement:
-			return printer.emitDoStatement(node.(DoStatement))
+			return printer.emitDoStatement(node.AsDoStatement())
 		case SyntaxKindWhileStatement:
-			return printer.emitWhileStatement(node.(WhileStatement))
+			return printer.emitWhileStatement(node.AsWhileStatement())
 		case SyntaxKindForStatement:
-			return printer.emitForStatement(node.(ForStatement))
+			return printer.emitForStatement(node.AsForStatement())
 		case SyntaxKindForInStatement:
-			return printer.emitForInStatement(node.(ForInStatement))
+			return printer.emitForInStatement(node.AsForInStatement())
 		case SyntaxKindForOfStatement:
-			return printer.emitForOfStatement(node.(ForOfStatement))
+			return printer.emitForOfStatement(node.AsForOfStatement())
 		case SyntaxKindContinueStatement:
-			return printer.emitContinueStatement(node.(ContinueStatement))
+			return printer.emitContinueStatement(node.AsContinueStatement())
 		case SyntaxKindBreakStatement:
-			return printer.emitBreakStatement(node.(BreakStatement))
+			return printer.emitBreakStatement(node.AsBreakStatement())
 		case SyntaxKindReturnStatement:
-			return printer.emitReturnStatement(node.(ReturnStatement))
+			return printer.emitReturnStatement(node.AsReturnStatement())
 		case SyntaxKindWithStatement:
-			return printer.emitWithStatement(node.(WithStatement))
+			return printer.emitWithStatement(node.AsWithStatement())
 		case SyntaxKindSwitchStatement:
-			return printer.emitSwitchStatement(node.(SwitchStatement))
+			return printer.emitSwitchStatement(node.AsSwitchStatement())
 		case SyntaxKindLabeledStatement:
-			return printer.emitLabeledStatement(node.(LabeledStatement))
+			return printer.emitLabeledStatement(node.AsLabeledStatement())
 		case SyntaxKindThrowStatement:
-			return printer.emitThrowStatement(node.(ThrowStatement))
+			return printer.emitThrowStatement(node.AsThrowStatement())
 		case SyntaxKindTryStatement:
-			return printer.emitTryStatement(node.(TryStatement))
+			return printer.emitTryStatement(node.AsTryStatement())
 		case SyntaxKindDebuggerStatement:
-			return printer.emitDebuggerStatement(node.(DebuggerStatement))
+			return printer.emitDebuggerStatement(node.AsDebuggerStatement())
 
 			// Declarations
 		case SyntaxKindVariableDeclaration:
-			return printer.emitVariableDeclaration(node.(VariableDeclaration))
+			return printer.emitVariableDeclaration(node.AsVariableDeclaration())
 		case SyntaxKindVariableDeclarationList:
-			return printer.emitVariableDeclarationList(node.(VariableDeclarationList))
+			return printer.emitVariableDeclarationList(node.AsVariableDeclarationList())
 		case SyntaxKindFunctionDeclaration:
-			return printer.emitFunctionDeclaration(node.(FunctionDeclaration))
+			return printer.emitFunctionDeclaration(node.AsFunctionDeclaration())
 		case SyntaxKindClassDeclaration:
-			return printer.emitClassDeclaration(node.(ClassDeclaration))
+			return printer.emitClassDeclaration(node.AsClassDeclaration())
 		case SyntaxKindInterfaceDeclaration:
-			return printer.emitInterfaceDeclaration(node.(InterfaceDeclaration))
+			return printer.emitInterfaceDeclaration(node.AsInterfaceDeclaration())
 		case SyntaxKindTypeAliasDeclaration:
-			return printer.emitTypeAliasDeclaration(node.(TypeAliasDeclaration))
+			return printer.emitTypeAliasDeclaration(node.AsTypeAliasDeclaration())
 		case SyntaxKindEnumDeclaration:
-			return printer.emitEnumDeclaration(node.(EnumDeclaration))
+			return printer.emitEnumDeclaration(node.AsEnumDeclaration())
 		case SyntaxKindModuleDeclaration:
-			return printer.emitModuleDeclaration(node.(ModuleDeclaration))
+			return printer.emitModuleDeclaration(node.AsModuleDeclaration())
 		case SyntaxKindModuleBlock:
-			return printer.emitModuleBlock(node.(ModuleBlock))
+			return printer.emitModuleBlock(node.AsModuleBlock())
 		case SyntaxKindCaseBlock:
-			return printer.emitCaseBlock(node.(CaseBlock))
+			return printer.emitCaseBlock(node.AsCaseBlock())
 		case SyntaxKindNamespaceExportDeclaration:
-			return printer.emitNamespaceExportDeclaration(node.(NamespaceExportDeclaration))
+			return printer.emitNamespaceExportDeclaration(node.AsNamespaceExportDeclaration())
 		case SyntaxKindImportEqualsDeclaration:
-			return printer.emitImportEqualsDeclaration(node.(ImportEqualsDeclaration))
+			return printer.emitImportEqualsDeclaration(node.AsImportEqualsDeclaration())
 		case SyntaxKindImportDeclaration:
-			return printer.emitImportDeclaration(node.(ImportDeclaration))
+			return printer.emitImportDeclaration(node.AsImportDeclaration())
 		case SyntaxKindImportClause:
-			return printer.emitImportClause(node.(ImportClause))
+			return printer.emitImportClause(node.AsImportClause())
 		case SyntaxKindNamespaceImport:
-			return printer.emitNamespaceImport(node.(NamespaceImport))
+			return printer.emitNamespaceImport(node.AsNamespaceImport())
 		case SyntaxKindNamespaceExport:
-			return printer.emitNamespaceExport(node.(NamespaceExport))
+			return printer.emitNamespaceExport(node.AsNamespaceExport())
 		case SyntaxKindNamedImports:
-			return printer.emitNamedImports(node.(NamedImports))
+			return printer.emitNamedImports(node.AsNamedImports())
 		case SyntaxKindImportSpecifier:
-			return printer.emitImportSpecifier(node.(ImportSpecifier))
+			return printer.emitImportSpecifier(node.AsImportSpecifier())
 		case SyntaxKindExportAssignment:
-			return printer.emitExportAssignment(node.(ExportAssignment))
+			return printer.emitExportAssignment(node.AsExportAssignment())
 		case SyntaxKindExportDeclaration:
-			return printer.emitExportDeclaration(node.(ExportDeclaration))
+			return printer.emitExportDeclaration(node.AsExportDeclaration())
 		case SyntaxKindNamedExports:
-			return printer.emitNamedExports(node.(NamedExports))
+			return printer.emitNamedExports(node.AsNamedExports())
 		case SyntaxKindExportSpecifier:
-			return printer.emitExportSpecifier(node.(ExportSpecifier))
+			return printer.emitExportSpecifier(node.AsExportSpecifier())
 		case SyntaxKindImportAttributes:
-			return printer.emitImportAttributes(node.(ImportAttributes))
+			return printer.emitImportAttributes(node.AsImportAttributes())
 		case SyntaxKindImportAttribute:
-			return printer.emitImportAttribute(node.(ImportAttribute))
+			return printer.emitImportAttribute(node.AsImportAttribute())
 		case SyntaxKindMissingDeclaration:
 			return
 
 			// Module references
 		case SyntaxKindExternalModuleReference:
-			return printer.emitExternalModuleReference(node.(ExternalModuleReference))
+			return printer.emitExternalModuleReference(node.AsExternalModuleReference())
 
 			// JSX (non-expression)
 		case SyntaxKindJsxText:
-			return printer.emitJsxText(node.(JsxText))
+			return printer.emitJsxText(node.AsJsxText())
 		case SyntaxKindJsxOpeningElement,
 			SyntaxKindJsxOpeningFragment:
-			return printer.emitJsxOpeningElementOrFragment(node.(JsxOpeningElement))
+			return printer.emitJsxOpeningElementOrFragment(node.AsJsxOpeningElement())
 		case SyntaxKindJsxClosingElement,
 			SyntaxKindJsxClosingFragment:
-			return printer.emitJsxClosingElementOrFragment(node.(JsxClosingElement))
+			return printer.emitJsxClosingElementOrFragment(node.AsJsxClosingElement())
 		case SyntaxKindJsxAttribute:
-			return printer.emitJsxAttribute(node.(JsxAttribute))
+			return printer.emitJsxAttribute(node.AsJsxAttribute())
 		case SyntaxKindJsxAttributes:
-			return printer.emitJsxAttributes(node.(JsxAttributes))
+			return printer.emitJsxAttributes(node.AsJsxAttributes())
 		case SyntaxKindJsxSpreadAttribute:
-			return printer.emitJsxSpreadAttribute(node.(JsxSpreadAttribute))
+			return printer.emitJsxSpreadAttribute(node.AsJsxSpreadAttribute())
 		case SyntaxKindJsxExpression:
-			return printer.emitJsxExpression(node.(JsxExpression))
+			return printer.emitJsxExpression(node.AsJsxExpression())
 		case SyntaxKindJsxNamespacedName:
-			return printer.emitJsxNamespacedName(node.(JsxNamespacedName))
+			return printer.emitJsxNamespacedName(node.AsJsxNamespacedName())
 
 			// Clauses
 		case SyntaxKindCaseClause:
-			return printer.emitCaseClause(node.(CaseClause))
+			return printer.emitCaseClause(node.AsCaseClause())
 		case SyntaxKindDefaultClause:
-			return printer.emitDefaultClause(node.(DefaultClause))
+			return printer.emitDefaultClause(node.AsDefaultClause())
 		case SyntaxKindHeritageClause:
-			return printer.emitHeritageClause(node.(HeritageClause))
+			return printer.emitHeritageClause(node.AsHeritageClause())
 		case SyntaxKindCatchClause:
-			return printer.emitCatchClause(node.(CatchClause))
+			return printer.emitCatchClause(node.AsCatchClause())
 
 			// Property assignments
 		case SyntaxKindPropertyAssignment:
-			return printer.emitPropertyAssignment(node.(PropertyAssignment))
+			return printer.emitPropertyAssignment(node.AsPropertyAssignment())
 		case SyntaxKindShorthandPropertyAssignment:
-			return printer.emitShorthandPropertyAssignment(node.(ShorthandPropertyAssignment))
+			return printer.emitShorthandPropertyAssignment(node.AsShorthandPropertyAssignment())
 		case SyntaxKindSpreadAssignment:
-			return printer.emitSpreadAssignment(node.(SpreadAssignment))
+			return printer.emitSpreadAssignment(node.AsSpreadAssignment())
 
 			// Enum
 		case SyntaxKindEnumMember:
-			return printer.emitEnumMember(node.(EnumMember))
+			return printer.emitEnumMember(node.AsEnumMember())
 
 			// Top-level nodes
 		case SyntaxKindSourceFile:
-			return printer.emitSourceFile(node.(SourceFile))
+			return printer.emitSourceFile(node.AsSourceFile())
 		case SyntaxKindBundle:
 			return Debug.fail("Bundles should be printed using printBundle")
 
 			// JSDoc nodes (only used in codefixes currently)
 		case SyntaxKindJSDocTypeExpression:
-			return printer.emitJSDocTypeExpression(node.(JSDocTypeExpression))
+			return printer.emitJSDocTypeExpression(node.AsJSDocTypeExpression())
 		case SyntaxKindJSDocNameReference:
-			return printer.emitJSDocNameReference(node.(JSDocNameReference))
+			return printer.emitJSDocNameReference(node.AsJSDocNameReference())
 		case SyntaxKindJSDocAllType:
 			return printer.writePunctuation("*")
 		case SyntaxKindJSDocUnknownType:
 			return printer.writePunctuation("?")
 		case SyntaxKindJSDocNullableType:
-			return printer.emitJSDocNullableType(node.(JSDocNullableType))
+			return printer.emitJSDocNullableType(node.AsJSDocNullableType())
 		case SyntaxKindJSDocNonNullableType:
-			return printer.emitJSDocNonNullableType(node.(JSDocNonNullableType))
+			return printer.emitJSDocNonNullableType(node.AsJSDocNonNullableType())
 		case SyntaxKindJSDocOptionalType:
-			return printer.emitJSDocOptionalType(node.(JSDocOptionalType))
+			return printer.emitJSDocOptionalType(node.AsJSDocOptionalType())
 		case SyntaxKindJSDocFunctionType:
-			return printer.emitJSDocFunctionType(node.(JSDocFunctionType))
+			return printer.emitJSDocFunctionType(node.AsJSDocFunctionType())
 		case SyntaxKindRestType,
 			SyntaxKindJSDocVariadicType:
 			return printer.emitRestOrJSDocVariadicType(node /* as RestTypeNode | JSDocVariadicType */)
 		case SyntaxKindJSDocNamepathType:
 			return
 		case SyntaxKindJSDoc:
-			return printer.emitJSDoc(node.(JSDoc))
+			return printer.emitJSDoc(node.AsJSDoc())
 		case SyntaxKindJSDocTypeLiteral:
-			return printer.emitJSDocTypeLiteral(node.(JSDocTypeLiteral))
+			return printer.emitJSDocTypeLiteral(node.AsJSDocTypeLiteral())
 		case SyntaxKindJSDocSignature:
-			return printer.emitJSDocSignature(node.(JSDocSignature))
+			return printer.emitJSDocSignature(node.AsJSDocSignature())
 		case SyntaxKindJSDocTag,
 			SyntaxKindJSDocClassTag,
 			SyntaxKindJSDocOverrideTag:
-			return printer.emitJSDocSimpleTag(node.(JSDocTag))
+			return printer.emitJSDocSimpleTag(node.AsJSDocTag())
 		case SyntaxKindJSDocAugmentsTag,
 			SyntaxKindJSDocImplementsTag:
 			return printer.emitJSDocHeritageTag(node /* as JSDocImplementsTag | JSDocAugmentsTag */)
@@ -1600,13 +1600,13 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 			SyntaxKindJSDocReadonlyTag:
 			return
 		case SyntaxKindJSDocCallbackTag:
-			return printer.emitJSDocCallbackTag(node.(JSDocCallbackTag))
+			return printer.emitJSDocCallbackTag(node.AsJSDocCallbackTag())
 		case SyntaxKindJSDocOverloadTag:
-			return printer.emitJSDocOverloadTag(node.(JSDocOverloadTag))
+			return printer.emitJSDocOverloadTag(node.AsJSDocOverloadTag())
 			// SyntaxKind.JSDocEnumTag (see below)
 		case SyntaxKindJSDocParameterTag,
 			SyntaxKindJSDocPropertyTag:
-			return printer.emitJSDocPropertyLikeTag(node.(JSDocPropertyLikeTag))
+			return printer.emitJSDocPropertyLikeTag(node.AsJSDocPropertyLikeTag())
 		case SyntaxKindJSDocEnumTag,
 			SyntaxKindJSDocReturnTag,
 			SyntaxKindJSDocThisTag,
@@ -1615,13 +1615,13 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 			SyntaxKindJSDocSatisfiesTag:
 			return printer.emitJSDocSimpleTypedTag(node /* as JSDocTypeTag | JSDocReturnTag | JSDocThisTag | JSDocTypeTag | JSDocThrowsTag | JSDocSatisfiesTag */)
 		case SyntaxKindJSDocTemplateTag:
-			return printer.emitJSDocTemplateTag(node.(JSDocTemplateTag))
+			return printer.emitJSDocTemplateTag(node.AsJSDocTemplateTag())
 		case SyntaxKindJSDocTypedefTag:
-			return printer.emitJSDocTypedefTag(node.(JSDocTypedefTag))
+			return printer.emitJSDocTypedefTag(node.AsJSDocTypedefTag())
 		case SyntaxKindJSDocSeeTag:
-			return printer.emitJSDocSeeTag(node.(JSDocSeeTag))
+			return printer.emitJSDocSeeTag(node.AsJSDocSeeTag())
 		case SyntaxKindJSDocImportTag:
-			return printer.emitJSDocImportTag(node.(JSDocImportTag))
+			return printer.emitJSDocImportTag(node.AsJSDocImportTag())
 			// SyntaxKind.JSDocPropertyTag (see JSDocParameterTag, above)
 
 			// Transformation nodes
@@ -1650,73 +1650,73 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 		case SyntaxKindStringLiteral,
 			SyntaxKindRegularExpressionLiteral,
 			SyntaxKindNoSubstitutionTemplateLiteral:
-			return printer.emitLiteral(node.(LiteralExpression) /*jsxAttributeEscape*/, false)
+			return printer.emitLiteral(node.AsLiteralExpression() /*jsxAttributeEscape*/, false)
 
 			// Identifiers
 		case SyntaxKindIdentifier:
-			return printer.emitIdentifier(node.(Identifier))
+			return printer.emitIdentifier(node.AsIdentifier())
 		case SyntaxKindPrivateIdentifier:
-			return printer.emitPrivateIdentifier(node.(PrivateIdentifier))
+			return printer.emitPrivateIdentifier(node.AsPrivateIdentifier())
 
 			// Expressions
 		case SyntaxKindArrayLiteralExpression:
-			return printer.emitArrayLiteralExpression(node.(ArrayLiteralExpression))
+			return printer.emitArrayLiteralExpression(node.AsArrayLiteralExpression())
 		case SyntaxKindObjectLiteralExpression:
-			return printer.emitObjectLiteralExpression(node.(ObjectLiteralExpression))
+			return printer.emitObjectLiteralExpression(node.AsObjectLiteralExpression())
 		case SyntaxKindPropertyAccessExpression:
-			return printer.emitPropertyAccessExpression(node.(PropertyAccessExpression))
+			return printer.emitPropertyAccessExpression(node.AsPropertyAccessExpression())
 		case SyntaxKindElementAccessExpression:
-			return printer.emitElementAccessExpression(node.(ElementAccessExpression))
+			return printer.emitElementAccessExpression(node.AsElementAccessExpression())
 		case SyntaxKindCallExpression:
-			return printer.emitCallExpression(node.(CallExpression))
+			return printer.emitCallExpression(node.AsCallExpression())
 		case SyntaxKindNewExpression:
-			return printer.emitNewExpression(node.(NewExpression))
+			return printer.emitNewExpression(node.AsNewExpression())
 		case SyntaxKindTaggedTemplateExpression:
-			return printer.emitTaggedTemplateExpression(node.(TaggedTemplateExpression))
+			return printer.emitTaggedTemplateExpression(node.AsTaggedTemplateExpression())
 		case SyntaxKindTypeAssertionExpression:
-			return printer.emitTypeAssertionExpression(node.(TypeAssertion))
+			return printer.emitTypeAssertionExpression(node.AsTypeAssertion())
 		case SyntaxKindParenthesizedExpression:
-			return printer.emitParenthesizedExpression(node.(ParenthesizedExpression))
+			return printer.emitParenthesizedExpression(node.AsParenthesizedExpression())
 		case SyntaxKindFunctionExpression:
-			return printer.emitFunctionExpression(node.(FunctionExpression))
+			return printer.emitFunctionExpression(node.AsFunctionExpression())
 		case SyntaxKindArrowFunction:
-			return printer.emitArrowFunction(node.(ArrowFunction))
+			return printer.emitArrowFunction(node.AsArrowFunction())
 		case SyntaxKindDeleteExpression:
-			return printer.emitDeleteExpression(node.(DeleteExpression))
+			return printer.emitDeleteExpression(node.AsDeleteExpression())
 		case SyntaxKindTypeOfExpression:
-			return printer.emitTypeOfExpression(node.(TypeOfExpression))
+			return printer.emitTypeOfExpression(node.AsTypeOfExpression())
 		case SyntaxKindVoidExpression:
-			return printer.emitVoidExpression(node.(VoidExpression))
+			return printer.emitVoidExpression(node.AsVoidExpression())
 		case SyntaxKindAwaitExpression:
-			return printer.emitAwaitExpression(node.(AwaitExpression))
+			return printer.emitAwaitExpression(node.AsAwaitExpression())
 		case SyntaxKindPrefixUnaryExpression:
-			return printer.emitPrefixUnaryExpression(node.(PrefixUnaryExpression))
+			return printer.emitPrefixUnaryExpression(node.AsPrefixUnaryExpression())
 		case SyntaxKindPostfixUnaryExpression:
-			return printer.emitPostfixUnaryExpression(node.(PostfixUnaryExpression))
+			return printer.emitPostfixUnaryExpression(node.AsPostfixUnaryExpression())
 		case SyntaxKindBinaryExpression:
-			return printer.emitBinaryExpression(node.(BinaryExpression))
+			return printer.emitBinaryExpression(node.AsBinaryExpression())
 		case SyntaxKindConditionalExpression:
-			return printer.emitConditionalExpression(node.(ConditionalExpression))
+			return printer.emitConditionalExpression(node.AsConditionalExpression())
 		case SyntaxKindTemplateExpression:
-			return printer.emitTemplateExpression(node.(TemplateExpression))
+			return printer.emitTemplateExpression(node.AsTemplateExpression())
 		case SyntaxKindYieldExpression:
-			return printer.emitYieldExpression(node.(YieldExpression))
+			return printer.emitYieldExpression(node.AsYieldExpression())
 		case SyntaxKindSpreadElement:
-			return printer.emitSpreadElement(node.(SpreadElement))
+			return printer.emitSpreadElement(node.AsSpreadElement())
 		case SyntaxKindClassExpression:
-			return printer.emitClassExpression(node.(ClassExpression))
+			return printer.emitClassExpression(node.AsClassExpression())
 		case SyntaxKindOmittedExpression:
 			return
 		case SyntaxKindAsExpression:
-			return printer.emitAsExpression(node.(AsExpression))
+			return printer.emitAsExpression(node.AsAsExpression())
 		case SyntaxKindNonNullExpression:
-			return printer.emitNonNullExpression(node.(NonNullExpression))
+			return printer.emitNonNullExpression(node.AsNonNullExpression())
 		case SyntaxKindExpressionWithTypeArguments:
-			return printer.emitExpressionWithTypeArguments(node.(ExpressionWithTypeArguments))
+			return printer.emitExpressionWithTypeArguments(node.AsExpressionWithTypeArguments())
 		case SyntaxKindSatisfiesExpression:
-			return printer.emitSatisfiesExpression(node.(SatisfiesExpression))
+			return printer.emitSatisfiesExpression(node.AsSatisfiesExpression())
 		case SyntaxKindMetaProperty:
-			return printer.emitMetaProperty(node.(MetaProperty))
+			return printer.emitMetaProperty(node.AsMetaProperty())
 		case SyntaxKindSyntheticExpression:
 			return Debug.fail("SyntheticExpression should never be printed.")
 		case SyntaxKindMissingDeclaration:
@@ -1724,11 +1724,11 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 
 			// JSX
 		case SyntaxKindJsxElement:
-			return printer.emitJsxElement(node.(JsxElement))
+			return printer.emitJsxElement(node.AsJsxElement())
 		case SyntaxKindJsxSelfClosingElement:
-			return printer.emitJsxSelfClosingElement(node.(JsxSelfClosingElement))
+			return printer.emitJsxSelfClosingElement(node.AsJsxSelfClosingElement())
 		case SyntaxKindJsxFragment:
-			return printer.emitJsxFragment(node.(JsxFragment))
+			return printer.emitJsxFragment(node.AsJsxFragment())
 
 			// Synthesized list
 		case SyntaxKindSyntaxList:
@@ -1738,9 +1738,9 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 		case SyntaxKindNotEmittedStatement:
 			return
 		case SyntaxKindPartiallyEmittedExpression:
-			return printer.emitPartiallyEmittedExpression(node.(PartiallyEmittedExpression))
+			return printer.emitPartiallyEmittedExpression(node.AsPartiallyEmittedExpression())
 		case SyntaxKindCommaListExpression:
-			return printer.emitCommaList(node.(CommaListExpression))
+			return printer.emitCommaList(node.AsCommaListExpression())
 		case SyntaxKindSyntheticReferenceExpression:
 			return Debug.fail("SyntheticReferenceExpression should not be printed")
 		}
@@ -1774,7 +1774,7 @@ func (printer *Printer) emitHelpers(node *Node) *bool {
 	helpersEmitted := false
 	var bundle * /* TODO(TS-TO-GO) inferred type ts.Bundle */ any
 	if node.kind == SyntaxKindBundle {
-		bundle = node.(Bundle)
+		bundle = node.AsBundle()
 	} else {
 		bundle = nil
 	}
@@ -2413,7 +2413,7 @@ func (printer *Printer) emitObjectLiteralExpression(node ObjectLiteralExpression
 
 func (printer *Printer) emitPropertyAccessExpression(node PropertyAccessExpression) {
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeLeftSideOfAccess)
-	token := node.questionDotToken || setTextRangePosEnd(factory.createToken(SyntaxKindDotToken).(DotToken), node.expression.end, node.name.pos)
+	token := node.questionDotToken || setTextRangePosEnd(factory.createToken(SyntaxKindDotToken).AsDotToken(), node.expression.end, node.name.pos)
 	linesBeforeDot := printer.getLinesBetweenNodes(node, node.expression, token)
 	linesAfterDot := printer.getLinesBetweenNodes(node, token, node.name)
 
@@ -2441,7 +2441,7 @@ func (printer *Printer) mayNeedDotDotForPropertyAccess(expression Expression) *b
 	expression = skipPartiallyEmittedExpressions(expression)
 	if isNumericLiteral(expression) {
 		// check if numeric literal is a decimal literal that was originally written with a dot
-		text := printer.getLiteralTextOfNode(expression.(LiteralExpression) /*sourceFile*/, nil /*neverAsciiEscape*/, true /*jsxAttributeEscape*/, false)
+		text := printer.getLiteralTextOfNode(expression.AsLiteralExpression() /*sourceFile*/, nil /*neverAsciiEscape*/, true /*jsxAttributeEscape*/, false)
 		// If the number will be printed verbatim and it doesn't already contain a dot or an exponent indicator, add one
 		// if the expression doesn't have any comments that will be emitted.
 		return !(expression.numericLiteralFlags & TokenFlagsWithSpecifier) && !text.includes(tokenToString(SyntaxKindDotToken)) && !text.includes(String.fromCharCode(CharacterCodesE)) && !text.includes(String.fromCharCode(CharacterCodese))
@@ -2592,7 +2592,7 @@ func (printer *Printer) shouldEmitWhitespaceBeforeOperand(node PrefixUnaryExpres
 	// expression a prefix increment whose operand is a plus expression - (++(+x))
 	// The same is true of minus of course.
 	operand := node.operand
-	return operand.kind == SyntaxKindPrefixUnaryExpression && ((node.operator == SyntaxKindPlusToken && ((operand.(PrefixUnaryExpression)).operator == SyntaxKindPlusToken || (operand.(PrefixUnaryExpression)).operator == SyntaxKindPlusPlusToken)) || (node.operator == SyntaxKindMinusToken && ((operand.(PrefixUnaryExpression)).operator == SyntaxKindMinusToken || (operand.(PrefixUnaryExpression)).operator == SyntaxKindMinusMinusToken)))
+	return operand.kind == SyntaxKindPrefixUnaryExpression && ((node.operator == SyntaxKindPlusToken && ((operand.AsPrefixUnaryExpression()).operator == SyntaxKindPlusToken || (operand.AsPrefixUnaryExpression()).operator == SyntaxKindPlusPlusToken)) || (node.operator == SyntaxKindMinusToken && ((operand.AsPrefixUnaryExpression()).operator == SyntaxKindMinusToken || (operand.AsPrefixUnaryExpression()).operator == SyntaxKindMinusMinusToken)))
 }
 
 func (printer *Printer) emitPostfixUnaryExpression(node PostfixUnaryExpression) {
@@ -4939,7 +4939,7 @@ func (printer *Printer) isEmptyBlock(block BlockLike) bool {
 
 func (printer *Printer) skipSynthesizedParentheses(node *Node) /* TODO(TS-TO-GO) inferred type ts.Node */ any {
 	for node.kind == SyntaxKindParenthesizedExpression && nodeIsSynthesized(node) {
-		node = (node.(ParenthesizedExpression)).expression
+		node = (node.AsParenthesizedExpression()).expression
 	}
 
 	return node
@@ -4974,8 +4974,8 @@ func (printer *Printer) getTextOfNode(node /* TODO(TS-TO-GO) TypeNode UnionType:
 }
 
 func (printer *Printer) getLiteralTextOfNode(node LiteralLikeNode, sourceFile * /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any /*  = currentSourceFile */, neverAsciiEscape *bool, jsxAttributeEscape bool) string {
-	if node.kind == SyntaxKindStringLiteral && (node.(StringLiteral)).textSourceNode {
-		textSourceNode := (node.(StringLiteral)).textSourceNode
+	if node.kind == SyntaxKindStringLiteral && (node.AsStringLiteral()).textSourceNode {
+		textSourceNode := (node.AsStringLiteral()).textSourceNode
 		if isIdentifier(textSourceNode) || isPrivateIdentifier(textSourceNode) || isNumericLiteral(textSourceNode) || isJsxNamespacedName(textSourceNode) {
 			var text string
 			if isNumericLiteral(textSourceNode) {
@@ -5058,65 +5058,65 @@ func (printer *Printer) generateNames(node *Node) {
 	}
 	switch node.kind {
 	case SyntaxKindBlock:
-		forEach((node.(Block)).statements, printer.generateNames)
+		forEach((node.AsBlock()).statements, printer.generateNames)
 	case SyntaxKindLabeledStatement,
 		SyntaxKindWithStatement,
 		SyntaxKindDoStatement,
 		SyntaxKindWhileStatement:
 		printer.generateNames((node /* as LabeledStatement | WithStatement | DoStatement | WhileStatement */).statement)
 	case SyntaxKindIfStatement:
-		printer.generateNames((node.(IfStatement)).thenStatement)
-		printer.generateNames((node.(IfStatement)).elseStatement)
+		printer.generateNames((node.AsIfStatement()).thenStatement)
+		printer.generateNames((node.AsIfStatement()).elseStatement)
 	case SyntaxKindForStatement,
 		SyntaxKindForOfStatement,
 		SyntaxKindForInStatement:
 		printer.generateNames((node /* as ForStatement | ForInOrOfStatement */).initializer)
 		printer.generateNames((node /* as ForStatement | ForInOrOfStatement */).statement)
 	case SyntaxKindSwitchStatement:
-		printer.generateNames((node.(SwitchStatement)).caseBlock)
+		printer.generateNames((node.AsSwitchStatement()).caseBlock)
 	case SyntaxKindCaseBlock:
-		forEach((node.(CaseBlock)).clauses, printer.generateNames)
+		forEach((node.AsCaseBlock()).clauses, printer.generateNames)
 	case SyntaxKindCaseClause,
 		SyntaxKindDefaultClause:
-		forEach((node.(CaseOrDefaultClause)).statements, printer.generateNames)
+		forEach((node.AsCaseOrDefaultClause()).statements, printer.generateNames)
 	case SyntaxKindTryStatement:
-		printer.generateNames((node.(TryStatement)).tryBlock)
-		printer.generateNames((node.(TryStatement)).catchClause)
-		printer.generateNames((node.(TryStatement)).finallyBlock)
+		printer.generateNames((node.AsTryStatement()).tryBlock)
+		printer.generateNames((node.AsTryStatement()).catchClause)
+		printer.generateNames((node.AsTryStatement()).finallyBlock)
 	case SyntaxKindCatchClause:
-		printer.generateNames((node.(CatchClause)).variableDeclaration)
-		printer.generateNames((node.(CatchClause)).block)
+		printer.generateNames((node.AsCatchClause()).variableDeclaration)
+		printer.generateNames((node.AsCatchClause()).block)
 	case SyntaxKindVariableStatement:
-		printer.generateNames((node.(VariableStatement)).declarationList)
+		printer.generateNames((node.AsVariableStatement()).declarationList)
 	case SyntaxKindVariableDeclarationList:
-		forEach((node.(VariableDeclarationList)).declarations, printer.generateNames)
+		forEach((node.AsVariableDeclarationList()).declarations, printer.generateNames)
 	case SyntaxKindVariableDeclaration,
 		SyntaxKindParameter,
 		SyntaxKindBindingElement,
 		SyntaxKindClassDeclaration:
-		printer.generateNameIfNeeded((node.(NamedDeclaration)).name)
+		printer.generateNameIfNeeded((node.AsNamedDeclaration()).name)
 	case SyntaxKindFunctionDeclaration:
-		printer.generateNameIfNeeded((node.(FunctionDeclaration)).name)
+		printer.generateNameIfNeeded((node.AsFunctionDeclaration()).name)
 		if getEmitFlags(node) & EmitFlagsReuseTempVariableScope {
-			forEach((node.(FunctionDeclaration)).parameters, printer.generateNames)
-			printer.generateNames((node.(FunctionDeclaration)).body)
+			forEach((node.AsFunctionDeclaration()).parameters, printer.generateNames)
+			printer.generateNames((node.AsFunctionDeclaration()).body)
 		}
 	case SyntaxKindObjectBindingPattern,
 		SyntaxKindArrayBindingPattern:
-		forEach((node.(BindingPattern)).elements, printer.generateNames)
+		forEach((node.AsBindingPattern()).elements, printer.generateNames)
 	case SyntaxKindImportDeclaration:
-		printer.generateNames((node.(ImportDeclaration)).importClause)
+		printer.generateNames((node.AsImportDeclaration()).importClause)
 	case SyntaxKindImportClause:
-		printer.generateNameIfNeeded((node.(ImportClause)).name)
-		printer.generateNames((node.(ImportClause)).namedBindings)
+		printer.generateNameIfNeeded((node.AsImportClause()).name)
+		printer.generateNames((node.AsImportClause()).namedBindings)
 	case SyntaxKindNamespaceImport:
-		printer.generateNameIfNeeded((node.(NamespaceImport)).name)
+		printer.generateNameIfNeeded((node.AsNamespaceImport()).name)
 	case SyntaxKindNamespaceExport:
-		printer.generateNameIfNeeded((node.(NamespaceExport)).name)
+		printer.generateNameIfNeeded((node.AsNamespaceExport()).name)
 	case SyntaxKindNamedImports:
-		forEach((node.(NamedImports)).elements, printer.generateNames)
+		forEach((node.AsNamedImports()).elements, printer.generateNames)
 	case SyntaxKindImportSpecifier:
-		printer.generateNameIfNeeded((node.(ImportSpecifier)).propertyName || (node.(ImportSpecifier)).name)
+		printer.generateNameIfNeeded((node.AsImportSpecifier()).propertyName || (node.AsImportSpecifier()).name)
 	}
 }
 
@@ -5133,7 +5133,7 @@ func (printer *Printer) generateMemberNames(node *Node) {
 		SyntaxKindMethodSignature,
 		SyntaxKindGetAccessor,
 		SyntaxKindSetAccessor:
-		printer.generateNameIfNeeded((node.(NamedDeclaration)).name)
+		printer.generateNameIfNeeded((node.AsNamedDeclaration()).name)
 	}
 }
 
@@ -5440,7 +5440,7 @@ func (printer *Printer) generateNameForNode(node *Node, privateName bool, flags 
 	switch node.kind {
 	case SyntaxKindIdentifier,
 		SyntaxKindPrivateIdentifier:
-		return printer.makeUniqueName(printer.getTextOfNode(node.(Identifier)), printer.isUniqueName, !!(flags & GeneratedIdentifierFlagsOptimistic), !!(flags & GeneratedIdentifierFlagsReservedInNestedScopes), privateName, prefix, suffix)
+		return printer.makeUniqueName(printer.getTextOfNode(node.AsIdentifier()), printer.isUniqueName, !!(flags & GeneratedIdentifierFlagsOptimistic), !!(flags & GeneratedIdentifierFlagsReservedInNestedScopes), privateName, prefix, suffix)
 	case SyntaxKindModuleDeclaration,
 		SyntaxKindEnumDeclaration:
 		Debug.assert(!prefix && !suffix && !privateName)

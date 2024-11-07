@@ -88,7 +88,7 @@ func getModuleInstanceStateWorker(node *Node, visited Map[number, *ModuleInstanc
 		return ModuleInstanceStateNonInstantiated
 		// 2. const enum declarations
 	case SyntaxKindEnumDeclaration:
-		if isEnumConst(node.(EnumDeclaration)) {
+		if isEnumConst(node.AsEnumDeclaration()) {
 			return ModuleInstanceStateConstEnumOnly
 		}
 		// 3. non-exported import declarations
@@ -99,7 +99,7 @@ func getModuleInstanceStateWorker(node *Node, visited Map[number, *ModuleInstanc
 		}
 		// 4. Export alias declarations pointing at only uninstantiated modules or things uninstantiated modules contain
 	case SyntaxKindExportDeclaration:
-		exportDeclaration := node.(ExportDeclaration)
+		exportDeclaration := node.AsExportDeclaration()
 		if !exportDeclaration.moduleSpecifier && exportDeclaration.exportClause && exportDeclaration.exportClause.kind == SyntaxKindNamedExports {
 			state := ModuleInstanceStateNonInstantiated
 			for _, specifier := range exportDeclaration.exportClause.elements {
@@ -136,7 +136,7 @@ func getModuleInstanceStateWorker(node *Node, visited Map[number, *ModuleInstanc
 		})
 		return state
 	case SyntaxKindModuleDeclaration:
-		return getModuleInstanceState(node.(ModuleDeclaration), visited)
+		return getModuleInstanceState(node.AsModuleDeclaration(), visited)
 	case SyntaxKindIdentifier:
 		// Only jsdoc typedef definition can exist in jsdoc namespace, and it should
 		// be considered the same as type alias
@@ -372,7 +372,7 @@ func (b *Binder) addDeclarationToSymbol(symbol *Symbol, node Declaration, symbol
 // unless it is a well known Symbol.
 func (b *Binder) getDeclarationName(node Declaration) *string {
 	if node.kind == SyntaxKindExportAssignment {
-		if (node.(ExportAssignment)).isExportEquals {
+		if (node.AsExportAssignment()).isExportEquals {
 			return InternalSymbolNameExportEquals
 		} else {
 			return InternalSymbolNameDefault
@@ -383,7 +383,7 @@ func (b *Binder) getDeclarationName(node Declaration) *string {
 	if name {
 		if isAmbientModule(node) {
 			moduleName := getTextOfIdentifierOrLiteral(name /* as Identifier | StringLiteral */)
-			return (ifElse(isGlobalScopeAugmentation(node.(ModuleDeclaration)), "__global", __TEMPLATE__("\"", moduleName, "\""))).(string)
+			return (ifElse(isGlobalScopeAugmentation(node.AsModuleDeclaration()), "__global", __TEMPLATE__("\"", moduleName, "\""))).(string)
 		}
 		if name.kind == SyntaxKindComputedPropertyName {
 			nameExpression := name.expression
@@ -435,7 +435,7 @@ func (b *Binder) getDeclarationName(node Declaration) *string {
 		// module.exports = ...
 		return InternalSymbolNameExportEquals
 	case SyntaxKindBinaryExpression:
-		if getAssignmentDeclarationKind(node.(BinaryExpression)) == AssignmentDeclarationKindModuleExports {
+		if getAssignmentDeclarationKind(node.AsBinaryExpression()) == AssignmentDeclarationKindModuleExports {
 			// module.exports = ...
 			return InternalSymbolNameExportEquals
 		}
@@ -448,8 +448,8 @@ func (b *Binder) getDeclarationName(node Declaration) *string {
 		Debug.assert(node.parent.kind == SyntaxKindJSDocFunctionType, "Impossible parameter parent kind", func() string {
 			return __TEMPLATE__("parent is: ", Debug.formatSyntaxKind(node.parent.kind), ", expected JSDocFunctionType")
 		})
-		functionType := node.parent.(JSDocFunctionType)
-		index := functionType.parameters.indexOf(node.(ParameterDeclaration))
+		functionType := node.parent.AsJSDocFunctionType()
+		index := functionType.parameters.indexOf(node.AsParameterDeclaration())
 		return "arg" + index.(string)
 	}
 }
@@ -567,7 +567,7 @@ func (b *Binder) declareSymbol(symbolTable SymbolTable, parent *Symbol, node Dec
 						// Error on multiple export default in the following case:
 						// 1. multiple export default of class declaration or function declaration by checking NodeFlags.Default
 						// 2. multiple export default of export assignment. This one doesn't have NodeFlags.Default on (as export default doesn't considered as modifiers)
-						if symbol.declarations && symbol.declarations.length && (node.kind == SyntaxKindExportAssignment && !(node.(ExportAssignment)).isExportEquals) {
+						if symbol.declarations && symbol.declarations.length && (node.kind == SyntaxKindExportAssignment && !(node.AsExportAssignment()).isExportEquals) {
 							message = Diagnostics.A_module_cannot_have_multiple_default_exports
 							messageNeedsName = false
 							multipleDefaultExports = true
@@ -733,13 +733,13 @@ func (b *Binder) bindContainer(node Mutable[HasContainerFlags], containerFlags C
 		}
 		b.container = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: blockScopeContainer = node as IsContainer */ TODO
 		if containerFlags & ContainerFlagsHasLocals {
-			(b.container.(HasLocals)).locals = createSymbolTable()
-			b.addToContainerChain(b.container.(HasLocals))
+			(b.container.AsHasLocals()).locals = createSymbolTable()
+			b.addToContainerChain(b.container.AsHasLocals())
 		}
 	} else if containerFlags & ContainerFlagsIsBlockScopedContainer {
-		b.blockScopeContainer = node.(IsBlockScopedContainer)
+		b.blockScopeContainer = node.AsIsBlockScopedContainer()
 		if containerFlags & ContainerFlagsHasLocals {
-			(b.blockScopeContainer.(HasLocals)).locals = nil
+			(b.blockScopeContainer.AsHasLocals()).locals = nil
 		}
 	}
 	if containerFlags & ContainerFlagsIsControlFlowContainer {
@@ -750,7 +750,7 @@ func (b *Binder) bindContainer(node Mutable[HasContainerFlags], containerFlags C
 		saveExceptionTarget := b.currentExceptionTarget
 		saveActiveLabelList := b.activeLabelList
 		saveHasExplicitReturn := b.hasExplicitReturn
-		isImmediatelyInvoked := (containerFlags&ContainerFlagsIsFunctionExpression && !hasSyntacticModifier(node, ModifierFlagsAsync) && !(node.(FunctionLikeDeclaration)).asteriskToken && !!getImmediatelyInvokedFunctionExpression(node)) || node.kind == SyntaxKindClassStaticBlockDeclaration
+		isImmediatelyInvoked := (containerFlags&ContainerFlagsIsFunctionExpression && !hasSyntacticModifier(node, ModifierFlagsAsync) && !(node.AsFunctionLikeDeclaration()).asteriskToken && !!getImmediatelyInvokedFunctionExpression(node)) || node.kind == SyntaxKindClassStaticBlockDeclaration
 		// A non-async, non-generator IIFE is considered part of the containing control flow. Return statements behave
 		// similarly to break statements that exit to a label just past the statement body.
 		if !isImmediatelyInvoked {
@@ -783,7 +783,7 @@ func (b *Binder) bindContainer(node Mutable[HasContainerFlags], containerFlags C
 		}
 		if node.kind == SyntaxKindSourceFile {
 			node.flags |= b.emitFlags
-			(node.(SourceFile)).endFlowNode = b.currentFlow
+			(node.AsSourceFile()).endFlowNode = b.currentFlow
 		}
 
 		if b.currentReturnTarget {
@@ -862,42 +862,42 @@ func (b *Binder) bindChildren(node *Node) {
 		return
 	}
 	if node.kind >= SyntaxKindFirstStatement && node.kind <= SyntaxKindLastStatement && (!b.options.allowUnreachableCode || node.kind == SyntaxKindReturnStatement) {
-		(node.(HasFlowNode)).flowNode = b.currentFlow
+		(node.AsHasFlowNode()).flowNode = b.currentFlow
 	}
 	switch node.kind {
 	case SyntaxKindWhileStatement:
-		b.bindWhileStatement(node.(WhileStatement))
+		b.bindWhileStatement(node.AsWhileStatement())
 	case SyntaxKindDoStatement:
-		b.bindDoStatement(node.(DoStatement))
+		b.bindDoStatement(node.AsDoStatement())
 	case SyntaxKindForStatement:
-		b.bindForStatement(node.(ForStatement))
+		b.bindForStatement(node.AsForStatement())
 	case SyntaxKindForInStatement,
 		SyntaxKindForOfStatement:
-		b.bindForInOrForOfStatement(node.(ForInOrOfStatement))
+		b.bindForInOrForOfStatement(node.AsForInOrOfStatement())
 	case SyntaxKindIfStatement:
-		b.bindIfStatement(node.(IfStatement))
+		b.bindIfStatement(node.AsIfStatement())
 	case SyntaxKindReturnStatement,
 		SyntaxKindThrowStatement:
 		b.bindReturnOrThrow(node /* as ReturnStatement | ThrowStatement */)
 	case SyntaxKindBreakStatement,
 		SyntaxKindContinueStatement:
-		b.bindBreakOrContinueStatement(node.(BreakOrContinueStatement))
+		b.bindBreakOrContinueStatement(node.AsBreakOrContinueStatement())
 	case SyntaxKindTryStatement:
-		b.bindTryStatement(node.(TryStatement))
+		b.bindTryStatement(node.AsTryStatement())
 	case SyntaxKindSwitchStatement:
-		b.bindSwitchStatement(node.(SwitchStatement))
+		b.bindSwitchStatement(node.AsSwitchStatement())
 	case SyntaxKindCaseBlock:
-		b.bindCaseBlock(node.(CaseBlock))
+		b.bindCaseBlock(node.AsCaseBlock())
 	case SyntaxKindCaseClause:
-		b.bindCaseClause(node.(CaseClause))
+		b.bindCaseClause(node.AsCaseClause())
 	case SyntaxKindExpressionStatement:
-		b.bindExpressionStatement(node.(ExpressionStatement))
+		b.bindExpressionStatement(node.AsExpressionStatement())
 	case SyntaxKindLabeledStatement:
-		b.bindLabeledStatement(node.(LabeledStatement))
+		b.bindLabeledStatement(node.AsLabeledStatement())
 	case SyntaxKindPrefixUnaryExpression:
-		b.bindPrefixUnaryExpressionFlow(node.(PrefixUnaryExpression))
+		b.bindPrefixUnaryExpressionFlow(node.AsPrefixUnaryExpression())
 	case SyntaxKindPostfixUnaryExpression:
-		b.bindPostfixUnaryExpressionFlow(node.(PostfixUnaryExpression))
+		b.bindPostfixUnaryExpressionFlow(node.AsPostfixUnaryExpression())
 	case SyntaxKindBinaryExpression:
 		if isDestructuringAssignment(node) {
 			// Carry over whether we are in an assignment pattern to
@@ -906,37 +906,37 @@ func (b *Binder) bindChildren(node *Node) {
 			b.bindDestructuringAssignmentFlow(node)
 			return
 		}
-		b.bindBinaryExpressionFlow(node.(BinaryExpression))
+		b.bindBinaryExpressionFlow(node.AsBinaryExpression())
 	case SyntaxKindDeleteExpression:
-		b.bindDeleteExpressionFlow(node.(DeleteExpression))
+		b.bindDeleteExpressionFlow(node.AsDeleteExpression())
 	case SyntaxKindConditionalExpression:
-		b.bindConditionalExpressionFlow(node.(ConditionalExpression))
+		b.bindConditionalExpressionFlow(node.AsConditionalExpression())
 	case SyntaxKindVariableDeclaration:
-		b.bindVariableDeclarationFlow(node.(VariableDeclaration))
+		b.bindVariableDeclarationFlow(node.AsVariableDeclaration())
 	case SyntaxKindPropertyAccessExpression,
 		SyntaxKindElementAccessExpression:
-		b.bindAccessExpressionFlow(node.(AccessExpression))
+		b.bindAccessExpressionFlow(node.AsAccessExpression())
 	case SyntaxKindCallExpression:
-		b.bindCallExpressionFlow(node.(CallExpression))
+		b.bindCallExpressionFlow(node.AsCallExpression())
 	case SyntaxKindNonNullExpression:
-		b.bindNonNullExpressionFlow(node.(NonNullExpression))
+		b.bindNonNullExpressionFlow(node.AsNonNullExpression())
 	case SyntaxKindJSDocTypedefTag,
 		SyntaxKindJSDocCallbackTag,
 		SyntaxKindJSDocEnumTag:
 		b.bindJSDocTypeAlias(node /* as JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag */)
 	case SyntaxKindJSDocImportTag:
-		b.bindJSDocImportTag(node.(JSDocImportTag))
+		b.bindJSDocImportTag(node.AsJSDocImportTag())
 		// In source files and blocks, bind functions first to match hoisting that occurs at runtime
 	case SyntaxKindSourceFile:
-		b.bindEachFunctionsFirst((node.(SourceFile)).statements)
-		b.bind((node.(SourceFile)).endOfFileToken)
+		b.bindEachFunctionsFirst((node.AsSourceFile()).statements)
+		b.bind((node.AsSourceFile()).endOfFileToken)
 	case SyntaxKindBlock,
 		SyntaxKindModuleBlock:
-		b.bindEachFunctionsFirst((node.(Block)).statements)
+		b.bindEachFunctionsFirst((node.AsBlock()).statements)
 	case SyntaxKindBindingElement:
-		b.bindBindingElementFlow(node.(BindingElement))
+		b.bindBindingElementFlow(node.AsBindingElement())
 	case SyntaxKindParameter:
-		b.bindParameterFlow(node.(ParameterDeclaration))
+		b.bindParameterFlow(node.AsParameterDeclaration())
 	case SyntaxKindObjectLiteralExpression,
 		SyntaxKindArrayLiteralExpression,
 		SyntaxKindPropertyAssignment,
@@ -961,7 +961,7 @@ func (b *Binder) isNarrowingExpression(expr Expression) bool {
 		SyntaxKindElementAccessExpression:
 		return b.containsNarrowableReference(expr)
 	case SyntaxKindCallExpression:
-		return b.hasNarrowableArgument(expr.(CallExpression))
+		return b.hasNarrowableArgument(expr.AsCallExpression())
 	case SyntaxKindParenthesizedExpression:
 		if isJSDocTypeAssertion(expr) {
 			return false
@@ -970,11 +970,11 @@ func (b *Binder) isNarrowingExpression(expr Expression) bool {
 	case SyntaxKindNonNullExpression:
 		return b.isNarrowingExpression((expr /* as ParenthesizedExpression | NonNullExpression */).expression)
 	case SyntaxKindBinaryExpression:
-		return b.isNarrowingBinaryExpression(expr.(BinaryExpression))
+		return b.isNarrowingBinaryExpression(expr.AsBinaryExpression())
 	case SyntaxKindPrefixUnaryExpression:
-		return (expr.(PrefixUnaryExpression)).operator == SyntaxKindExclamationToken && b.isNarrowingExpression((expr.(PrefixUnaryExpression)).operand)
+		return (expr.AsPrefixUnaryExpression()).operator == SyntaxKindExclamationToken && b.isNarrowingExpression((expr.AsPrefixUnaryExpression()).operand)
 	case SyntaxKindTypeOfExpression:
-		return b.isNarrowingExpression((expr.(TypeOfExpression)).expression)
+		return b.isNarrowingExpression((expr.AsTypeOfExpression()).expression)
 	}
 	return false
 }
@@ -991,9 +991,9 @@ func (b *Binder) isNarrowableReference(expr Expression) bool {
 		SyntaxKindNonNullExpression:
 		return b.isNarrowableReference((expr /* as PropertyAccessExpression | ParenthesizedExpression | NonNullExpression */).expression)
 	case SyntaxKindElementAccessExpression:
-		return (isStringOrNumericLiteralLike((expr.(ElementAccessExpression)).argumentExpression) || isEntityNameExpression((expr.(ElementAccessExpression)).argumentExpression)) && b.isNarrowableReference((expr.(ElementAccessExpression)).expression)
+		return (isStringOrNumericLiteralLike((expr.AsElementAccessExpression()).argumentExpression) || isEntityNameExpression((expr.AsElementAccessExpression()).argumentExpression)) && b.isNarrowableReference((expr.AsElementAccessExpression()).expression)
 	case SyntaxKindBinaryExpression:
-		return (expr.(BinaryExpression)).operatorToken.kind == SyntaxKindCommaToken && b.isNarrowableReference((expr.(BinaryExpression)).right) || isAssignmentOperator((expr.(BinaryExpression)).operatorToken.kind) && isLeftHandSideExpression((expr.(BinaryExpression)).left)
+		return (expr.AsBinaryExpression()).operatorToken.kind == SyntaxKindCommaToken && b.isNarrowableReference((expr.AsBinaryExpression()).right) || isAssignmentOperator((expr.AsBinaryExpression()).operatorToken.kind) && isLeftHandSideExpression((expr.AsBinaryExpression()).left)
 	}
 	return false
 }
@@ -1010,7 +1010,7 @@ func (b *Binder) hasNarrowableArgument(expr CallExpression) bool {
 			}
 		}
 	}
-	if expr.expression.kind == SyntaxKindPropertyAccessExpression && b.containsNarrowableReference((expr.expression.(PropertyAccessExpression)).expression) {
+	if expr.expression.kind == SyntaxKindPropertyAccessExpression && b.containsNarrowableReference((expr.expression.AsPropertyAccessExpression()).expression) {
 		return true
 	}
 	return false
@@ -1045,13 +1045,13 @@ func (b *Binder) isNarrowingBinaryExpression(expr BinaryExpression) bool {
 func (b *Binder) isNarrowableOperand(expr Expression) bool {
 	switch expr.kind {
 	case SyntaxKindParenthesizedExpression:
-		return b.isNarrowableOperand((expr.(ParenthesizedExpression)).expression)
+		return b.isNarrowableOperand((expr.AsParenthesizedExpression()).expression)
 	case SyntaxKindBinaryExpression:
-		switch (expr.(BinaryExpression)).operatorToken.kind {
+		switch (expr.AsBinaryExpression()).operatorToken.kind {
 		case SyntaxKindEqualsToken:
-			return b.isNarrowableOperand((expr.(BinaryExpression)).left)
+			return b.isNarrowableOperand((expr.AsBinaryExpression()).left)
 		case SyntaxKindCommaToken:
-			return b.isNarrowableOperand((expr.(BinaryExpression)).right)
+			return b.isNarrowableOperand((expr.AsBinaryExpression()).right)
 		}
 	}
 	return b.containsNarrowableReference(expr)
@@ -1162,9 +1162,9 @@ func (b *Binder) isStatementCondition(node *Node) bool {
 func (b *Binder) isLogicalExpression(node *Node) bool {
 	for true {
 		if node.kind == SyntaxKindParenthesizedExpression {
-			node = (node.(ParenthesizedExpression)).expression
-		} else if node.kind == SyntaxKindPrefixUnaryExpression && (node.(PrefixUnaryExpression)).operator == SyntaxKindExclamationToken {
-			node = (node.(PrefixUnaryExpression)).operand
+			node = (node.AsParenthesizedExpression()).expression
+		} else if node.kind == SyntaxKindPrefixUnaryExpression && (node.AsPrefixUnaryExpression()).operator == SyntaxKindExclamationToken {
+			node = (node.AsPrefixUnaryExpression()).operand
 		} else {
 			return isLogicalOrCoalescingBinaryExpression(node)
 		}
@@ -1490,7 +1490,7 @@ func (b *Binder) maybeBindExpressionFlowIfCall(node Expression) {
 	// A top level or comma expression call expression with a dotted function name and at least one argument
 	// is potentially an assertion and is therefore included in the control flow.
 	if node.kind == SyntaxKindCallExpression {
-		call := node.(CallExpression)
+		call := node.AsCallExpression()
 		if call.expression.kind != SyntaxKindSuperKeyword && isDottedName(call.expression) {
 			b.currentFlow = b.createFlowCall(b.currentFlow, call)
 		}
@@ -1517,8 +1517,8 @@ func (b *Binder) bindLabeledStatement(node LabeledStatement) {
 }
 
 func (b *Binder) bindDestructuringTargetFlow(node Expression) {
-	if node.kind == SyntaxKindBinaryExpression && (node.(BinaryExpression)).operatorToken.kind == SyntaxKindEqualsToken {
-		b.bindAssignmentTargetFlow((node.(BinaryExpression)).left)
+	if node.kind == SyntaxKindBinaryExpression && (node.AsBinaryExpression()).operatorToken.kind == SyntaxKindEqualsToken {
+		b.bindAssignmentTargetFlow((node.AsBinaryExpression()).left)
 	} else {
 		b.bindAssignmentTargetFlow(node)
 	}
@@ -1528,15 +1528,15 @@ func (b *Binder) bindAssignmentTargetFlow(node Expression) {
 	if b.isNarrowableReference(node) {
 		b.currentFlow = b.createFlowMutation(FlowFlagsAssignment, b.currentFlow, node)
 	} else if node.kind == SyntaxKindArrayLiteralExpression {
-		for _, e := range (node.(ArrayLiteralExpression)).elements {
+		for _, e := range (node.AsArrayLiteralExpression()).elements {
 			if e.kind == SyntaxKindSpreadElement {
-				b.bindAssignmentTargetFlow((e.(SpreadElement)).expression)
+				b.bindAssignmentTargetFlow((e.AsSpreadElement()).expression)
 			} else {
 				b.bindDestructuringTargetFlow(e)
 			}
 		}
 	} else if node.kind == SyntaxKindObjectLiteralExpression {
-		for _, p := range (node.(ObjectLiteralExpression)).properties {
+		for _, p := range (node.AsObjectLiteralExpression()).properties {
 			if p.kind == SyntaxKindPropertyAssignment {
 				b.bindDestructuringTargetFlow(p.initializer)
 			} else if p.kind == SyntaxKindShorthandPropertyAssignment {
@@ -1697,7 +1697,7 @@ func (b *Binder) createBindBinaryExpressionFlow() /* TODO(TS-TO-GO) inferred typ
 			if isAssignmentOperator(operator) && !isAssignmentTarget(node) {
 				b.bindAssignmentTargetFlow(node.left)
 				if operator == SyntaxKindEqualsToken && node.left.kind == SyntaxKindElementAccessExpression {
-					elementAccess := node.left.(ElementAccessExpression)
+					elementAccess := node.left.AsElementAccessExpression()
 					if b.isNarrowableOperand(elementAccess.expression) {
 						b.currentFlow = b.createFlowMutation(FlowFlagsArrayMutation, b.currentFlow, node)
 					}
@@ -1952,7 +1952,7 @@ func (b *Binder) bindCallExpressionFlow(node /* TODO(TS-TO-GO) TypeNode UnionTyp
 		}
 	}
 	if node.expression.kind == SyntaxKindPropertyAccessExpression {
-		propertyAccess := node.expression.(PropertyAccessExpression)
+		propertyAccess := node.expression.AsPropertyAccessExpression()
 		if isIdentifier(propertyAccess.name) && b.isNarrowableOperand(propertyAccess.expression) && isPushOrUnshiftIdentifier(propertyAccess.name) {
 			b.currentFlow = b.createFlowMutation(FlowFlagsArrayMutation, b.currentFlow, node)
 		}
@@ -2142,7 +2142,7 @@ func (b *Binder) bindBlockScopedDeclaration(node Declaration, symbolFlags Symbol
 	case SyntaxKindModuleDeclaration:
 		b.declareModuleMember(node, symbolFlags, symbolExcludes)
 	case SyntaxKindSourceFile:
-		if isExternalOrCommonJsModule(b.container.(SourceFile)) {
+		if isExternalOrCommonJsModule(b.container.AsSourceFile()) {
 			b.declareModuleMember(node, symbolFlags, symbolExcludes)
 			break
 		}
@@ -2193,7 +2193,7 @@ func (b *Binder) delayedBindJSDocTypedefTag() undefined {
 				case AssignmentDeclarationKindThisProperty:
 					b.container = declName.parent.expression
 				case AssignmentDeclarationKindPrototypeProperty:
-					b.container = (declName.parent.expression.(PropertyAccessEntityNameExpression)).name
+					b.container = (declName.parent.expression.AsPropertyAccessEntityNameExpression()).name
 				case AssignmentDeclarationKindProperty:
 					switch {
 					case isExportsOrModuleExportsOrAlias(b.file, declName.parent.expression):
@@ -2319,7 +2319,7 @@ func (b *Binder) checkStrictModeBinaryExpression(node BinaryExpression) {
 	if b.inStrictMode && isLeftHandSideExpression(node.left) && isAssignmentOperator(node.operatorToken.kind) {
 		// ECMA 262 (Annex C) The identifier eval or arguments may not appear as the LeftHandSideExpression of an
 		// Assignment operator(11.13) or of a PostfixExpression(11.3)
-		b.checkStrictModeEvalOrArguments(node, node.left.(Identifier))
+		b.checkStrictModeEvalOrArguments(node, node.left.AsIdentifier())
 	}
 }
 
@@ -2347,7 +2347,7 @@ func (b *Binder) isEvalOrArgumentsIdentifier(node *Node) bool {
 
 func (b *Binder) checkStrictModeEvalOrArguments(contextNode *Node, name *Node) {
 	if name && name.kind == SyntaxKindIdentifier {
-		identifier := name.(Identifier)
+		identifier := name.AsIdentifier()
 		if b.isEvalOrArgumentsIdentifier(identifier) {
 			// We check first if the name is inside class declaration or class expression; if so give explicit message
 			// otherwise report generic error message.
@@ -2410,7 +2410,7 @@ func (b *Binder) checkStrictModePostfixUnaryExpression(node PostfixUnaryExpressi
 	// Assignment operator(11.13) or of a PostfixExpression(11.3) or as the UnaryExpression
 	// operated upon by a Prefix Increment(11.4.4) or a Prefix Decrement(11.4.5) operator.
 	if b.inStrictMode {
-		b.checkStrictModeEvalOrArguments(node, node.operand.(Identifier))
+		b.checkStrictModeEvalOrArguments(node, node.operand.AsIdentifier())
 	}
 }
 
@@ -2418,7 +2418,7 @@ func (b *Binder) checkStrictModePrefixUnaryExpression(node PrefixUnaryExpression
 	// Grammar checking
 	if b.inStrictMode {
 		if node.operator == SyntaxKindPlusPlusToken || node.operator == SyntaxKindMinusMinusToken {
-			b.checkStrictModeEvalOrArguments(node, node.operand.(Identifier))
+			b.checkStrictModeEvalOrArguments(node, node.operand.AsIdentifier())
 		}
 	}
 }
@@ -2510,7 +2510,7 @@ func (b *Binder) bind(node *Node) {
 		if containerFlags == ContainerFlagsNone {
 			b.bindChildren(node)
 		} else {
-			b.bindContainer(node.(HasContainerFlags), containerFlags)
+			b.bindContainer(node.AsHasContainerFlags(), containerFlags)
 		}
 		b.parent = saveParent
 	} else {
@@ -2546,7 +2546,7 @@ func (b *Binder) updateStrictModeStatementList(statements NodeArray[Statement]) 
 				return
 			}
 
-			if b.isUseStrictPrologueDirective(statement.(ExpressionStatement)) {
+			if b.isUseStrictPrologueDirective(statement.AsExpressionStatement()) {
 				b.inStrictMode = true
 				return
 			}
@@ -2574,7 +2574,7 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 			for parentNode && !isJSDocTypeAlias(parentNode) {
 				parentNode = parentNode.parent
 			}
-			b.bindBlockScopedDeclaration(parentNode.(Declaration), SymbolFlagsTypeAlias, SymbolFlagsTypeAliasExcludes)
+			b.bindBlockScopedDeclaration(parentNode.AsDeclaration(), SymbolFlagsTypeAlias, SymbolFlagsTypeAliasExcludes)
 			break
 		}
 		fallthrough
@@ -2584,16 +2584,16 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 			(node /* as Identifier | ThisExpression */).flowNode = b.currentFlow
 		}
 		// TODO: a `ThisExpression` is not an Identifier, this cast is unsound
-		return b.checkContextualIdentifier(node.(Identifier))
+		return b.checkContextualIdentifier(node.AsIdentifier())
 	case SyntaxKindQualifiedName:
 		if b.currentFlow && isPartOfTypeQuery(node) {
-			(node.(QualifiedName)).flowNode = b.currentFlow
+			(node.AsQualifiedName()).flowNode = b.currentFlow
 		}
 	case SyntaxKindMetaProperty,
 		SyntaxKindSuperKeyword:
 		(node /* as MetaProperty | SuperExpression */).flowNode = b.currentFlow
 	case SyntaxKindPrivateIdentifier:
-		return b.checkPrivateIdentifier(node.(PrivateIdentifier))
+		return b.checkPrivateIdentifier(node.AsPrivateIdentifier())
 	case SyntaxKindPropertyAccessExpression,
 		SyntaxKindElementAccessExpression:
 		expr := node /* as PropertyAccessExpression | ElementAccessExpression */
@@ -2607,86 +2607,86 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 			b.declareSymbol(b.file.locals /*parent*/, nil, expr.expression, SymbolFlagsFunctionScopedVariable|SymbolFlagsModuleExports, SymbolFlagsFunctionScopedVariableExcludes)
 		}
 	case SyntaxKindBinaryExpression:
-		specialKind := getAssignmentDeclarationKind(node.(BinaryExpression))
+		specialKind := getAssignmentDeclarationKind(node.AsBinaryExpression())
 		switch specialKind {
 		case AssignmentDeclarationKindExportsProperty:
-			b.bindExportsPropertyAssignment(node.(BindableStaticPropertyAssignmentExpression))
+			b.bindExportsPropertyAssignment(node.AsBindableStaticPropertyAssignmentExpression())
 		case AssignmentDeclarationKindModuleExports:
-			b.bindModuleExportsAssignment(node.(BindablePropertyAssignmentExpression))
+			b.bindModuleExportsAssignment(node.AsBindablePropertyAssignmentExpression())
 		case AssignmentDeclarationKindPrototypeProperty:
-			b.bindPrototypePropertyAssignment((node.(BindableStaticPropertyAssignmentExpression)).left, node)
+			b.bindPrototypePropertyAssignment((node.AsBindableStaticPropertyAssignmentExpression()).left, node)
 		case AssignmentDeclarationKindPrototype:
-			b.bindPrototypeAssignment(node.(BindableStaticPropertyAssignmentExpression))
+			b.bindPrototypeAssignment(node.AsBindableStaticPropertyAssignmentExpression())
 		case AssignmentDeclarationKindThisProperty:
-			b.bindThisPropertyAssignment(node.(BindablePropertyAssignmentExpression))
+			b.bindThisPropertyAssignment(node.AsBindablePropertyAssignmentExpression())
 		case AssignmentDeclarationKindProperty:
-			expression := ((node.(BinaryExpression)).left.(AccessExpression)).expression
+			expression := ((node.AsBinaryExpression()).left.AsAccessExpression()).expression
 			if isInJSFile(node) && isIdentifier(expression) {
 				symbol := lookupSymbolForName(b.blockScopeContainer, expression.escapedText)
 				if isThisInitializedDeclaration(symbol. /* ? */ valueDeclaration) {
-					b.bindThisPropertyAssignment(node.(BindablePropertyAssignmentExpression))
+					b.bindThisPropertyAssignment(node.AsBindablePropertyAssignmentExpression())
 					break
 				}
 			}
-			b.bindSpecialPropertyAssignment(node.(BindablePropertyAssignmentExpression))
+			b.bindSpecialPropertyAssignment(node.AsBindablePropertyAssignmentExpression())
 		case AssignmentDeclarationKindNone:
 			// Nothing to do
 		default:
 			Debug.fail("Unknown binary expression special property assignment kind")
 		}
-		return b.checkStrictModeBinaryExpression(node.(BinaryExpression))
+		return b.checkStrictModeBinaryExpression(node.AsBinaryExpression())
 	case SyntaxKindCatchClause:
-		return b.checkStrictModeCatchClause(node.(CatchClause))
+		return b.checkStrictModeCatchClause(node.AsCatchClause())
 	case SyntaxKindDeleteExpression:
-		return b.checkStrictModeDeleteExpression(node.(DeleteExpression))
+		return b.checkStrictModeDeleteExpression(node.AsDeleteExpression())
 	case SyntaxKindPostfixUnaryExpression:
-		return b.checkStrictModePostfixUnaryExpression(node.(PostfixUnaryExpression))
+		return b.checkStrictModePostfixUnaryExpression(node.AsPostfixUnaryExpression())
 	case SyntaxKindPrefixUnaryExpression:
-		return b.checkStrictModePrefixUnaryExpression(node.(PrefixUnaryExpression))
+		return b.checkStrictModePrefixUnaryExpression(node.AsPrefixUnaryExpression())
 	case SyntaxKindWithStatement:
-		return b.checkStrictModeWithStatement(node.(WithStatement))
+		return b.checkStrictModeWithStatement(node.AsWithStatement())
 	case SyntaxKindLabeledStatement:
-		return b.checkStrictModeLabeledStatement(node.(LabeledStatement))
+		return b.checkStrictModeLabeledStatement(node.AsLabeledStatement())
 	case SyntaxKindThisType:
 		b.seenThisKeyword = true
 		return
 	case SyntaxKindTypePredicate:
 	case SyntaxKindTypeParameter:
-		return b.bindTypeParameter(node.(TypeParameterDeclaration))
+		return b.bindTypeParameter(node.AsTypeParameterDeclaration())
 	case SyntaxKindParameter:
-		return b.bindParameter(node.(ParameterDeclaration))
+		return b.bindParameter(node.AsParameterDeclaration())
 	case SyntaxKindVariableDeclaration:
-		return b.bindVariableDeclarationOrBindingElement(node.(VariableDeclaration))
+		return b.bindVariableDeclarationOrBindingElement(node.AsVariableDeclaration())
 	case SyntaxKindBindingElement:
-		(node.(BindingElement)).flowNode = b.currentFlow
-		return b.bindVariableDeclarationOrBindingElement(node.(BindingElement))
+		(node.AsBindingElement()).flowNode = b.currentFlow
+		return b.bindVariableDeclarationOrBindingElement(node.AsBindingElement())
 	case SyntaxKindPropertyDeclaration,
 		SyntaxKindPropertySignature:
 		return b.bindPropertyWorker(node /* as PropertyDeclaration | PropertySignature */)
 	case SyntaxKindPropertyAssignment,
 		SyntaxKindShorthandPropertyAssignment:
-		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsProperty, SymbolFlagsPropertyExcludes)
+		return b.bindPropertyOrMethodOrAccessor(node.AsDeclaration(), SymbolFlagsProperty, SymbolFlagsPropertyExcludes)
 	case SyntaxKindEnumMember:
-		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsEnumMember, SymbolFlagsEnumMemberExcludes)
+		return b.bindPropertyOrMethodOrAccessor(node.AsDeclaration(), SymbolFlagsEnumMember, SymbolFlagsEnumMemberExcludes)
 	case SyntaxKindCallSignature,
 		SyntaxKindConstructSignature,
 		SyntaxKindIndexSignature:
-		return b.declareSymbolAndAddToSymbolTable(node.(Declaration), SymbolFlagsSignature, SymbolFlagsNone)
+		return b.declareSymbolAndAddToSymbolTable(node.AsDeclaration(), SymbolFlagsSignature, SymbolFlagsNone)
 	case SyntaxKindMethodDeclaration,
 		SyntaxKindMethodSignature:
 		// If this is an ObjectLiteralExpression method, then it sits in the same space
 		// as other properties in the object literal.  So we use SymbolFlags.PropertyExcludes
 		// so that it will conflict with any other object literal members with the same
 		// name.
-		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsMethod|(ifElse((node.(MethodDeclaration)).questionToken, SymbolFlagsOptional, SymbolFlagsNone)), ifElse(isObjectLiteralMethod(node), SymbolFlagsPropertyExcludes, SymbolFlagsMethodExcludes))
+		return b.bindPropertyOrMethodOrAccessor(node.AsDeclaration(), SymbolFlagsMethod|(ifElse((node.AsMethodDeclaration()).questionToken, SymbolFlagsOptional, SymbolFlagsNone)), ifElse(isObjectLiteralMethod(node), SymbolFlagsPropertyExcludes, SymbolFlagsMethodExcludes))
 	case SyntaxKindFunctionDeclaration:
-		return b.bindFunctionDeclaration(node.(FunctionDeclaration))
+		return b.bindFunctionDeclaration(node.AsFunctionDeclaration())
 	case SyntaxKindConstructor:
-		return b.declareSymbolAndAddToSymbolTable(node.(Declaration), SymbolFlagsConstructor /*symbolExcludes:*/, SymbolFlagsNone)
+		return b.declareSymbolAndAddToSymbolTable(node.AsDeclaration(), SymbolFlagsConstructor /*symbolExcludes:*/, SymbolFlagsNone)
 	case SyntaxKindGetAccessor:
-		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsGetAccessor, SymbolFlagsGetAccessorExcludes)
+		return b.bindPropertyOrMethodOrAccessor(node.AsDeclaration(), SymbolFlagsGetAccessor, SymbolFlagsGetAccessorExcludes)
 	case SyntaxKindSetAccessor:
-		return b.bindPropertyOrMethodOrAccessor(node.(Declaration), SymbolFlagsSetAccessor, SymbolFlagsSetAccessorExcludes)
+		return b.bindPropertyOrMethodOrAccessor(node.AsDeclaration(), SymbolFlagsSetAccessor, SymbolFlagsSetAccessorExcludes)
 	case SyntaxKindFunctionType,
 		SyntaxKindJSDocFunctionType,
 		SyntaxKindJSDocSignature,
@@ -2697,27 +2697,27 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 		SyntaxKindMappedType:
 		return b.bindAnonymousTypeWorker(node /* as TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral */)
 	case SyntaxKindJSDocClassTag:
-		return b.bindJSDocClassTag(node.(JSDocClassTag))
+		return b.bindJSDocClassTag(node.AsJSDocClassTag())
 	case SyntaxKindObjectLiteralExpression:
-		return b.bindObjectLiteralExpression(node.(ObjectLiteralExpression))
+		return b.bindObjectLiteralExpression(node.AsObjectLiteralExpression())
 	case SyntaxKindFunctionExpression,
 		SyntaxKindArrowFunction:
 		return b.bindFunctionExpression(node /* as FunctionExpression | ArrowFunction */)
 	case SyntaxKindCallExpression:
-		assignmentKind := getAssignmentDeclarationKind(node.(CallExpression))
+		assignmentKind := getAssignmentDeclarationKind(node.AsCallExpression())
 		switch assignmentKind {
 		case AssignmentDeclarationKindObjectDefinePropertyValue:
-			return b.bindObjectDefinePropertyAssignment(node.(BindableObjectDefinePropertyCall))
+			return b.bindObjectDefinePropertyAssignment(node.AsBindableObjectDefinePropertyCall())
 		case AssignmentDeclarationKindObjectDefinePropertyExports:
-			return b.bindObjectDefinePropertyExport(node.(BindableObjectDefinePropertyCall))
+			return b.bindObjectDefinePropertyExport(node.AsBindableObjectDefinePropertyCall())
 		case AssignmentDeclarationKindObjectDefinePrototypeProperty:
-			return b.bindObjectDefinePrototypeProperty(node.(BindableObjectDefinePropertyCall))
+			return b.bindObjectDefinePrototypeProperty(node.AsBindableObjectDefinePropertyCall())
 		case AssignmentDeclarationKindNone:
 		default:
 			return Debug.fail("Unknown call expression assignment declaration kind")
 		}
 		if isInJSFile(node) {
-			b.bindCallExpression(node.(CallExpression))
+			b.bindCallExpression(node.AsCallExpression())
 		}
 
 		// Members of classes, interfaces, and modules
@@ -2725,37 +2725,37 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 		SyntaxKindClassDeclaration:
 		// All classes are automatically in strict mode in ES6.
 		b.inStrictMode = true
-		return b.bindClassLikeDeclaration(node.(ClassLikeDeclaration))
+		return b.bindClassLikeDeclaration(node.AsClassLikeDeclaration())
 	case SyntaxKindInterfaceDeclaration:
-		return b.bindBlockScopedDeclaration(node.(Declaration), SymbolFlagsInterface, SymbolFlagsInterfaceExcludes)
+		return b.bindBlockScopedDeclaration(node.AsDeclaration(), SymbolFlagsInterface, SymbolFlagsInterfaceExcludes)
 	case SyntaxKindTypeAliasDeclaration:
-		return b.bindBlockScopedDeclaration(node.(Declaration), SymbolFlagsTypeAlias, SymbolFlagsTypeAliasExcludes)
+		return b.bindBlockScopedDeclaration(node.AsDeclaration(), SymbolFlagsTypeAlias, SymbolFlagsTypeAliasExcludes)
 	case SyntaxKindEnumDeclaration:
-		return b.bindEnumDeclaration(node.(EnumDeclaration))
+		return b.bindEnumDeclaration(node.AsEnumDeclaration())
 	case SyntaxKindModuleDeclaration:
-		return b.bindModuleDeclaration(node.(ModuleDeclaration))
+		return b.bindModuleDeclaration(node.AsModuleDeclaration())
 		// Jsx-attributes
 	case SyntaxKindJsxAttributes:
-		return b.bindJsxAttributes(node.(JsxAttributes))
+		return b.bindJsxAttributes(node.AsJsxAttributes())
 	case SyntaxKindJsxAttribute:
-		return b.bindJsxAttribute(node.(JsxAttribute), SymbolFlagsProperty, SymbolFlagsPropertyExcludes)
+		return b.bindJsxAttribute(node.AsJsxAttribute(), SymbolFlagsProperty, SymbolFlagsPropertyExcludes)
 
 		// Imports and exports
 	case SyntaxKindImportEqualsDeclaration,
 		SyntaxKindNamespaceImport,
 		SyntaxKindImportSpecifier,
 		SyntaxKindExportSpecifier:
-		return b.declareSymbolAndAddToSymbolTable(node.(Declaration), SymbolFlagsAlias, SymbolFlagsAliasExcludes)
+		return b.declareSymbolAndAddToSymbolTable(node.AsDeclaration(), SymbolFlagsAlias, SymbolFlagsAliasExcludes)
 	case SyntaxKindNamespaceExportDeclaration:
-		return b.bindNamespaceExportDeclaration(node.(NamespaceExportDeclaration))
+		return b.bindNamespaceExportDeclaration(node.AsNamespaceExportDeclaration())
 	case SyntaxKindImportClause:
-		return b.bindImportClause(node.(ImportClause))
+		return b.bindImportClause(node.AsImportClause())
 	case SyntaxKindExportDeclaration:
-		return b.bindExportDeclaration(node.(ExportDeclaration))
+		return b.bindExportDeclaration(node.AsExportDeclaration())
 	case SyntaxKindExportAssignment:
-		return b.bindExportAssignment(node.(ExportAssignment))
+		return b.bindExportAssignment(node.AsExportAssignment())
 	case SyntaxKindSourceFile:
-		b.updateStrictModeStatementList((node.(SourceFile)).statements)
+		b.updateStrictModeStatementList((node.AsSourceFile()).statements)
 		return b.bindSourceFileIfExternalModule()
 	case SyntaxKindBlock:
 		if !isFunctionLikeOrClassStaticBlockDeclaration(node.parent) {
@@ -2766,14 +2766,14 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 		return b.updateStrictModeStatementList((node /* as Block | ModuleBlock */).statements)
 	case SyntaxKindJSDocParameterTag:
 		if node.parent.kind == SyntaxKindJSDocSignature {
-			return b.bindParameter(node.(JSDocParameterTag))
+			return b.bindParameter(node.AsJSDocParameterTag())
 		}
 		if node.parent.kind != SyntaxKindJSDocTypeLiteral {
 			break
 		}
 		fallthrough
 	case SyntaxKindJSDocPropertyTag:
-		propTag := node.(JSDocPropertyLikeTag)
+		propTag := node.AsJSDocPropertyLikeTag()
 		var flags number
 		if propTag.isBracketed || propTag.typeExpression && propTag.typeExpression.type_.kind == SyntaxKindJSDocOptionalType {
 			flags = SymbolFlagsProperty | SymbolFlagsOptional
@@ -2786,9 +2786,9 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 		SyntaxKindJSDocEnumTag:
 		return (b.delayedTypeAliases || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: delayedTypeAliases = [] */ TODO)).push(node /* as JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag */)
 	case SyntaxKindJSDocOverloadTag:
-		return b.bind((node.(JSDocOverloadTag)).typeExpression)
+		return b.bind((node.AsJSDocOverloadTag()).typeExpression)
 	case SyntaxKindJSDocImportTag:
-		return (b.jsDocImports || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: jsDocImports = [] */ TODO)).push(node.(JSDocImportTag))
+		return (b.jsDocImports || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: jsDocImports = [] */ TODO)).push(node.AsJSDocImportTag())
 	}
 }
 
@@ -2810,7 +2810,7 @@ func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: P
 }
 
 func (b *Binder) bindAnonymousTypeWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral */ any) *Symbol {
-	return b.bindAnonymousDeclaration(node.(Declaration), SymbolFlagsTypeLiteral, InternalSymbolNameType)
+	return b.bindAnonymousDeclaration(node.AsDeclaration(), SymbolFlagsTypeLiteral, InternalSymbolNameType)
 }
 
 func (b *Binder) bindSourceFileIfExternalModule() {
@@ -3082,7 +3082,7 @@ func (b *Binder) bindPrototypeAssignment(node BindableStaticPropertyAssignmentEx
 }
 
 func (b *Binder) bindObjectDefinePrototypeProperty(node BindableObjectDefinePropertyCall) {
-	namespaceSymbol := b.lookupSymbolForPropertyAccess((node.arguments[0].(PropertyAccessExpression)).expression.(EntityNameExpression))
+	namespaceSymbol := b.lookupSymbolForPropertyAccess((node.arguments[0].AsPropertyAccessExpression()).expression.AsEntityNameExpression())
 	if namespaceSymbol && namespaceSymbol.valueDeclaration {
 		// Ensure the namespace symbol becomes class-like
 		b.addDeclarationToSymbol(namespaceSymbol, namespaceSymbol.valueDeclaration, SymbolFlagsClass)
@@ -3098,7 +3098,7 @@ func (b *Binder) bindObjectDefinePrototypeProperty(node BindableObjectDefineProp
 func (b *Binder) bindPrototypePropertyAssignment(lhs BindableStaticAccessExpression, parent *Node) {
 	// Look up the function in the local scope, since prototype assignments should
 	// follow the function declaration
-	classPrototype := lhs.expression.(BindableStaticAccessExpression)
+	classPrototype := lhs.expression.AsBindableStaticAccessExpression()
 	constructorFunction := classPrototype.expression
 
 	// Fix up parent pointers since we're going to use these nodes before we bind into them
@@ -3133,7 +3133,7 @@ func (b *Binder) bindSpecialPropertyAssignment(node BindablePropertyAssignmentEx
 		// This can be an alias for the 'exports' or 'module.exports' names, e.g.
 		//    var util = module.exports;
 		//    util.property = function ...
-		b.bindExportsPropertyAssignment(node.(BindableStaticPropertyAssignmentExpression))
+		b.bindExportsPropertyAssignment(node.AsBindableStaticPropertyAssignmentExpression())
 	} else if hasDynamicName(node) {
 		b.bindAnonymousDeclaration(node, SymbolFlagsProperty|SymbolFlagsAssignment, InternalSymbolNameComputed)
 		sym := b.bindPotentiallyMissingNamespaces(parentSymbol, node.left.expression, b.isTopLevelNamespaceAssignment(node.left) /*isPrototypeProperty*/, false /*containerIsClass*/, false)
@@ -3385,7 +3385,7 @@ func (b *Binder) bindVariableDeclarationOrBindingElement(node /* TODO(TS-TO-GO) 
 			possibleVariableDecl = node.parent.parent
 		}
 		if isInJSFile(node) && isVariableDeclarationInitializedToBareOrAccessedRequire(possibleVariableDecl) && !getJSDocTypeTag(node) && !(getCombinedModifierFlags(node) & ModifierFlagsExport) {
-			b.declareSymbolAndAddToSymbolTable(node.(Declaration), SymbolFlagsAlias, SymbolFlagsAliasExcludes)
+			b.declareSymbolAndAddToSymbolTable(node.AsDeclaration(), SymbolFlagsAlias, SymbolFlagsAliasExcludes)
 		} else if isBlockOrCatchScoped(node) {
 			b.bindBlockScopedDeclaration(node, SymbolFlagsBlockScopedVariable, SymbolFlagsBlockScopedVariableExcludes)
 		} else if isPartOfParameterDeclaration(node) {
@@ -3416,7 +3416,7 @@ func (b *Binder) bindParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: Parame
 	}
 
 	if isBindingPattern(node.name) {
-		b.bindAnonymousDeclaration(node, SymbolFlagsFunctionScopedVariable, "__"+(node.(ParameterDeclaration)).parent.parameters.indexOf(node.(ParameterDeclaration)).(string))
+		b.bindAnonymousDeclaration(node, SymbolFlagsFunctionScopedVariable, "__"+(node.AsParameterDeclaration()).parent.parameters.indexOf(node.AsParameterDeclaration()).(string))
 	} else {
 		b.declareSymbolAndAddToSymbolTable(node, SymbolFlagsFunctionScopedVariable, SymbolFlagsParameterExcludes)
 	}
@@ -3484,7 +3484,7 @@ func (b *Binder) getInferTypeContainer(node *Node) *ConditionalTypeNode {
 	extendsType := findAncestor(node, func(n *Node) bool {
 		return n.parent && isConditionalTypeNode(n.parent) && n.parent.extendsType == n
 	})
-	return extendsType && extendsType.parent.(ConditionalTypeNode)
+	return extendsType && extendsType.parent.AsConditionalTypeNode()
 }
 
 func (b *Binder) bindTypeParameter(node TypeParameterDeclaration) {
@@ -3524,7 +3524,7 @@ func (b *Binder) checkUnreachable(node *Node) bool {
 		return false
 	}
 	if b.currentFlow == b.unreachableFlow {
-		reportError := (isStatementButNotDeclaration(node) && node.kind != SyntaxKindEmptyStatement) || node.kind == SyntaxKindClassDeclaration || isEnumDeclarationWithPreservedEmit(node, b.options) || (node.kind == SyntaxKindModuleDeclaration && b.shouldReportErrorOnModuleDeclaration(node.(ModuleDeclaration)))
+		reportError := (isStatementButNotDeclaration(node) && node.kind != SyntaxKindEmptyStatement) || node.kind == SyntaxKindClassDeclaration || isEnumDeclarationWithPreservedEmit(node, b.options) || (node.kind == SyntaxKindModuleDeclaration && b.shouldReportErrorOnModuleDeclaration(node.AsModuleDeclaration()))
 
 		if reportError {
 			b.currentFlow = b.reportedUnreachableFlow
@@ -3553,7 +3553,7 @@ func (b *Binder) checkUnreachable(node *Node) bool {
 }
 
 func isEnumDeclarationWithPreservedEmit(node *Node, options CompilerOptions) bool {
-	return node.kind == SyntaxKindEnumDeclaration && (!isEnumConst(node.(EnumDeclaration)) || shouldPreserveConstEnums(options))
+	return node.kind == SyntaxKindEnumDeclaration && (!isEnumConst(node.AsEnumDeclaration()) || shouldPreserveConstEnums(options))
 }
 
 func eachUnreachableRange(node *Node, options CompilerOptions, cb func(start *Node, last *Node)) {
@@ -3581,7 +3581,7 @@ func eachUnreachableRange(node *Node, options CompilerOptions, cb func(start *No
 			SyntaxKindTypeAliasDeclaration:
 			return true
 		case SyntaxKindModuleDeclaration:
-			return getModuleInstanceState(s.(ModuleDeclaration)) != ModuleInstanceStateInstantiated
+			return getModuleInstanceState(s.AsModuleDeclaration()) != ModuleInstanceStateInstantiated
 		case SyntaxKindEnumDeclaration:
 			return !isEnumDeclarationWithPreservedEmit(s, options)
 		default:
@@ -3662,7 +3662,7 @@ func getContainerFlags(node *Node) ContainerFlags {
 	case SyntaxKindModuleBlock:
 		return ContainerFlagsIsControlFlowContainer
 	case SyntaxKindPropertyDeclaration:
-		if (node.(PropertyDeclaration)).initializer {
+		if (node.AsPropertyDeclaration()).initializer {
 			return ContainerFlagsIsControlFlowContainer
 		} else {
 			return 0

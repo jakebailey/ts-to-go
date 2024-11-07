@@ -2896,18 +2896,18 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 				switch node.kind {
 				case SyntaxKindImportClause:
-					if (node.(ImportClause)).isTypeOnly {
+					if (node.AsImportClause()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(parent, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, "import type"))
 						return "skip"
 					}
 				case SyntaxKindExportDeclaration:
-					if (node.(ExportDeclaration)).isTypeOnly {
+					if (node.AsExportDeclaration()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, "export type"))
 						return "skip"
 					}
 				case SyntaxKindImportSpecifier,
 					SyntaxKindExportSpecifier:
-					if (node.(ImportOrExportSpecifier)).isTypeOnly {
+					if (node.AsImportOrExportSpecifier()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, ifElse(isImportSpecifier(node), "import...type", "export...type")))
 						return "skip"
 					}
@@ -2915,12 +2915,12 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.import_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case SyntaxKindExportAssignment:
-					if (node.(ExportAssignment)).isExportEquals {
+					if (node.AsExportAssignment()).isExportEquals {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.export_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
 				case SyntaxKindHeritageClause:
-					heritageClause := node.(HeritageClause)
+					heritageClause := node.AsHeritageClause()
 					if heritageClause.token == SyntaxKindImplementsKeyword {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.implements_clauses_can_only_be_used_in_TypeScript_files))
 						return "skip"
@@ -2946,7 +2946,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				case SyntaxKindConstructor,
 					SyntaxKindMethodDeclaration,
 					SyntaxKindFunctionDeclaration:
-					if !(node.(FunctionLikeDeclaration)).body {
+					if !(node.AsFunctionLikeDeclaration()).body {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.Signature_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -2959,10 +2959,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.Non_null_assertions_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case SyntaxKindAsExpression:
-					diagnostics.push(createDiagnosticForNode((node.(AsExpression)).type_, Diagnostics.Type_assertion_expressions_can_only_be_used_in_TypeScript_files))
+					diagnostics.push(createDiagnosticForNode((node.AsAsExpression()).type_, Diagnostics.Type_assertion_expressions_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case SyntaxKindSatisfiesExpression:
-					diagnostics.push(createDiagnosticForNode((node.(SatisfiesExpression)).type_, Diagnostics.Type_satisfaction_expressions_can_only_be_used_in_TypeScript_files))
+					diagnostics.push(createDiagnosticForNode((node.AsSatisfiesExpression()).type_, Diagnostics.Type_satisfaction_expressions_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case SyntaxKindTypeAssertionExpression:
 					Debug.fail()
@@ -3012,20 +3012,20 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					SyntaxKindFunctionDeclaration,
 					SyntaxKindArrowFunction:
 					// Check type parameters
-					if nodes == (parent.(DeclarationWithTypeParameterChildren)).typeParameters {
+					if nodes == (parent.AsDeclarationWithTypeParameterChildren()).typeParameters {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_parameter_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
 					fallthrough
 				case SyntaxKindVariableStatement:
 					// Check modifiers
-					if nodes == (parent.(VariableStatement)).modifiers {
-						checkModifiers((parent.(VariableStatement)).modifiers, parent.kind == SyntaxKindVariableStatement)
+					if nodes == (parent.AsVariableStatement()).modifiers {
+						checkModifiers((parent.AsVariableStatement()).modifiers, parent.kind == SyntaxKindVariableStatement)
 						return "skip"
 					}
 				case SyntaxKindPropertyDeclaration:
 					// Check modifiers of property declaration
-					if nodes == (parent.(PropertyDeclaration)).modifiers {
+					if nodes == (parent.AsPropertyDeclaration()).modifiers {
 						for _, modifier := range nodes.(NodeArray[ModifierLike]) {
 							if isModifier(modifier) && modifier.kind != SyntaxKindStaticKeyword && modifier.kind != SyntaxKindAccessorKeyword {
 								diagnostics.push(createDiagnosticForNode(modifier, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, tokenToString(modifier.kind)))
@@ -3035,7 +3035,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					}
 				case SyntaxKindParameter:
 					// Check modifiers of parameter declaration
-					if nodes == (parent.(ParameterDeclaration)).modifiers && some(nodes, isModifier) {
+					if nodes == (parent.AsParameterDeclaration()).modifiers && some(nodes, isModifier) {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Parameter_modifiers_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -3046,7 +3046,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					SyntaxKindJsxOpeningElement,
 					SyntaxKindTaggedTemplateExpression:
 					// Check type arguments
-					if nodes == (parent.(NodeWithTypeArguments)).typeArguments {
+					if nodes == (parent.AsNodeWithTypeArguments()).typeArguments {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_arguments_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -3262,7 +3262,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 						// Relative external module names are not permitted
 
 						// NOTE: body of ambient module is always a module block, if it exists
-						body := (node.(ModuleDeclaration)).body.(ModuleBlock)
+						body := (node.AsModuleDeclaration()).body.AsModuleBlock()
 						if body {
 							for _, statement := range body.statements {
 								collectModuleReferences(statement /*inAmbientModule*/, true)
@@ -4601,7 +4601,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				return nil
 			}
 			TODO_IDENTIFIER := referenceInfo
-			referencesSyntax := forEachTsConfigPropArray(sourceFile.(TsConfigSourceFile), "references", func(property PropertyAssignment) *ArrayLiteralExpression {
+			referencesSyntax := forEachTsConfigPropArray(sourceFile.AsTsConfigSourceFile(), "references", func(property PropertyAssignment) *ArrayLiteralExpression {
 				if isArrayLiteralExpression(property.initializer) {
 					return property.initializer
 				} else {
@@ -4647,7 +4647,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		}
 		forEachProjectReference(projectReferences, resolvedProjectReferences, func(resolvedRef *ResolvedProjectReference, parent *ResolvedProjectReference, index number) {
 			ref := (ifElse(parent, parent.commandLine.projectReferences, projectReferences))[index]
-			parentFile := parent && parent.sourceFile.(JsonSourceFile)
+			parentFile := parent && parent.sourceFile.AsJsonSourceFile()
 			verifyDeprecatedProjectReference(ref, parentFile, index)
 			if !resolvedRef {
 				createDiagnosticForReference(parentFile, index, Diagnostics.File_0_not_found, ref.path)

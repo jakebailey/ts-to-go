@@ -4075,7 +4075,7 @@ var nonBinaryUnicodeProperties = NewMap(Object.entries(map[any]any{ /* TODO(TS-T
 	"sc":                "Script",
 	"Script_Extensions": "Script_Extensions",
 	"scx":               "Script_Extensions",
-}.(const_)))
+}))
 
 // Table 67: Binary Unicode property aliases and their canonical property names
 // https://tc39.es/ecma262/#table-binary-unicode-properties

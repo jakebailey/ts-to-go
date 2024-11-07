@@ -37,6 +37,8 @@ const project = new Project({
     tsConfigFilePath: pathFor("tsconfig.json"),
 });
 
+const checker = project.getTypeChecker();
+
 async function convert(filename: string, output: string, mainStruct?: string) {
     const createFunction = mainStruct ? `create${mainStruct}` : undefined;
     let methodReceiver: string | undefined;
@@ -420,8 +422,37 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
         }
         else if (Node.isAsExpression(node)) {
-            visitExpression(node.getExpression());
             const type = node.getTypeNodeOrThrow();
+            if (type.getText() === "const") {
+                // Skip over as const
+                visitExpression(node.getExpression());
+                return;
+            }
+
+            if (Node.isTypeReference(type) && !Node.isStringLiteral(node.getExpression())) {
+                const entity = type.getTypeName();
+                const sym = entity.getSymbolOrThrow();
+                const decl = sym.getValueDeclaration() ?? sym.getDeclarations()[0];
+                const isTypeVar = decl?.getKind() === ts.SyntaxKind.TypeParameter;
+
+                if (Node.isIdentifier(entity) && !isTypeVar) {
+                    const type = entity.getType();
+
+                    const isNode = type.getProperty("kind") && type.getProperty("parent");
+                    const isType = type.getProperty("flags") && type.getProperty("symbol") &&
+                        type.getProperty("checker");
+
+                    if (isNode || isType) {
+                        const sym = entity.getSymbolOrThrow();
+                        const nodeName = sym.getName();
+                        visitExpression(node.getExpression());
+                        writer.write(`.As${nodeName}()`);
+                        return;
+                    }
+                }
+            }
+
+            visitExpression(node.getExpression());
             if (Node.isTypeReference(type) && !Node.isStringLiteral(node.getExpression())) {
                 const entity = type.getTypeName();
                 if (Node.isIdentifier(entity)) {

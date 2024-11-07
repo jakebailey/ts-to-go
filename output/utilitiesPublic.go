@@ -321,7 +321,7 @@ func getTypeParameterOwner(d Declaration) Declaration {
 	if d && d.kind == SyntaxKindTypeParameter {
 		for current := d; current; current = current.parent {
 			if isFunctionLike(current) || isClassLike(current) || current.kind == SyntaxKindInterfaceDeclaration {
-				return current.(Declaration)
+				return current.AsDeclaration()
 			}
 		}
 	}
@@ -403,7 +403,7 @@ func getNodeFlags(node *Node) NodeFlags {
 
 /** @internal */
 
-var supportedLocaleDirectories = []any{"cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-br", "ru", "tr", "zh-cn", "zh-tw"}.(const_)
+var supportedLocaleDirectories = []any{"cs", "de", "es", "fr", "it", "ja", "ko", "pl", "pt-br", "ru", "tr", "zh-cn", "zh-tw"}
 
 /**
  * Checks to see if the locale is in the appropriate format,
@@ -635,14 +635,14 @@ func nameForNamelessJSDocTypedef(declaration /* TODO(TS-TO-GO) TypeNode UnionTyp
 		}
 	case SyntaxKindExpressionStatement:
 		expr := hostNode.expression
-		if expr.kind == SyntaxKindBinaryExpression && (expr.(BinaryExpression)).operatorToken.kind == SyntaxKindEqualsToken {
-			expr = (expr.(BinaryExpression)).left
+		if expr.kind == SyntaxKindBinaryExpression && (expr.AsBinaryExpression()).operatorToken.kind == SyntaxKindEqualsToken {
+			expr = (expr.AsBinaryExpression()).left
 		}
 		switch expr.kind {
 		case SyntaxKindPropertyAccessExpression:
-			return (expr.(PropertyAccessExpression)).name
+			return (expr.AsPropertyAccessExpression()).name
 		case SyntaxKindElementAccessExpression:
-			arg := (expr.(ElementAccessExpression)).argumentExpression
+			arg := (expr.AsElementAccessExpression()).argumentExpression
 			if isIdentifier(arg) {
 				return arg
 			}
@@ -668,7 +668,7 @@ func getDeclarationIdentifier(node /* TODO(TS-TO-GO) TypeNode UnionType: Declara
 /** @internal */
 
 func nodeHasName(statement *Node, name Identifier) bool {
-	if isNamedDeclaration(statement) && isIdentifier(statement.name) && idText(statement.name.(Identifier)) == idText(name) {
+	if isNamedDeclaration(statement) && isIdentifier(statement.name) && idText(statement.name.AsIdentifier()) == idText(name) {
 		return true
 	}
 	if isVariableStatement(statement) && some(statement.declarationList.declarations, func(d VariableDeclaration) bool {
@@ -686,7 +686,7 @@ func getNameOfJSDocTypedef(declaration JSDocTypedefTag) /* TODO(TS-TO-GO) TypeNo
 /** @internal */
 
 func isNamedDeclaration(node *Node) bool {
-	return !!(node.(NamedDeclaration)).name
+	return !!(node.AsNamedDeclaration()).name
 	// A 'name' property should always be a DeclarationName.
 }
 
@@ -695,10 +695,10 @@ func isNamedDeclaration(node *Node) bool {
 func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression */ any) *DeclarationName {
 	switch declaration.kind {
 	case SyntaxKindIdentifier:
-		return declaration.(Identifier)
+		return declaration.AsIdentifier()
 	case SyntaxKindJSDocPropertyTag,
 		SyntaxKindJSDocParameterTag:
-		TODO_IDENTIFIER := declaration.(JSDocPropertyLikeTag)
+		TODO_IDENTIFIER := declaration.AsJSDocPropertyLikeTag()
 		if name.kind == SyntaxKindQualifiedName {
 			return name.right
 		}
@@ -710,33 +710,33 @@ func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode Unio
 			AssignmentDeclarationKindThisProperty,
 			AssignmentDeclarationKindProperty,
 			AssignmentDeclarationKindPrototypeProperty:
-			return getElementOrPropertyAccessArgumentExpressionOrName((expr.(BinaryExpression)).left.(AccessExpression))
+			return getElementOrPropertyAccessArgumentExpressionOrName((expr.AsBinaryExpression()).left.AsAccessExpression())
 		case AssignmentDeclarationKindObjectDefinePropertyValue,
 			AssignmentDeclarationKindObjectDefinePropertyExports,
 			AssignmentDeclarationKindObjectDefinePrototypeProperty:
-			return (expr.(BindableObjectDefinePropertyCall)).arguments[1]
+			return (expr.AsBindableObjectDefinePropertyCall()).arguments[1]
 		default:
 			return nil
 		}
 		fallthrough
 	case SyntaxKindJSDocTypedefTag:
-		return getNameOfJSDocTypedef(declaration.(JSDocTypedefTag))
+		return getNameOfJSDocTypedef(declaration.AsJSDocTypedefTag())
 	case SyntaxKindJSDocEnumTag:
-		return nameForNamelessJSDocTypedef(declaration.(JSDocEnumTag))
+		return nameForNamelessJSDocTypedef(declaration.AsJSDocEnumTag())
 	case SyntaxKindExportAssignment:
-		TODO_IDENTIFIER := declaration.(ExportAssignment)
+		TODO_IDENTIFIER := declaration.AsExportAssignment()
 		if isIdentifier(expression) {
 			return expression
 		} else {
 			return nil
 		}
 	case SyntaxKindElementAccessExpression:
-		expr := declaration.(ElementAccessExpression)
+		expr := declaration.AsElementAccessExpression()
 		if isBindableStaticElementAccessExpression(expr) {
 			return expr.argumentExpression
 		}
 	}
-	return (declaration.(NamedDeclaration)).name
+	return (declaration.AsNamedDeclaration()).name
 }
 
 func getNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression | undefined */ any) *DeclarationName {
@@ -1252,7 +1252,7 @@ func isOutermostOptionalChain(node OptionalChain) bool {
 }
 
 func isNullishCoalesce(node *Node) bool {
-	return node.kind == SyntaxKindBinaryExpression && (node.(BinaryExpression)).operatorToken.kind == SyntaxKindQuestionQuestionToken
+	return node.kind == SyntaxKindBinaryExpression && (node.AsBinaryExpression()).operatorToken.kind == SyntaxKindQuestionQuestionToken
 }
 
 func isConstTypeReference(node *Node) bool {
@@ -1365,9 +1365,9 @@ func isImportOrExportSpecifier(node *Node) bool {
 func isTypeOnlyImportDeclaration(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindImportSpecifier:
-		return (node.(ImportSpecifier)).isTypeOnly || (node.(ImportSpecifier)).parent.parent.isTypeOnly
+		return (node.AsImportSpecifier()).isTypeOnly || (node.AsImportSpecifier()).parent.parent.isTypeOnly
 	case SyntaxKindNamespaceImport:
-		return (node.(NamespaceImport)).parent.isTypeOnly
+		return (node.AsNamespaceImport()).parent.isTypeOnly
 	case SyntaxKindImportClause,
 		SyntaxKindImportEqualsDeclaration:
 		return (node /* as ImportClause | ImportEqualsDeclaration */).isTypeOnly
@@ -1378,11 +1378,11 @@ func isTypeOnlyImportDeclaration(node *Node) bool {
 func isTypeOnlyExportDeclaration(node *Node) bool {
 	switch node.kind {
 	case SyntaxKindExportSpecifier:
-		return (node.(ExportSpecifier)).isTypeOnly || (node.(ExportSpecifier)).parent.parent.isTypeOnly
+		return (node.AsExportSpecifier()).isTypeOnly || (node.AsExportSpecifier()).parent.parent.isTypeOnly
 	case SyntaxKindExportDeclaration:
-		return (node.(ExportDeclaration)).isTypeOnly && !!(node.(ExportDeclaration)).moduleSpecifier && !(node.(ExportDeclaration)).exportClause
+		return (node.AsExportDeclaration()).isTypeOnly && !!(node.AsExportDeclaration()).moduleSpecifier && !(node.AsExportDeclaration()).exportClause
 	case SyntaxKindNamespaceExport:
-		return (node.(NamespaceExport)).parent.isTypeOnly
+		return (node.AsNamespaceExport()).parent.isTypeOnly
 	}
 	return false
 }
@@ -1857,7 +1857,7 @@ func isUnaryExpressionWithWrite(expr *Node) bool {
 	case SyntaxKindPostfixUnaryExpression:
 		return true
 	case SyntaxKindPrefixUnaryExpression:
-		return (expr.(PrefixUnaryExpression)).operator == SyntaxKindPlusPlusToken || (expr.(PrefixUnaryExpression)).operator == SyntaxKindMinusMinusToken
+		return (expr.AsPrefixUnaryExpression()).operator == SyntaxKindPlusPlusToken || (expr.AsPrefixUnaryExpression()).operator == SyntaxKindMinusMinusToken
 	default:
 		return false
 	}
@@ -1919,7 +1919,7 @@ func isIterationStatement(node *Node, lookInLabeledStatements bool) bool {
 		SyntaxKindWhileStatement:
 		return true
 	case SyntaxKindLabeledStatement:
-		return lookInLabeledStatements && isIterationStatement((node.(LabeledStatement)).statement, lookInLabeledStatements)
+		return lookInLabeledStatements && isIterationStatement((node.AsLabeledStatement()).statement, lookInLabeledStatements)
 	}
 
 	return false
@@ -2255,7 +2255,7 @@ func hasJSDocNodes(node *Node) bool {
 		return false
 	}
 
-	TODO_IDENTIFIER := node.(JSDocContainer)
+	TODO_IDENTIFIER := node.AsJSDocContainer()
 	return !!jsDoc && jsDoc.length > 0
 }
 
@@ -2266,7 +2266,7 @@ func hasJSDocNodes(node *Node) bool {
  */
 
 func hasType(node *Node) bool {
-	return !!(node.(HasType)).type_
+	return !!(node.AsHasType()).type_
 }
 
 /**
@@ -2276,7 +2276,7 @@ func hasType(node *Node) bool {
  */
 
 func hasInitializer(node *Node) bool {
-	return !!(node.(HasInitializer)).initializer
+	return !!(node.AsHasInitializer()).initializer
 }
 
 /** True if has initializer node attached to it. */
@@ -2336,7 +2336,7 @@ func guessIndentation(lines []string) *number {
 }
 
 func isStringLiteralLike(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | FileReference */ any) bool {
-	return (node.(*Node)).kind == SyntaxKindStringLiteral || (node.(*Node)).kind == SyntaxKindNoSubstitutionTemplateLiteral
+	return (node.AsNode()).kind == SyntaxKindStringLiteral || (node.AsNode()).kind == SyntaxKindNoSubstitutionTemplateLiteral
 }
 
 func isJSDocLinkLike(node *Node) bool {
@@ -2355,7 +2355,7 @@ func isRestParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclara
 	} else {
 		type_ = node.type_
 	}
-	return (node.(ParameterDeclaration)).dotDotDotToken != nil || !!type_ && type_.kind == SyntaxKindJSDocVariadicType
+	return (node.AsParameterDeclaration()).dotDotDotToken != nil || !!type_ && type_.kind == SyntaxKindJSDocVariadicType
 }
 
 func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {
@@ -2367,10 +2367,10 @@ func isInternalDeclaration(node *Node, sourceFile SourceFile) bool {
 	/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceFile ??= getSourceFileOfNode(node) */ TODO
 	parseTreeNode := getParseTreeNode(node)
 	if parseTreeNode && parseTreeNode.kind == SyntaxKindParameter {
-		paramIdx := (parseTreeNode.parent.(SignatureDeclaration)).parameters.indexOf(parseTreeNode.(ParameterDeclaration))
+		paramIdx := (parseTreeNode.parent.AsSignatureDeclaration()).parameters.indexOf(parseTreeNode.AsParameterDeclaration())
 		var previousSibling *ParameterDeclaration
 		if paramIdx > 0 {
-			previousSibling = (parseTreeNode.parent.(SignatureDeclaration)).parameters[paramIdx-1]
+			previousSibling = (parseTreeNode.parent.AsSignatureDeclaration()).parameters[paramIdx-1]
 		} else {
 			previousSibling = nil
 		}

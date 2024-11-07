@@ -572,7 +572,7 @@ func forEachChildInObjectOrArrayBindingPattern(node BindingPattern, cbNode func(
 }
 
 func forEachChildInCallOrNewExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | NewExpression */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node.(CallExpression)).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
+	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node.AsCallExpression()).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
 }
 
 func forEachChildInBlock(node /* TODO(TS-TO-GO) TypeNode UnionType: Block | ModuleBlock */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
@@ -1059,7 +1059,7 @@ func parseJsonText(fileName string, sourceText string, languageVersion ScriptTar
 				if lookAhead(func() bool {
 					return nextToken() == SyntaxKindNumericLiteral && nextToken() != SyntaxKindColonToken
 				}) {
-					expression = parsePrefixUnaryExpression().(JsonMinusNumericLiteral)
+					expression = parsePrefixUnaryExpression().AsJsonMinusNumericLiteral()
 				} else {
 					expression = parseObjectLiteralExpression()
 				}
@@ -1095,10 +1095,10 @@ func parseJsonText(fileName string, sourceText string, languageVersion ScriptTar
 		} else {
 			expression = Debug.checkDefined(expressions)
 		}
-		statement := factoryCreateExpressionStatement(expression).(JsonObjectExpressionStatement)
+		statement := factoryCreateExpressionStatement(expression).AsJsonObjectExpressionStatement()
 		finishNode(statement, pos)
 		statements = createNodeArray([]JsonObjectExpressionStatement{statement}, pos)
-		endOfFileToken = parseExpectedToken(SyntaxKindEndOfFileToken, Diagnostics.Unexpected_token).(EndOfFileToken)
+		endOfFileToken = parseExpectedToken(SyntaxKindEndOfFileToken, Diagnostics.Unexpected_token).AsEndOfFileToken()
 	}
 
 	// Set source file so that errors will be reported with this file name
@@ -1116,7 +1116,7 @@ func parseJsonText(fileName string, sourceText string, languageVersion ScriptTar
 		sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
 	}
 
-	result := sourceFile.(JsonSourceFile)
+	result := sourceFile.AsJsonSourceFile()
 	clearState()
 	return result
 }
@@ -2699,7 +2699,7 @@ func isReusableClassMember(node *Node) bool {
 			// Method declarations are not necessarily reusable.  An object-literal
 			// may have a method calls "constructor(...)" and we must reparse that
 			// into an actual .ConstructorDeclaration.
-			methodDeclaration := node.(MethodDeclaration)
+			methodDeclaration := node.AsMethodDeclaration()
 			nameIsConstructor := methodDeclaration.name.kind == SyntaxKindIdentifier && methodDeclaration.name.escapedText == "constructor"
 
 			return !nameIsConstructor
@@ -2798,7 +2798,7 @@ func isReusableVariableDeclaration(node *Node) bool {
 	//
 	// In order to prevent this, we do not allow a variable declarator to be reused if it
 	// has an initializer.
-	variableDeclarator := node.(VariableDeclaration)
+	variableDeclarator := node.AsVariableDeclaration()
 	return variableDeclarator.initializer == nil
 }
 
@@ -2808,7 +2808,7 @@ func isReusableParameter(node *Node) bool {
 	}
 
 	// See the comment in isReusableVariableDeclaration for why we do this.
-	parameter := node.(ParameterDeclaration)
+	parameter := node.AsParameterDeclaration()
 	return parameter.initializer == nil
 }
 
@@ -3019,7 +3019,7 @@ func parseEntityName(allowReservedWords bool, diagnosticMessage DiagnosticMessag
 			// `typeArguments` to report it as a grammar error in the checker.
 			break
 		}
-		entity = finishNode(factory.createQualifiedName(entity, parseRightSideOfDot(allowReservedWords /*allowPrivateIdentifiers*/, false /*allowUnicodeEscapeSequenceInIdentifierName*/, true).(Identifier)), pos)
+		entity = finishNode(factory.createQualifiedName(entity, parseRightSideOfDot(allowReservedWords /*allowPrivateIdentifiers*/, false /*allowUnicodeEscapeSequenceInIdentifierName*/, true).AsIdentifier()), pos)
 	}
 	return entity
 }
@@ -3122,7 +3122,7 @@ func parseLiteralOfTemplateSpan(isTaggedTemplate bool) /* TODO(TS-TO-GO) inferre
 		return parseTemplateMiddleOrTemplateTail()
 	} else {
 		// TODO(rbuckton): Do we need to call `parseExpectedToken` or can we just call `createMissingNode` directly?
-		return parseExpectedToken(SyntaxKindTemplateTail, Diagnostics._0_expected, tokenToString(SyntaxKindCloseBraceToken)).(TemplateTail)
+		return parseExpectedToken(SyntaxKindTemplateTail, Diagnostics._0_expected, tokenToString(SyntaxKindCloseBraceToken)).AsTemplateTail()
 	}
 }
 
@@ -3132,7 +3132,7 @@ func parseTemplateSpan(isTaggedTemplate bool) TemplateSpan {
 }
 
 func parseLiteralNode() LiteralExpression {
-	return parseLiteralLikeNode(token()).(LiteralExpression)
+	return parseLiteralLikeNode(token()).AsLiteralExpression()
 }
 
 func parseTemplateHead(isTaggedTemplate bool) TemplateHead {
@@ -3141,7 +3141,7 @@ func parseTemplateHead(isTaggedTemplate bool) TemplateHead {
 	}
 	fragment := parseLiteralLikeNode(token())
 	Debug.assert(fragment.kind == SyntaxKindTemplateHead, "Template head has wrong token kind")
-	return fragment.(TemplateHead)
+	return fragment.AsTemplateHead()
 }
 
 func parseTemplateMiddleOrTemplateTail() /* TODO(TS-TO-GO) TypeNode UnionType: TemplateMiddle | TemplateTail */ any {
@@ -3205,13 +3205,13 @@ func parseTypeReference() TypeReferenceNode {
 func typeHasArrowFunctionBlockingParseError(node TypeNode) bool {
 	switch node.kind {
 	case SyntaxKindTypeReference:
-		return nodeIsMissing((node.(TypeReferenceNode)).typeName)
+		return nodeIsMissing((node.AsTypeReferenceNode()).typeName)
 	case SyntaxKindFunctionType,
 		SyntaxKindConstructorType:
-		TODO_IDENTIFIER := node.(FunctionOrConstructorTypeNode)
+		TODO_IDENTIFIER := node.AsFunctionOrConstructorTypeNode()
 		return isMissingList(parameters) || typeHasArrowFunctionBlockingParseError(type_)
 	case SyntaxKindParenthesizedType:
-		return typeHasArrowFunctionBlockingParseError((node.(ParenthesizedTypeNode)).type_)
+		return typeHasArrowFunctionBlockingParseError((node.AsParenthesizedTypeNode()).type_)
 	default:
 		return false
 	}
@@ -3908,7 +3908,7 @@ func parseLiteralTypeNode(negative bool) LiteralTypeNode {
 	if token() == SyntaxKindTrueKeyword || token() == SyntaxKindFalseKeyword || token() == SyntaxKindNullKeyword {
 		expression = parseTokenNode()
 	} else {
-		expression = parseLiteralLikeNode(token()).(LiteralExpression)
+		expression = parseLiteralLikeNode(token()).AsLiteralExpression()
 	}
 	if negative {
 		expression = finishNode(factory.createPrefixUnaryExpression(SyntaxKindMinusToken, expression), pos)
@@ -4509,7 +4509,7 @@ func parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction bool) Expr
 	// parameter ('x => ...') above. We handle it here by checking if the parsed expression was a single
 	// identifier and the current token is an arrow.
 	if expr.kind == SyntaxKindIdentifier && token() == SyntaxKindEqualsGreaterThanToken {
-		return parseSimpleArrowFunctionExpression(pos, expr.(Identifier), allowReturnTypeInArrowFunction, hasJSDoc /*asyncModifier*/, nil)
+		return parseSimpleArrowFunctionExpression(pos, expr.AsIdentifier(), allowReturnTypeInArrowFunction, hasJSDoc /*asyncModifier*/, nil)
 	}
 
 	// Now see if we might be in cases '2' or '3'.
@@ -4779,7 +4779,7 @@ func tryParseAsyncSimpleArrowFunctionExpression(allowReturnTypeInArrowFunction b
 			hasJSDoc := hasPrecedingJSDocComment()
 			asyncModifier := parseModifiersForArrowFunction()
 			expr := parseBinaryExpressionOrHigher(OperatorPrecedenceLowest)
-			return parseSimpleArrowFunctionExpression(pos, expr.(Identifier), allowReturnTypeInArrowFunction, hasJSDoc, asyncModifier)
+			return parseSimpleArrowFunctionExpression(pos, expr.AsIdentifier(), allowReturnTypeInArrowFunction, hasJSDoc, asyncModifier)
 		}
 	}
 	return nil
@@ -4865,7 +4865,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 
 	unwrappedType := type_
 	for unwrappedType. /* ? */ kind == SyntaxKindParenthesizedType {
-		unwrappedType = (unwrappedType.(ParenthesizedTypeNode)).type_
+		unwrappedType = (unwrappedType.AsParenthesizedTypeNode()).type_
 		// Skip parens if need be
 	}
 
@@ -5128,7 +5128,7 @@ func parseUnaryExpressionOrHigher() /* TODO(TS-TO-GO) TypeNode UnionType: UnaryE
 		pos := getNodePos()
 		updateExpression := parseUpdateExpression()
 		if token() == SyntaxKindAsteriskAsteriskToken {
-			return parseBinaryExpressionRest(getBinaryOperatorPrecedence(token()), updateExpression, pos).(BinaryExpression)
+			return parseBinaryExpressionRest(getBinaryOperatorPrecedence(token()), updateExpression, pos).AsBinaryExpression()
 		} else {
 			return updateExpression
 		}
@@ -5485,7 +5485,7 @@ func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, top
 			operatorToken := createMissingNode(SyntaxKindCommaToken /*reportAtCurrentPosition*/, false)
 			setTextRangePosWidth(operatorToken, invalidElement.pos, 0)
 			parseErrorAt(skipTrivia(sourceText, topBadPos), invalidElement.end, Diagnostics.JSX_expressions_must_have_one_parent_element)
-			return finishNode(factory.createBinaryExpression(result, operatorToken.(Token[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.CommaToken */ any]), invalidElement), pos).(*Node).(JsxElement)
+			return finishNode(factory.createBinaryExpression(result, operatorToken.AsToken(), invalidElement), pos).AsNode().AsJsxElement()
 		}
 	}
 
@@ -5615,7 +5615,7 @@ func parseJsxElementName() JsxTagNameExpression {
 	for parseOptional(SyntaxKindDotToken) {
 		expression = finishNode(factoryCreatePropertyAccessExpression(expression, parseRightSideOfDot(true /*allowPrivateIdentifiers*/, false /*allowUnicodeEscapeSequenceInIdentifierName*/, false)), pos)
 	}
-	return expression.(JsxTagNameExpression)
+	return expression.AsJsxTagNameExpression()
 }
 
 func parseJsxTagName() /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | JsxNamespacedName | ThisExpression */ any {
@@ -5675,7 +5675,7 @@ func parseJsxAttribute() /* TODO(TS-TO-GO) TypeNode UnionType: JsxAttribute | Js
 func parseJsxAttributeValue() *JsxAttributeValue {
 	if token() == SyntaxKindEqualsToken {
 		if scanJsxAttributeValue() == SyntaxKindStringLiteral {
-			return parseLiteralNode().(StringLiteral)
+			return parseLiteralNode().AsStringLiteral()
 		}
 		if token() == SyntaxKindOpenBraceToken {
 			return parseJsxExpression(true)
@@ -5847,7 +5847,7 @@ func parseMemberExpressionRest(pos number, expression LeftHandSideExpression, al
 		if isTemplateStartOfTaggedTemplate() {
 			// Absorb type arguments into TemplateExpression when preceding expression is ExpressionWithTypeArguments
 			if !questionDotToken && expression.kind == SyntaxKindExpressionWithTypeArguments {
-				expression = parseTaggedTemplateRest(pos, (expression.(ExpressionWithTypeArguments)).expression, questionDotToken, (expression.(ExpressionWithTypeArguments)).typeArguments)
+				expression = parseTaggedTemplateRest(pos, (expression.AsExpressionWithTypeArguments()).expression, questionDotToken, (expression.AsExpressionWithTypeArguments()).typeArguments)
 			} else {
 				expression = parseTaggedTemplateRest(pos, expression, questionDotToken /*typeArguments*/, nil)
 			}
@@ -5867,7 +5867,7 @@ func parseMemberExpressionRest(pos number, expression LeftHandSideExpression, al
 			}
 		}
 
-		return expression.(MemberExpression)
+		return expression.AsMemberExpression()
 	}
 }
 
@@ -5899,8 +5899,8 @@ func parseCallExpressionRest(pos number, expression LeftHandSideExpression) Left
 		if typeArguments || token() == SyntaxKindOpenParenToken {
 			// Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments
 			if !questionDotToken && expression.kind == SyntaxKindExpressionWithTypeArguments {
-				typeArguments = (expression.(ExpressionWithTypeArguments)).typeArguments
-				expression = (expression.(ExpressionWithTypeArguments)).expression
+				typeArguments = (expression.AsExpressionWithTypeArguments()).typeArguments
+				expression = (expression.AsExpressionWithTypeArguments()).expression
 			}
 			argumentList := parseArgumentList()
 			var callExpr CallExpression
@@ -6119,7 +6119,7 @@ func parseObjectLiteralElement() ObjectLiteralElementLike {
 		} else {
 			objectAssignmentInitializer = nil
 		}
-		node = factory.createShorthandPropertyAssignment(name.(Identifier), objectAssignmentInitializer)
+		node = factory.createShorthandPropertyAssignment(name.AsIdentifier(), objectAssignmentInitializer)
 		// Save equals token for error reporting.
 		// TODO(rbuckton): Consider manufacturing this when we need to report an error as it is otherwise not useful.
 		node.equalsToken = equalsToken
@@ -6216,8 +6216,8 @@ func parseNewExpressionOrNewDotTarget() /* TODO(TS-TO-GO) TypeNode UnionType: Ne
 	var typeArguments *NodeArray[TypeNode]
 	// Absorb type arguments into NewExpression when preceding expression is ExpressionWithTypeArguments
 	if expression.kind == SyntaxKindExpressionWithTypeArguments {
-		typeArguments = (expression.(ExpressionWithTypeArguments)).typeArguments
-		expression = (expression.(ExpressionWithTypeArguments)).expression
+		typeArguments = (expression.AsExpressionWithTypeArguments()).typeArguments
+		expression = (expression.AsExpressionWithTypeArguments()).expression
 	}
 	if token() == SyntaxKindQuestionDotToken {
 		parseErrorAtCurrentToken(Diagnostics.Invalid_optional_chain_from_new_expression_Did_you_mean_to_call_0, getTextOfNodeFromSourceText(sourceText, expression))
@@ -6905,7 +6905,7 @@ func tryReuseAmbientDeclaration(pos number) Statement {
 		// The enum should really be a bunch of flags.
 		node := currentNode(parsingContext, pos)
 		if node {
-			return consumeNode(node).(Statement)
+			return consumeNode(node).AsStatement()
 		}
 	})
 }
@@ -7008,7 +7008,7 @@ func parseObjectBindingElement() BindingElement {
 	var propertyName *PropertyName = parsePropertyName()
 	var name BindingName
 	if tokenIsIdentifier && token() != SyntaxKindColonToken {
-		name = propertyName.(Identifier)
+		name = propertyName.AsIdentifier()
 		propertyName = nil
 	} else {
 		parseExpected(SyntaxKindColonToken)
@@ -7541,7 +7541,7 @@ func parseDecoratedExpression() PrimaryExpression {
 	hasJSDoc := hasPrecedingJSDocComment()
 	modifiers := parseModifiers(true)
 	if token() == SyntaxKindClassKeyword {
-		return parseClassDeclarationOrExpression(pos, hasJSDoc, modifiers, SyntaxKindClassExpression).(ClassExpression)
+		return parseClassDeclarationOrExpression(pos, hasJSDoc, modifiers, SyntaxKindClassExpression).AsClassExpression()
 	}
 
 	missing := createMissingNode(SyntaxKindMissingDeclaration /*reportAtCurrentPosition*/, true, Diagnostics.Expression_expected)
@@ -7551,11 +7551,11 @@ func parseDecoratedExpression() PrimaryExpression {
 }
 
 func parseClassExpression() ClassExpression {
-	return parseClassDeclarationOrExpression(getNodePos(), hasPrecedingJSDocComment() /*modifiers*/, nil, SyntaxKindClassExpression).(ClassExpression)
+	return parseClassDeclarationOrExpression(getNodePos(), hasPrecedingJSDocComment() /*modifiers*/, nil, SyntaxKindClassExpression).AsClassExpression()
 }
 
 func parseClassDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[ModifierLike]) ClassDeclaration {
-	return parseClassDeclarationOrExpression(pos, hasJSDoc, modifiers, SyntaxKindClassDeclaration).(ClassDeclaration)
+	return parseClassDeclarationOrExpression(pos, hasJSDoc, modifiers, SyntaxKindClassDeclaration).AsClassDeclaration()
 }
 
 func parseClassDeclarationOrExpression(pos number, hasJSDoc bool, modifiers *NodeArray[ModifierLike], kind /* TODO(TS-TO-GO) TypeNode IndexedAccessType: ClassLikeDeclaration["kind"] */ any) ClassLikeDeclaration {
@@ -7631,7 +7631,7 @@ func parseExpressionWithTypeArguments() ExpressionWithTypeArguments {
 	pos := getNodePos()
 	expression := parseLeftHandSideExpressionOrHigher()
 	if expression.kind == SyntaxKindExpressionWithTypeArguments {
-		return expression.(ExpressionWithTypeArguments)
+		return expression.AsExpressionWithTypeArguments()
 	}
 	typeArguments := tryParseTypeArguments()
 	return finishNode(factory.createExpressionWithTypeArguments(expression, typeArguments), pos)
@@ -7729,7 +7729,7 @@ func parseModuleOrNamespaceDeclaration(pos number, hasJSDoc bool, modifiers *Nod
 	}
 	var body /* TODO(TS-TO-GO) inferred type ModuleBlock | NamespaceDeclaration */ any
 	if parseOptional(SyntaxKindDotToken) {
-		body = parseModuleOrNamespaceDeclaration(getNodePos() /*hasJSDoc*/, false /*modifiers*/, nil, NodeFlagsNestedNamespace|namespaceFlag).(NamespaceDeclaration)
+		body = parseModuleOrNamespaceDeclaration(getNodePos() /*hasJSDoc*/, false /*modifiers*/, nil, NodeFlagsNestedNamespace|namespaceFlag).AsNamespaceDeclaration()
 	} else {
 		body = parseModuleBlock()
 	}
@@ -7745,7 +7745,7 @@ func parseAmbientExternalModuleDeclaration(pos number, hasJSDoc bool, modifiersI
 		name = parseIdentifier()
 		flags |= NodeFlagsGlobalAugmentation
 	} else {
-		name = parseLiteralNode().(StringLiteral)
+		name = parseLiteralNode().AsStringLiteral()
 		name.text = internIdentifier(name.text)
 	}
 	var body *ModuleBlock
@@ -7860,7 +7860,7 @@ func parseImportAttribute() ImportAttribute {
 	if tokenIsIdentifierOrKeyword(token()) {
 		name = parseIdentifierName()
 	} else {
-		name = parseLiteralLikeNode(SyntaxKindStringLiteral).(StringLiteral)
+		name = parseLiteralLikeNode(SyntaxKindStringLiteral).AsStringLiteral()
 	}
 	parseExpected(SyntaxKindColonToken)
 	value := parseAssignmentExpressionOrHigher(true)
@@ -7982,7 +7982,7 @@ func canParseModuleExportName() bool {
 
 func parseModuleExportName(parseName func() Identifier) ModuleExportName {
 	if token() == SyntaxKindStringLiteral {
-		return parseLiteralNode().(StringLiteral)
+		return parseLiteralNode().AsStringLiteral()
 	} else {
 		return parseName()
 	}
@@ -8012,11 +8012,11 @@ func parseNamedImportsOrExports(kind SyntaxKind) NamedImportsOrExports {
 
 func parseExportSpecifier() ExportSpecifier {
 	hasJSDoc := hasPrecedingJSDocComment()
-	return withJSDoc(parseImportOrExportSpecifier(SyntaxKindExportSpecifier).(ExportSpecifier), hasJSDoc)
+	return withJSDoc(parseImportOrExportSpecifier(SyntaxKindExportSpecifier).AsExportSpecifier(), hasJSDoc)
 }
 
 func parseImportSpecifier() ImportSpecifier {
-	return parseImportOrExportSpecifier(SyntaxKindImportSpecifier).(ImportSpecifier)
+	return parseImportOrExportSpecifier(SyntaxKindImportSpecifier).AsImportSpecifier()
 }
 
 func parseImportOrExportSpecifier(kind SyntaxKind) ImportOrExportSpecifier {
@@ -8096,7 +8096,7 @@ func parseImportOrExportSpecifier(kind SyntaxKind) ImportOrExportSpecifier {
 	}
 	var node /* TODO(TS-TO-GO) inferred type ExportSpecifier | ImportSpecifier */ any
 	if kind == SyntaxKindImportSpecifier {
-		node = factory.createImportSpecifier(isTypeOnly, propertyName, name.(Identifier))
+		node = factory.createImportSpecifier(isTypeOnly, propertyName, name.AsIdentifier())
 	} else {
 		node = factory.createExportSpecifier(isTypeOnly, propertyName, name)
 	}
@@ -8276,7 +8276,7 @@ func parseIsolatedJSDocComment(content string, start *number, length *number) * 
 	sourceFile := map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"languageVariant": LanguageVariantStandard,
 		"text":            content,
-	}.(SourceFile)
+	}.AsSourceFile()
 	diagnostics := attachFileToDiagnostics(parseDiagnostics, sourceFile)
 	clearState()
 
@@ -8843,7 +8843,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		case SyntaxKindObjectKeyword:
 			return true
 		case SyntaxKindArrayType:
-			return isObjectOrObjectArrayTypeReference((node.(ArrayTypeNode)).elementType)
+			return isObjectOrObjectArrayTypeReference((node.AsArrayTypeNode()).elementType)
 		default:
 			return isTypeReferenceNode(node) && isIdentifierNode(node.typeName) && node.typeName.escapedText == "Object" && !node.typeArguments
 		}
@@ -9045,7 +9045,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		var node /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PropertyAccessEntityNameExpression */ any = parseJSDocIdentifierName()
 		for parseOptional(SyntaxKindDotToken) {
 			name := parseJSDocIdentifierName()
-			node = finishNode(factoryCreatePropertyAccessExpression(node, name), pos).(PropertyAccessEntityNameExpression)
+			node = finishNode(factoryCreatePropertyAccessExpression(node, name), pos).AsPropertyAccessEntityNameExpression()
 		}
 		return node
 	}
@@ -9134,7 +9134,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		typeNameOrNamespaceName := parseJSDocIdentifierName()
 		if parseOptional(SyntaxKindDotToken) {
 			body := parseJSDocTypeNameWithNamespace(true)
-			jsDocNamespaceNode := factory.createModuleDeclaration(nil, typeNameOrNamespaceName, body, ifElse(nested, NodeFlagsNestedNamespace, nil)).(JSDocNamespaceDeclaration)
+			jsDocNamespaceNode := factory.createModuleDeclaration(nil, typeNameOrNamespaceName, body, ifElse(nested, NodeFlagsNestedNamespace, nil)).AsJSDocNamespaceDeclaration()
 			return finishNode(jsDocNamespaceNode, start)
 		}
 
@@ -9164,7 +9164,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 			if parseOptionalJsdoc(SyntaxKindAtToken) {
 				tag := parseTag(indent)
 				if tag && tag.kind == SyntaxKindJSDocReturnTag {
-					return tag.(JSDocReturnTag)
+					return tag.AsJSDocReturnTag()
 				}
 			}
 		})
@@ -9540,7 +9540,7 @@ func moveElementEntirelyPastChangeRange(element /* TODO(TS-TO-GO) TypeNode Union
 	if isArray {
 		visitArray(element.(NodeArray[*Node]))
 	} else {
-		visitNode(element.(*Node))
+		visitNode(element.AsNode())
 	}
 	return
 
@@ -9657,7 +9657,7 @@ func adjustIntersectingElement(element /* TODO(TS-TO-GO) TypeNode UnionType: Nod
 
 	Debug.assert(pos <= end)
 	if (element /* as any */).parent {
-		parent := (element /* as any */).parent.(*Node)
+		parent := (element /* as any */).parent.AsNode()
 		Debug.assertGreaterThanOrEqual(pos, parent.pos)
 		Debug.assertLessThanOrEqual(end, parent.end)
 	}
@@ -10305,7 +10305,7 @@ func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) b
 	}
 
 	if lhs.kind == SyntaxKindIdentifier {
-		return lhs.escapedText == (rhs.(Identifier)).escapedText
+		return lhs.escapedText == (rhs.AsIdentifier()).escapedText
 	}
 
 	if lhs.kind == SyntaxKindThisKeyword {
@@ -10313,11 +10313,11 @@ func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) b
 	}
 
 	if lhs.kind == SyntaxKindJsxNamespacedName {
-		return lhs.namespace.escapedText == (rhs.(JsxNamespacedName)).namespace.escapedText && lhs.name.escapedText == (rhs.(JsxNamespacedName)).name.escapedText
+		return lhs.namespace.escapedText == (rhs.AsJsxNamespacedName()).namespace.escapedText && lhs.name.escapedText == (rhs.AsJsxNamespacedName()).name.escapedText
 	}
 
 	// If we are at this statement then we must have PropertyAccessExpression and because tag name in Jsx element can only
 	// take forms of JsxTagNameExpression which includes an identifier, "this" expression, or another propertyAccessExpression
 	// it is safe to case the expression property as such. See parseJsxElementName for how we parse tag name in Jsx element
-	return (lhs.(PropertyAccessExpression)).name.escapedText == (rhs.(PropertyAccessExpression)).name.escapedText && tagNamesAreEquivalent((lhs.(PropertyAccessExpression)).expression.(JsxTagNameExpression), (rhs.(PropertyAccessExpression)).expression.(JsxTagNameExpression))
+	return (lhs.AsPropertyAccessExpression()).name.escapedText == (rhs.AsPropertyAccessExpression()).name.escapedText && tagNamesAreEquivalent((lhs.AsPropertyAccessExpression()).expression.AsJsxTagNameExpression(), (rhs.AsPropertyAccessExpression()).expression.AsJsxTagNameExpression())
 }
