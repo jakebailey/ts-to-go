@@ -45,6 +45,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     if (mainStruct) {
         switch (mainStruct) {
             case "TypeChecker":
+                mainStruct = "Checker";
                 methodReceiver = "c";
                 break;
             case "Binder":
@@ -1771,7 +1772,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         writer.write(`type ${mainStruct} struct {`);
 
         writer.indent(() => {
-            sourceFile.getFunctionOrThrow(`create${mainStruct}`).getStatements().forEach(statement => {
+            sourceFile.getFunctionOrThrow(createFunction!).getStatements().forEach(statement => {
                 if (!seenReturn && Node.isVariableStatement(statement)) {
                     for (const declaration of statement.getDeclarations()) {
                         structFields.add(getNameOfNamed(declaration));
