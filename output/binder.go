@@ -222,11 +222,11 @@ const (
 /** @internal */
 
 func createFlowNode(flags FlowFlags, node any, antecedent Union[FlowNode, []FlowNode /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) FlowNode {
-	return Debug.attachFlowNodeDebugInfo(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"flags":      flags,
-		"id":         0,
-		"node":       node,
-		"antecedent": antecedent,
+	return Debug.attachFlowNodeDebugInfo(FlowNode{
+		flags:      flags,
+		id:         0,
+		node:       node,
+		antecedent: antecedent,
 	}.(FlowNode))
 }
 
@@ -294,8 +294,8 @@ func (b *Binder) bindSourceFile(f SourceFile, opts CompilerOptions) {
 	Debug.attachFlowNodeDebugInfo(b.reportedUnreachableFlow)
 
 	if b.file.locals == nil {
-		tracing. /* ? */ push(tracing.Phase.Bind, "bindSourceFile", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"path": b.file.path,
+		tracing. /* ? */ push(tracing.Phase.Bind, "bindSourceFile", &Args{
+			path: b.file.path,
 		}, /*separateBeginAndEnd*/ true)
 		b.bind(b.file)
 		tracing. /* ? */ pop()
@@ -1070,9 +1070,9 @@ func (b *Binder) createLoopLabel() FlowLabel {
 }
 
 func (b *Binder) createReduceLabel(target FlowLabel, antecedents []FlowNode, antecedent FlowNode) FlowReduceLabel {
-	return createFlowNode(FlowFlagsReduceLabel, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"target":      target,
-		"antecedents": antecedents,
+	return createFlowNode(FlowFlagsReduceLabel, any{
+		target:      target,
+		antecedents: antecedents,
 	}, antecedent).(FlowReduceLabel)
 }
 
@@ -1115,10 +1115,10 @@ func (b *Binder) createFlowCondition(flags Union[ /* TODO(TS-TO-GO) Node Qualifi
 
 func (b *Binder) createFlowSwitchClause(antecedent FlowNode, switchStatement SwitchStatement, clauseStart number, clauseEnd number) FlowSwitchClause {
 	b.setFlowNodeReferenced(antecedent)
-	return createFlowNode(FlowFlagsSwitchClause, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"switchStatement": switchStatement,
-		"clauseStart":     clauseStart,
-		"clauseEnd":       clauseEnd,
+	return createFlowNode(FlowFlagsSwitchClause, any{
+		switchStatement: switchStatement,
+		clauseStart:     clauseStart,
+		clauseEnd:       clauseEnd,
 	}, antecedent).(FlowSwitchClause)
 }
 
@@ -1503,12 +1503,12 @@ func (b *Binder) maybeBindExpressionFlowIfCall(node Expression) {
 
 func (b *Binder) bindLabeledStatement(node LabeledStatement) {
 	postStatementLabel := b.createBranchLabel()
-	b.activeLabelList = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"next":           b.activeLabelList,
-		"name":           node.label.escapedText,
-		"breakTarget":    postStatementLabel,
-		"continueTarget": nil,
-		"referenced":     false,
+	b.activeLabelList = &ActiveLabel{
+		next:           b.activeLabelList,
+		name:           node.label.escapedText,
+		breakTarget:    postStatementLabel,
+		continueTarget: nil,
+		referenced:     false,
 	}
 	b.bind(node.label)
 	b.bind(node.statement)
@@ -1637,11 +1637,11 @@ func (b *Binder) createBindBinaryExpressionFlow() /* TODO(TS-TO-GO) inferred typ
 			state.inStrictModeStack[state.stackIndex] = saveInStrictMode
 			state.parentStack[state.stackIndex] = saveParent
 		} else {
-			state = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"stackIndex":        0,
-				"skip":              false,
-				"inStrictModeStack": []undefined{nil},
-				"parentStack":       []undefined{nil},
+			state = &WorkArea{
+				stackIndex:        0,
+				skip:              false,
+				inStrictModeStack: []undefined{nil},
+				parentStack:       []undefined{nil},
 			}
 		}
 		// TODO: bindLogicalExpression is recursive - if we want to handle deeply nested `&&` expressions
@@ -2081,9 +2081,9 @@ func (b *Binder) bindModuleDeclaration(node ModuleDeclaration) {
 			}
 
 			symbol := b.declareSymbolAndAddToSymbolTable(node, SymbolFlagsValueModule, SymbolFlagsValueModuleExcludes)
-			b.file.patternAmbientModules = append(b.file.patternAmbientModules, ifElse(pattern && !isString(pattern), map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"pattern": pattern,
-				"symbol":  symbol,
+			b.file.patternAmbientModules = append(b.file.patternAmbientModules, ifElse(pattern && !isString(pattern), &PatternAmbientModule{
+				pattern: pattern,
+				symbol:  symbol,
 			}, nil))
 		}
 	} else {
@@ -2453,9 +2453,9 @@ func (b *Binder) errorOrSuggestionOnNode(isError bool, node *Node, message Diagn
 }
 
 func (b *Binder) errorOrSuggestionOnRange(isError bool, startNode *Node, endNode *Node, message DiagnosticMessage) {
-	b.addErrorOrSuggestionDiagnostic(isError, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"pos": getTokenPosOfNode(startNode, b.file),
-		"end": endNode.end,
+	b.addErrorOrSuggestionDiagnostic(isError, TextRange{
+		pos: getTokenPosOfNode(startNode, b.file),
+		end: endNode.end,
 	}, message)
 }
 
@@ -2464,9 +2464,9 @@ func (b *Binder) addErrorOrSuggestionDiagnostic(isError bool, range_ TextRange, 
 	if isError {
 		b.file.bindDiagnostics.push(diag)
 	} else {
-		b.file.bindSuggestionDiagnostics = append(b.file.bindSuggestionDiagnostics, map[any]any{ /* TODO(TS-TO-GO): was object literal */
+		b.file.bindSuggestionDiagnostics = append(b.file.bindSuggestionDiagnostics, DiagnosticWithLocation{
 			/* TODO(TS-TO-GO) Node SpreadAssignment: ...diag */
-			"category": DiagnosticCategorySuggestion,
+			category: DiagnosticCategorySuggestion,
 		})
 	}
 }

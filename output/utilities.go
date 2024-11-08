@@ -80,54 +80,54 @@ func createSingleLineStringWriter() EmitTextWriter {
 	var writeText func(text string) = func(text string) string {
 		return /* TODO(TS-TO-GO) PlusEqualsToken BinaryExpression: str += text */ TODO
 	}
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"getText": func() string {
+	return EmitTextWriter{
+		getText: func() string {
 			return str
 		},
-		"write":              writeText,
-		"rawWrite":           writeText,
-		"writeKeyword":       writeText,
-		"writeOperator":      writeText,
-		"writePunctuation":   writeText,
-		"writeSpace":         writeText,
-		"writeStringLiteral": writeText,
-		"writeLiteral":       writeText,
-		"writeParameter":     writeText,
-		"writeProperty":      writeText,
-		"writeSymbol": func(s string, _ *Symbol) {
+		write:              writeText,
+		rawWrite:           writeText,
+		writeKeyword:       writeText,
+		writeOperator:      writeText,
+		writePunctuation:   writeText,
+		writeSpace:         writeText,
+		writeStringLiteral: writeText,
+		writeLiteral:       writeText,
+		writeParameter:     writeText,
+		writeProperty:      writeText,
+		writeSymbol: func(s string, _ *Symbol) {
 			return writeText(s)
 		},
-		"writeTrailingSemicolon": writeText,
-		"writeComment":           writeText,
-		"getTextPos": func() number {
+		writeTrailingSemicolon: writeText,
+		writeComment:           writeText,
+		getTextPos: func() number {
 			return str.length
 		},
-		"getLine": func() number {
+		getLine: func() number {
 			return 0
 		},
-		"getColumn": func() number {
+		getColumn: func() number {
 			return 0
 		},
-		"getIndent": func() number {
+		getIndent: func() number {
 			return 0
 		},
-		"isAtStartOfLine": func() false {
+		isAtStartOfLine: func() false {
 			return false
 		},
-		"hasTrailingComment": func() false {
+		hasTrailingComment: func() false {
 			return false
 		},
-		"hasTrailingWhitespace": func() bool {
+		hasTrailingWhitespace: func() bool {
 			return str.length != 0 && isWhiteSpaceLike(str.charCodeAt(str.length-1))
 		},
 		// Completely ignore indentation for string writers.  And map newlines to
 		// a single space.
-		"writeLine": func() string {
+		writeLine: func() string {
 			return /* TODO(TS-TO-GO) PlusEqualsToken BinaryExpression: str += " " */ TODO
 		},
-		"increaseIndent": noop,
-		"decreaseIndent": noop,
-		"clear": func() string {
+		increaseIndent: noop,
+		decreaseIndent: noop,
+		clear: func() string {
 			return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: str = "" */ TODO
 		},
 	}
@@ -284,10 +284,10 @@ func createModuleNotFoundChain(sourceFile SourceFile, host TypeCheckerHost, modu
 	}
 	if result {
 		result.repopulateInfo = func() /* TODO(TS-TO-GO) inferred type { moduleReference: string; mode: ResolutionMode; packageName: string | undefined; } */ any {
-			return (map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"moduleReference": moduleReference,
-				"mode":            mode,
-				"packageName":     ifElse(packageName == moduleReference, nil, packageName),
+			return (RepopulateDiagnosticChainInfo{
+				moduleReference: moduleReference,
+				mode:            mode,
+				packageName:     ifElse(packageName == moduleReference, nil, packageName),
 			})
 		}
 	}
@@ -676,9 +676,9 @@ func createCommentDirectivesMap(sourceFile SourceFile, commentDirectives []Comme
 
 	usedLines := NewMap[string, bool]()
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"getUnusedExpectations": getUnusedExpectations,
-		"markUsed":              markUsed,
+	return CommentDirectivesMap{
+		getUnusedExpectations: getUnusedExpectations,
+		markUsed:              markUsed,
 	}
 
 	getUnusedExpectations := func() []CommentDirective {
@@ -1612,29 +1612,29 @@ func assertDiagnosticLocation(sourceText string, start number, length number) {
 
 func createFileDiagnosticFromMessageChain(file SourceFile, start number, length number, messageChain DiagnosticMessageChain, relatedInformation []DiagnosticRelatedInformation) DiagnosticWithLocation {
 	assertDiagnosticLocation(file.text, start, length)
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               file,
-		"start":              start,
-		"length":             length,
-		"code":               messageChain.code,
-		"category":           messageChain.category,
-		"messageText":        ifElse(messageChain.next != nil, messageChain, messageChain.messageText),
-		"relatedInformation": relatedInformation,
-		"canonicalHead":      messageChain.canonicalHead,
+	return DiagnosticWithLocation{
+		file:               file,
+		start:              start,
+		length:             length,
+		code:               messageChain.code,
+		category:           messageChain.category,
+		messageText:        ifElse(messageChain.next != nil, messageChain, messageChain.messageText),
+		relatedInformation: relatedInformation,
+		canonicalHead:      messageChain.canonicalHead,
 	}
 }
 
 /** @internal */
 
 func createDiagnosticForFileFromMessageChain(sourceFile SourceFile, messageChain DiagnosticMessageChain, relatedInformation []DiagnosticRelatedInformation) DiagnosticWithLocation {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               sourceFile,
-		"start":              0,
-		"length":             0,
-		"code":               messageChain.code,
-		"category":           messageChain.category,
-		"messageText":        ifElse(messageChain.next != nil, messageChain, messageChain.messageText),
-		"relatedInformation": relatedInformation,
+	return DiagnosticWithLocation{
+		file:               sourceFile,
+		start:              0,
+		length:             0,
+		code:               messageChain.code,
+		category:           messageChain.category,
+		messageText:        ifElse(messageChain.next != nil, messageChain, messageChain.messageText),
+		relatedInformation: relatedInformation,
 	}
 }
 
@@ -1642,11 +1642,11 @@ func createDiagnosticForFileFromMessageChain(sourceFile SourceFile, messageChain
 
 func createDiagnosticMessageChainFromDiagnostic(diagnostic DiagnosticRelatedInformation) DiagnosticMessageChain {
 	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof diagnostic.messageText */ TODO == "string" {
-		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"code":        diagnostic.code,
-			"category":    diagnostic.category,
-			"messageText": diagnostic.messageText,
-			"next":        (diagnostic.(DiagnosticMessageChain)).next,
+		return DiagnosticMessageChain{
+			code:        diagnostic.code,
+			category:    diagnostic.category,
+			messageText: diagnostic.messageText,
+			next:        (diagnostic.(DiagnosticMessageChain)).next,
 		}
 	} else {
 		return diagnostic.messageText
@@ -1656,22 +1656,22 @@ func createDiagnosticMessageChainFromDiagnostic(diagnostic DiagnosticRelatedInfo
 /** @internal */
 
 func createDiagnosticForRange(sourceFile SourceFile, range_ TextRange, message DiagnosticMessage) DiagnosticWithLocation {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":        sourceFile,
-		"start":       range_.pos,
-		"length":      range_.end - range_.pos,
-		"code":        message.code,
-		"category":    message.category,
-		"messageText": message.message,
+	return DiagnosticWithLocation{
+		file:        sourceFile,
+		start:       range_.pos,
+		length:      range_.end - range_.pos,
+		code:        message.code,
+		category:    message.category,
+		messageText: message.message,
 	}
 }
 
 /** @internal */
 
 func getCanonicalDiagnostic(message DiagnosticMessage, args []string) CanonicalDiagnostic {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"code":        message.code,
-		"messageText": formatMessage(message, args...),
+	return CanonicalDiagnostic{
+		code:        message.code,
+		messageText: formatMessage(message, args...),
 	}
 }
 
@@ -5387,11 +5387,11 @@ func createDiagnosticCollection() DiagnosticCollection {
 	fileDiagnostics := NewMap[string, SortedArray[DiagnosticWithLocation]]()
 	hasReadNonFileDiagnostics := false
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"add":                  add,
-		"lookup":               lookup,
-		"getGlobalDiagnostics": getGlobalDiagnostics,
-		"getDiagnostics":       getDiagnostics,
+	return DiagnosticCollection{
+		add:                  add,
+		lookup:               lookup,
+		getGlobalDiagnostics: getGlobalDiagnostics,
+		getDiagnostics:       getDiagnostics,
 	}
 
 	lookup := func(diagnostic Diagnostic) *Diagnostic {
@@ -5729,58 +5729,58 @@ func createTextWriter(newLine string) EmitTextWriter {
 
 	reset()
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"write":        write,
-		"rawWrite":     rawWrite,
-		"writeLiteral": writeLiteral,
-		"writeLine":    writeLine,
-		"increaseIndent": func() {
+	return EmitTextWriter{
+		write:        write,
+		rawWrite:     rawWrite,
+		writeLiteral: writeLiteral,
+		writeLine:    writeLine,
+		increaseIndent: func() {
 			indent++
 		},
-		"decreaseIndent": func() {
+		decreaseIndent: func() {
 			indent--
 		},
-		"getIndent": func() number {
+		getIndent: func() number {
 			return indent
 		},
-		"getTextPos": func() number {
+		getTextPos: func() number {
 			return output.length
 		},
-		"getLine": func() number {
+		getLine: func() number {
 			return lineCount
 		},
-		"getColumn": func() number {
+		getColumn: func() number {
 			if lineStart {
 				return indent * getIndentSize()
 			} else {
 				return output.length - linePos
 			}
 		},
-		"getText": func() string {
+		getText: func() string {
 			return output
 		},
-		"isAtStartOfLine": func() bool {
+		isAtStartOfLine: func() bool {
 			return lineStart
 		},
-		"hasTrailingComment": func() bool {
+		hasTrailingComment: func() bool {
 			return hasTrailingComment
 		},
-		"hasTrailingWhitespace": func() bool {
+		hasTrailingWhitespace: func() bool {
 			return output.length != 0 && isWhiteSpaceLike(output.charCodeAt(output.length-1))
 		},
-		"clear":              reset,
-		"writeKeyword":       write,
-		"writeOperator":      write,
-		"writeParameter":     write,
-		"writeProperty":      write,
-		"writePunctuation":   write,
-		"writeSpace":         write,
-		"writeStringLiteral": write,
-		"writeSymbol": func(s string, _ *Symbol) {
+		clear:              reset,
+		writeKeyword:       write,
+		writeOperator:      write,
+		writeParameter:     write,
+		writeProperty:      write,
+		writePunctuation:   write,
+		writeSpace:         write,
+		writeStringLiteral: write,
+		writeSymbol: func(s string, _ *Symbol) {
 			return write(s)
 		},
-		"writeTrailingSemicolon": write,
-		"writeComment":           writeComment,
+		writeTrailingSemicolon: write,
+		writeComment:           writeComment,
 	}
 }
 
@@ -5796,60 +5796,60 @@ func getTrailingSemicolonDeferringWriter(writer EmitTextWriter) EmitTextWriter {
 		}
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
+	return EmitTextWriter{
 		/* TODO(TS-TO-GO) Node SpreadAssignment: ...writer */
-		"writeTrailingSemicolon": func() {
+		writeTrailingSemicolon: func() {
 			pendingTrailingSemicolon = true
 		},
-		"writeLiteral": func(s string) {
+		writeLiteral: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeLiteral(s)
 		},
-		"writeStringLiteral": func(s string) {
+		writeStringLiteral: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeStringLiteral(s)
 		},
-		"writeSymbol": func(s string, sym *Symbol) {
+		writeSymbol: func(s string, sym *Symbol) {
 			commitPendingTrailingSemicolon()
 			writer.writeSymbol(s, sym)
 		},
-		"writePunctuation": func(s string) {
+		writePunctuation: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writePunctuation(s)
 		},
-		"writeKeyword": func(s string) {
+		writeKeyword: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeKeyword(s)
 		},
-		"writeOperator": func(s string) {
+		writeOperator: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeOperator(s)
 		},
-		"writeParameter": func(s string) {
+		writeParameter: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeParameter(s)
 		},
-		"writeSpace": func(s string) {
+		writeSpace: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeSpace(s)
 		},
-		"writeProperty": func(s string) {
+		writeProperty: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeProperty(s)
 		},
-		"writeComment": func(s string) {
+		writeComment: func(s string) {
 			commitPendingTrailingSemicolon()
 			writer.writeComment(s)
 		},
-		"writeLine": func() {
+		writeLine: func() {
 			commitPendingTrailingSemicolon()
 			writer.writeLine()
 		},
-		"increaseIndent": func() {
+		increaseIndent: func() {
 			commitPendingTrailingSemicolon()
 			writer.increaseIndent()
 		},
-		"decreaseIndent": func() {
+		decreaseIndent: func() {
 			commitPendingTrailingSemicolon()
 			writer.decreaseIndent()
 		},
@@ -6300,11 +6300,11 @@ func getAllAccessorDeclarations(declarations *[]Declaration, accessor AccessorDe
 			}
 		})
 	}
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"firstAccessor":  firstAccessor,
-		"secondAccessor": secondAccessor,
-		"getAccessor":    getAccessor,
-		"setAccessor":    setAccessor,
+	return AllAccessorDeclarations{
+		firstAccessor:  firstAccessor,
+		secondAccessor: secondAccessor,
+		getAccessor:    getAccessor,
+		setAccessor:    setAccessor,
 	}
 }
 
@@ -6940,17 +6940,17 @@ type ClassImplementingOrExtendingExpressionWithTypeArguments struct {
 func tryGetClassImplementingOrExtendingExpressionWithTypeArguments(node *Node) *ClassImplementingOrExtendingExpressionWithTypeArguments {
 	if isExpressionWithTypeArguments(node) {
 		if isHeritageClause(node.parent) && isClassLike(node.parent.parent) {
-			return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"class":        node.parent.parent,
-				"isImplements": node.parent.token == SyntaxKindImplementsKeyword,
+			return &ClassImplementingOrExtendingExpressionWithTypeArguments{
+				class:        node.parent.parent,
+				isImplements: node.parent.token == SyntaxKindImplementsKeyword,
 			}
 		}
 		if isJSDocAugmentsTag(node.parent) {
 			host := getEffectiveJSDocHost(node.parent)
 			if host != nil && isClassLike(host) {
-				return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"class":        host,
-					"isImplements": false,
+				return &ClassImplementingOrExtendingExpressionWithTypeArguments{
+					class:        host,
+					isImplements: false,
 				}
 			}
 		}
@@ -7301,8 +7301,7 @@ func readJsonOrUndefined(path string, hostOrText Union[ /* TODO(TS-TO-GO) TypeNo
 /** @internal */
 
 func readJson(path string, host /* TODO(TS-TO-GO) TypeNode TypeLiteral: { readFile(fileName: string): string | undefined; } */ any) any {
-	return readJsonOrUndefined(path, host) || map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	}
+	return readJsonOrUndefined(path, host) || any{}
 }
 
 /** @internal */
@@ -7349,9 +7348,9 @@ func getNewLineCharacter(options Union[CompilerOptions, PrinterOptions]) string 
 
 func createRange(pos number, end number /*  = pos */) TextRange {
 	Debug.assert(end >= pos || end == -1)
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"pos": pos,
-		"end": end,
+	return TextRange{
+		pos: pos,
+		end: end,
 	}
 }
 
@@ -8128,32 +8127,32 @@ func SourceMapSource(this SourceMapSource, fileName string, text string, skipTri
 
 /** @internal */
 
-var objectAllocator ObjectAllocator = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"getNodeConstructor": func() any {
+var objectAllocator ObjectAllocator = ObjectAllocator{
+	getNodeConstructor: func() any {
 		return Node /* as any */
 	},
-	"getTokenConstructor": func() any {
+	getTokenConstructor: func() any {
 		return Token /* as any */
 	},
-	"getIdentifierConstructor": func() any {
+	getIdentifierConstructor: func() any {
 		return Identifier /* as any */
 	},
-	"getPrivateIdentifierConstructor": func() any {
+	getPrivateIdentifierConstructor: func() any {
 		return Node /* as any */
 	},
-	"getSourceFileConstructor": func() any {
+	getSourceFileConstructor: func() any {
 		return Node /* as any */
 	},
-	"getSymbolConstructor": func() any {
+	getSymbolConstructor: func() any {
 		return Symbol /* as any */
 	},
-	"getTypeConstructor": func() any {
+	getTypeConstructor: func() any {
 		return Type /* as any */
 	},
-	"getSignatureConstructor": func() any {
+	getSignatureConstructor: func() any {
 		return Signature /* as any */
 	},
-	"getSourceMapSourceConstructor": func() any {
+	getSourceMapSourceConstructor: func() any {
 		return SourceMapSource /* as any */
 	},
 }
@@ -8225,15 +8224,15 @@ func createDetachedDiagnostic(fileName string, sourceText string, start number, 
 		text = formatStringFromArgs(text, args)
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               nil,
-		"start":              start,
-		"length":             length,
-		"messageText":        text,
-		"category":           message.category,
-		"code":               message.code,
-		"reportsUnnecessary": message.reportsUnnecessary,
-		"fileName":           fileName,
+	return DiagnosticWithDetachedLocation{
+		file:               nil,
+		start:              start,
+		length:             length,
+		messageText:        text,
+		category:           message.category,
+		code:               message.code,
+		reportsUnnecessary: message.reportsUnnecessary,
+		fileName:           fileName,
 	}
 }
 
@@ -8247,14 +8246,14 @@ func attachFileToDiagnostic(diagnostic DiagnosticWithDetachedLocation, file Sour
 	Debug.assertEqual(diagnostic.fileName, fileName)
 	Debug.assertLessThanOrEqual(diagnostic.start, length)
 	Debug.assertLessThanOrEqual(diagnostic.start+diagnostic.length, length)
-	var diagnosticWithLocation DiagnosticWithLocation = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               file,
-		"start":              diagnostic.start,
-		"length":             diagnostic.length,
-		"messageText":        diagnostic.messageText,
-		"category":           diagnostic.category,
-		"code":               diagnostic.code,
-		"reportsUnnecessary": diagnostic.reportsUnnecessary,
+	var diagnosticWithLocation DiagnosticWithLocation = DiagnosticWithLocation{
+		file:               file,
+		start:              diagnostic.start,
+		length:             diagnostic.length,
+		messageText:        diagnostic.messageText,
+		category:           diagnostic.category,
+		code:               diagnostic.code,
+		reportsUnnecessary: diagnostic.reportsUnnecessary,
 	}
 	if diagnostic.relatedInformation != nil {
 		diagnosticWithLocation.relatedInformation = []never{}
@@ -8292,15 +8291,15 @@ func createFileDiagnostic(file SourceFile, start number, length number, message 
 		text = formatStringFromArgs(text, args)
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               file,
-		"start":              start,
-		"length":             length,
-		"messageText":        text,
-		"category":           message.category,
-		"code":               message.code,
-		"reportsUnnecessary": message.reportsUnnecessary,
-		"reportsDeprecated":  message.reportsDeprecated,
+	return DiagnosticWithLocation{
+		file:               file,
+		start:              start,
+		length:             length,
+		messageText:        text,
+		category:           message.category,
+		code:               message.code,
+		reportsUnnecessary: message.reportsUnnecessary,
+		reportsDeprecated:  message.reportsDeprecated,
 	}
 }
 
@@ -8325,29 +8324,29 @@ func createCompilerDiagnostic(message DiagnosticMessage, args DiagnosticArgument
 		text = formatStringFromArgs(text, args)
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               nil,
-		"start":              nil,
-		"length":             nil,
-		"messageText":        text,
-		"category":           message.category,
-		"code":               message.code,
-		"reportsUnnecessary": message.reportsUnnecessary,
-		"reportsDeprecated":  message.reportsDeprecated,
+	return Diagnostic{
+		file:               nil,
+		start:              nil,
+		length:             nil,
+		messageText:        text,
+		category:           message.category,
+		code:               message.code,
+		reportsUnnecessary: message.reportsUnnecessary,
+		reportsDeprecated:  message.reportsDeprecated,
 	}
 }
 
 /** @internal */
 
 func createCompilerDiagnosticFromMessageChain(chain DiagnosticMessageChain, relatedInformation []DiagnosticRelatedInformation) Diagnostic {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":               nil,
-		"start":              nil,
-		"length":             nil,
-		"code":               chain.code,
-		"category":           chain.category,
-		"messageText":        ifElse(chain.next != nil, chain, chain.messageText),
-		"relatedInformation": relatedInformation,
+	return Diagnostic{
+		file:               nil,
+		start:              nil,
+		length:             nil,
+		code:               chain.code,
+		category:           chain.category,
+		messageText:        ifElse(chain.next != nil, chain, chain.messageText),
+		relatedInformation: relatedInformation,
 	}
 }
 
@@ -8359,11 +8358,11 @@ func chainDiagnosticMessages(details Union[DiagnosticMessageChain, []DiagnosticM
 	if some(args) {
 		text = formatStringFromArgs(text, args)
 	}
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"messageText": text,
-		"category":    message.category,
-		"code":        message.code,
-		"next":        ifElse(details == nil || Array.isArray(details), details, []DiagnosticMessageChain{details}),
+	return DiagnosticMessageChain{
+		messageText: text,
+		category:    message.category,
+		code:        message.code,
+		next:        ifElse(details == nil || Array.isArray(details), details, []DiagnosticMessageChain{details}),
 	}
 }
 
@@ -9138,20 +9137,20 @@ func createSymlinkCache(cwd string, getCanonicalFileName GetCanonicalFileName) S
 	var symlinkedDirectoriesByRealpath *MultiMap[Path, string]
 	var symlinkedFiles *Map[Path, string]
 	hasProcessedResolutions := false
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"getSymlinkedFiles": func() *Map[Path, string] {
+	return SymlinkCache{
+		getSymlinkedFiles: func() *Map[Path, string] {
 			return symlinkedFiles
 		},
-		"getSymlinkedDirectories": func() *Map[Path /* TODO(TS-TO-GO) inferred type false | SymlinkedDirectory */, any] {
+		getSymlinkedDirectories: func() *Map[Path /* TODO(TS-TO-GO) inferred type false | SymlinkedDirectory */, any] {
 			return symlinkedDirectories
 		},
-		"getSymlinkedDirectoriesByRealpath": func() * /* TODO(TS-TO-GO) inferred type MultiMap<Path, string> */ any {
+		getSymlinkedDirectoriesByRealpath: func() * /* TODO(TS-TO-GO) inferred type MultiMap<Path, string> */ any {
 			return symlinkedDirectoriesByRealpath
 		},
-		"setSymlinkedFile": func(path Path, real string) Map[any, any] {
+		setSymlinkedFile: func(path Path, real string) Map[any, any] {
 			return (symlinkedFiles || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: symlinkedFiles = new Map() */ TODO)).set(path, real)
 		},
-		"setSymlinkedDirectory": func(symlink string, real /* TODO(TS-TO-GO) inferred type false | SymlinkedDirectory */ any) {
+		setSymlinkedDirectory: func(symlink string, real /* TODO(TS-TO-GO) inferred type false | SymlinkedDirectory */ any) {
 			// Large, interconnected dependency graphs in pnpm will have a huge number of symlinks
 			// where both the realpath and the symlink path are inside node_modules/.pnpm. Since
 			// this path is never a candidate for a module specifier, we can ignore it entirely.
@@ -9164,7 +9163,7 @@ func createSymlinkCache(cwd string, getCanonicalFileName GetCanonicalFileName) S
 				(symlinkedDirectories || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: symlinkedDirectories = new Map() */ TODO)).set(symlinkPath, real)
 			}
 		},
-		"setSymlinksFromResolutions": func(forEachResolvedModule /* TODO(TS-TO-GO) inferred type (callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void) => void */ any, forEachResolvedTypeReferenceDirective /* TODO(TS-TO-GO) inferred type (callback: (resolution: ResolvedTypeReferenceDirectiveWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void) => void */ any, typeReferenceDirectives /* TODO(TS-TO-GO) inferred type ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations> */ any) {
+		setSymlinksFromResolutions: func(forEachResolvedModule /* TODO(TS-TO-GO) inferred type (callback: (resolution: ResolvedModuleWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void) => void */ any, forEachResolvedTypeReferenceDirective /* TODO(TS-TO-GO) inferred type (callback: (resolution: ResolvedTypeReferenceDirectiveWithFailedLookupLocations, moduleName: string, mode: ResolutionMode, filePath: Path) => void) => void */ any, typeReferenceDirectives /* TODO(TS-TO-GO) inferred type ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations> */ any) {
 			Debug.assert(!hasProcessedResolutions)
 			hasProcessedResolutions = true
 			forEachResolvedModule(func(resolution ResolvedModuleWithFailedLookupLocations) {
@@ -9177,13 +9176,13 @@ func createSymlinkCache(cwd string, getCanonicalFileName GetCanonicalFileName) S
 				return processResolution(this, resolution.resolvedTypeReferenceDirective)
 			})
 		},
-		"hasProcessedResolutions": func() bool {
+		hasProcessedResolutions: func() bool {
 			return hasProcessedResolutions
 		},
-		"setSymlinksFromResolution": func(resolution *ResolvedModuleFull) {
+		setSymlinksFromResolution: func(resolution *ResolvedModuleFull) {
 			processResolution(this, resolution)
 		},
-		"hasAnySymlinks": hasAnySymlinks,
+		hasAnySymlinks: hasAnySymlinks,
 	}
 
 	hasAnySymlinks := func() bool {
@@ -9200,9 +9199,9 @@ func createSymlinkCache(cwd string, getCanonicalFileName GetCanonicalFileName) S
 		cache.setSymlinkedFile(toPath(originalPath, cwd, getCanonicalFileName), resolvedFileName)
 		TODO_IDENTIFIER := guessDirectorySymlink(resolvedFileName, originalPath, cwd, getCanonicalFileName) || emptyArray
 		if commonResolved != "" && commonOriginal != "" {
-			cache.setSymlinkedDirectory(commonOriginal, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"real":     ensureTrailingDirectorySeparator(commonResolved),
-				"realPath": ensureTrailingDirectorySeparator(toPath(commonResolved, cwd, getCanonicalFileName)),
+			cache.setSymlinkedDirectory(commonOriginal /* TODO(TS-TO-GO) inferred type false | SymlinkedDirectory */, any{
+				real:     ensureTrailingDirectorySeparator(commonResolved),
+				realPath: ensureTrailingDirectorySeparator(toPath(commonResolved, cwd, getCanonicalFileName)),
 			})
 		}
 	}
@@ -9279,40 +9278,40 @@ type WildcardMatcher struct {
 	replaceWildcardCharacter    func(match string) string
 }
 
-var filesMatcher WildcardMatcher = map[any]any{ /* TODO(TS-TO-GO): was object literal */
+var filesMatcher WildcardMatcher = WildcardMatcher{
 	/**
 	 * Matches any single directory segment unless it is the last segment and a .min.js file
 	 * Breakdown:
 	 *  [^./]                   # matches everything up to the first . character (excluding directory separators)
 	 *  (\\.(?!min\\.js$))?     # matches . characters but not if they are part of the .min.js file extension
 	 */
-	"singleAsteriskRegexFragment": "([^./]|(\\.(?!min\\.js$))?)*",
+	singleAsteriskRegexFragment: "([^./]|(\\.(?!min\\.js$))?)*",
 	/**
 	 * Regex for the ** wildcard. Matches any number of subdirectories. When used for including
 	 * files or directories, does not match subdirectories that start with a . character
 	 */
-	"doubleAsteriskRegexFragment": __TEMPLATE__("(/", implicitExcludePathRegexPattern, "[^/.][^/]*)*?"),
-	"replaceWildcardCharacter": func(match string) string {
+	doubleAsteriskRegexFragment: __TEMPLATE__("(/", implicitExcludePathRegexPattern, "[^/.][^/]*)*?"),
+	replaceWildcardCharacter: func(match string) string {
 		return replaceWildcardCharacter(match, filesMatcher.singleAsteriskRegexFragment)
 	},
 }
 
-var directoriesMatcher WildcardMatcher = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"singleAsteriskRegexFragment": "[^/]*",
+var directoriesMatcher WildcardMatcher = WildcardMatcher{
+	singleAsteriskRegexFragment: "[^/]*",
 	/**
 	 * Regex for the ** wildcard. Matches any number of subdirectories. When used for including
 	 * files or directories, does not match subdirectories that start with a . character
 	 */
-	"doubleAsteriskRegexFragment": __TEMPLATE__("(/", implicitExcludePathRegexPattern, "[^/.][^/]*)*?"),
-	"replaceWildcardCharacter": func(match string) string {
+	doubleAsteriskRegexFragment: __TEMPLATE__("(/", implicitExcludePathRegexPattern, "[^/.][^/]*)*?"),
+	replaceWildcardCharacter: func(match string) string {
 		return replaceWildcardCharacter(match, directoriesMatcher.singleAsteriskRegexFragment)
 	},
 }
 
-var excludeMatcher WildcardMatcher = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"singleAsteriskRegexFragment": "[^/]*",
-	"doubleAsteriskRegexFragment": "(/.+?)?",
-	"replaceWildcardCharacter": func(match string) string {
+var excludeMatcher WildcardMatcher = WildcardMatcher{
+	singleAsteriskRegexFragment: "[^/]*",
+	doubleAsteriskRegexFragment: "(/.+?)?",
+	replaceWildcardCharacter: func(match string) string {
 		return replaceWildcardCharacter(match, excludeMatcher.singleAsteriskRegexFragment)
 	},
 }
@@ -9488,14 +9487,14 @@ func getFileMatcherPatterns(path string, excludes *[]string, includes *[]string,
 	currentDirectory = normalizePath(currentDirectory)
 	absolutePath := combinePaths(currentDirectory, path)
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"includeFilePatterns": map_(getRegularExpressionsForWildcards(includes, absolutePath, "files"), func(pattern string) string {
+	return FileMatcherPatterns{
+		includeFilePatterns: map_(getRegularExpressionsForWildcards(includes, absolutePath, "files"), func(pattern string) string {
 			return __TEMPLATE__("^", pattern, "$")
 		}),
-		"includeFilePattern":      getRegularExpressionForWildcard(includes, absolutePath, "files"),
-		"includeDirectoryPattern": getRegularExpressionForWildcard(includes, absolutePath, "directories"),
-		"excludePattern":          getRegularExpressionForWildcard(excludes, absolutePath, "exclude"),
-		"basePaths":               getBasePaths(path, includes, useCaseSensitiveFileNames),
+		includeFilePattern:      getRegularExpressionForWildcard(includes, absolutePath, "files"),
+		includeDirectoryPattern: getRegularExpressionForWildcard(includes, absolutePath, "directories"),
+		excludePattern:          getRegularExpressionForWildcard(excludes, absolutePath, "exclude"),
+		basePaths:               getBasePaths(path, includes, useCaseSensitiveFileNames),
 	}
 }
 
@@ -9998,9 +9997,9 @@ func tryParsePattern(pattern string) Union[string, Pattern /* TODO(TS-TO-GO) Nod
 	if pattern.indexOf("*", indexOfStar+1) != -1 {
 		return nil
 	} else {
-		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"prefix": pattern.substr(0, indexOfStar),
-			"suffix": pattern.substr(indexOfStar + 1),
+		return & /* TODO(TS-TO-GO) inferred type string | Pattern */ any{
+			prefix: pattern.substr(0, indexOfStar),
+			suffix: pattern.substr(indexOfStar + 1),
 		}
 	}
 }
@@ -10113,9 +10112,9 @@ func isCheckJsEnabledForFile(sourceFile SourceFile, compilerOptions CompilerOpti
 
 /** @internal */
 
-var emptyFileSystemEntries FileSystemEntries = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"files":       emptyArray,
-	"directories": emptyArray,
+var emptyFileSystemEntries FileSystemEntries = FileSystemEntries{
+	files:       emptyArray,
+	directories: emptyArray,
 }
 
 /**
@@ -10191,9 +10190,9 @@ func minAndMax(arr []T, getValue func(value T) number) /* TODO(TS-TO-GO) TypeNod
 /** @internal */
 
 func rangeOfNode(node *Node) TextRange {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"pos": getTokenPosOfNode(node),
-		"end": node.end,
+	return TextRange{
+		pos: getTokenPosOfNode(node),
+		end: node.end,
 	}
 }
 
@@ -10203,9 +10202,9 @@ func rangeOfTypeParameters(sourceFile SourceFile, typeParameters NodeArray[TypeP
 	// Include the `<>`
 	pos := typeParameters.pos - 1
 	end := min(sourceFile.text.length, skipTrivia(sourceFile.text, typeParameters.end)+1)
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"pos": pos,
-		"end": end,
+	return TextRange{
+		pos: pos,
+		end: end,
 	}
 }
 
@@ -10363,9 +10362,9 @@ func parseBigInt(text string) *PseudoBigInt {
 func parseValidBigInt(text string) PseudoBigInt {
 	negative := text.startsWith("-")
 	base10Value := parsePseudoBigInt(__TEMPLATE__(ifElse(negative, text.slice(1), text), "n"))
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"negative":    negative,
-		"base10Value": base10Value,
+	return PseudoBigInt{
+		negative:    negative,
+		base10Value: base10Value,
 	}
 }
 
@@ -10397,9 +10396,9 @@ func isValidBigIntString(s string, roundTripOnly bool) bool {
 	// * a bigint can be scanned, and that when it is scanned, it is
 	// * the full length of the input string (so the scanner is one character beyond the augmented input length)
 	// * it does not contain a numeric seperator (the `BigInt` constructor does not accept a numeric seperator in its input)
-	return success && result == SyntaxKindBigIntLiteral && scanner.getTokenEnd() == (s.length+1) && (flags&TokenFlagsContainsSeparator != 0) && (!roundTripOnly || s == pseudoBigIntToString(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"negative":    negative,
-		"base10Value": parsePseudoBigInt(scanner.getTokenValue()),
+	return success && result == SyntaxKindBigIntLiteral && scanner.getTokenEnd() == (s.length+1) && (flags&TokenFlagsContainsSeparator != 0) && (!roundTripOnly || s == pseudoBigIntToString(PseudoBigInt{
+		negative:    negative,
+		base10Value: parsePseudoBigInt(scanner.getTokenValue()),
 	}))
 }
 
@@ -10927,11 +10926,11 @@ func getNodeModulePathParts(fullPath string) *NodeModulePathParts {
 	fileNameIndex = partStart
 
 	if state > StatesNodeModules {
-		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"topLevelNodeModulesIndex": topLevelNodeModulesIndex,
-			"topLevelPackageNameIndex": topLevelPackageNameIndex,
-			"packageRootIndex":         packageRootIndex,
-			"fileNameIndex":            fileNameIndex,
+		return &NodeModulePathParts{
+			topLevelNodeModulesIndex: topLevelNodeModulesIndex,
+			topLevelPackageNameIndex: topLevelPackageNameIndex,
+			packageRootIndex:         packageRootIndex,
+			fileNameIndex:            fileNameIndex,
 		}
 	} else {
 		return nil
@@ -11261,11 +11260,11 @@ func isSourceElement(node *Node) bool {
 /** @internal */
 
 func evaluatorResult(value T, isSyntacticallyString bool /*  = false */, resolvedOtherFiles bool /*  = false */, hasExternalReferences bool /*  = false */) EvaluatorResult[T] {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"value":                 value,
-		"isSyntacticallyString": isSyntacticallyString,
-		"resolvedOtherFiles":    resolvedOtherFiles,
-		"hasExternalReferences": hasExternalReferences,
+	return /* TODO(TS-TO-GO) inferred type EvaluatorResult<T> */ any{
+		value:                 value,
+		isSyntacticallyString: isSyntacticallyString,
+		resolvedOtherFiles:    resolvedOtherFiles,
+		hasExternalReferences: hasExternalReferences,
 	}
 }
 

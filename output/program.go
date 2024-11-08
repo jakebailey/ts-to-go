@@ -148,61 +148,61 @@ func createCompilerHostWorker(options CompilerOptions, setParentNodes bool, syst
 	realpath := system.realpath && (func(path string) string {
 		return system.realpath(path)
 	})
-	var compilerHost CompilerHost = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"getSourceFile": createGetSourceFile(func(fileName string) *string {
+	var compilerHost CompilerHost = CompilerHost{
+		getSourceFile: createGetSourceFile(func(fileName string) *string {
 			return compilerHost.readFile(fileName)
 		}, setParentNodes),
-		"getDefaultLibLocation": getDefaultLibLocation,
-		"getDefaultLibFileName": func(options CompilerOptions) string {
+		getDefaultLibLocation: getDefaultLibLocation,
+		getDefaultLibFileName: func(options CompilerOptions) string {
 			return combinePaths(getDefaultLibLocation(), getDefaultLibFileName(options))
 		},
-		"writeFile": createWriteFileMeasuringIO(func(path string, data string, writeByteOrderMark bool) {
+		writeFile: createWriteFileMeasuringIO(func(path string, data string, writeByteOrderMark bool) {
 			return system.writeFile(path, data, writeByteOrderMark)
 		}, func(path string) {
 			return (compilerHost.createDirectory || system.createDirectory)(path)
 		}, func(path string) bool {
 			return directoryExists(path)
 		}),
-		"getCurrentDirectory": memoize(func() string {
+		getCurrentDirectory: memoize(func() string {
 			return system.getCurrentDirectory()
 		}),
-		"useCaseSensitiveFileNames": func() bool {
+		useCaseSensitiveFileNames: func() bool {
 			return system.useCaseSensitiveFileNames
 		},
-		"getCanonicalFileName": getCanonicalFileName,
-		"getNewLine": func() string {
+		getCanonicalFileName: getCanonicalFileName,
+		getNewLine: func() string {
 			return newLine
 		},
-		"fileExists": func(fileName string) bool {
+		fileExists: func(fileName string) bool {
 			return system.fileExists(fileName)
 		},
-		"readFile": func(fileName string) *string {
+		readFile: func(fileName string) *string {
 			return system.readFile(fileName)
 		},
-		"trace": func(s string) {
+		trace: func(s string) {
 			return system.write(s + newLine)
 		},
-		"directoryExists": func(directoryName string) bool {
+		directoryExists: func(directoryName string) bool {
 			return system.directoryExists(directoryName)
 		},
-		"getEnvironmentVariable": func(name string) string {
+		getEnvironmentVariable: func(name string) string {
 			if system.getEnvironmentVariable {
 				return system.getEnvironmentVariable(name)
 			} else {
 				return ""
 			}
 		},
-		"getDirectories": func(path string) []string {
+		getDirectories: func(path string) []string {
 			return system.getDirectories(path)
 		},
-		"realpath": realpath,
-		"readDirectory": func(path string, extensions []string, include *[]string, exclude []string, depth *number) []string {
+		realpath: realpath,
+		readDirectory: func(path string, extensions []string, include *[]string, exclude []string, depth *number) []string {
 			return system.readDirectory(path, extensions, include, exclude, depth)
 		},
-		"createDirectory": func(d string) {
+		createDirectory: func(d string) {
 			return system.createDirectory(d)
 		},
-		"createHash": maybeBind(system, system.createHash),
+		createHash: maybeBind(system, system.createHash),
 	}
 	return compilerHost
 }
@@ -356,14 +356,14 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 		}
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"originalReadFile":        originalReadFile,
-		"originalFileExists":      originalFileExists,
-		"originalDirectoryExists": originalDirectoryExists,
-		"originalCreateDirectory": originalCreateDirectory,
-		"originalWriteFile":       originalWriteFile,
-		"getSourceFileWithCache":  getSourceFileWithCache,
-		"readFileWithCache":       readFileWithCache,
+	return CompilerHostLikeWithCache{
+		originalReadFile:        originalReadFile,
+		originalFileExists:      originalFileExists,
+		originalDirectoryExists: originalDirectoryExists,
+		originalCreateDirectory: originalCreateDirectory,
+		originalWriteFile:       originalWriteFile,
+		getSourceFileWithCache:  getSourceFileWithCache,
+		readFileWithCache:       readFileWithCache,
 	}
 }
 
@@ -794,9 +794,9 @@ func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(n
 	}
 }
 
-var emptyResolution Intersection[ResolvedModuleWithFailedLookupLocations, ResolvedTypeReferenceDirectiveWithFailedLookupLocations] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"resolvedModule":                 nil,
-	"resolvedTypeReferenceDirective": nil,
+var emptyResolution Intersection[ResolvedModuleWithFailedLookupLocations, ResolvedTypeReferenceDirectiveWithFailedLookupLocations] = /* TODO(TS-TO-GO) inferred type ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations */ any{
+	resolvedModule:                 nil,
+	resolvedTypeReferenceDirective: nil,
 }
 
 /** @internal */
@@ -825,9 +825,9 @@ func getModuleResolutionName(literal StringLiteralLike) string {
 
 /** @internal */
 
-var moduleResolutionNameAndModeGetter ResolutionNameAndModeGetter[StringLiteralLike, SourceFile] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"getName": getModuleResolutionName,
-	"getMode": func(entry StringLiteralLike, file SourceFile, compilerOptions CompilerOptions) ResolutionMode {
+var moduleResolutionNameAndModeGetter ResolutionNameAndModeGetter[StringLiteralLike, SourceFile] = /* TODO(TS-TO-GO) inferred type ResolutionNameAndModeGetter<StringLiteralLike, SourceFile> */ any{
+	getName: getModuleResolutionName,
+	getMode: func(entry StringLiteralLike, file SourceFile, compilerOptions CompilerOptions) ResolutionMode {
 		return getModeForUsageLocation(file, entry, compilerOptions)
 	},
 }
@@ -835,9 +835,9 @@ var moduleResolutionNameAndModeGetter ResolutionNameAndModeGetter[StringLiteralL
 /** @internal */
 
 func createModuleResolutionLoader(containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, host ModuleResolutionHost, cache *ModuleResolutionCache) ResolutionLoader[StringLiteralLike, ResolvedModuleWithFailedLookupLocations, SourceFile] {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"nameAndMode": moduleResolutionNameAndModeGetter,
-		"resolve": func(moduleName string, resolutionMode ResolutionMode) ResolvedModuleWithFailedLookupLocations {
+	return /* TODO(TS-TO-GO) inferred type ResolutionLoader<StringLiteralLike, ResolvedModuleWithFailedLookupLocations, SourceFile> */ any{
+		nameAndMode: moduleResolutionNameAndModeGetter,
+		resolve: func(moduleName string, resolutionMode ResolutionMode) ResolvedModuleWithFailedLookupLocations {
 			return resolveModuleName(moduleName, containingFile, options, host, cache, redirectedReference, resolutionMode)
 		},
 	}
@@ -851,9 +851,9 @@ func getTypeReferenceResolutionName(entry T) string {
 	}
 }
 
-var typeReferenceResolutionNameAndModeGetter ResolutionNameAndModeGetter[Union[FileReference, string], *SourceFile] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"getName": getTypeReferenceResolutionName,
-	"getMode": func(entry /* TODO(TS-TO-GO) inferred type string | FileReference */ any, file *SourceFile, compilerOptions CompilerOptions) ResolutionMode {
+var typeReferenceResolutionNameAndModeGetter ResolutionNameAndModeGetter[Union[FileReference, string], *SourceFile] = /* TODO(TS-TO-GO) inferred type ResolutionNameAndModeGetter<string | FileReference, SourceFile | undefined> */ any{
+	getName: getTypeReferenceResolutionName,
+	getMode: func(entry /* TODO(TS-TO-GO) inferred type string | FileReference */ any, file *SourceFile, compilerOptions CompilerOptions) ResolutionMode {
 		return getModeForFileReference(entry, file && getDefaultResolutionModeForFileWorker(file, compilerOptions))
 	},
 }
@@ -861,9 +861,9 @@ var typeReferenceResolutionNameAndModeGetter ResolutionNameAndModeGetter[Union[F
 /** @internal */
 
 func createTypeReferenceResolutionLoader(containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, host ModuleResolutionHost, cache *TypeReferenceDirectiveResolutionCache) ResolutionLoader[T, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, *SourceFile] {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"nameAndMode": typeReferenceResolutionNameAndModeGetter,
-		"resolve": func(typeRef string, resoluionMode ResolutionMode) ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
+	return /* TODO(TS-TO-GO) inferred type ResolutionLoader<T, ResolvedTypeReferenceDirectiveWithFailedLookupLocations, SourceFile | undefined> */ any{
+		nameAndMode: typeReferenceResolutionNameAndModeGetter,
+		resolve: func(typeRef string, resoluionMode ResolutionMode) ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
 			return resolveTypeReferenceDirective(typeRef, containingFile, options, host, redirectedReference, cache, resoluionMode)
 		},
 	}
@@ -1025,10 +1025,10 @@ func getReferencedFileLocation(program Program, ref ReferencedFile) Union[Refere
 		importLiteral := getModuleNameStringLiteralAt(file, index)
 		packageId = program.getResolvedModuleFromModuleSpecifier(importLiteral, file). /* ? */ resolvedModule. /* ? */ packageId
 		if importLiteral.pos == -1 {
-			return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"file":      file,
-				"packageId": packageId,
-				"text":      importLiteral.text,
+			return /* TODO(TS-TO-GO) inferred type ReferenceFileLocation | SyntheticReferenceFileLocation */ any{
+				file:      file,
+				packageId: packageId,
+				text:      importLiteral.text,
 			}
 		}
 		pos = skipTrivia(file.text, importLiteral.pos)
@@ -1043,11 +1043,11 @@ func getReferencedFileLocation(program Program, ref ReferencedFile) Union[Refere
 	default:
 		return Debug.assertNever(kind)
 	}
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"file":      file,
-		"pos":       pos,
-		"end":       end,
-		"packageId": packageId,
+	return /* TODO(TS-TO-GO) inferred type ReferenceFileLocation | SyntheticReferenceFileLocation */ any{
+		file:      file,
+		pos:       pos,
+		end:       end,
+		packageId: packageId,
 	}
 }
 
@@ -1218,10 +1218,10 @@ func getImpliedNodeFormatForFileWorker(fileName string, packageJsonInfoCache *Pa
 		} else {
 			impliedNodeFormat = ModuleKindCommonJS
 		}
-		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"impliedNodeFormat":    impliedNodeFormat,
-			"packageJsonLocations": packageJsonLocations,
-			"packageJsonScope":     packageJsonScope,
+		return /* TODO(TS-TO-GO) inferred type Partial<CreateSourceFileOptions> */ any{
+			impliedNodeFormat:    impliedNodeFormat,
+			packageJsonLocations: packageJsonLocations,
+			packageJsonScope:     packageJsonScope,
 		}
 	}
 
@@ -1254,13 +1254,13 @@ func shouldProgramCreateNewSourceFiles(program *Program, newOptions CompilerOpti
 }
 
 func createCreateProgramOptions(rootNames []string, options CompilerOptions, host CompilerHost, oldProgram Program, configFileParsingDiagnostics []Diagnostic, typeScriptVersion string) CreateProgramOptions {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"rootNames":                    rootNames,
-		"options":                      options,
-		"host":                         host,
-		"oldProgram":                   oldProgram,
-		"configFileParsingDiagnostics": configFileParsingDiagnostics,
-		"typeScriptVersion":            typeScriptVersion,
+	return CreateProgramOptions{
+		rootNames:                    rootNames,
+		options:                      options,
+		host:                         host,
+		oldProgram:                   oldProgram,
+		configFileParsingDiagnostics: configFileParsingDiagnostics,
+		typeScriptVersion:            typeScriptVersion,
 	}
 }
 
@@ -1364,9 +1364,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	// Track source files that are source files found by searching under node_modules, as these shouldn't be compiled.
 	sourceFilesFoundSearchingNodeModules := NewMap[string, bool]()
 
-	tracing. /* ? */ push(tracing.Phase.Program, "createProgram", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"configFilePath": options.configFilePath,
-		"rootDir":        options.rootDir,
+	tracing. /* ? */ push(tracing.Phase.Program, "createProgram", &Args{
+		configFilePath: options.configFilePath,
+		rootDir:        options.rootDir,
 	}, /*separateBeginAndEnd*/ true)
 	performance.mark("beforeProgram")
 
@@ -1412,14 +1412,14 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				switch {
 				case resolved != nil:
 					if (resolved.(ResolvedModuleFull)).extension != nil {
-						return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-							"resolvedModule": resolved.(ResolvedModuleFull),
+						return /* TODO(TS-TO-GO) inferred type (ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations) | { resolvedModule: ResolvedModuleFull; } */ any{
+							resolvedModule: resolved.(ResolvedModuleFull),
 						}
 					} else {
-						return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-							"resolvedModule": map[any]any{ /* TODO(TS-TO-GO): was object literal */
+						return /* TODO(TS-TO-GO) inferred type (ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations) | { resolvedModule: ResolvedModuleFull; } */ any{
+							resolvedModule: &ResolvedModuleFull{
 								/* TODO(TS-TO-GO) Node SpreadAssignment: ...resolved */
-								"extension": extensionFromPath(resolved.resolvedFileName),
+								extension: extensionFromPath(resolved.resolvedFileName),
 							},
 						}
 					}
@@ -1499,27 +1499,26 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	var mapFromToProjectReferenceRedirectSource *Map[Path, SourceOfProjectReferenceRedirect]
 
 	useSourceOfProjectReferenceRedirect := host.useSourceOfProjectReferenceRedirect() && !options.disableSourceOfProjectReferenceRedirect
-	TODO_IDENTIFIER := updateHostForUseSourceOfProjectReferenceRedirect(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"compilerHost":                        host,
-		"getSymlinkCache":                     getSymlinkCache,
-		"useSourceOfProjectReferenceRedirect": useSourceOfProjectReferenceRedirect,
-		"toPath":                              toPath,
-		"getResolvedProjectReferences":        getResolvedProjectReferences,
-		"getSourceOfProjectReferenceRedirect": getSourceOfProjectReferenceRedirect,
-		"forEachResolvedProjectReference":     forEachResolvedProjectReference,
+	TODO_IDENTIFIER := updateHostForUseSourceOfProjectReferenceRedirect(HostForUseSourceOfProjectReferenceRedirect{
+		compilerHost:                        host,
+		getSymlinkCache:                     getSymlinkCache,
+		useSourceOfProjectReferenceRedirect: useSourceOfProjectReferenceRedirect,
+		toPath:                              toPath,
+		getResolvedProjectReferences:        getResolvedProjectReferences,
+		getSourceOfProjectReferenceRedirect: getSourceOfProjectReferenceRedirect,
+		forEachResolvedProjectReference:     forEachResolvedProjectReference,
 	})
 	readFile := host.readFile.bind(host) /* as typeof host.readFile */
 
-	tracing. /* ? */ push(tracing.Phase.Program, "shouldProgramCreateNewSourceFiles", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"hasOldProgram": oldProgram != nil,
+	tracing. /* ? */ push(tracing.Phase.Program, "shouldProgramCreateNewSourceFiles", &Args{
+		hasOldProgram: oldProgram != nil,
 	})
 	shouldCreateNewSourceFile := shouldProgramCreateNewSourceFiles(oldProgram, options)
 	tracing. /* ? */ pop()
 	// We set `structuralIsReused` to `undefined` because `tryReuseStructureFromOldProgram` calls `tryReuseStructureFromOldProgram` which checks
 	// `structuralIsReused`, which would be a TDZ violation if it was not set in advance to `undefined`.
 	var structureIsReused StructureIsReused
-	tracing. /* ? */ push(tracing.Phase.Program, "tryReuseStructureFromOldProgram", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	})
+	tracing. /* ? */ push(tracing.Phase.Program, "tryReuseStructureFromOldProgram", &Args{})
 	structureIsReused = tryReuseStructureFromOldProgram()
 	tracing. /* ? */ pop()
 	if structureIsReused != StructureIsReusedCompletely {
@@ -1539,17 +1538,17 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					if useSourceOfProjectReferenceRedirect {
 						if out || getEmitModuleKind(parsedRef.commandLine.options) == ModuleKindNone {
 							for _, fileName := range parsedRef.commandLine.fileNames {
-								processProjectReferenceFile(fileName, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-									"kind":  FileIncludeKindSourceFromProjectReference,
-									"index": index,
+								processProjectReferenceFile(fileName, ProjectReferenceFile{
+									kind:  FileIncludeKindSourceFromProjectReference,
+									index: index,
 								})
 							}
 						}
 					} else {
 						if out {
-							processProjectReferenceFile(changeExtension(out, ".d.ts"), map[any]any{ /* TODO(TS-TO-GO): was object literal */
-								"kind":  FileIncludeKindOutputFromProjectReference,
-								"index": index,
+							processProjectReferenceFile(changeExtension(out, ".d.ts"), ProjectReferenceFile{
+								kind:  FileIncludeKindOutputFromProjectReference,
+								index: index,
 							})
 						} else if getEmitModuleKind(parsedRef.commandLine.options) == ModuleKindNone {
 							getCommonSourceDirectory := memoize(func() string {
@@ -1557,9 +1556,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 							})
 							for _, fileName := range parsedRef.commandLine.fileNames {
 								if !isDeclarationFileName(fileName) && !fileExtensionIs(fileName, ExtensionJson) {
-									processProjectReferenceFile(getOutputDeclarationFileName(fileName, parsedRef.commandLine, !host.useCaseSensitiveFileNames(), getCommonSourceDirectory), map[any]any{ /* TODO(TS-TO-GO): was object literal */
-										"kind":  FileIncludeKindOutputFromProjectReference,
-										"index": index,
+									processProjectReferenceFile(getOutputDeclarationFileName(fileName, parsedRef.commandLine, !host.useCaseSensitiveFileNames(), getCommonSourceDirectory), ProjectReferenceFile{
+										kind:  FileIncludeKindOutputFromProjectReference,
+										index: index,
 									})
 								}
 							}
@@ -1569,13 +1568,13 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			}
 		}
 
-		tracing. /* ? */ push(tracing.Phase.Program, "processRootFiles", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"count": rootNames.length,
+		tracing. /* ? */ push(tracing.Phase.Program, "processRootFiles", &Args{
+			count: rootNames.length,
 		})
 		forEach(rootNames, func(name string, index number) {
-			return processRootFile(name /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, false, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"kind":  FileIncludeKindRootFile,
-				"index": index,
+			return processRootFile(name /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, false, FileIncludeReason{
+				kind:  FileIncludeKindRootFile,
+				index: index,
 			})
 		})
 		tracing. /* ? */ pop()
@@ -1586,8 +1585,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 		automaticTypeDirectiveResolutions = createModeAwareCache()
 		if automaticTypeDirectiveNames.length != 0 {
-			tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferences", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"count": automaticTypeDirectiveNames.length,
+			tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferences", &Args{
+				count: automaticTypeDirectiveNames.length,
 			})
 			// This containingFilename needs to match with the one used in managed-side
 			var containingDirectory string
@@ -1601,10 +1600,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			for i := 0; i < automaticTypeDirectiveNames.length; i++ {
 				// under node16/nodenext module resolution, load `types`/ata include names as cjs resolution results by passing an `undefined` mode
 				automaticTypeDirectiveResolutions.set(automaticTypeDirectiveNames[i] /*mode*/, nil, resolutions[i])
-				processTypeReferenceDirective(automaticTypeDirectiveNames[i], nil, resolutions[i], map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"kind":          FileIncludeKindAutomaticTypeDirectiveFile,
-					"typeReference": automaticTypeDirectiveNames[i],
-					"packageId":     resolutions[i]. /* ? */ resolvedTypeReferenceDirective. /* ? */ packageId,
+				processTypeReferenceDirective(automaticTypeDirectiveNames[i], nil, resolutions[i], FileIncludeReason{
+					kind:          FileIncludeKindAutomaticTypeDirectiveFile,
+					typeReference: automaticTypeDirectiveNames[i],
+					packageId:     resolutions[i]. /* ? */ resolvedTypeReferenceDirective. /* ? */ packageId,
 				})
 			}
 			tracing. /* ? */ pop()
@@ -1619,14 +1618,14 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			// otherwise, using options specified in '--lib' instead of '--target' default library file
 			defaultLibraryFileName := getDefaultLibraryFileName()
 			if options.lib == nil && defaultLibraryFileName != "" {
-				processRootFile(defaultLibraryFileName /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"kind": FileIncludeKindLibFile,
+				processRootFile(defaultLibraryFileName /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, FileIncludeReason{
+					kind: FileIncludeKindLibFile,
 				})
 			} else {
 				forEach(options.lib, func(libFileName string, index number) {
-					processRootFile(pathForLibFile(libFileName) /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"kind":  FileIncludeKindLibFile,
-						"index": index,
+					processRootFile(pathForLibFile(libFileName) /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, FileIncludeReason{
+						kind:  FileIncludeKindLibFile,
+						index: index,
 					})
 				})
 			}
@@ -1674,125 +1673,125 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	resolvedModulesProcessing = nil
 	resolvedTypeReferenceDirectiveNamesProcessing = nil
 
-	var program Program = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"getRootFileNames": func() []string {
+	var program Program = Program{
+		getRootFileNames: func() []string {
 			return rootNames
 		},
-		"getSourceFile":       getSourceFile,
-		"getSourceFileByPath": getSourceFileByPath,
-		"getSourceFiles": func() []SourceFile {
+		getSourceFile:       getSourceFile,
+		getSourceFileByPath: getSourceFileByPath,
+		getSourceFiles: func() []SourceFile {
 			return files
 		},
-		"getMissingFilePaths": func() Map[Path, string] {
+		getMissingFilePaths: func() Map[Path, string] {
 			return missingFileNames
 		},
-		"getModuleResolutionCache": func() *ModuleResolutionCache {
+		getModuleResolutionCache: func() *ModuleResolutionCache {
 			return moduleResolutionCache
 		},
-		"getFilesByNameMap": func() Map[Path, * /* TODO(TS-TO-GO) inferred type false | SourceFile */ any] {
+		getFilesByNameMap: func() Map[Path, * /* TODO(TS-TO-GO) inferred type false | SourceFile */ any] {
 			return filesByName
 		},
-		"getCompilerOptions": func() CompilerOptions {
+		getCompilerOptions: func() CompilerOptions {
 			return options
 		},
-		"getSyntacticDiagnostics":      getSyntacticDiagnostics,
-		"getOptionsDiagnostics":        getOptionsDiagnostics,
-		"getGlobalDiagnostics":         getGlobalDiagnostics,
-		"getSemanticDiagnostics":       getSemanticDiagnostics,
-		"getCachedSemanticDiagnostics": getCachedSemanticDiagnostics,
-		"getSuggestionDiagnostics":     getSuggestionDiagnostics,
-		"getDeclarationDiagnostics":    getDeclarationDiagnostics,
-		"getBindAndCheckDiagnostics":   getBindAndCheckDiagnostics,
-		"getProgramDiagnostics":        getProgramDiagnostics,
-		"getTypeChecker":               getTypeChecker,
-		"getClassifiableNames":         getClassifiableNames,
-		"getCommonSourceDirectory":     getCommonSourceDirectory,
-		"emit":                         emit,
-		"getCurrentDirectory": func() string {
+		getSyntacticDiagnostics:      getSyntacticDiagnostics,
+		getOptionsDiagnostics:        getOptionsDiagnostics,
+		getGlobalDiagnostics:         getGlobalDiagnostics,
+		getSemanticDiagnostics:       getSemanticDiagnostics,
+		getCachedSemanticDiagnostics: getCachedSemanticDiagnostics,
+		getSuggestionDiagnostics:     getSuggestionDiagnostics,
+		getDeclarationDiagnostics:    getDeclarationDiagnostics,
+		getBindAndCheckDiagnostics:   getBindAndCheckDiagnostics,
+		getProgramDiagnostics:        getProgramDiagnostics,
+		getTypeChecker:               getTypeChecker,
+		getClassifiableNames:         getClassifiableNames,
+		getCommonSourceDirectory:     getCommonSourceDirectory,
+		emit:                         emit,
+		getCurrentDirectory: func() string {
 			return currentDirectory
 		},
-		"getNodeCount": func() number {
+		getNodeCount: func() number {
 			return getTypeChecker().getNodeCount()
 		},
-		"getIdentifierCount": func() number {
+		getIdentifierCount: func() number {
 			return getTypeChecker().getIdentifierCount()
 		},
-		"getSymbolCount": func() number {
+		getSymbolCount: func() number {
 			return getTypeChecker().getSymbolCount()
 		},
-		"getTypeCount": func() number {
+		getTypeCount: func() number {
 			return getTypeChecker().getTypeCount()
 		},
-		"getInstantiationCount": func() number {
+		getInstantiationCount: func() number {
 			return getTypeChecker().getInstantiationCount()
 		},
-		"getRelationCacheSizes": func() /* TODO(TS-TO-GO) inferred type { assignable: number; identity: number; subtype: number; strictSubtype: number; } */ any {
+		getRelationCacheSizes: func() /* TODO(TS-TO-GO) inferred type { assignable: number; identity: number; subtype: number; strictSubtype: number; } */ any {
 			return getTypeChecker().getRelationCacheSizes()
 		},
-		"getFileProcessingDiagnostics": func() *[]FilePreprocessingDiagnostics {
+		getFileProcessingDiagnostics: func() *[]FilePreprocessingDiagnostics {
 			return fileProcessingDiagnostics
 		},
-		"getAutomaticTypeDirectiveNames": func() []string {
+		getAutomaticTypeDirectiveNames: func() []string {
 			return automaticTypeDirectiveNames
 		},
-		"getAutomaticTypeDirectiveResolutions": func() /* TODO(TS-TO-GO) inferred type ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations> */ any {
+		getAutomaticTypeDirectiveResolutions: func() /* TODO(TS-TO-GO) inferred type ModeAwareCache<ResolvedTypeReferenceDirectiveWithFailedLookupLocations> */ any {
 			return automaticTypeDirectiveResolutions
 		},
-		"isSourceFileFromExternalLibrary":                             isSourceFileFromExternalLibrary,
-		"isSourceFileDefaultLibrary":                                  isSourceFileDefaultLibrary,
-		"getModeForUsageLocation":                                     getModeForUsageLocation,
-		"getEmitSyntaxForUsageLocation":                               getEmitSyntaxForUsageLocation,
-		"getModeForResolutionAtIndex":                                 getModeForResolutionAtIndex,
-		"getSourceFileFromReference":                                  getSourceFileFromReference,
-		"getLibFileFromReference":                                     getLibFileFromReference,
-		"sourceFileToPackageName":                                     sourceFileToPackageName,
-		"redirectTargetsMap":                                          redirectTargetsMap,
-		"usesUriStyleNodeCoreModules":                                 usesUriStyleNodeCoreModules,
-		"resolvedModules":                                             resolvedModules,
-		"resolvedTypeReferenceDirectiveNames":                         resolvedTypeReferenceDirectiveNames,
-		"resolvedLibReferences":                                       resolvedLibReferences,
-		"getResolvedModule":                                           getResolvedModule,
-		"getResolvedModuleFromModuleSpecifier":                        getResolvedModuleFromModuleSpecifier,
-		"getResolvedTypeReferenceDirective":                           getResolvedTypeReferenceDirective,
-		"getResolvedTypeReferenceDirectiveFromTypeReferenceDirective": getResolvedTypeReferenceDirectiveFromTypeReferenceDirective,
-		"forEachResolvedModule":                                       forEachResolvedModule,
-		"forEachResolvedTypeReferenceDirective":                       forEachResolvedTypeReferenceDirective,
-		"getCurrentPackagesMap": func() *Map[string, bool] {
+		isSourceFileFromExternalLibrary:                             isSourceFileFromExternalLibrary,
+		isSourceFileDefaultLibrary:                                  isSourceFileDefaultLibrary,
+		getModeForUsageLocation:                                     getModeForUsageLocation,
+		getEmitSyntaxForUsageLocation:                               getEmitSyntaxForUsageLocation,
+		getModeForResolutionAtIndex:                                 getModeForResolutionAtIndex,
+		getSourceFileFromReference:                                  getSourceFileFromReference,
+		getLibFileFromReference:                                     getLibFileFromReference,
+		sourceFileToPackageName:                                     sourceFileToPackageName,
+		redirectTargetsMap:                                          redirectTargetsMap,
+		usesUriStyleNodeCoreModules:                                 usesUriStyleNodeCoreModules,
+		resolvedModules:                                             resolvedModules,
+		resolvedTypeReferenceDirectiveNames:                         resolvedTypeReferenceDirectiveNames,
+		resolvedLibReferences:                                       resolvedLibReferences,
+		getResolvedModule:                                           getResolvedModule,
+		getResolvedModuleFromModuleSpecifier:                        getResolvedModuleFromModuleSpecifier,
+		getResolvedTypeReferenceDirective:                           getResolvedTypeReferenceDirective,
+		getResolvedTypeReferenceDirectiveFromTypeReferenceDirective: getResolvedTypeReferenceDirectiveFromTypeReferenceDirective,
+		forEachResolvedModule:                                       forEachResolvedModule,
+		forEachResolvedTypeReferenceDirective:                       forEachResolvedTypeReferenceDirective,
+		getCurrentPackagesMap: func() *Map[string, bool] {
 			return packageMap
 		},
-		"typesPackageExists":                                   typesPackageExists,
-		"packageBundlesTypes":                                  packageBundlesTypes,
-		"isEmittedFile":                                        isEmittedFile,
-		"getConfigFileParsingDiagnostics":                      getConfigFileParsingDiagnostics,
-		"getProjectReferences":                                 getProjectReferences,
-		"getResolvedProjectReferences":                         getResolvedProjectReferences,
-		"getProjectReferenceRedirect":                          getProjectReferenceRedirect,
-		"getResolvedProjectReferenceToRedirect":                getResolvedProjectReferenceToRedirect,
-		"getResolvedProjectReferenceByPath":                    getResolvedProjectReferenceByPath,
-		"forEachResolvedProjectReference":                      forEachResolvedProjectReference,
-		"isSourceOfProjectReferenceRedirect":                   isSourceOfProjectReferenceRedirect,
-		"getRedirectReferenceForResolutionFromSourceOfProject": getRedirectReferenceForResolutionFromSourceOfProject,
-		"getCompilerOptionsForFile":                            getCompilerOptionsForFile,
-		"getDefaultResolutionModeForFile":                      getDefaultResolutionModeForFile,
-		"getEmitModuleFormatOfFile":                            getEmitModuleFormatOfFile,
-		"getImpliedNodeFormatForEmit":                          getImpliedNodeFormatForEmit,
-		"shouldTransformImportCall":                            shouldTransformImportCall,
-		"emitBuildInfo":                                        emitBuildInfo,
-		"fileExists":                                           fileExists,
-		"readFile":                                             readFile,
-		"directoryExists":                                      directoryExists,
-		"getSymlinkCache":                                      getSymlinkCache,
-		"realpath":                                             host.realpath. /* ? */ bind(host),
-		"useCaseSensitiveFileNames": func() bool {
+		typesPackageExists:                                   typesPackageExists,
+		packageBundlesTypes:                                  packageBundlesTypes,
+		isEmittedFile:                                        isEmittedFile,
+		getConfigFileParsingDiagnostics:                      getConfigFileParsingDiagnostics,
+		getProjectReferences:                                 getProjectReferences,
+		getResolvedProjectReferences:                         getResolvedProjectReferences,
+		getProjectReferenceRedirect:                          getProjectReferenceRedirect,
+		getResolvedProjectReferenceToRedirect:                getResolvedProjectReferenceToRedirect,
+		getResolvedProjectReferenceByPath:                    getResolvedProjectReferenceByPath,
+		forEachResolvedProjectReference:                      forEachResolvedProjectReference,
+		isSourceOfProjectReferenceRedirect:                   isSourceOfProjectReferenceRedirect,
+		getRedirectReferenceForResolutionFromSourceOfProject: getRedirectReferenceForResolutionFromSourceOfProject,
+		getCompilerOptionsForFile:                            getCompilerOptionsForFile,
+		getDefaultResolutionModeForFile:                      getDefaultResolutionModeForFile,
+		getEmitModuleFormatOfFile:                            getEmitModuleFormatOfFile,
+		getImpliedNodeFormatForEmit:                          getImpliedNodeFormatForEmit,
+		shouldTransformImportCall:                            shouldTransformImportCall,
+		emitBuildInfo:                                        emitBuildInfo,
+		fileExists:                                           fileExists,
+		readFile:                                             readFile,
+		directoryExists:                                      directoryExists,
+		getSymlinkCache:                                      getSymlinkCache,
+		realpath:                                             host.realpath. /* ? */ bind(host),
+		useCaseSensitiveFileNames: func() bool {
 			return host.useCaseSensitiveFileNames()
 		},
-		"getCanonicalFileName": getCanonicalFileName,
-		"getFileIncludeReasons": func() /* TODO(TS-TO-GO) inferred type MultiMap<Path, FileIncludeReason> */ any {
+		getCanonicalFileName: getCanonicalFileName,
+		getFileIncludeReasons: func() /* TODO(TS-TO-GO) inferred type MultiMap<Path, FileIncludeReason> */ any {
 			return fileReasons
 		},
-		"structureIsReused":             structureIsReused,
-		"writeFile":                     writeFile,
-		"getGlobalTypingsCacheLocation": maybeBind(host, host.getGlobalTypingsCacheLocation),
+		structureIsReused:             structureIsReused,
+		writeFile:                     writeFile,
+		getGlobalTypingsCacheLocation: maybeBind(host, host.getGlobalTypingsCacheLocation),
 	}
 
 	onProgramCreateComplete()
@@ -1911,9 +1910,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		if !resolution.resolutionDiagnostics. /* ? */ length {
 			return
 		}
-		( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: fileProcessingDiagnostics ??= [] */ TODO).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"kind":        FilePreprocessingDiagnosticsKindResolutionDiagnostics,
-			"diagnostics": resolution.resolutionDiagnostics,
+		( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: fileProcessingDiagnostics ??= [] */ TODO).push(FilePreprocessingDiagnostics{
+			kind:        FilePreprocessingDiagnosticsKindResolutionDiagnostics,
+			diagnostics: resolution.resolutionDiagnostics,
 		})
 	}
 
@@ -1942,8 +1941,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	resolveModuleNamesWorker := func(moduleNames []StringLiteralLike, containingFile SourceFile, reusedNames *[]StringLiteralLike) []ResolvedModuleWithFailedLookupLocations {
 		containingFileName := getNormalizedAbsolutePath(containingFile.originalFileName, currentDirectory)
 		redirectedReference := getRedirectReferenceForResolution(containingFile)
-		tracing. /* ? */ push(tracing.Phase.Program, "resolveModuleNamesWorker", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"containingFileName": containingFileName,
+		tracing. /* ? */ push(tracing.Phase.Program, "resolveModuleNamesWorker", &Args{
+			containingFileName: containingFileName,
 		})
 		performance.mark("beforeResolveModule")
 		result := actualResolveModuleNamesWorker(moduleNames, containingFileName, redirectedReference, options, containingFile, reusedNames)
@@ -1967,8 +1966,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			containingFileName = containingFile
 		}
 		redirectedReference := containingSourceFile && getRedirectReferenceForResolution(containingSourceFile)
-		tracing. /* ? */ push(tracing.Phase.Program, "resolveTypeReferenceDirectiveNamesWorker", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"containingFileName": containingFileName,
+		tracing. /* ? */ push(tracing.Phase.Program, "resolveTypeReferenceDirectiveNamesWorker", &Args{
+			containingFileName: containingFileName,
 		})
 		performance.mark("beforeResolveTypeReference")
 		result := actualResolveTypeReferenceDirectiveNamesWorker(typeDirectiveNames, containingFileName, redirectedReference, options, containingSourceFile, reusedNames)
@@ -2088,21 +2087,21 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	resolveModuleNamesReusingOldState := func(moduleNames []StringLiteralLike, containingFile SourceFile) []ResolvedModuleWithFailedLookupLocations {
-		return resolveNamesReusingOldState(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"entries":              moduleNames,
-			"containingFile":       containingFile,
-			"containingSourceFile": containingFile,
-			"redirectedReference":  getRedirectReferenceForResolution(containingFile),
-			"nameAndModeGetter":    moduleResolutionNameAndModeGetter,
-			"resolutionWorker":     resolveModuleNamesWorker,
-			"getResolutionFromOldProgram": func(name string, mode ResolutionMode) *ResolvedModuleWithFailedLookupLocations {
+		return resolveNamesReusingOldState( /* TODO(TS-TO-GO) inferred type ResolveNamesReusingOldStateInput<StringLiteralLike, SourceFile, SourceFile, ResolvedModuleWithFailedLookupLocations> */ any{
+			entries:              moduleNames,
+			containingFile:       containingFile,
+			containingSourceFile: containingFile,
+			redirectedReference:  getRedirectReferenceForResolution(containingFile),
+			nameAndModeGetter:    moduleResolutionNameAndModeGetter,
+			resolutionWorker:     resolveModuleNamesWorker,
+			getResolutionFromOldProgram: func(name string, mode ResolutionMode) *ResolvedModuleWithFailedLookupLocations {
 				return oldProgram. /* ? */ getResolvedModule(containingFile, name, mode)
 			},
-			"getResolved": getResolvedModuleFromResolution,
-			"canReuseResolutionsInFile": func() bool {
+			getResolved: getResolvedModuleFromResolution,
+			canReuseResolutionsInFile: func() bool {
 				return containingFile == oldProgram. /* ? */ getSourceFile(containingFile.fileName) && !hasInvalidatedResolutions(containingFile.path)
 			},
-			"resolveToOwnAmbientModule": true,
+			resolveToOwnAmbientModule: true,
 		})
 	}
 
@@ -2115,22 +2114,22 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		} else {
 			containingSourceFile = nil
 		}
-		return resolveNamesReusingOldState(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"entries":              typeDirectiveNames,
-			"containingFile":       containingFile,
-			"containingSourceFile": containingSourceFile,
-			"redirectedReference":  containingSourceFile && getRedirectReferenceForResolution(containingSourceFile),
-			"nameAndModeGetter":    typeReferenceResolutionNameAndModeGetter,
-			"resolutionWorker":     resolveTypeReferenceDirectiveNamesWorker,
-			"getResolutionFromOldProgram": func(name string, mode ResolutionMode) *ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
+		return resolveNamesReusingOldState( /* TODO(TS-TO-GO) inferred type ResolveNamesReusingOldStateInput<string | FileReference, string | SourceFile, SourceFile | undefined, ResolvedTypeReferenceDirectiveWithFailedLookupLocations> */ any{
+			entries:              typeDirectiveNames,
+			containingFile:       containingFile,
+			containingSourceFile: containingSourceFile,
+			redirectedReference:  containingSourceFile && getRedirectReferenceForResolution(containingSourceFile),
+			nameAndModeGetter:    typeReferenceResolutionNameAndModeGetter,
+			resolutionWorker:     resolveTypeReferenceDirectiveNamesWorker,
+			getResolutionFromOldProgram: func(name string, mode ResolutionMode) *ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
 				if containingSourceFile != nil {
 					return oldProgram. /* ? */ getResolvedTypeReferenceDirective(containingSourceFile, name, mode)
 				} else {
 					return oldProgram. /* ? */ getAutomaticTypeDirectiveResolutions(). /* ? */ get(name, mode)
 				}
 			},
-			"getResolved": getResolvedTypeReferenceDirectiveFromResolution,
-			"canReuseResolutionsInFile": func() bool {
+			getResolved: getResolvedTypeReferenceDirectiveFromResolution,
+			canReuseResolutionsInFile: func() bool {
 				if containingSourceFile != nil {
 					return containingSourceFile == oldProgram. /* ? */ getSourceFile(containingSourceFile.fileName) && !hasInvalidatedResolutions(containingSourceFile.path)
 				} else {
@@ -2492,31 +2491,31 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	getEmitHost := func(writeFileCallback WriteFileCallback) EmitHost {
-		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"getCanonicalFileName":     getCanonicalFileName,
-			"getCommonSourceDirectory": program.getCommonSourceDirectory,
-			"getCompilerOptions":       program.getCompilerOptions,
-			"getCurrentDirectory": func() string {
+		return EmitHost{
+			getCanonicalFileName:     getCanonicalFileName,
+			getCommonSourceDirectory: program.getCommonSourceDirectory,
+			getCompilerOptions:       program.getCompilerOptions,
+			getCurrentDirectory: func() string {
 				return currentDirectory
 			},
-			"getSourceFile":                         program.getSourceFile,
-			"getSourceFileByPath":                   program.getSourceFileByPath,
-			"getSourceFiles":                        program.getSourceFiles,
-			"isSourceFileFromExternalLibrary":       isSourceFileFromExternalLibrary,
-			"getResolvedProjectReferenceToRedirect": getResolvedProjectReferenceToRedirect,
-			"getProjectReferenceRedirect":           getProjectReferenceRedirect,
-			"isSourceOfProjectReferenceRedirect":    isSourceOfProjectReferenceRedirect,
-			"getSymlinkCache":                       getSymlinkCache,
-			"writeFile":                             writeFileCallback || writeFile,
-			"isEmitBlocked":                         isEmitBlocked,
-			"shouldTransformImportCall":             shouldTransformImportCall,
-			"getEmitModuleFormatOfFile":             getEmitModuleFormatOfFile,
-			"getDefaultResolutionModeForFile":       getDefaultResolutionModeForFile,
-			"getModeForResolutionAtIndex":           getModeForResolutionAtIndex,
-			"readFile": func(f string) *string {
+			getSourceFile:                         program.getSourceFile,
+			getSourceFileByPath:                   program.getSourceFileByPath,
+			getSourceFiles:                        program.getSourceFiles,
+			isSourceFileFromExternalLibrary:       isSourceFileFromExternalLibrary,
+			getResolvedProjectReferenceToRedirect: getResolvedProjectReferenceToRedirect,
+			getProjectReferenceRedirect:           getProjectReferenceRedirect,
+			isSourceOfProjectReferenceRedirect:    isSourceOfProjectReferenceRedirect,
+			getSymlinkCache:                       getSymlinkCache,
+			writeFile:                             writeFileCallback || writeFile,
+			isEmitBlocked:                         isEmitBlocked,
+			shouldTransformImportCall:             shouldTransformImportCall,
+			getEmitModuleFormatOfFile:             getEmitModuleFormatOfFile,
+			getDefaultResolutionModeForFile:       getDefaultResolutionModeForFile,
+			getModeForResolutionAtIndex:           getModeForResolutionAtIndex,
+			readFile: func(f string) *string {
 				return host.readFile(f)
 			},
-			"fileExists": func(f string) bool {
+			fileExists: func(f string) bool {
 				// Use local caches
 				path := toPath(f)
 				if getSourceFileByPath(path) != nil {
@@ -2528,24 +2527,24 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				// Before falling back to the host
 				return host.fileExists(f)
 			},
-			"realpath": maybeBind(host, host.realpath),
-			"useCaseSensitiveFileNames": func() bool {
+			realpath: maybeBind(host, host.realpath),
+			useCaseSensitiveFileNames: func() bool {
 				return host.useCaseSensitiveFileNames()
 			},
-			"getBuildInfo": func() *BuildInfo {
+			getBuildInfo: func() *BuildInfo {
 				return program.getBuildInfo()
 			},
-			"getSourceFileFromReference": func(file SourceFile, ref FileReference) *SourceFile {
+			getSourceFileFromReference: func(file SourceFile, ref FileReference) *SourceFile {
 				return program.getSourceFileFromReference(file, ref)
 			},
-			"redirectTargetsMap":    redirectTargetsMap,
-			"getFileIncludeReasons": program.getFileIncludeReasons,
-			"createHash":            maybeBind(host, host.createHash),
-			"getModuleResolutionCache": func() *ModuleResolutionCache {
+			redirectTargetsMap:    redirectTargetsMap,
+			getFileIncludeReasons: program.getFileIncludeReasons,
+			createHash:            maybeBind(host, host.createHash),
+			getModuleResolutionCache: func() *ModuleResolutionCache {
 				return program.getModuleResolutionCache()
 			},
-			"trace":                         maybeBind(host, host.trace),
-			"getGlobalTypingsCacheLocation": program.getGlobalTypingsCacheLocation,
+			trace:                         maybeBind(host, host.trace),
+			getGlobalTypingsCacheLocation: program.getGlobalTypingsCacheLocation,
 		}
 	}
 
@@ -2554,8 +2553,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	emitBuildInfo := func(writeFileCallback WriteFileCallback) EmitResult {
-		tracing. /* ? */ push(tracing.Phase.Emit, "emitBuildInfo", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		}, /*separateBeginAndEnd*/ true)
+		tracing. /* ? */ push(tracing.Phase.Emit, "emitBuildInfo", &Args{}, /*separateBeginAndEnd*/ true)
 		performance.mark("beforeEmit")
 		emitResult := emitFiles(notImplementedResolver, getEmitHost(writeFileCallback), nil, noTransformers, false, true)
 
@@ -2614,8 +2612,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	emit := func(sourceFile SourceFile, writeFileCallback WriteFileCallback, cancellationToken CancellationToken, emitOnly Union[bool, EmitOnly], transformers CustomTransformers, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
-		tracing. /* ? */ push(tracing.Phase.Emit, "emit", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"path": sourceFile. /* ? */ path,
+		tracing. /* ? */ push(tracing.Phase.Emit, "emit", &Args{
+			path: sourceFile. /* ? */ path,
 		}, /*separateBeginAndEnd*/ true)
 		result := runWithCancellationToken(func() EmitResult {
 			return emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnly, transformers, forceDtsEmit, skipBuildInfo)
@@ -3414,9 +3412,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	createRedirectedSourceFile := func(redirectTarget SourceFile, unredirected SourceFile, fileName string, path Path, resolvedPath Path, originalFileName string, sourceFileOptions CreateSourceFileOptions) SourceFile {
-		redirect := parseNodeFactory.createRedirectedSourceFile(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"redirectTarget": redirectTarget,
-			"unredirected":   unredirected,
+		redirect := parseNodeFactory.createRedirectedSourceFile(RedirectInfo{
+			redirectTarget: redirectTarget,
+			unredirected:   unredirected,
 		})
 		redirect.fileName = fileName
 		redirect.path = path
@@ -3434,10 +3432,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 	// Get source file from normalized fileName
 	findSourceFile := func(fileName string, isDefaultLib bool, ignoreNoDefaultLib bool, reason FileIncludeReason, packageId *PackageId) *SourceFile {
-		tracing. /* ? */ push(tracing.Phase.Program, "findSourceFile", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"fileName":        fileName,
-			"isDefaultLib":    isDefaultLib || nil,
-			"fileIncludeKind": (FileIncludeKind /* as any */)[reason.kind],
+		tracing. /* ? */ push(tracing.Phase.Program, "findSourceFile", &Args{
+			fileName:        fileName,
+			isDefaultLib:    isDefaultLib || nil,
+			fileIncludeKind: (FileIncludeKind /* as any */)[reason.kind],
 		})
 		result := findSourceFileWorker(fileName, isDefaultLib, ignoreNoDefaultLib, reason, packageId)
 		tracing. /* ? */ pop()
@@ -3452,18 +3450,18 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		languageVersion := getEmitScriptTarget(options)
 		setExternalModuleIndicator := getSetExternalModuleIndicator(options)
 		if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof result */ TODO == "object" {
-			return map[any]any{ /* TODO(TS-TO-GO): was object literal */
+			return CreateSourceFileOptions{
 				/* TODO(TS-TO-GO) Node SpreadAssignment: ...result */
-				"languageVersion":            languageVersion,
-				"setExternalModuleIndicator": setExternalModuleIndicator,
-				"jsDocParsingMode":           host.jsDocParsingMode,
+				languageVersion:            languageVersion,
+				setExternalModuleIndicator: setExternalModuleIndicator,
+				jsDocParsingMode:           host.jsDocParsingMode,
 			}
 		} else {
-			return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"languageVersion":            languageVersion,
-				"impliedNodeFormat":          result,
-				"setExternalModuleIndicator": setExternalModuleIndicator,
-				"jsDocParsingMode":           host.jsDocParsingMode,
+			return CreateSourceFileOptions{
+				languageVersion:            languageVersion,
+				impliedNodeFormat:          result,
+				setExternalModuleIndicator: setExternalModuleIndicator,
+				jsDocParsingMode:           host.jsDocParsingMode,
 			}
 		}
 	}
@@ -3752,10 +3750,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 	processReferencedFiles := func(file SourceFile, isDefaultLib bool) {
 		forEach(file.referencedFiles, func(ref FileReference, index number) {
-			processSourceFile(resolveTripleslashReference(ref.fileName, file.fileName), isDefaultLib, false, nil, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"kind":  FileIncludeKindReferenceFile,
-				"file":  file.path,
-				"index": index,
+			processSourceFile(resolveTripleslashReference(ref.fileName, file.fileName), isDefaultLib, false, nil, FileIncludeReason{
+				kind:  FileIncludeKindReferenceFile,
+				file:  file.path,
+				index: index,
 			})
 		})
 	}
@@ -3776,10 +3774,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			fileName := ref.fileName
 			mode := getModeForTypeReferenceDirectiveInFile(ref, file)
 			resolutionsInFile.set(fileName, mode, resolvedTypeReferenceDirective)
-			processTypeReferenceDirective(fileName, mode, resolvedTypeReferenceDirective, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"kind":  FileIncludeKindTypeReferenceDirective,
-				"file":  file.path,
-				"index": index,
+			processTypeReferenceDirective(fileName, mode, resolvedTypeReferenceDirective, FileIncludeReason{
+				kind:  FileIncludeKindTypeReferenceDirective,
+				file:  file.path,
+				index: index,
 			})
 		}
 	}
@@ -3789,11 +3787,11 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	processTypeReferenceDirective := func(typeReferenceDirective string, mode ResolutionMode, resolution ResolvedTypeReferenceDirectiveWithFailedLookupLocations, reason FileIncludeReason) {
-		tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferenceDirective", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"directive":   typeReferenceDirective,
-			"hasResolved": resolution.resolvedTypeReferenceDirective != nil,
-			"refKind":     reason.kind,
-			"refPath":     ifElse(isReferencedFile(reason), reason.file, nil),
+		tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferenceDirective", &Args{
+			directive:   typeReferenceDirective,
+			hasResolved: resolution.resolvedTypeReferenceDirective != nil,
+			refKind:     reason.kind,
+			refPath:     ifElse(isReferencedFile(reason), reason.file, nil),
 		})
 		processTypeReferenceDirectiveWorker(typeReferenceDirective, mode, resolution, reason)
 		tracing. /* ? */ pop()
@@ -3850,17 +3848,17 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 		libraryName := getLibraryNameFromLibFileName(libFileName)
 		resolveFrom := getInferredLibraryNameResolveFrom(options, currentDirectory, libFileName)
-		tracing. /* ? */ push(tracing.Phase.Program, "resolveLibrary", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"resolveFrom": resolveFrom,
+		tracing. /* ? */ push(tracing.Phase.Program, "resolveLibrary", &Args{
+			resolveFrom: resolveFrom,
 		})
 		performance.mark("beforeResolveLibrary")
 		resolution := actualResolveLibrary(libraryName, resolveFrom, options, libFileName)
 		performance.mark("afterResolveLibrary")
 		performance.measure("ResolveLibrary", "beforeResolveLibrary", "afterResolveLibrary")
 		tracing. /* ? */ pop()
-		var result LibResolution = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"resolution": resolution,
-			"actual":     ifElse(resolution.resolvedModule != nil, resolution.resolvedModule.resolvedFileName, combinePaths(defaultLibraryPath, libFileName)),
+		var result LibResolution = /* TODO(TS-TO-GO) inferred type LibResolution<ResolvedModuleWithFailedLookupLocations> */ any{
+			resolution: resolution,
+			actual:     ifElse(resolution.resolvedModule != nil, resolution.resolvedModule.resolvedFileName, combinePaths(defaultLibraryPath, libFileName)),
 		}
 		( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: resolvedLibProcessing ??= new Map() */ TODO).set(libFileName, result)
 		return result
@@ -3871,18 +3869,18 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			libFileName := getLibFileNameFromLibReference(libReference)
 			if libFileName {
 				// we ignore any 'no-default-lib' reference set on this file.
-				processRootFile(pathForLibFile(libFileName) /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, true, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"kind":  FileIncludeKindLibReferenceDirective,
-					"file":  file.path,
-					"index": index,
+				processRootFile(pathForLibFile(libFileName) /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, true, FileIncludeReason{
+					kind:  FileIncludeKindLibReferenceDirective,
+					file:  file.path,
+					index: index,
 				})
 			} else {
-				( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: fileProcessingDiagnostics ||= [] */ TODO).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"kind": FilePreprocessingDiagnosticsKindFilePreprocessingLibReferenceDiagnostic,
-					"reason": map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"kind":  FileIncludeKindLibReferenceDirective,
-						"file":  file.path,
-						"index": index,
+				( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: fileProcessingDiagnostics ||= [] */ TODO).push(FilePreprocessingDiagnostics{
+					kind: FilePreprocessingDiagnosticsKindFilePreprocessingLibReferenceDiagnostic,
+					reason: /* TODO(TS-TO-GO) inferred type ReferencedFile & { kind: FileIncludeKind.LibReferenceDirective; } */ any{
+						kind:  FileIncludeKindLibReferenceDirective,
+						file:  file.path,
+						index: index,
 					},
 				})
 			}
@@ -3937,10 +3935,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				if elideImport {
 					modulesWithElidedImports.set(file.path, true)
 				} else if shouldAddFile {
-					findSourceFile(resolvedFileName, false, false, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"kind":  FileIncludeKindImport,
-						"file":  file.path,
-						"index": index,
+					findSourceFile(resolvedFileName, false, false, FileIncludeReason{
+						kind:  FileIncludeKindImport,
+						file:  file.path,
+						index: index,
 					}, resolution.packageId)
 				}
 
@@ -4008,9 +4006,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		sourceFile.resolvedPath = sourceFilePath
 		sourceFile.originalFileName = refPath
 
-		var resolvedRef ResolvedProjectReference = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"commandLine": commandLine,
-			"sourceFile":  sourceFile,
+		var resolvedRef ResolvedProjectReference = ResolvedProjectReference{
+			commandLine: commandLine,
+			sourceFile:  sourceFile,
 		}
 		projectReferenceRedirects.set(sourceFilePath, resolvedRef)
 		if commandLine.projectReferences != nil {
@@ -4515,20 +4513,20 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	addFilePreprocessingFileExplainingDiagnostic := func(file *SourceFile, fileProcessingReason FileIncludeReason, diagnostic DiagnosticMessage, args DiagnosticArguments) {
-		( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: fileProcessingDiagnostics ||= [] */ TODO).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"kind":                 FilePreprocessingDiagnosticsKindFilePreprocessingFileExplainingDiagnostic,
-			"file":                 file && file.path,
-			"fileProcessingReason": fileProcessingReason,
-			"diagnostic":           diagnostic,
-			"args":                 args,
+		( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: fileProcessingDiagnostics ||= [] */ TODO).push(FilePreprocessingDiagnostics{
+			kind:                 FilePreprocessingDiagnosticsKindFilePreprocessingFileExplainingDiagnostic,
+			file:                 file && file.path,
+			fileProcessingReason: fileProcessingReason,
+			diagnostic:           diagnostic,
+			args:                 args,
 		})
 	}
 
 	addLazyProgramDiagnosticExplainingFile := func(file SourceFile, diagnostic DiagnosticMessage, args DiagnosticArguments) {
-		lazyProgramDiagnosticExplainingFile.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"file":       file,
-			"diagnostic": diagnostic,
-			"args":       args,
+		lazyProgramDiagnosticExplainingFile.push(LazyProgramDiagnosticExplainingFile{
+			file:       file,
+			diagnostic: diagnostic,
+			args:       args,
 		})
 	}
 
@@ -5081,9 +5079,9 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 			return
 		}
 
-		symlinkCache.setSymlinkedDirectory(directory, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"real":     ensureTrailingDirectorySeparator(real),
-			"realPath": realPath,
+		symlinkCache.setSymlinkedDirectory(directory /* TODO(TS-TO-GO) inferred type false | SymlinkedDirectory */, any{
+			real:     ensureTrailingDirectorySeparator(real),
+			realPath: realPath,
 		})
 	}
 
@@ -5136,11 +5134,11 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 
 /** @internal */
 
-var emitSkippedWithNoDiagnostics EmitResult = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"diagnostics":  emptyArray,
-	"sourceMaps":   nil,
-	"emittedFiles": nil,
-	"emitSkipped":  true,
+var emitSkippedWithNoDiagnostics EmitResult = EmitResult{
+	diagnostics:  emptyArray,
+	sourceMaps:   nil,
+	emittedFiles: nil,
+	emitSkipped:  true,
 }
 
 /** @internal */
@@ -5178,11 +5176,11 @@ func handleNoEmitOptions(program Union[Program, T], sourceFile *SourceFile, writ
 		}
 		emittedFiles = emitResult.emittedFiles
 	}
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"diagnostics":  diagnostics,
-		"sourceMaps":   nil,
-		"emittedFiles": emittedFiles,
-		"emitSkipped":  true,
+	return &EmitResult{
+		diagnostics:  diagnostics,
+		sourceMaps:   nil,
+		emittedFiles: emittedFiles,
+		emitSkipped:  true,
 	}
 }
 
@@ -5197,26 +5195,26 @@ func filterSemanticDiagnostics(diagnostic []Diagnostic, option CompilerOptions) 
 /** @internal */
 
 func parseConfigHostFromCompilerHostLike(host Intersection[Union[CompilerHost, ProgramHost[T]] /* TODO(TS-TO-GO) TypeNode TypeLiteral: { onUnRecoverableConfigFileDiagnostic?: DiagnosticReporter; } */, any], directoryStructureHost DirectoryStructureHost /*  = host */) ParseConfigFileHost {
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"fileExists": func(f string) bool {
+	return ParseConfigFileHost{
+		fileExists: func(f string) bool {
 			return directoryStructureHost.fileExists(f)
 		},
-		"readDirectory": func(root string, extensions []string, excludes *[]string, includes []string, depth *number) []string {
+		readDirectory: func(root string, extensions []string, excludes *[]string, includes []string, depth *number) []string {
 			Debug.assertIsDefined(directoryStructureHost.readDirectory, "'CompilerHost.readDirectory' must be implemented to correctly process 'projectReferences'")
 			return directoryStructureHost.readDirectory(root, extensions, excludes, includes, depth)
 		},
-		"readFile": func(f string) *string {
+		readFile: func(f string) *string {
 			return directoryStructureHost.readFile(f)
 		},
-		"directoryExists":           maybeBind(directoryStructureHost, directoryStructureHost.directoryExists),
-		"getDirectories":            maybeBind(directoryStructureHost, directoryStructureHost.getDirectories),
-		"realpath":                  maybeBind(directoryStructureHost, directoryStructureHost.realpath),
-		"useCaseSensitiveFileNames": host.useCaseSensitiveFileNames(),
-		"getCurrentDirectory": func() string {
+		directoryExists:           maybeBind(directoryStructureHost, directoryStructureHost.directoryExists),
+		getDirectories:            maybeBind(directoryStructureHost, directoryStructureHost.getDirectories),
+		realpath:                  maybeBind(directoryStructureHost, directoryStructureHost.realpath),
+		useCaseSensitiveFileNames: host.useCaseSensitiveFileNames(),
+		getCurrentDirectory: func() string {
 			return host.getCurrentDirectory()
 		},
-		"onUnRecoverableConfigFileDiagnostic": host.onUnRecoverableConfigFileDiagnostic || returnUndefined,
-		"trace": ifElse(host.trace != nil, func(s string) {
+		onUnRecoverableConfigFileDiagnostic: host.onUnRecoverableConfigFileDiagnostic || returnUndefined,
+		trace: ifElse(host.trace != nil, func(s string) {
 			return host.trace(s)
 		}, nil),
 	}

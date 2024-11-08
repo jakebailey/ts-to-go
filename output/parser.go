@@ -34,20 +34,20 @@ var SourceFileConstructor /* TODO(TS-TO-GO) TypeNode ConstructorType: new (kind:
  * @knipignore
  */
 
-var parseBaseNodeFactory BaseNodeFactory = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"createBaseSourceFileNode": func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.SourceFile */ any) *Node {
+var parseBaseNodeFactory BaseNodeFactory = BaseNodeFactory{
+	createBaseSourceFileNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.SourceFile */ any) *Node {
 		return /* TODO(TS-TO-GO) Node NewExpression: new (SourceFileConstructor || (SourceFileConstructor = objectAllocator.getSourceFileConstructor()))(kind, -1, -1) */ TODO
 	},
-	"createBaseIdentifierNode": func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.Identifier */ any) *Node {
+	createBaseIdentifierNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.Identifier */ any) *Node {
 		return /* TODO(TS-TO-GO) Node NewExpression: new (IdentifierConstructor || (IdentifierConstructor = objectAllocator.getIdentifierConstructor()))(kind, -1, -1) */ TODO
 	},
-	"createBasePrivateIdentifierNode": func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.PrivateIdentifier */ any) *Node {
+	createBasePrivateIdentifierNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.PrivateIdentifier */ any) *Node {
 		return /* TODO(TS-TO-GO) Node NewExpression: new (PrivateIdentifierConstructor || (PrivateIdentifierConstructor = objectAllocator.getPrivateIdentifierConstructor()))(kind, -1, -1) */ TODO
 	},
-	"createBaseTokenNode": func(kind SyntaxKind) *Node {
+	createBaseTokenNode: func(kind SyntaxKind) *Node {
 		return /* TODO(TS-TO-GO) Node NewExpression: new (TokenConstructor || (TokenConstructor = objectAllocator.getTokenConstructor()))(kind, -1, -1) */ TODO
 	},
-	"createBaseNode": func(kind SyntaxKind) *Node {
+	createBaseNode: func(kind SyntaxKind) *Node {
 		return /* TODO(TS-TO-GO) Node NewExpression: new (NodeConstructor || (NodeConstructor = objectAllocator.getNodeConstructor()))(kind, -1, -1) */ TODO
 	},
 }
@@ -127,430 +127,430 @@ func isImportMeta(node *Node) bool {
 type ForEachChildFunction[TNode any] func(node TNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T
 type ForEachChildTable /* TODO(TS-TO-GO) TypeNode MappedType: { [TNode in ForEachChildNodes as TNode["kind"]]: ForEachChildFunction<TNode>; } */ any
 
-var forEachChildTable ForEachChildTable = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"TODO_IDENTIFIER": func /* forEachChildInQualifiedName */ (node QualifiedName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+var forEachChildTable ForEachChildTable = ForEachChildTable{
+	TODO_IDENTIFIER: func /* forEachChildInQualifiedName */ (node QualifiedName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.left) || visitNode(cbNode, node.right)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeParameter */ (node TypeParameterDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeParameter */ (node TypeParameterDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.constraint) || visitNode(cbNode, node.default_) || visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInShorthandPropertyAssignment */ (node ShorthandPropertyAssignment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInShorthandPropertyAssignment */ (node ShorthandPropertyAssignment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.equalsToken) || visitNode(cbNode, node.objectAssignmentInitializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInSpreadAssignment */ (node SpreadAssignment, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInSpreadAssignment */ (node SpreadAssignment, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInParameter */ (node ParameterDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInParameter */ (node ParameterDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInPropertyDeclaration */ (node PropertyDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInPropertyDeclaration */ (node PropertyDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInPropertySignature */ (node PropertySignature, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInPropertySignature */ (node PropertySignature, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInPropertyAssignment */ (node PropertyAssignment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInPropertyAssignment */ (node PropertyAssignment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInVariableDeclaration */ (node VariableDeclaration, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInVariableDeclaration */ (node VariableDeclaration, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInBindingElement */ (node BindingElement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInBindingElement */ (node BindingElement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.propertyName) || visitNode(cbNode, node.name) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInIndexSignature */ (node IndexSignatureDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInIndexSignature */ (node IndexSignatureDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInConstructorType */ (node ConstructorTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInConstructorType */ (node ConstructorTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInFunctionType */ (node FunctionTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInFunctionType */ (node FunctionTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": forEachChildInCallOrConstructSignature,
-	"TODO_IDENTIFIER": forEachChildInCallOrConstructSignature,
-	"TODO_IDENTIFIER": func /* forEachChildInMethodDeclaration */ (node MethodDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInCallOrConstructSignature,
+	TODO_IDENTIFIER: forEachChildInCallOrConstructSignature,
+	TODO_IDENTIFIER: func /* forEachChildInMethodDeclaration */ (node MethodDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInMethodSignature */ (node MethodSignature, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInMethodSignature */ (node MethodSignature, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInConstructor */ (node ConstructorDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInConstructor */ (node ConstructorDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInGetAccessor */ (node GetAccessorDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInGetAccessor */ (node GetAccessorDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInSetAccessor */ (node SetAccessorDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInSetAccessor */ (node SetAccessorDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInFunctionDeclaration */ (node FunctionDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInFunctionDeclaration */ (node FunctionDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInFunctionExpression */ (node FunctionExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInFunctionExpression */ (node FunctionExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInArrowFunction */ (node ArrowFunction, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInArrowFunction */ (node ArrowFunction, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.equalsGreaterThanToken) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInClassStaticBlockDeclaration */ (node ClassStaticBlockDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInClassStaticBlockDeclaration */ (node ClassStaticBlockDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeReference */ (node TypeReferenceNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeReference */ (node TypeReferenceNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.typeName) || visitNodes(cbNode, cbNodes, node.typeArguments)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypePredicate */ (node TypePredicateNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypePredicate */ (node TypePredicateNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.assertsModifier) || visitNode(cbNode, node.parameterName) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeQuery */ (node TypeQueryNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeQuery */ (node TypeQueryNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.exprName) || visitNodes(cbNode, cbNodes, node.typeArguments)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeLiteral */ (node TypeLiteralNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeLiteral */ (node TypeLiteralNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.members)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInArrayType */ (node ArrayTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInArrayType */ (node ArrayTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.elementType)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTupleType */ (node TupleTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTupleType */ (node TupleTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.elements)
 	},
-	"TODO_IDENTIFIER": forEachChildInUnionOrIntersectionType,
-	"TODO_IDENTIFIER": forEachChildInUnionOrIntersectionType,
-	"TODO_IDENTIFIER": func /* forEachChildInConditionalType */ (node ConditionalTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInUnionOrIntersectionType,
+	TODO_IDENTIFIER: forEachChildInUnionOrIntersectionType,
+	TODO_IDENTIFIER: func /* forEachChildInConditionalType */ (node ConditionalTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.checkType) || visitNode(cbNode, node.extendsType) || visitNode(cbNode, node.trueType) || visitNode(cbNode, node.falseType)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInInferType */ (node InferTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInInferType */ (node InferTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.typeParameter)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportType */ (node ImportTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportType */ (node ImportTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.argument) || visitNode(cbNode, node.attributes) || visitNode(cbNode, node.qualifier) || visitNodes(cbNode, cbNodes, node.typeArguments)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportTypeAssertionContainer */ (node ImportTypeAssertionContainer, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportTypeAssertionContainer */ (node ImportTypeAssertionContainer, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.assertClause)
 	},
-	"TODO_IDENTIFIER": forEachChildInParenthesizedTypeOrTypeOperator,
-	"TODO_IDENTIFIER": forEachChildInParenthesizedTypeOrTypeOperator,
-	"TODO_IDENTIFIER": func /* forEachChildInIndexedAccessType */ (node IndexedAccessTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInParenthesizedTypeOrTypeOperator,
+	TODO_IDENTIFIER: forEachChildInParenthesizedTypeOrTypeOperator,
+	TODO_IDENTIFIER: func /* forEachChildInIndexedAccessType */ (node IndexedAccessTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.objectType) || visitNode(cbNode, node.indexType)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInMappedType */ (node MappedTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInMappedType */ (node MappedTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.readonlyToken) || visitNode(cbNode, node.typeParameter) || visitNode(cbNode, node.nameType) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_) || visitNodes(cbNode, cbNodes, node.members)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInLiteralType */ (node LiteralTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInLiteralType */ (node LiteralTypeNode, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.literal)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInNamedTupleMember */ (node NamedTupleMember, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInNamedTupleMember */ (node NamedTupleMember, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": forEachChildInObjectOrArrayBindingPattern,
-	"TODO_IDENTIFIER": forEachChildInObjectOrArrayBindingPattern,
-	"TODO_IDENTIFIER": func /* forEachChildInArrayLiteralExpression */ (node ArrayLiteralExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInObjectOrArrayBindingPattern,
+	TODO_IDENTIFIER: forEachChildInObjectOrArrayBindingPattern,
+	TODO_IDENTIFIER: func /* forEachChildInArrayLiteralExpression */ (node ArrayLiteralExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.elements)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInObjectLiteralExpression */ (node ObjectLiteralExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInObjectLiteralExpression */ (node ObjectLiteralExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.properties)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInPropertyAccessExpression */ (node PropertyAccessExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInPropertyAccessExpression */ (node PropertyAccessExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.questionDotToken) || visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInElementAccessExpression */ (node ElementAccessExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInElementAccessExpression */ (node ElementAccessExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.questionDotToken) || visitNode(cbNode, node.argumentExpression)
 	},
-	"TODO_IDENTIFIER": forEachChildInCallOrNewExpression,
-	"TODO_IDENTIFIER": forEachChildInCallOrNewExpression,
-	"TODO_IDENTIFIER": func /* forEachChildInTaggedTemplateExpression */ (node TaggedTemplateExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInCallOrNewExpression,
+	TODO_IDENTIFIER: forEachChildInCallOrNewExpression,
+	TODO_IDENTIFIER: func /* forEachChildInTaggedTemplateExpression */ (node TaggedTemplateExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tag) || visitNode(cbNode, node.questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNode(cbNode, node.template)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeAssertionExpression */ (node TypeAssertion, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeAssertionExpression */ (node TypeAssertion, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.type_) || visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInParenthesizedExpression */ (node ParenthesizedExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInParenthesizedExpression */ (node ParenthesizedExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInDeleteExpression */ (node DeleteExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInDeleteExpression */ (node DeleteExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeOfExpression */ (node TypeOfExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeOfExpression */ (node TypeOfExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInVoidExpression */ (node VoidExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInVoidExpression */ (node VoidExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInPrefixUnaryExpression */ (node PrefixUnaryExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInPrefixUnaryExpression */ (node PrefixUnaryExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.operand)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInYieldExpression */ (node YieldExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInYieldExpression */ (node YieldExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInAwaitExpression */ (node AwaitExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInAwaitExpression */ (node AwaitExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInPostfixUnaryExpression */ (node PostfixUnaryExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInPostfixUnaryExpression */ (node PostfixUnaryExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.operand)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInBinaryExpression */ (node BinaryExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInBinaryExpression */ (node BinaryExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.left) || visitNode(cbNode, node.operatorToken) || visitNode(cbNode, node.right)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInAsExpression */ (node AsExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInAsExpression */ (node AsExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInNonNullExpression */ (node NonNullExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInNonNullExpression */ (node NonNullExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInSatisfiesExpression */ (node SatisfiesExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInSatisfiesExpression */ (node SatisfiesExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInMetaProperty */ (node MetaProperty, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInMetaProperty */ (node MetaProperty, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInConditionalExpression */ (node ConditionalExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInConditionalExpression */ (node ConditionalExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.condition) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.whenTrue) || visitNode(cbNode, node.colonToken) || visitNode(cbNode, node.whenFalse)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInSpreadElement */ (node SpreadElement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInSpreadElement */ (node SpreadElement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": forEachChildInBlock,
-	"TODO_IDENTIFIER": forEachChildInBlock,
-	"TODO_IDENTIFIER": func /* forEachChildInSourceFile */ (node SourceFile, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInBlock,
+	TODO_IDENTIFIER: forEachChildInBlock,
+	TODO_IDENTIFIER: func /* forEachChildInSourceFile */ (node SourceFile, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.statements) || visitNode(cbNode, node.endOfFileToken)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInVariableStatement */ (node VariableStatement, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInVariableStatement */ (node VariableStatement, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.declarationList)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInVariableDeclarationList */ (node VariableDeclarationList, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInVariableDeclarationList */ (node VariableDeclarationList, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.declarations)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInExpressionStatement */ (node ExpressionStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInExpressionStatement */ (node ExpressionStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInIfStatement */ (node IfStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInIfStatement */ (node IfStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.thenStatement) || visitNode(cbNode, node.elseStatement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInDoStatement */ (node DoStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInDoStatement */ (node DoStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.statement) || visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInWhileStatement */ (node WhileStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInWhileStatement */ (node WhileStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInForStatement */ (node ForStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInForStatement */ (node ForStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.initializer) || visitNode(cbNode, node.condition) || visitNode(cbNode, node.incrementor) || visitNode(cbNode, node.statement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInForInStatement */ (node ForInStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInForInStatement */ (node ForInStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.initializer) || visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInForOfStatement */ (node ForOfStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInForOfStatement */ (node ForOfStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.awaitModifier) || visitNode(cbNode, node.initializer) || visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
 	},
-	"TODO_IDENTIFIER": forEachChildInContinueOrBreakStatement,
-	"TODO_IDENTIFIER": forEachChildInContinueOrBreakStatement,
-	"TODO_IDENTIFIER": func /* forEachChildInReturnStatement */ (node ReturnStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInContinueOrBreakStatement,
+	TODO_IDENTIFIER: forEachChildInContinueOrBreakStatement,
+	TODO_IDENTIFIER: func /* forEachChildInReturnStatement */ (node ReturnStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInWithStatement */ (node WithStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInWithStatement */ (node WithStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInSwitchStatement */ (node SwitchStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInSwitchStatement */ (node SwitchStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.caseBlock)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInCaseBlock */ (node CaseBlock, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInCaseBlock */ (node CaseBlock, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.clauses)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInCaseClause */ (node CaseClause, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInCaseClause */ (node CaseClause, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNodes(cbNode, cbNodes, node.statements)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInDefaultClause */ (node DefaultClause, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInDefaultClause */ (node DefaultClause, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.statements)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInLabeledStatement */ (node LabeledStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInLabeledStatement */ (node LabeledStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.label) || visitNode(cbNode, node.statement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInThrowStatement */ (node ThrowStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInThrowStatement */ (node ThrowStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTryStatement */ (node TryStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTryStatement */ (node TryStatement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tryBlock) || visitNode(cbNode, node.catchClause) || visitNode(cbNode, node.finallyBlock)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInCatchClause */ (node CatchClause, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInCatchClause */ (node CatchClause, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.variableDeclaration) || visitNode(cbNode, node.block)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInDecorator */ (node Decorator, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInDecorator */ (node Decorator, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": forEachChildInClassDeclarationOrExpression,
-	"TODO_IDENTIFIER": forEachChildInClassDeclarationOrExpression,
-	"TODO_IDENTIFIER": func /* forEachChildInInterfaceDeclaration */ (node InterfaceDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInClassDeclarationOrExpression,
+	TODO_IDENTIFIER: forEachChildInClassDeclarationOrExpression,
+	TODO_IDENTIFIER: func /* forEachChildInInterfaceDeclaration */ (node InterfaceDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.heritageClauses) || visitNodes(cbNode, cbNodes, node.members)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTypeAliasDeclaration */ (node TypeAliasDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTypeAliasDeclaration */ (node TypeAliasDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInEnumDeclaration */ (node EnumDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInEnumDeclaration */ (node EnumDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.members)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInEnumMember */ (node EnumMember, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInEnumMember */ (node EnumMember, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInModuleDeclaration */ (node ModuleDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInModuleDeclaration */ (node ModuleDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.body)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportEqualsDeclaration */ (node ImportEqualsDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportEqualsDeclaration */ (node ImportEqualsDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.moduleReference)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportDeclaration */ (node ImportDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportDeclaration */ (node ImportDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportClause */ (node ImportClause, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportClause */ (node ImportClause, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name) || visitNode(cbNode, node.namedBindings)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportAttributes */ (node ImportAttributes, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportAttributes */ (node ImportAttributes, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.elements)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInImportAttribute */ (node ImportAttribute, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInImportAttribute */ (node ImportAttribute, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name) || visitNode(cbNode, node.value)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInNamespaceExportDeclaration */ (node NamespaceExportDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInNamespaceExportDeclaration */ (node NamespaceExportDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInNamespaceImport */ (node NamespaceImport, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInNamespaceImport */ (node NamespaceImport, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInNamespaceExport */ (node NamespaceExport, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInNamespaceExport */ (node NamespaceExport, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": forEachChildInNamedImportsOrExports,
-	"TODO_IDENTIFIER": forEachChildInNamedImportsOrExports,
-	"TODO_IDENTIFIER": func /* forEachChildInExportDeclaration */ (node ExportDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInNamedImportsOrExports,
+	TODO_IDENTIFIER: forEachChildInNamedImportsOrExports,
+	TODO_IDENTIFIER: func /* forEachChildInExportDeclaration */ (node ExportDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.exportClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes)
 	},
-	"TODO_IDENTIFIER": forEachChildInImportOrExportSpecifier,
-	"TODO_IDENTIFIER": forEachChildInImportOrExportSpecifier,
-	"TODO_IDENTIFIER": func /* forEachChildInExportAssignment */ (node ExportAssignment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInImportOrExportSpecifier,
+	TODO_IDENTIFIER: forEachChildInImportOrExportSpecifier,
+	TODO_IDENTIFIER: func /* forEachChildInExportAssignment */ (node ExportAssignment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTemplateExpression */ (node TemplateExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTemplateExpression */ (node TemplateExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.head) || visitNodes(cbNode, cbNodes, node.templateSpans)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTemplateSpan */ (node TemplateSpan, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTemplateSpan */ (node TemplateSpan, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.literal)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTemplateLiteralType */ (node TemplateLiteralTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTemplateLiteralType */ (node TemplateLiteralTypeNode, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.head) || visitNodes(cbNode, cbNodes, node.templateSpans)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInTemplateLiteralTypeSpan */ (node TemplateLiteralTypeSpan, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInTemplateLiteralTypeSpan */ (node TemplateLiteralTypeSpan, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.type_) || visitNode(cbNode, node.literal)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInComputedPropertyName */ (node ComputedPropertyName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInComputedPropertyName */ (node ComputedPropertyName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInHeritageClause */ (node HeritageClause, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInHeritageClause */ (node HeritageClause, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.types)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInExpressionWithTypeArguments */ (node ExpressionWithTypeArguments, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInExpressionWithTypeArguments */ (node ExpressionWithTypeArguments, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression) || visitNodes(cbNode, cbNodes, node.typeArguments)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInExternalModuleReference */ (node ExternalModuleReference, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInExternalModuleReference */ (node ExternalModuleReference, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInMissingDeclaration */ (node MissingDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInMissingDeclaration */ (node MissingDeclaration, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.modifiers)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInCommaListExpression */ (node CommaListExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInCommaListExpression */ (node CommaListExpression, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.elements)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxElement */ (node JsxElement, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxElement */ (node JsxElement, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.openingElement) || visitNodes(cbNode, cbNodes, node.children) || visitNode(cbNode, node.closingElement)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxFragment */ (node JsxFragment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxFragment */ (node JsxFragment, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.openingFragment) || visitNodes(cbNode, cbNodes, node.children) || visitNode(cbNode, node.closingFragment)
 	},
-	"TODO_IDENTIFIER": forEachChildInJsxOpeningOrSelfClosingElement,
-	"TODO_IDENTIFIER": forEachChildInJsxOpeningOrSelfClosingElement,
-	"TODO_IDENTIFIER": func /* forEachChildInJsxAttributes */ (node JsxAttributes, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInJsxOpeningOrSelfClosingElement,
+	TODO_IDENTIFIER: forEachChildInJsxOpeningOrSelfClosingElement,
+	TODO_IDENTIFIER: func /* forEachChildInJsxAttributes */ (node JsxAttributes, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.properties)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxAttribute */ (node JsxAttribute, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxAttribute */ (node JsxAttribute, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name) || visitNode(cbNode, node.initializer)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxSpreadAttribute */ (node JsxSpreadAttribute, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxSpreadAttribute */ (node JsxSpreadAttribute, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxExpression */ (node JsxExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxExpression */ (node JsxExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.expression)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxClosingElement */ (node JsxClosingElement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxClosingElement */ (node JsxClosingElement, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJsxNamespacedName */ (node JsxNamespacedName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJsxNamespacedName */ (node JsxNamespacedName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.namespace) || visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": forEachChildInOptionalRestOrJSDocParameterModifier,
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocFunctionType */ (node JSDocFunctionType, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
+	TODO_IDENTIFIER: func /* forEachChildInJSDocFunctionType */ (node JSDocFunctionType, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDoc */ (node JSDoc, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDoc */ (node JSDoc, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))) || visitNodes(cbNode, cbNodes, node.tags)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocSeeTag */ (node JSDocSeeTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocSeeTag */ (node JSDocSeeTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.name) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocNameReference */ (node JSDocNameReference, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocNameReference */ (node JSDocNameReference, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name)
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocMemberName */ (node JSDocMemberName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocMemberName */ (node JSDocMemberName, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.left) || visitNode(cbNode, node.right)
 	},
-	"TODO_IDENTIFIER": forEachChildInJSDocParameterOrPropertyTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocParameterOrPropertyTag,
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocAuthorTag */ (node JSDocAuthorTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInJSDocParameterOrPropertyTag,
+	TODO_IDENTIFIER: forEachChildInJSDocParameterOrPropertyTag,
+	TODO_IDENTIFIER: func /* forEachChildInJSDocAuthorTag */ (node JSDocAuthorTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocImplementsTag */ (node JSDocImplementsTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocImplementsTag */ (node JSDocImplementsTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocAugmentsTag */ (node JSDocAugmentsTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocAugmentsTag */ (node JSDocAugmentsTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocTemplateTag */ (node JSDocTemplateTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocTemplateTag */ (node JSDocTemplateTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.constraint) || visitNodes(cbNode, cbNodes, node.typeParameters) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocTypedefTag */ (node JSDocTypedefTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocTypedefTag */ (node JSDocTypedefTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || (ifElse(node.typeExpression != nil && node.typeExpression.kind == SyntaxKindJSDocTypeExpression, visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.fullName) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))), visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))))
 	},
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocCallbackTag */ (node JSDocCallbackTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: func /* forEachChildInJSDocCallbackTag */ (node JSDocCallbackTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTypeLikeTag,
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocSignature */ (node JSDocSignature, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
+	TODO_IDENTIFIER: func /* forEachChildInJSDocSignature */ (node JSDocSignature, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return forEach(node.typeParameters, cbNode) || forEach(node.parameters, cbNode) || visitNode(cbNode, node.type_)
 	},
-	"TODO_IDENTIFIER": forEachChildInJSDocLinkCodeOrPlain,
-	"TODO_IDENTIFIER": forEachChildInJSDocLinkCodeOrPlain,
-	"TODO_IDENTIFIER": forEachChildInJSDocLinkCodeOrPlain,
-	"TODO_IDENTIFIER": func /* forEachChildInJSDocTypeLiteral */ (node JSDocTypeLiteral, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+	TODO_IDENTIFIER: forEachChildInJSDocLinkCodeOrPlain,
+	TODO_IDENTIFIER: forEachChildInJSDocLinkCodeOrPlain,
+	TODO_IDENTIFIER: forEachChildInJSDocLinkCodeOrPlain,
+	TODO_IDENTIFIER: func /* forEachChildInJSDocTypeLiteral */ (node JSDocTypeLiteral, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return forEach(node.jsDocPropertyTags, cbNode)
 	},
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocTag,
-	"TODO_IDENTIFIER": forEachChildInJSDocImportTag,
-	"TODO_IDENTIFIER": forEachChildInPartiallyEmittedExpression,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocTag,
+	TODO_IDENTIFIER: forEachChildInJSDocImportTag,
+	TODO_IDENTIFIER: forEachChildInPartiallyEmittedExpression,
 }
 
 // shared
@@ -738,8 +738,8 @@ func setExternalModuleIndicator(sourceFile SourceFile) {
 }
 
 func createSourceFile(fileName string, sourceText string, languageVersionOrOptions Union[ScriptTarget, CreateSourceFileOptions], setParentNodes bool /*  = false */, scriptKind ScriptKind) SourceFile {
-	tracing. /* ? */ push(tracing.Phase.Parse, "createSourceFile", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"path": fileName,
+	tracing. /* ? */ push(tracing.Phase.Parse, "createSourceFile", &Args{
+		path: fileName,
 	}, /*separateBeginAndEnd*/ true)
 	performance.mark("beforeParse")
 	var result SourceFile
@@ -748,8 +748,8 @@ func createSourceFile(fileName string, sourceText string, languageVersionOrOptio
 	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof languageVersionOrOptions */ TODO == "object" {
 		TODO_IDENTIFIER = languageVersionOrOptions
 	} else {
-		TODO_IDENTIFIER = (map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"languageVersion": languageVersionOrOptions,
+		TODO_IDENTIFIER = (CreateSourceFileOptions{
+			languageVersion: languageVersionOrOptions,
 		}.(CreateSourceFileOptions))
 	}
 	if languageVersion == ScriptTargetJSON {
@@ -865,20 +865,20 @@ func countNode(node *Node) *Node {
 
 // Rather than using `createBaseNodeFactory` here, we establish a `BaseNodeFactory` that closes over the
 // constructors above, which are reset each time `initializeState` is called.
-var baseNodeFactory BaseNodeFactory = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"createBaseSourceFileNode": func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.SourceFile */ any) *Node {
+var baseNodeFactory BaseNodeFactory = BaseNodeFactory{
+	createBaseSourceFileNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.SourceFile */ any) *Node {
 		return countNode(NewSourceFileConstructor(kind, 0, 0))
 	},
-	"createBaseIdentifierNode": func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.Identifier */ any) *Node {
+	createBaseIdentifierNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.Identifier */ any) *Node {
 		return countNode(NewIdentifierConstructor(kind, 0, 0))
 	},
-	"createBasePrivateIdentifierNode": func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.PrivateIdentifier */ any) *Node {
+	createBasePrivateIdentifierNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.PrivateIdentifier */ any) *Node {
 		return countNode(NewPrivateIdentifierConstructor(kind, 0, 0))
 	},
-	"createBaseTokenNode": func(kind SyntaxKind) *Node {
+	createBaseTokenNode: func(kind SyntaxKind) *Node {
 		return countNode(NewTokenConstructor(kind, 0, 0))
 	},
-	"createBaseNode": func(kind SyntaxKind) *Node {
+	createBaseNode: func(kind SyntaxKind) *Node {
 		return countNode(NewNodeConstructor(kind, 0, 0))
 	},
 }
@@ -1255,8 +1255,8 @@ func withJSDoc(node T, hasJSDoc bool) T {
 func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 	savedSyntaxCursor := syntaxCursor
 	baseSyntaxCursor := IncrementalParser.createSyntaxCursor(sourceFile)
-	syntaxCursor = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"currentNode": currentNode,
+	syntaxCursor = & /* TODO(TS-TO-GO) inferred type IncrementalParser.SyntaxCursor */ any{
+		currentNode: currentNode,
 	}
 
 	var statements []Statement = []never{}
@@ -8273,9 +8273,9 @@ func parseIsolatedJSDocComment(content string, start *number, length *number) * 
 		return parseJSDocCommentWorker(start, length)
 	})
 
-	sourceFile := map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"languageVariant": LanguageVariantStandard,
-		"text":            content,
+	sourceFile := SourceFile{
+		languageVariant: LanguageVariantStandard,
+		text:            content,
 	}.AsSourceFile()
 	diagnostics := attachFileToDiagnostics(parseDiagnostics, sourceFile)
 	clearState()
@@ -9503,12 +9503,12 @@ func getNewCommentDirectives(oldDirectives *[]CommentDirective, newDirectives *[
 			addNewlyScannedDirectives()
 			// Node is entirely past the change range.  We need to move both its pos and
 			// end, forward or backward appropriately.
-			var updatedDirective CommentDirective = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"range_": map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"pos": range_.pos + delta,
-					"end": range_.end + delta,
+			var updatedDirective CommentDirective = CommentDirective{
+				range_: TextRange{
+					pos: range_.pos + delta,
+					end: range_.end + delta,
 				},
-				"t": t,
+				t: t,
 			}
 			commentDirectives = append(commentDirectives, updatedDirective)
 			if aggressiveChecks {
@@ -9896,8 +9896,8 @@ func createSyntaxCursor(sourceFile SourceFile) SyntaxCursor {
 	current := currentArray[currentArrayIndex]
 	lastQueriedPosition := InvalidPositionValue
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"currentNode": func(position number) *Node {
+	return SyntaxCursor{
+		currentNode: func(position number) *Node {
 			// Only compute the current node if the position is different than the last time
 			// we were asked.  The parser commonly asks for the node at the same position
 			// twice.  Once to know if can read an appropriate list element at a certain point,
@@ -10093,25 +10093,25 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 					context.hasNoDefaultLib = true
 				} else if types != nil {
 					parsed := parseResolutionMode(res, types.pos, types.end, reportDiagnostic)
-					typeReferenceDirectives.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"pos":      types.pos,
-						"end":      types.end,
-						"fileName": types.value,
+					typeReferenceDirectives.push(FileReference{
+						pos:      types.pos,
+						end:      types.end,
+						fileName: types.value,
 						/* TODO(TS-TO-GO) Node SpreadAssignment: ...(parsed ? { resolutionMode: parsed } : {}) */
 						/* TODO(TS-TO-GO) Node SpreadAssignment: ...(preserve ? { preserve } : {}) */
 					})
 				} else if lib != nil {
-					libReferenceDirectives.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"pos":      lib.pos,
-						"end":      lib.end,
-						"fileName": lib.value,
+					libReferenceDirectives.push(FileReference{
+						pos:      lib.pos,
+						end:      lib.end,
+						fileName: lib.value,
 						/* TODO(TS-TO-GO) Node SpreadAssignment: ...(preserve ? { preserve } : {}) */
 					})
 				} else if path != nil {
-					referencedFiles.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"pos":      path.pos,
-						"end":      path.end,
-						"fileName": path.value,
+					referencedFiles.push(FileReference{
+						pos:      path.pos,
+						end:      path.end,
+						fileName: path.value,
 						/* TODO(TS-TO-GO) Node SpreadAssignment: ...(preserve ? { preserve } : {}) */
 					})
 				} else {
@@ -10142,10 +10142,10 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 			// _last_ of either nocheck or check in a file is the "winner"
 			forEach(toArray(entryOrList), func(entry /* TODO(TS-TO-GO) inferred type PragmaPseudoMap[TKey] */ any) {
 				if context.checkJsDirective == nil || entry.range_.pos > context.checkJsDirective.pos {
-					context.checkJsDirective = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-						"enabled": key == "ts-check",
-						"end":     entry.range_.end,
-						"pos":     entry.range_.pos,
+					context.checkJsDirective = &CheckJsDirective{
+						enabled: key == "ts-check",
+						end:     entry.range_.end,
+						pos:     entry.range_.pos,
 					}
 				}
 			})
@@ -10198,27 +10198,27 @@ func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text st
 					value := matchResult[2] || matchResult[3]
 					if arg.captureSpan {
 						startPos := range_.pos + matchResult.index + matchResult[1].length + 1
-						argument[arg.name] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-							"value": value,
-							"pos":   startPos,
-							"end":   startPos + value.length,
+						argument[arg.name] = /* TODO(TS-TO-GO) inferred type string | { value: string; pos: number; end: number; } */ any{
+							value: value,
+							pos:   startPos,
+							end:   startPos + value.length,
 						}
 					} else {
 						argument[arg.name] = value
 					}
 				}
 			}
-			pragmas.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"name": name,
-				"args": map[any]any{ /* TODO(TS-TO-GO): was object literal */
+			pragmas.push(PragmaPseudoMapEntry{
+				name: name,
+				args: map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"arguments": argument,
 					"range_":    range_,
 				},
 			}.(PragmaPseudoMapEntry))
 		} else {
-			pragmas.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"name": name,
-				"args": map[any]any{ /* TODO(TS-TO-GO): was object literal */
+			pragmas.push(PragmaPseudoMapEntry{
+				name: name,
+				args: map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"arguments": map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					},
 					"range_": range_,
@@ -10262,9 +10262,9 @@ func addPragmaForMatch(pragmas []PragmaPseudoMapEntry, range_ CommentRange, kind
 		// Missing required argument, fail to parse it
 	}
 	// Missing required argument, fail to parse it
-	pragmas.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"name": name,
-		"args": map[any]any{ /* TODO(TS-TO-GO): was object literal */
+	pragmas.push(PragmaPseudoMapEntry{
+		name: name,
+		args: map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"arguments": argument,
 			"range_":    range_,
 		},

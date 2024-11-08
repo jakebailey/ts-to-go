@@ -100,8 +100,8 @@ func forEachEmittedFile(host EmitHost, action func(emitFileNames EmitFileNames, 
 	if includeBuildInfo {
 		buildInfoPath := getTsBuildInfoEmitOutputFilePath(options)
 		if buildInfoPath {
-			return action(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"buildInfoPath": buildInfoPath,
+			return action( /* TODO(TS-TO-GO) inferred type ts.EmitFileNames */ any{
+				buildInfoPath: buildInfoPath,
 			}, /*sourceFileOrBundle*/ nil)
 		}
 	}
@@ -163,11 +163,11 @@ func getOutputPathsForBundle(options CompilerOptions, forceDtsPaths bool) EmitFi
 	} else {
 		declarationMapPath = nil
 	}
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"jsFilePath":          jsFilePath,
-		"sourceMapFilePath":   sourceMapFilePath,
-		"declarationFilePath": declarationFilePath,
-		"declarationMapPath":  declarationMapPath,
+	return /* TODO(TS-TO-GO) inferred type ts.EmitFileNames */ any{
+		jsFilePath:          jsFilePath,
+		sourceMapFilePath:   sourceMapFilePath,
+		declarationFilePath: declarationFilePath,
+		declarationMapPath:  declarationMapPath,
 	}
 }
 
@@ -206,11 +206,11 @@ func getOutputPathsFor(sourceFile Union[SourceFile, Bundle], host EmitHost, forc
 		} else {
 			declarationMapPath = nil
 		}
-		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"jsFilePath":          jsFilePath,
-			"sourceMapFilePath":   sourceMapFilePath,
-			"declarationFilePath": declarationFilePath,
-			"declarationMapPath":  declarationMapPath,
+		return /* TODO(TS-TO-GO) inferred type ts.EmitFileNames */ any{
+			jsFilePath:          jsFilePath,
+			sourceMapFilePath:   sourceMapFilePath,
+			declarationFilePath: declarationFilePath,
+			declarationMapPath:  declarationMapPath,
 		}
 	}
 }
@@ -462,28 +462,28 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 	forEachEmittedFile(host, emitSourceFileOrBundle, getSourceFilesToEmit(host, targetSourceFile, forceDtsEmit), forceDtsEmit, onlyBuildInfo, targetSourceFile == nil && !skipBuildInfo)
 	exit()
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"emitSkipped":  emitSkipped,
-		"diagnostics":  emitterDiagnostics.getDiagnostics(),
-		"emittedFiles": emittedFilesList,
-		"sourceMaps":   sourceMapDataList,
+	return /* TODO(TS-TO-GO) inferred type ts.EmitResult */ any{
+		emitSkipped:  emitSkipped,
+		diagnostics:  emitterDiagnostics.getDiagnostics(),
+		emittedFiles: emittedFilesList,
+		sourceMaps:   sourceMapDataList,
 	}
 
 	emitSourceFileOrBundle := func(TODO_IDENTIFIER EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
-		tracing. /* ? */ push(tracing.Phase.Emit, "emitJsFileOrBundle", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"jsFilePath": jsFilePath,
+		tracing. /* ? */ push(tracing.Phase.Emit, "emitJsFileOrBundle", &Args{
+			jsFilePath: jsFilePath,
 		})
 		emitJsFileOrBundle(sourceFileOrBundle, jsFilePath, sourceMapFilePath)
 		tracing. /* ? */ pop()
 
-		tracing. /* ? */ push(tracing.Phase.Emit, "emitDeclarationFileOrBundle", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"declarationFilePath": declarationFilePath,
+		tracing. /* ? */ push(tracing.Phase.Emit, "emitDeclarationFileOrBundle", &Args{
+			declarationFilePath: declarationFilePath,
 		})
 		emitDeclarationFileOrBundle(sourceFileOrBundle, declarationFilePath, declarationMapPath)
 		tracing. /* ? */ pop()
 
-		tracing. /* ? */ push(tracing.Phase.Emit, "emitBuildInfo", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"buildInfoPath": buildInfoPath,
+		tracing. /* ? */ push(tracing.Phase.Emit, "emitBuildInfo", &Args{
+			buildInfoPath: buildInfoPath,
 		})
 		emitBuildInfo(buildInfoPath)
 		tracing. /* ? */ pop()
@@ -498,12 +498,12 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 			emitSkipped = true
 			return
 		}
-		buildInfo := host.getBuildInfo() || map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"version": version,
+		buildInfo := host.getBuildInfo() || & /* TODO(TS-TO-GO) inferred type ts.BuildInfo */ any{
+			version: version,
 		}
 		// Pass buildinfo as additional data to avoid having to reparse
-		writeFile(host, emitterDiagnostics, buildInfoPath, getBuildInfoText(buildInfo) /*writeByteOrderMark*/, false /*sourceFiles*/, nil, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"buildInfo": buildInfo,
+		writeFile(host, emitterDiagnostics, buildInfoPath, getBuildInfoText(buildInfo) /*writeByteOrderMark*/, false /*sourceFiles*/, nil, & /* TODO(TS-TO-GO) inferred type ts.WriteFileCallbackData */ any{
+			buildInfo: buildInfo,
 		})
 		emittedFilesList. /* ? */ push(buildInfoPath)
 	}
@@ -528,27 +528,27 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		// Transform the source files
 		transform := transformNodes(resolver, host, factory, compilerOptions, [] /* TODO(TS-TO-GO) inferred type ts.SourceFile | ts.Bundle */ any{sourceFileOrBundle}, scriptTransformers /*allowDtsFiles*/, false)
 
-		var printerOptions PrinterOptions = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"removeComments":      compilerOptions.removeComments,
-			"newLine":             compilerOptions.newLine,
-			"noEmitHelpers":       compilerOptions.noEmitHelpers,
-			"module":              getEmitModuleKind(compilerOptions),
-			"moduleResolution":    getEmitModuleResolutionKind(compilerOptions),
-			"target":              getEmitScriptTarget(compilerOptions),
-			"sourceMap":           compilerOptions.sourceMap,
-			"inlineSourceMap":     compilerOptions.inlineSourceMap,
-			"inlineSources":       compilerOptions.inlineSources,
-			"extendedDiagnostics": compilerOptions.extendedDiagnostics,
+		var printerOptions PrinterOptions = /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
+			removeComments:      compilerOptions.removeComments,
+			newLine:             compilerOptions.newLine,
+			noEmitHelpers:       compilerOptions.noEmitHelpers,
+			module:              getEmitModuleKind(compilerOptions),
+			moduleResolution:    getEmitModuleResolutionKind(compilerOptions),
+			target:              getEmitScriptTarget(compilerOptions),
+			sourceMap:           compilerOptions.sourceMap,
+			inlineSourceMap:     compilerOptions.inlineSourceMap,
+			inlineSources:       compilerOptions.inlineSources,
+			extendedDiagnostics: compilerOptions.extendedDiagnostics,
 		}
 
 		// Create a printer to print the nodes
-		printer := createPrinter(printerOptions, map[any]any{ /* TODO(TS-TO-GO): was object literal */
+		printer := createPrinter(printerOptions, & /* TODO(TS-TO-GO) inferred type ts.PrintHandlers */ any{
 			// resolver hooks
-			"hasGlobalName": resolver.hasGlobalName,
+			hasGlobalName: resolver.hasGlobalName,
 			// transform hooks
-			"onEmitNode":                transform.emitNodeWithNotification,
-			"isEmitNotificationEnabled": transform.isEmitNotificationEnabled,
-			"substituteNode":            transform.substituteNode,
+			onEmitNode:                transform.emitNodeWithNotification,
+			isEmitNotificationEnabled: transform.isEmitNotificationEnabled,
+			substituteNode:            transform.substituteNode,
 		})
 
 		Debug.assert(transform.transformed.length == 1, "Should only see one output from the transform")
@@ -613,33 +613,33 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		emitSkipped = emitSkipped || declBlocked
 		if !declBlocked || forceDtsEmit {
 			Debug.assert(declarationTransform.transformed.length == 1, "Should only see one output from the decl transform")
-			var printerOptions PrinterOptions = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"removeComments":              compilerOptions.removeComments,
-				"newLine":                     compilerOptions.newLine,
-				"noEmitHelpers":               true,
-				"module":                      compilerOptions.module,
-				"moduleResolution":            compilerOptions.moduleResolution,
-				"target":                      compilerOptions.target,
-				"sourceMap":                   emitOnly != EmitOnlyBuilderSignature && compilerOptions.declarationMap,
-				"inlineSourceMap":             compilerOptions.inlineSourceMap,
-				"extendedDiagnostics":         compilerOptions.extendedDiagnostics,
-				"onlyPrintJsDocStyle":         true,
-				"omitBraceSourceMapPositions": true,
+			var printerOptions PrinterOptions = /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
+				removeComments:              compilerOptions.removeComments,
+				newLine:                     compilerOptions.newLine,
+				noEmitHelpers:               true,
+				module:                      compilerOptions.module,
+				moduleResolution:            compilerOptions.moduleResolution,
+				target:                      compilerOptions.target,
+				sourceMap:                   emitOnly != EmitOnlyBuilderSignature && compilerOptions.declarationMap,
+				inlineSourceMap:             compilerOptions.inlineSourceMap,
+				extendedDiagnostics:         compilerOptions.extendedDiagnostics,
+				onlyPrintJsDocStyle:         true,
+				omitBraceSourceMapPositions: true,
 			}
 
-			declarationPrinter := createPrinter(printerOptions, map[any]any{ /* TODO(TS-TO-GO): was object literal */
+			declarationPrinter := createPrinter(printerOptions, & /* TODO(TS-TO-GO) inferred type ts.PrintHandlers */ any{
 				// resolver hooks
-				"hasGlobalName": resolver.hasGlobalName,
+				hasGlobalName: resolver.hasGlobalName,
 				// transform hooks
-				"onEmitNode":                declarationTransform.emitNodeWithNotification,
-				"isEmitNotificationEnabled": declarationTransform.isEmitNotificationEnabled,
-				"substituteNode":            declarationTransform.substituteNode,
+				onEmitNode:                declarationTransform.emitNodeWithNotification,
+				isEmitNotificationEnabled: declarationTransform.isEmitNotificationEnabled,
+				substituteNode:            declarationTransform.substituteNode,
 			})
-			dtsWritten := printSourceFileOrBundle(declarationFilePath, declarationMapPath, declarationTransform, declarationPrinter, map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"sourceMap":           printerOptions.sourceMap,
-				"sourceRoot":          compilerOptions.sourceRoot,
-				"mapRoot":             compilerOptions.mapRoot,
-				"extendedDiagnostics": compilerOptions.extendedDiagnostics,
+			dtsWritten := printSourceFileOrBundle(declarationFilePath, declarationMapPath, declarationTransform, declarationPrinter, SourceMapOptions{
+				sourceMap:           printerOptions.sourceMap,
+				sourceRoot:          compilerOptions.sourceRoot,
+				mapRoot:             compilerOptions.mapRoot,
+				extendedDiagnostics: compilerOptions.extendedDiagnostics,
 			})
 			if emittedFilesList != nil {
 				if dtsWritten {
@@ -722,9 +722,9 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		var sourceMapUrlPos TODO
 		if sourceMapGenerator != nil {
 			if sourceMapDataList != nil {
-				sourceMapDataList.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-					"inputSourceFileNames": sourceMapGenerator.getSources(),
-					"sourceMap":            sourceMapGenerator.toJSON(),
+				sourceMapDataList.push( /* TODO(TS-TO-GO) inferred type ts.SourceMapEmitResult */ any{
+					inputSourceFileNames: sourceMapGenerator.getSources(),
+					sourceMap:            sourceMapGenerator.toJSON(),
 				})
 			}
 
@@ -750,9 +750,9 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 
 		// Write the output file
 		text := writer.getText()
-		var data WriteFileCallbackData = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"sourceMapUrlPos": sourceMapUrlPos,
-			"diagnostics":     transform.diagnostics,
+		var data WriteFileCallbackData = /* TODO(TS-TO-GO) inferred type ts.WriteFileCallbackData */ any{
+			sourceMapUrlPos: sourceMapUrlPos,
+			diagnostics:     transform.diagnostics,
 		}
 		writeFile(host, emitterDiagnostics, jsFilePath, text, compilerOptions.emitBOM, sourceFiles, data)
 
@@ -848,49 +848,49 @@ func getBuildInfo(buildInfoFile string, buildInfoText string) * /* TODO(TS-TO-GO
 
 /** @internal */
 
-var notImplementedResolver EmitResolver = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"hasGlobalName":                             notImplemented,
-	"getReferencedExportContainer":              notImplemented,
-	"getReferencedImportDeclaration":            notImplemented,
-	"getReferencedDeclarationWithCollidingName": notImplemented,
-	"isDeclarationWithCollidingName":            notImplemented,
-	"isValueAliasDeclaration":                   notImplemented,
-	"isReferencedAliasDeclaration":              notImplemented,
-	"isTopLevelValueImportEqualsWithEntityName": notImplemented,
-	"hasNodeCheckFlag":                          notImplemented,
-	"isDeclarationVisible":                      notImplemented,
-	"isLateBound": func(_node /* TODO(TS-TO-GO) inferred type ts.Declaration */ any) bool {
+var notImplementedResolver EmitResolver = /* TODO(TS-TO-GO) inferred type ts.EmitResolver */ any{
+	hasGlobalName:                             notImplemented,
+	getReferencedExportContainer:              notImplemented,
+	getReferencedImportDeclaration:            notImplemented,
+	getReferencedDeclarationWithCollidingName: notImplemented,
+	isDeclarationWithCollidingName:            notImplemented,
+	isValueAliasDeclaration:                   notImplemented,
+	isReferencedAliasDeclaration:              notImplemented,
+	isTopLevelValueImportEqualsWithEntityName: notImplemented,
+	hasNodeCheckFlag:                          notImplemented,
+	isDeclarationVisible:                      notImplemented,
+	isLateBound: func(_node /* TODO(TS-TO-GO) inferred type ts.Declaration */ any) bool {
 		return false
 	},
-	"collectLinkedAliases":                   notImplemented,
-	"markLinkedReferences":                   notImplemented,
-	"isImplementationOfOverload":             notImplemented,
-	"requiresAddingImplicitUndefined":        notImplemented,
-	"isExpandoFunctionDeclaration":           notImplemented,
-	"getPropertiesOfContainerFunction":       notImplemented,
-	"createTypeOfDeclaration":                notImplemented,
-	"createReturnTypeOfSignatureDeclaration": notImplemented,
-	"createTypeOfExpression":                 notImplemented,
-	"createLiteralConstValue":                notImplemented,
-	"isSymbolAccessible":                     notImplemented,
-	"isEntityNameVisible":                    notImplemented,
+	collectLinkedAliases:                   notImplemented,
+	markLinkedReferences:                   notImplemented,
+	isImplementationOfOverload:             notImplemented,
+	requiresAddingImplicitUndefined:        notImplemented,
+	isExpandoFunctionDeclaration:           notImplemented,
+	getPropertiesOfContainerFunction:       notImplemented,
+	createTypeOfDeclaration:                notImplemented,
+	createReturnTypeOfSignatureDeclaration: notImplemented,
+	createTypeOfExpression:                 notImplemented,
+	createLiteralConstValue:                notImplemented,
+	isSymbolAccessible:                     notImplemented,
+	isEntityNameVisible:                    notImplemented,
 	// Returns the constant value this property access resolves to: notImplemented, or 'undefined' for a non-constant
-	"getConstantValue":                          notImplemented,
-	"getEnumMemberValue":                        notImplemented,
-	"getReferencedValueDeclaration":             notImplemented,
-	"getReferencedValueDeclarations":            notImplemented,
-	"getTypeReferenceSerializationKind":         notImplemented,
-	"isOptionalParameter":                       notImplemented,
-	"isArgumentsLocalBinding":                   notImplemented,
-	"getExternalModuleFileFromDeclaration":      notImplemented,
-	"isLiteralConstDeclaration":                 notImplemented,
-	"getJsxFactoryEntity":                       notImplemented,
-	"getJsxFragmentFactoryEntity":               notImplemented,
-	"isBindingCapturedByNode":                   notImplemented,
-	"getDeclarationStatementsForSourceFile":     notImplemented,
-	"isImportRequiredByAugmentation":            notImplemented,
-	"isDefinitelyReferenceToGlobalSymbolObject": notImplemented,
-	"createLateBoundIndexSignatures":            notImplemented,
+	getConstantValue:                          notImplemented,
+	getEnumMemberValue:                        notImplemented,
+	getReferencedValueDeclaration:             notImplemented,
+	getReferencedValueDeclarations:            notImplemented,
+	getTypeReferenceSerializationKind:         notImplemented,
+	isOptionalParameter:                       notImplemented,
+	isArgumentsLocalBinding:                   notImplemented,
+	getExternalModuleFileFromDeclaration:      notImplemented,
+	isLiteralConstDeclaration:                 notImplemented,
+	getJsxFactoryEntity:                       notImplemented,
+	getJsxFragmentFactoryEntity:               notImplemented,
+	isBindingCapturedByNode:                   notImplemented,
+	getDeclarationStatementsForSourceFile:     notImplemented,
+	isImportRequiredByAugmentation:            notImplemented,
+	isDefinitelyReferenceToGlobalSymbolObject: notImplemented,
+	createLateBoundIndexSignatures:            notImplemented,
 }
 
 type PipelinePhase int32
@@ -906,33 +906,32 @@ const (
 /** @internal */
 
 var createPrinterWithDefaults func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
-	return createPrinter(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	})
+	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{})
 })
 
 /** @internal */
 
 var createPrinterWithRemoveComments func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
-	return createPrinter(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"removeComments": true,
+	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
+		removeComments: true,
 	})
 })
 
 /** @internal */
 
 var createPrinterWithRemoveCommentsNeverAsciiEscape func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
-	return createPrinter(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"removeComments":   true,
-		"neverAsciiEscape": true,
+	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
+		removeComments:   true,
+		neverAsciiEscape: true,
 	})
 })
 
 /** @internal */
 
 var createPrinterWithRemoveCommentsOmitTrailingSemicolon func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
-	return createPrinter(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"removeComments":        true,
-		"omitTrailingSemicolon": true,
+	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
+		removeComments:        true,
+		omitTrailingSemicolon: true,
 	})
 })
 
@@ -980,8 +979,8 @@ func createPrinter(printerOptions PrinterOptions /*  = {} */, handlers PrintHand
 	tc.commentsDisabled = printerOptions.removeComments
 	tc.TODO_IDENTIFIER = performance.createTimerIf(printer.extendedDiagnostics, "commentTime", "beforeComment", "afterComment")
 	tc.parenthesizer = factory.parenthesizer
-	tc.typeArgumentParenthesizerRuleSelector = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"select_": func(index number) * /* TODO(TS-TO-GO) inferred type ((typeNode: TypeNode) => TypeNode) */ any {
+	tc.typeArgumentParenthesizerRuleSelector = /* TODO(TS-TO-GO) inferred type OrdinalParentheizerRuleSelector<ts.TypeNode> */ any{
+		select_: func(index number) * /* TODO(TS-TO-GO) inferred type ((typeNode: TypeNode) => TypeNode) */ any {
 			if index == 0 {
 				return printer.parenthesizer.parenthesizeLeadingTypeArgument
 			} else {
@@ -993,17 +992,17 @@ func createPrinter(printerOptions PrinterOptions /*  = {} */, handlers PrintHand
 	/* eslint-enable no-var */
 
 	printer.reset()
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
+	return /* TODO(TS-TO-GO) inferred type ts.Printer */ any{
 		// public API
-		"printNode":   printNode,
-		"printList":   printList,
-		"printFile":   printFile,
-		"printBundle": printBundle,
+		printNode:   printNode,
+		printList:   printList,
+		printFile:   printFile,
+		printBundle: printBundle,
 		// internal API
-		"writeNode":   writeNode,
-		"writeList":   writeList,
-		"writeFile":   writeFile,
-		"writeBundle": writeBundle,
+		writeNode:   writeNode,
+		writeList:   writeList,
+		writeFile:   writeFile,
+		writeBundle: writeBundle,
 	}
 }
 
@@ -2631,14 +2630,14 @@ func (printer *Printer) createEmitBinaryExpression() /* TODO(TS-TO-GO) inferred 
 			}
 			printer.beforeEmitNode(node)
 		} else {
-			state = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"stackIndex":                       0,
-				"preserveSourceNewlinesStack":      []undefined{nil},
-				"containerPosStack":                []number{-1},
-				"containerEndStack":                []number{-1},
-				"declarationListContainerEndStack": []number{-1},
-				"shouldEmitCommentsStack":          []false{false},
-				"shouldEmitSourceMapsStack":        []false{false},
+			state = &WorkArea{
+				stackIndex:                       0,
+				preserveSourceNewlinesStack:      []undefined{nil},
+				containerPosStack:                []number{-1},
+				containerEndStack:                []number{-1},
+				declarationListContainerEndStack: []number{-1},
+				shouldEmitCommentsStack:          []false{false},
+				shouldEmitSourceMapsStack:        []false{false},
 			}
 		}
 		return state
@@ -4207,9 +4206,9 @@ func (printer *Printer) emitDecoratorsAndModifiers(node *Node, modifiers *NodeAr
 				pos++
 			}
 
-			var textRange TextRange = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-				"pos": -1,
-				"end": -1,
+			var textRange TextRange = /* TODO(TS-TO-GO) inferred type ts.TextRange */ any{
+				pos: -1,
+				end: -1,
 			}
 			if start == 0 {
 				textRange.pos = modifiers.pos

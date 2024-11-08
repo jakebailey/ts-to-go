@@ -161,9 +161,9 @@ func createTextSpan(start number, length number) TextSpan {
 		/* TODO(TS-TO-GO) Node ThrowStatement: throw new Error("length < 0"); */
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"start":  start,
-		"length": length,
+	return TextSpan{
+		start:  start,
+		length: length,
 	}
 }
 
@@ -184,9 +184,9 @@ func createTextChangeRange(span TextSpan, newLength number) TextChangeRange {
 		/* TODO(TS-TO-GO) Node ThrowStatement: throw new Error("newLength < 0"); */
 	}
 
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"span":      span,
-		"newLength": newLength,
+	return TextChangeRange{
+		span:      span,
+		newLength: newLength,
 	}
 }
 

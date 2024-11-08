@@ -38,90 +38,90 @@ type Scanner struct {
 
 /** @internal */
 
-var textToKeywordObj MapLike[KeywordSyntaxKind] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-	"abstract":        SyntaxKindAbstractKeyword,
-	"accessor":        SyntaxKindAccessorKeyword,
-	"any":             SyntaxKindAnyKeyword,
-	"as":              SyntaxKindAsKeyword,
-	"asserts":         SyntaxKindAssertsKeyword,
-	"assert":          SyntaxKindAssertKeyword,
-	"bigint":          SyntaxKindBigIntKeyword,
-	"boolean":         SyntaxKindBooleanKeyword,
-	"break_":          SyntaxKindBreakKeyword,
-	"case_":           SyntaxKindCaseKeyword,
-	"catch":           SyntaxKindCatchKeyword,
-	"class":           SyntaxKindClassKeyword,
-	"continue_":       SyntaxKindContinueKeyword,
-	"const_":          SyntaxKindConstKeyword,
-	"TODO_IDENTIFIER": SyntaxKindConstructorKeyword,
-	"debugger":        SyntaxKindDebuggerKeyword,
-	"declare":         SyntaxKindDeclareKeyword,
-	"default_":        SyntaxKindDefaultKeyword,
-	"delete":          SyntaxKindDeleteKeyword,
-	"do":              SyntaxKindDoKeyword,
-	"else_":           SyntaxKindElseKeyword,
-	"enum":            SyntaxKindEnumKeyword,
-	"export":          SyntaxKindExportKeyword,
-	"extends":         SyntaxKindExtendsKeyword,
-	"false":           SyntaxKindFalseKeyword,
-	"finally":         SyntaxKindFinallyKeyword,
-	"for_":            SyntaxKindForKeyword,
-	"from":            SyntaxKindFromKeyword,
-	"function":        SyntaxKindFunctionKeyword,
-	"get":             SyntaxKindGetKeyword,
-	"if_":             SyntaxKindIfKeyword,
-	"implements":      SyntaxKindImplementsKeyword,
-	"import_":         SyntaxKindImportKeyword,
-	"in":              SyntaxKindInKeyword,
-	"infer":           SyntaxKindInferKeyword,
-	"instanceof":      SyntaxKindInstanceOfKeyword,
-	"interface_":      SyntaxKindInterfaceKeyword,
-	"intrinsic":       SyntaxKindIntrinsicKeyword,
-	"is":              SyntaxKindIsKeyword,
-	"keyof":           SyntaxKindKeyOfKeyword,
-	"let":             SyntaxKindLetKeyword,
-	"module":          SyntaxKindModuleKeyword,
-	"namespace":       SyntaxKindNamespaceKeyword,
-	"never":           SyntaxKindNeverKeyword,
-	"new":             SyntaxKindNewKeyword,
-	"null":            SyntaxKindNullKeyword,
-	"number":          SyntaxKindNumberKeyword,
-	"object":          SyntaxKindObjectKeyword,
-	"package_":        SyntaxKindPackageKeyword,
-	"private":         SyntaxKindPrivateKeyword,
-	"protected":       SyntaxKindProtectedKeyword,
-	"public":          SyntaxKindPublicKeyword,
-	"override":        SyntaxKindOverrideKeyword,
-	"out":             SyntaxKindOutKeyword,
-	"readonly":        SyntaxKindReadonlyKeyword,
-	"require":         SyntaxKindRequireKeyword,
-	"global":          SyntaxKindGlobalKeyword,
-	"return_":         SyntaxKindReturnKeyword,
-	"satisfies":       SyntaxKindSatisfiesKeyword,
-	"set":             SyntaxKindSetKeyword,
-	"static":          SyntaxKindStaticKeyword,
-	"string":          SyntaxKindStringKeyword,
-	"super":           SyntaxKindSuperKeyword,
-	"switch_":         SyntaxKindSwitchKeyword,
-	"symbol":          SyntaxKindSymbolKeyword,
-	"this":            SyntaxKindThisKeyword,
-	"throw":           SyntaxKindThrowKeyword,
-	"true":            SyntaxKindTrueKeyword,
-	"try":             SyntaxKindTryKeyword,
-	"t":               SyntaxKindTypeKeyword,
-	"typeof":          SyntaxKindTypeOfKeyword,
-	"undefined":       SyntaxKindUndefinedKeyword,
-	"unique":          SyntaxKindUniqueKeyword,
-	"unknown":         SyntaxKindUnknownKeyword,
-	"using":           SyntaxKindUsingKeyword,
-	"var_":            SyntaxKindVarKeyword,
-	"void":            SyntaxKindVoidKeyword,
-	"while":           SyntaxKindWhileKeyword,
-	"with":            SyntaxKindWithKeyword,
-	"yield":           SyntaxKindYieldKeyword,
-	"async":           SyntaxKindAsyncKeyword,
-	"await":           SyntaxKindAwaitKeyword,
-	"of":              SyntaxKindOfKeyword,
+var textToKeywordObj MapLike[KeywordSyntaxKind] = /* TODO(TS-TO-GO) inferred type MapLike<KeywordSyntaxKind> */ any{
+	abstract:        SyntaxKindAbstractKeyword,
+	accessor:        SyntaxKindAccessorKeyword,
+	any:             SyntaxKindAnyKeyword,
+	as:              SyntaxKindAsKeyword,
+	asserts:         SyntaxKindAssertsKeyword,
+	assert:          SyntaxKindAssertKeyword,
+	bigint:          SyntaxKindBigIntKeyword,
+	boolean:         SyntaxKindBooleanKeyword,
+	break_:          SyntaxKindBreakKeyword,
+	case_:           SyntaxKindCaseKeyword,
+	catch:           SyntaxKindCatchKeyword,
+	class:           SyntaxKindClassKeyword,
+	continue_:       SyntaxKindContinueKeyword,
+	const_:          SyntaxKindConstKeyword,
+	TODO_IDENTIFIER: SyntaxKindConstructorKeyword,
+	debugger:        SyntaxKindDebuggerKeyword,
+	declare:         SyntaxKindDeclareKeyword,
+	default_:        SyntaxKindDefaultKeyword,
+	delete:          SyntaxKindDeleteKeyword,
+	do:              SyntaxKindDoKeyword,
+	else_:           SyntaxKindElseKeyword,
+	enum:            SyntaxKindEnumKeyword,
+	export:          SyntaxKindExportKeyword,
+	extends:         SyntaxKindExtendsKeyword,
+	false:           SyntaxKindFalseKeyword,
+	finally:         SyntaxKindFinallyKeyword,
+	for_:            SyntaxKindForKeyword,
+	from:            SyntaxKindFromKeyword,
+	function:        SyntaxKindFunctionKeyword,
+	get:             SyntaxKindGetKeyword,
+	if_:             SyntaxKindIfKeyword,
+	implements:      SyntaxKindImplementsKeyword,
+	import_:         SyntaxKindImportKeyword,
+	in:              SyntaxKindInKeyword,
+	infer:           SyntaxKindInferKeyword,
+	instanceof:      SyntaxKindInstanceOfKeyword,
+	interface_:      SyntaxKindInterfaceKeyword,
+	intrinsic:       SyntaxKindIntrinsicKeyword,
+	is:              SyntaxKindIsKeyword,
+	keyof:           SyntaxKindKeyOfKeyword,
+	let:             SyntaxKindLetKeyword,
+	module:          SyntaxKindModuleKeyword,
+	namespace:       SyntaxKindNamespaceKeyword,
+	never:           SyntaxKindNeverKeyword,
+	new:             SyntaxKindNewKeyword,
+	null:            SyntaxKindNullKeyword,
+	number:          SyntaxKindNumberKeyword,
+	object:          SyntaxKindObjectKeyword,
+	package_:        SyntaxKindPackageKeyword,
+	private:         SyntaxKindPrivateKeyword,
+	protected:       SyntaxKindProtectedKeyword,
+	public:          SyntaxKindPublicKeyword,
+	override:        SyntaxKindOverrideKeyword,
+	out:             SyntaxKindOutKeyword,
+	readonly:        SyntaxKindReadonlyKeyword,
+	require:         SyntaxKindRequireKeyword,
+	global:          SyntaxKindGlobalKeyword,
+	return_:         SyntaxKindReturnKeyword,
+	satisfies:       SyntaxKindSatisfiesKeyword,
+	set:             SyntaxKindSetKeyword,
+	static:          SyntaxKindStaticKeyword,
+	string:          SyntaxKindStringKeyword,
+	super:           SyntaxKindSuperKeyword,
+	switch_:         SyntaxKindSwitchKeyword,
+	symbol:          SyntaxKindSymbolKeyword,
+	this:            SyntaxKindThisKeyword,
+	throw:           SyntaxKindThrowKeyword,
+	true:            SyntaxKindTrueKeyword,
+	try:             SyntaxKindTryKeyword,
+	t:               SyntaxKindTypeKeyword,
+	typeof:          SyntaxKindTypeOfKeyword,
+	undefined:       SyntaxKindUndefinedKeyword,
+	unique:          SyntaxKindUniqueKeyword,
+	unknown:         SyntaxKindUnknownKeyword,
+	using:           SyntaxKindUsingKeyword,
+	var_:            SyntaxKindVarKeyword,
+	void:            SyntaxKindVoidKeyword,
+	while:           SyntaxKindWhileKeyword,
+	with:            SyntaxKindWithKeyword,
+	yield:           SyntaxKindYieldKeyword,
+	async:           SyntaxKindAsyncKeyword,
+	await:           SyntaxKindAwaitKeyword,
+	of:              SyntaxKindOfKeyword,
 }
 
 var textToKeyword = NewMap(Object.entries(textToKeywordObj))
@@ -429,9 +429,9 @@ func getLineStarts(sourceFile SourceFileLike) []number {
 
 func computeLineAndCharacterOfPosition(lineStarts []number, position number) LineAndCharacter {
 	lineNumber := computeLineOfPosition(lineStarts, position)
-	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"line":      lineNumber,
-		"character": position - lineStarts[lineNumber],
+	return LineAndCharacter{
+		line:      lineNumber,
+		character: position - lineStarts[lineNumber],
 	}
 }
 
@@ -863,11 +863,11 @@ func reduceEachTrailingCommentRange(text string, pos number, cb func(pos number,
 }
 
 func appendCommentRange(pos number, end number, kind CommentKind, hasTrailingNewLine bool, _state any, comments []CommentRange /*  = [] */) []CommentRange {
-	comments.push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"kind":               kind,
-		"pos":                pos,
-		"end":                end,
-		"hasTrailingNewLine": hasTrailingNewLine,
+	comments.push(CommentRange{
+		kind:               kind,
+		pos:                pos,
+		end:                end,
+		hasTrailingNewLine: hasTrailingNewLine,
 	})
 	return comments
 }
@@ -958,104 +958,104 @@ func createScanner(languageVersion ScriptTarget, skipTrivia bool, languageVarian
 
 	scanner.setText(scanner.text, start, length)
 
-	tc.scanner = map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"getTokenFullStart": func() number {
+	tc.scanner = Scanner{
+		getTokenFullStart: func() number {
 			return scanner.fullStartPos
 		},
-		"getStartPos": func() number {
+		getStartPos: func() number {
 			return scanner.fullStartPos
 		},
-		"getTokenEnd": func() number {
+		getTokenEnd: func() number {
 			return scanner.pos
 		},
-		"getTextPos": func() number {
+		getTextPos: func() number {
 			return scanner.pos
 		},
-		"getToken": func() SyntaxKind {
+		getToken: func() SyntaxKind {
 			return scanner.token
 		},
-		"getTokenStart": func() number {
+		getTokenStart: func() number {
 			return scanner.tokenStart
 		},
-		"getTokenPos": func() number {
+		getTokenPos: func() number {
 			return scanner.tokenStart
 		},
-		"getTokenText": func() string {
+		getTokenText: func() string {
 			return scanner.text.substring(scanner.tokenStart, scanner.pos)
 		},
-		"getTokenValue": func() string {
+		getTokenValue: func() string {
 			return scanner.tokenValue
 		},
-		"hasUnicodeEscape": func() bool {
+		hasUnicodeEscape: func() bool {
 			return (scanner.tokenFlags & TokenFlagsUnicodeEscape) != 0
 		},
-		"hasExtendedUnicodeEscape": func() bool {
+		hasExtendedUnicodeEscape: func() bool {
 			return (scanner.tokenFlags & TokenFlagsExtendedUnicodeEscape) != 0
 		},
-		"hasPrecedingLineBreak": func() bool {
+		hasPrecedingLineBreak: func() bool {
 			return (scanner.tokenFlags & TokenFlagsPrecedingLineBreak) != 0
 		},
-		"hasPrecedingJSDocComment": func() bool {
+		hasPrecedingJSDocComment: func() bool {
 			return (scanner.tokenFlags & TokenFlagsPrecedingJSDocComment) != 0
 		},
-		"hasPrecedingJSDocLeadingAsterisks": func() bool {
+		hasPrecedingJSDocLeadingAsterisks: func() bool {
 			return (scanner.tokenFlags & TokenFlagsPrecedingJSDocLeadingAsterisks) != 0
 		},
-		"isIdentifier": func() bool {
+		isIdentifier: func() bool {
 			return scanner.token == SyntaxKindIdentifier || scanner.token > SyntaxKindLastReservedWord
 		},
-		"isReservedWord": func() bool {
+		isReservedWord: func() bool {
 			return scanner.token >= SyntaxKindFirstReservedWord && scanner.token <= SyntaxKindLastReservedWord
 		},
-		"isUnterminated": func() bool {
+		isUnterminated: func() bool {
 			return (scanner.tokenFlags & TokenFlagsUnterminated) != 0
 		},
-		"getCommentDirectives": func() *[]CommentDirective {
+		getCommentDirectives: func() *[]CommentDirective {
 			return scanner.commentDirectives
 		},
-		"getNumericLiteralFlags": func() number {
+		getNumericLiteralFlags: func() number {
 			return scanner.tokenFlags & TokenFlagsNumericLiteralFlags
 		},
-		"getTokenFlags": func() TokenFlags {
+		getTokenFlags: func() TokenFlags {
 			return scanner.tokenFlags
 		},
-		"reScanGreaterToken":                         reScanGreaterToken,
-		"reScanAsteriskEqualsToken":                  reScanAsteriskEqualsToken,
-		"reScanSlashToken":                           reScanSlashToken,
-		"reScanTemplateToken":                        reScanTemplateToken,
-		"reScanTemplateHeadOrNoSubstitutionTemplate": reScanTemplateHeadOrNoSubstitutionTemplate,
-		"scanJsxIdentifier":                          scanJsxIdentifier,
-		"scanJsxAttributeValue":                      scanJsxAttributeValue,
-		"reScanJsxAttributeValue":                    reScanJsxAttributeValue,
-		"reScanJsxToken":                             reScanJsxToken,
-		"reScanLessThanToken":                        reScanLessThanToken,
-		"reScanHashToken":                            reScanHashToken,
-		"reScanQuestionToken":                        reScanQuestionToken,
-		"reScanInvalidIdentifier":                    reScanInvalidIdentifier,
-		"scanJsxToken":                               scanJsxToken,
-		"scanJsDocToken":                             scanJsDocToken,
-		"scanJSDocCommentTextToken":                  scanJSDocCommentTextToken,
-		"scan":                                       scan,
-		"getText":                                    getText,
-		"clearCommentDirectives":                     clearCommentDirectives,
-		"setText":                                    setText,
-		"setScriptTarget":                            setScriptTarget,
-		"setLanguageVariant":                         setLanguageVariant,
-		"setScriptKind":                              setScriptKind,
-		"setJSDocParsingMode":                        setJSDocParsingMode,
-		"setOnError":                                 setOnError,
-		"resetTokenState":                            resetTokenState,
-		"setTextPos":                                 scanner.resetTokenState,
-		"setSkipJsDocLeadingAsterisks":               setSkipJsDocLeadingAsterisks,
-		"tryScan":                                    tryScan,
-		"lookAhead":                                  lookAhead,
-		"scanRange":                                  scanRange,
+		reScanGreaterToken:                         reScanGreaterToken,
+		reScanAsteriskEqualsToken:                  reScanAsteriskEqualsToken,
+		reScanSlashToken:                           reScanSlashToken,
+		reScanTemplateToken:                        reScanTemplateToken,
+		reScanTemplateHeadOrNoSubstitutionTemplate: reScanTemplateHeadOrNoSubstitutionTemplate,
+		scanJsxIdentifier:                          scanJsxIdentifier,
+		scanJsxAttributeValue:                      scanJsxAttributeValue,
+		reScanJsxAttributeValue:                    reScanJsxAttributeValue,
+		reScanJsxToken:                             reScanJsxToken,
+		reScanLessThanToken:                        reScanLessThanToken,
+		reScanHashToken:                            reScanHashToken,
+		reScanQuestionToken:                        reScanQuestionToken,
+		reScanInvalidIdentifier:                    reScanInvalidIdentifier,
+		scanJsxToken:                               scanJsxToken,
+		scanJsDocToken:                             scanJsDocToken,
+		scanJSDocCommentTextToken:                  scanJSDocCommentTextToken,
+		scan:                                       scan,
+		getText:                                    getText,
+		clearCommentDirectives:                     clearCommentDirectives,
+		setText:                                    setText,
+		setScriptTarget:                            setScriptTarget,
+		setLanguageVariant:                         setLanguageVariant,
+		setScriptKind:                              setScriptKind,
+		setJSDocParsingMode:                        setJSDocParsingMode,
+		setOnError:                                 setOnError,
+		resetTokenState:                            resetTokenState,
+		setTextPos:                                 scanner.resetTokenState,
+		setSkipJsDocLeadingAsterisks:               setSkipJsDocLeadingAsterisks,
+		tryScan:                                    tryScan,
+		lookAhead:                                  lookAhead,
+		scanRange:                                  scanRange,
 	}
 	/* eslint-enable no-var */
 
 	if Debug.isDebugging {
-		Object.defineProperty(scanner.scanner, "__debugShowCurrentPositionInText", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-			"get": func() string {
+		Object.defineProperty(scanner.scanner, "__debugShowCurrentPositionInText" /* TODO(TS-TO-GO) inferred type PropertyDescriptor & ThisType<any> */, any{
+			get: func() string {
 				text := scanner.scanner.getText()
 				return text.slice(0, scanner.scanner.getTokenFullStart()) + "║" + text.slice(scanner.scanner.getTokenFullStart())
 			},

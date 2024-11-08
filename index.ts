@@ -801,22 +801,42 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.write("}");
         }
         else if (Node.isObjectLiteralExpression(node)) {
-            writer.write("map[any]any{ /* TODO(TS-TO-GO): was object literal */");
+            const type = node.getContextualType();
+            let typeName = type?.getText(node);
+            if (typeName && !typeName.startsWith("{")) {
+                typeName = typeStringToGo(typeName);
+                if (typeName.startsWith("*")) {
+                    typeName = "&" + typeName.slice(1);
+                }
+            }
+            else {
+                typeName = undefined;
+            }
+
+            if (typeName) {
+                writer.write(`${typeName}{`);
+            }
+            else {
+                writer.write("map[any]any{ /* TODO(TS-TO-GO): was object literal */");
+            }
+
             writer.indent(() => {
+                const quote = typeName ? "" : '"';
+
                 const properties = node.getProperties();
                 for (const prop of properties) {
                     writeLeadingComments(prop);
                     if (Node.isShorthandPropertyAssignment(prop)) {
-                        writer.write(`"${getNameOfNamed(prop)}": ${getNameOfNamed(prop)}`);
+                        writer.write(`${quote}${getNameOfNamed(prop)}${quote}: ${getNameOfNamed(prop)}`);
                         writer.write(",");
                     }
                     else if (Node.isPropertyAssignment(prop)) {
-                        writer.write(`"${getNameOfNamed(prop)}": `);
+                        writer.write(`${quote}${getNameOfNamed(prop)}${quote}: `);
                         visitExpression(prop.getInitializerOrThrow());
                         writer.write(",");
                     }
                     else if (Node.isMethodDeclaration(prop)) {
-                        writer.write(`"${getNameOfNamed(prop)}": func`);
+                        writer.write(`${quote}${getNameOfNamed(prop)}${quote}: func`);
                         writeTypeParameters(prop);
                         writeFunctionParametersAndReturn(prop);
                         writeBody(prop);
