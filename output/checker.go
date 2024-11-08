@@ -3100,7 +3100,7 @@ func (c *Checker) resolveExportByName(moduleSymbol *Symbol, name string, sourceN
 }
 
 func (c *Checker) isSyntacticDefault(node *Node) bool {
-	return ((isExportAssignment(node) && !node.isExportEquals) || hasSyntacticModifier(node, ModifierFlagsDefault) || isExportSpecifier(node) || isNamespaceExport(node))
+	return (isExportAssignment(node) && !node.isExportEquals) || hasSyntacticModifier(node, ModifierFlagsDefault) || isExportSpecifier(node) || isNamespaceExport(node)
 }
 
 func (c *Checker) getEmitSyntaxForModuleSpecifierExpression(usage Expression) ResolutionMode {
@@ -8341,7 +8341,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 				// Ensure resolvedSymbol is present
 				c.getTypeFromImportTypeNode(existing)
 				nodeSymbol := c.getNodeLinks(existing).resolvedSymbol
-				return (nodeSymbol == nil || !((!existing.isTypeOf && (nodeSymbol.flags&SymbolFlagsType != 0)) || !(length(existing.typeArguments) >= c.getMinTypeArgumentCount(c.getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(nodeSymbol)))))
+				return nodeSymbol == nil || !((!existing.isTypeOf && (nodeSymbol.flags&SymbolFlagsType != 0)) || !(length(existing.typeArguments) >= c.getMinTypeArgumentCount(c.getLocalTypeParametersOfClassOrInterfaceOrTypeAlias(nodeSymbol))))
 			}
 		}
 		if isThisTypeNode(existing) {
@@ -9345,7 +9345,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		}
 
 		isExportingScope := func(enclosingDeclaration *Node) bool {
-			return ((isSourceFile(enclosingDeclaration) && (isExternalOrCommonJsModule(enclosingDeclaration) || isJsonSourceFile(enclosingDeclaration))) || (isAmbientModule(enclosingDeclaration) && !isGlobalScopeAugmentation(enclosingDeclaration)))
+			return (isSourceFile(enclosingDeclaration) && (isExternalOrCommonJsModule(enclosingDeclaration) || isJsonSourceFile(enclosingDeclaration))) || (isAmbientModule(enclosingDeclaration) && !isGlobalScopeAugmentation(enclosingDeclaration))
 		}
 
 		// Prepends a `declare` and/or `export` modifier if the context requires it, and then adds `node` to `result` and returns `node`
@@ -17731,7 +17731,8 @@ func (c *Checker) getGlobalClassFieldDecoratorContextType(reportErrors bool) Gen
 }
 
 func (c *Checker) getGlobalNaNSymbol() *Symbol {
-	return ( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: deferredGlobalNaNSymbol ||= getGlobalValueSymbol("NaN" as __String, /*reportErrors* / false) */ TODO)
+	c.deferredGlobalNaNSymbol = c.deferredGlobalNaNSymbol || c.getGlobalValueSymbol("NaN" /* as __String */ /*reportErrors*/, false)
+	return c.deferredGlobalNaNSymbol
 }
 
 func (c *Checker) getGlobalRecordSymbol() *Symbol {
@@ -29276,7 +29277,7 @@ func (c *Checker) isMatchingReference(source *Node, target *Node) bool {
 	case SyntaxKindQualifiedName:
 		return isAccessExpression(target) && (source.AsQualifiedName()).right.escapedText == c.getAccessedPropertyName(target) && c.isMatchingReference((source.AsQualifiedName()).left, target.expression)
 	case SyntaxKindBinaryExpression:
-		return (isBinaryExpression(source) && source.operatorToken.kind == SyntaxKindCommaToken && c.isMatchingReference(source.right, target))
+		return isBinaryExpression(source) && source.operatorToken.kind == SyntaxKindCommaToken && c.isMatchingReference(source.right, target)
 	}
 	return false
 }

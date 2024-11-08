@@ -5721,7 +5721,7 @@ func (printer *Printer) emitNonTripleSlashLeadingComment(commentPos number, comm
 
 func (printer *Printer) shouldWriteComment(text string, pos number) bool {
 	if printerOptions.onlyPrintJsDocStyle {
-		return (isJSDocLikeText(text, pos) || isPinnedComment(text, pos))
+		return isJSDocLikeText(text, pos) || isPinnedComment(text, pos)
 	}
 	return true
 }

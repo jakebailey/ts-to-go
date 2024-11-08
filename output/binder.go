@@ -441,7 +441,11 @@ func (b *Binder) getDeclarationName(node Declaration) *string {
 		}
 		Debug.fail("Unknown binary declaration kind")
 	case SyntaxKindJSDocFunctionType:
-		return (ifElse(isJSDocConstructSignature(node), InternalSymbolNameNew, InternalSymbolNameCall))
+		if isJSDocConstructSignature(node) {
+			return InternalSymbolNameNew
+		} else {
+			return InternalSymbolNameCall
+		}
 	case SyntaxKindParameter:
 		// Parameters with names are handled at the top of this function.  Parameters
 		// without names can only come from JSDocFunctionTypes.

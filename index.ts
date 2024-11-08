@@ -1640,7 +1640,11 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         if (!isGlobal && Node.isReturnStatement(node)) {
             writer.newLineIfLastNot();
 
-            const expression = node.getExpression();
+            let expression = node.getExpression();
+            while (Node.isParenthesizedExpression(expression)) {
+                expression = expression.getExpression();
+            }
+
             if (Node.isBinaryExpression(expression) && expression.getOperatorToken().isKind(ts.SyntaxKind.CommaToken)) {
                 const left = expression.getLeft();
                 const right = expression.getRight();

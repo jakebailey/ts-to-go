@@ -2207,7 +2207,7 @@ func isCommonJsExportPropertyAssignment(node *Node) bool {
 	if !isInJSFile(node) {
 		return false
 	}
-	return (isBinaryExpression(node) && getAssignmentDeclarationKind(node) == AssignmentDeclarationKindExportsProperty)
+	return isBinaryExpression(node) && getAssignmentDeclarationKind(node) == AssignmentDeclarationKindExportsProperty
 }
 
 /** @internal */
@@ -2649,7 +2649,7 @@ func getEntityNameFromTypeNode(node TypeNode) *EntityNameOrEntityNameExpression 
 		// TODO(rbuckton): These aren't valid TypeNodes, but we treat them as such because of `isPartOfTypeNode`, which returns `true` for things that aren't `TypeNode`s.
 	case SyntaxKindIdentifier.(TypeNodeSyntaxKind),
 		SyntaxKindQualifiedName.(TypeNodeSyntaxKind):
-		return (node.AsNode().AsEntityName())
+		return node.AsNode().AsEntityName()
 	}
 
 	return nil
