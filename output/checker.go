@@ -56044,4 +56044,111 @@ type NodeBuilderContext struct {
 	mapper                                *TypeMapper
 }
 
-/* TODO(TS-TO-GO) Node ClassDeclaration: class SymbolTrackerImpl implements SymbolTracker { moduleResolverHost: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; } | undefined = undefined; context: NodeBuilderContext; readonly inner: SymbolTracker | undefined = undefined; readonly canTrackSymbol: boolean; disableTrackSymbol = false; constructor(context: NodeBuilderContext, tracker: SymbolTracker | undefined, moduleResolverHost: ModuleSpecifierResolutionHost & { getCommonSourceDirectory(): string; } | undefined) { while (tracker instanceof SymbolTrackerImpl) { tracker = tracker.inner; } this.inner = tracker; this.moduleResolverHost = moduleResolverHost; this.context = context; this.canTrackSymbol = !!this.inner?.trackSymbol; } trackSymbol(symbol: Symbol, enclosingDeclaration: Node | undefined, meaning: SymbolFlags): boolean { if (this.inner?.trackSymbol && !this.disableTrackSymbol) { if (this.inner.trackSymbol(symbol, enclosingDeclaration, meaning)) { this.onDiagnosticReported(); return true; } // Skip recording type parameters as they dont contribute to late painted statements if (!(symbol.flags & SymbolFlags.TypeParameter)) (this.context.trackedSymbols ??= []).push([symbol, enclosingDeclaration, meaning]); } return false; } reportInaccessibleThisError(): void { if (this.inner?.reportInaccessibleThisError) { this.onDiagnosticReported(); this.inner.reportInaccessibleThisError(); } } reportPrivateInBaseOfClassExpression(propertyName: string): void { if (this.inner?.reportPrivateInBaseOfClassExpression) { this.onDiagnosticReported(); this.inner.reportPrivateInBaseOfClassExpression(propertyName); } } reportInaccessibleUniqueSymbolError(): void { if (this.inner?.reportInaccessibleUniqueSymbolError) { this.onDiagnosticReported(); this.inner.reportInaccessibleUniqueSymbolError(); } } reportCyclicStructureError(): void { if (this.inner?.reportCyclicStructureError) { this.onDiagnosticReported(); this.inner.reportCyclicStructureError(); } } reportLikelyUnsafeImportRequiredError(specifier: string): void { if (this.inner?.reportLikelyUnsafeImportRequiredError) { this.onDiagnosticReported(); this.inner.reportLikelyUnsafeImportRequiredError(specifier); } } reportTruncationError(): void { if (this.inner?.reportTruncationError) { this.onDiagnosticReported(); this.inner.reportTruncationError(); } } reportNonlocalAugmentation(containingFile: SourceFile, parentSymbol: Symbol, augmentingSymbol: Symbol): void { if (this.inner?.reportNonlocalAugmentation) { this.onDiagnosticReported(); this.inner.reportNonlocalAugmentation(containingFile, parentSymbol, augmentingSymbol); } } reportNonSerializableProperty(propertyName: string): void { if (this.inner?.reportNonSerializableProperty) { this.onDiagnosticReported(); this.inner.reportNonSerializableProperty(propertyName); } } private onDiagnosticReported() { this.context.reportedDiagnostic = true; } reportInferenceFallback(node: Node): void { if (this.inner?.reportInferenceFallback) { this.inner.reportInferenceFallback(node); } } pushErrorFallbackNode(node: Declaration | undefined): void { return this.inner?.pushErrorFallbackNode?.(node); } popErrorFallbackNode(): void { return this.inner?.popErrorFallbackNode?.(); } } */
+type SymbolTrackerImpl struct {
+	moduleResolverHost *Intersection[ModuleSpecifierResolutionHost /* TODO(TS-TO-GO) TypeNode TypeLiteral: { getCommonSourceDirectory(): string; } */, any]
+	context            NodeBuilderContext
+	inner              *SymbolTracker
+	canTrackSymbol     bool
+	disableTrackSymbol bool
+}
+
+func NewSymbolTrackerImpl(context NodeBuilderContext, tracker *SymbolTracker, moduleResolverHost *Intersection[ModuleSpecifierResolutionHost /* TODO(TS-TO-GO) TypeNode TypeLiteral: { getCommonSourceDirectory(): string; } */, any]) SymbolTrackerImpl {
+	this := &SymbolTrackerImpl{}
+	for /* TODO(TS-TO-GO) InstanceOfKeyword BinaryExpression: tracker instanceof SymbolTrackerImpl */ TODO {
+		tracker = tracker.inner
+	}
+
+	this.inner = tracker
+	this.moduleResolverHost = moduleResolverHost
+	this.context = context
+	this.canTrackSymbol = this.inner. /* ? */ trackSymbol != nil
+	return this
+}
+
+func (this *SymbolTrackerImpl) trackSymbol(symbol *Symbol, enclosingDeclaration *Node, meaning SymbolFlags) bool {
+	if this.inner. /* ? */ trackSymbol != nil && !this.disableTrackSymbol {
+		if this.inner.trackSymbol(symbol, enclosingDeclaration, meaning) {
+			this.onDiagnosticReported()
+			return true
+		}
+		// Skip recording type parameters as they dont contribute to late painted statements
+		if symbol.flags&SymbolFlagsTypeParameter != 0 {
+			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: this.context.trackedSymbols ??= [] */ TODO).push([]any{symbol, enclosingDeclaration, meaning})
+		}
+	}
+	return false
+}
+
+func (this *SymbolTrackerImpl) reportInaccessibleThisError() {
+	if this.inner. /* ? */ reportInaccessibleThisError != nil {
+		this.onDiagnosticReported()
+		this.inner.reportInaccessibleThisError()
+	}
+}
+
+func (this *SymbolTrackerImpl) reportPrivateInBaseOfClassExpression(propertyName string) {
+	if this.inner. /* ? */ reportPrivateInBaseOfClassExpression != nil {
+		this.onDiagnosticReported()
+		this.inner.reportPrivateInBaseOfClassExpression(propertyName)
+	}
+}
+
+func (this *SymbolTrackerImpl) reportInaccessibleUniqueSymbolError() {
+	if this.inner. /* ? */ reportInaccessibleUniqueSymbolError != nil {
+		this.onDiagnosticReported()
+		this.inner.reportInaccessibleUniqueSymbolError()
+	}
+}
+
+func (this *SymbolTrackerImpl) reportCyclicStructureError() {
+	if this.inner. /* ? */ reportCyclicStructureError != nil {
+		this.onDiagnosticReported()
+		this.inner.reportCyclicStructureError()
+	}
+}
+
+func (this *SymbolTrackerImpl) reportLikelyUnsafeImportRequiredError(specifier string) {
+	if this.inner. /* ? */ reportLikelyUnsafeImportRequiredError != nil {
+		this.onDiagnosticReported()
+		this.inner.reportLikelyUnsafeImportRequiredError(specifier)
+	}
+}
+
+func (this *SymbolTrackerImpl) reportTruncationError() {
+	if this.inner. /* ? */ reportTruncationError != nil {
+		this.onDiagnosticReported()
+		this.inner.reportTruncationError()
+	}
+}
+
+func (this *SymbolTrackerImpl) reportNonlocalAugmentation(containingFile SourceFile, parentSymbol *Symbol, augmentingSymbol *Symbol) {
+	if this.inner. /* ? */ reportNonlocalAugmentation != nil {
+		this.onDiagnosticReported()
+		this.inner.reportNonlocalAugmentation(containingFile, parentSymbol, augmentingSymbol)
+	}
+}
+
+func (this *SymbolTrackerImpl) reportNonSerializableProperty(propertyName string) {
+	if this.inner. /* ? */ reportNonSerializableProperty != nil {
+		this.onDiagnosticReported()
+		this.inner.reportNonSerializableProperty(propertyName)
+	}
+}
+
+func (this *SymbolTrackerImpl) onDiagnosticReported() {
+	this.context.reportedDiagnostic = true
+}
+
+func (this *SymbolTrackerImpl) reportInferenceFallback(node *Node) {
+	if this.inner. /* ? */ reportInferenceFallback != nil {
+		this.inner.reportInferenceFallback(node)
+	}
+}
+
+func (this *SymbolTrackerImpl) pushErrorFallbackNode(node Declaration) {
+	return this.inner. /* ? */ pushErrorFallbackNode(node)
+}
+
+func (this *SymbolTrackerImpl) popErrorFallbackNode() {
+	return this.inner. /* ? */ popErrorFallbackNode()
+}

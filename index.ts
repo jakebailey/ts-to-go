@@ -11,6 +11,7 @@ import {
     type CaseOrDefaultClause,
     CommentStatement,
     ConditionalExpression,
+    ConstructorDeclaration,
     Expression,
     ExpressionStatement,
     FunctionDeclaration,
@@ -1263,7 +1264,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     }
 
     function writeFunctionParametersAndReturn(
-        node: FunctionDeclaration | ArrowFunction | MethodDeclaration | FunctionExpression,
+        node: FunctionDeclaration | ArrowFunction | MethodDeclaration | FunctionExpression | ConstructorDeclaration,
     ) {
         writer.write("(");
         const params = node.getParameters();
@@ -1991,6 +1992,66 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 writer.writeLine("}");
                 writer.newLineIfLastNot();
             }
+            return;
+        }
+
+        if (Node.isClassDeclaration(node)) {
+            writer.write(`type ${getNameOfNamed(node)} struct {`);
+            const members = node.getMembers();
+            writer.indent(() => {
+                for (const member of members) {
+                    if (Node.isPropertyDeclaration(member)) {
+                        writer.write(`${getNameOfNamed(member)} `);
+
+                        const typeNode = member.getTypeNode();
+                        if (typeNode) {
+                            visitTypeNode(typeNode);
+                        }
+                        else {
+                            writeType(member, member.getType());
+                        }
+
+                        writer.newLine();
+                    }
+                }
+            });
+            writer.write("}");
+
+            writer.newLineIfLastNot();
+
+            for (const member of members) {
+                if (Node.isPropertyDeclaration(member)) {
+                    continue;
+                }
+
+                if (Node.isConstructorDeclaration(member)) {
+                    writer.write(`func New${getNameOfNamed(node)}`);
+                    writeFunctionParametersAndReturn(member);
+                    writer.write(" {");
+                    writer.indent(() => {
+                        writer.write(`this := &${getNameOfNamed(node)}{}`);
+                        const body = member.getBodyOrThrow();
+                        assert(Node.isBlock(body));
+                        visitBlock(body);
+                        writer.write("return this");
+                    });
+                    writer.write("}");
+                    writer.newLine();
+                    writer.newLine();
+                }
+                else if (Node.isMethodDeclaration(member)) {
+                    writer.write(`func (this *${getNameOfNamed(node)}) ${getNameOfNamed(member)}`);
+                    writeFunctionParametersAndReturn(member);
+                    writeBody(member);
+                    writer.newLine();
+                    writer.newLine();
+                }
+                else {
+                    writeTodoNode(member);
+                    writer.newLine();
+                }
+            }
+
             return;
         }
 
