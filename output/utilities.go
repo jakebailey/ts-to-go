@@ -723,7 +723,9 @@ func getTokenPosOfNode(node *Node, sourceFile SourceFileLike, includeJsDoc bool)
 	// trivia for the list, we may have skipped the JSDocComment as well. So we should process its
 	// first child to determine the actual position of its first token.
 	if node.kind == SyntaxKindSyntaxList {
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceFile ??= getSourceFileOfNode(node) */ TODO
+		if sourceFile == nil {
+			sourceFile = getSourceFileOfNode(node)
+		}
 		first := firstOrUndefined(getNodeChildren(node, sourceFile))
 		if first != nil {
 			return getTokenPosOfNode(first, sourceFile, includeJsDoc)

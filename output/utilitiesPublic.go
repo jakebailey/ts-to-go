@@ -1046,7 +1046,9 @@ func getJSDocTagsWorker(node *Node, noCache bool) []JSDocTag {
 			}
 		})
 		if !noCache {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: node.jsDoc ??= [] */ TODO
+			if node.jsDoc == nil {
+				node.jsDoc = []never{}
+			}
 			node.jsDoc.jsDocCache = tags
 		}
 	}
@@ -2364,7 +2366,9 @@ func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {
 }
 
 func isInternalDeclaration(node *Node, sourceFile SourceFile) bool {
-	/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceFile ??= getSourceFileOfNode(node) */ TODO
+	if sourceFile == nil {
+		sourceFile = getSourceFileOfNode(node)
+	}
 	parseTreeNode := getParseTreeNode(node)
 	if parseTreeNode != nil && parseTreeNode.kind == SyntaxKindParameter {
 		paramIdx := (parseTreeNode.parent.AsSignatureDeclaration()).parameters.indexOf(parseTreeNode.AsParameterDeclaration())

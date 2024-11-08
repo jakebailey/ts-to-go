@@ -2999,9 +2999,13 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 		}) {
 			scanner.error(Diagnostics.Named_capturing_groups_with_the_same_name_must_be_mutually_exclusive_to_each_other, scanner.tokenStart, scanner.pos-scanner.tokenStart)
 		} else {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: topNamedCapturingGroupsScope ??= new Set() */ TODO
+			if topNamedCapturingGroupsScope == nil {
+				topNamedCapturingGroupsScope = NewSet()
+			}
 			topNamedCapturingGroupsScope.add(scanner.tokenValue)
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: groupSpecifiers ??= new Set() */ TODO
+			if groupSpecifiers == nil {
+				groupSpecifiers = NewSet()
+			}
 			groupSpecifiers.add(scanner.tokenValue)
 		}
 	}

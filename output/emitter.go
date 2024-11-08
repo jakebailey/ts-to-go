@@ -5261,7 +5261,9 @@ func (printer *Printer) setTempFlags(formattedNameKey string, flags TempFlags) {
 	case "#":
 		printer.privateNameTempFlags = flags
 	default:
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: formattedNameTempFlags ??= new Map() */ TODO
+		if printer.formattedNameTempFlags == nil {
+			printer.formattedNameTempFlags = NewMap()
+		}
 		printer.formattedNameTempFlags.set(formattedNameKey, flags)
 	}
 }

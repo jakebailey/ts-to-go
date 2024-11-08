@@ -3492,7 +3492,9 @@ func (b *Binder) bindTypeParameter(node TypeParameterDeclaration) {
 		var container *HasLocals = getEffectiveContainerForJSDocTemplateTag(node.parent)
 		if container != nil {
 			Debug.assertNode(container, canHaveLocals)
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: container.locals ??= createSymbolTable() */ TODO
+			if container.locals == nil {
+				container.locals = createSymbolTable()
+			}
 			b.declareSymbol(container.locals /*parent*/, nil, node, SymbolFlagsTypeParameter, SymbolFlagsTypeParameterExcludes)
 		} else {
 			b.declareSymbolAndAddToSymbolTable(node, SymbolFlagsTypeParameter, SymbolFlagsTypeParameterExcludes)
@@ -3501,7 +3503,9 @@ func (b *Binder) bindTypeParameter(node TypeParameterDeclaration) {
 		var container *HasLocals = b.getInferTypeContainer(node.parent)
 		if container != nil {
 			Debug.assertNode(container, canHaveLocals)
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: container.locals ??= createSymbolTable() */ TODO
+			if container.locals == nil {
+				container.locals = createSymbolTable()
+			}
 			b.declareSymbol(container.locals /*parent*/, nil, node, SymbolFlagsTypeParameter, SymbolFlagsTypeParameterExcludes)
 		} else {
 			b.bindAnonymousDeclaration(node, SymbolFlagsTypeParameter, b.getDeclarationName(node))

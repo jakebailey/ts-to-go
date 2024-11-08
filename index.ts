@@ -1002,6 +1002,18 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                     }
                 }
 
+                if (isStatement && op.getKind() === ts.SyntaxKind.QuestionQuestionEqualsToken) {
+                    // convert a ??= b into if a == nil { a = b }
+                    writer.write("if ");
+                    visitExpression(left);
+                    writer.write(" == nil { ");
+                    visitExpression(left);
+                    writer.write(" = ");
+                    visitExpression(right);
+                    writer.write(" }");
+                    return;
+                }
+
                 if (isStatement && isAssignmentOperator(op.getKind())) {
                     tok ??= ts.tokenToString(op.getKind())!;
 
@@ -1628,6 +1640,24 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
             if (Node.isConditionalExpression(expression)) {
                 writeConditionalExpression(expression, () => writer.write("return "));
+                return;
+            }
+
+            if (
+                Node.isBinaryExpression(expression) &&
+                expression.getOperatorToken().getKind() === ts.SyntaxKind.QuestionQuestionEqualsToken
+            ) {
+                writer.write("if ");
+                visitExpression(expression.getLeft());
+                writer.write(" == nil { ");
+                visitExpression(expression.getLeft());
+                writer.write(" = ");
+                visitExpression(expression.getRight());
+                writer.write(" }");
+                writer.newLine();
+                writer.write("return ");
+                visitExpression(expression.getLeft());
+                writer.newLine();
                 return;
             }
 

@@ -1581,8 +1581,9 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		tracing. /* ? */ pop()
 
 		// load type declarations specified via 'types' argument or implicitly from types/ and node_modules/@types folders
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: automaticTypeDirectiveNames ??= rootNames.length ? getAutomaticTypeDirectiveNames(options, host) : emptyArray */
-		TODO
+		if automaticTypeDirectiveNames == nil {
+			automaticTypeDirectiveNames = ifElse(rootNames.length != 0, getAutomaticTypeDirectiveNames(options, host), emptyArray)
+		}
 		automaticTypeDirectiveResolutions = createModeAwareCache()
 		if automaticTypeDirectiveNames.length != 0 {
 			tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferences", map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -1844,7 +1845,9 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getResolvedModuleFromModuleSpecifier := func(moduleSpecifier StringLiteralLike, sourceFile SourceFile) *ResolvedModuleWithFailedLookupLocations {
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceFile ??= getSourceFileOfNode(moduleSpecifier) */ TODO
+		if sourceFile == nil {
+			sourceFile = getSourceFileOfNode(moduleSpecifier)
+		}
 		Debug.assertIsDefined(sourceFile, "`moduleSpecifier` must have a `SourceFile` ancestor. Use `program.getResolvedModule` instead to provide the containing file and resolution mode.")
 		return getResolvedModule(sourceFile, moduleSpecifier.text, getModeForUsageLocation(sourceFile, moduleSpecifier))
 	}

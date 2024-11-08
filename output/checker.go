@@ -2327,7 +2327,10 @@ func (c *Checker) getSymbolLinks(symbol *Symbol) SymbolLinks {
 		return (symbol.(TransientSymbol)).links
 	}
 	id := getSymbolId(symbol)
-	return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: symbolLinks[id] ??= new SymbolLinks() */ TODO
+	if c.symbolLinks[id] == nil {
+		c.symbolLinks[id] = NewSymbolLinks()
+	}
+	return c.symbolLinks[id]
 }
 
 func (c *Checker) getNodeLinks(node *Node) NodeLinks {
@@ -3117,7 +3120,9 @@ func (c *Checker) isOnlyImportableAsDefault(usage Expression, resolvedModule *Sy
 	if ModuleKindNode16 <= c.moduleKind && c.moduleKind <= ModuleKindNodeNext {
 		usageMode := c.getEmitSyntaxForModuleSpecifierExpression(usage)
 		if usageMode == ModuleKindESNext {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: resolvedModule ??= resolveExternalModuleName(usage, usage, /*ignoreErrors* / true) */ TODO
+			if resolvedModule == nil {
+				resolvedModule = c.resolveExternalModuleName(usage, usage /*ignoreErrors*/, true)
+			}
 			targetFile := resolvedModule && getSourceFileOfModule(resolvedModule)
 			return targetFile && (isJsonSourceFile(targetFile) || getDeclarationFileExtension(targetFile.fileName) == ".d.json.ts")
 		}
@@ -4618,7 +4623,9 @@ func (c *Checker) getExportsOfModuleWorker(moduleSymbol *Symbol) /* TODO(TS-TO-G
 			c.extendExportSymbols(symbols, nestedSymbols)
 		}
 		if exportStar. /* ? */ isTypeOnly {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: typeOnlyExportStarMap ??= new Map() */ TODO
+			if typeOnlyExportStarMap == nil {
+				typeOnlyExportStarMap = NewMap()
+			}
 			symbols.forEach(func(_ *Symbol, escapedName string) Map[string /* TODO(TS-TO-GO) inferred type ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */, any] {
 				return typeOnlyExportStarMap.set(escapedName, exportStar /* as ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */)
 			})
@@ -7638,7 +7645,9 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			}, map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"overrideImportMode": overrideImportMode,
 			}))
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.specifierCache ??= new Map() */ TODO
+			if links.specifierCache == nil {
+				links.specifierCache = NewMap()
+			}
 			links.specifierCache.set(cacheKey, specifier)
 		}
 		return specifier
@@ -11998,7 +12007,9 @@ func (c *Checker) getTypeOfAccessors(symbol *Symbol) *Type {
 			}
 			t = c.anyType
 		}
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.type ??= type */ TODO
+		if links.type_ == nil {
+			links.type_ = t
+		}
 	}
 	return links.type_
 }
@@ -12019,8 +12030,9 @@ func (c *Checker) getWriteTypeOfAccessors(symbol *Symbol) *Type {
 			writeType = c.anyType
 		}
 		// Absent an explicit setter type annotation we use the read type of the accessor.
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.writeType ??= writeType || getTypeOfAccessors(symbol) */
-		TODO
+		if links.writeType == nil {
+			links.writeType = writeType || c.getTypeOfAccessors(symbol)
+		}
 	}
 	return links.writeType
 }
@@ -12120,12 +12132,16 @@ func (c *Checker) getTypeOfAlias(symbol *Symbol) *Type {
 		// type symbol, call getDeclaredTypeOfSymbol.
 		// This check is important because without it, a call to getTypeOfSymbol could end
 		// up recursively calling getTypeOfAlias, causing a stack overflow.
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.type ??= exportSymbol?.declarations && isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations!.length ? getFlowTypeFromCommonJSExport(exportSymbol) : isDuplicatedCommonJSExport(symbol.declarations) ? autoType : declaredType ? declaredType : getSymbolFlags(targetSymbol) & SymbolFlags.Value ? getTypeOfSymbol(targetSymbol) : errorType */
-		TODO
+		if links.type_ == nil {
+			links.type_ = ifElse(exportSymbol. /* ? */ declarations != nil && c.isDuplicatedCommonJSExport(exportSymbol.declarations) && symbol.declarations.length != 0, c.getFlowTypeFromCommonJSExport(exportSymbol), ifElse(c.isDuplicatedCommonJSExport(symbol.declarations), c.autoType, ifElse(declaredType != nil, declaredType, ifElse(c.getSymbolFlags(targetSymbol)&SymbolFlagsValue != 0, c.getTypeOfSymbol(targetSymbol), c.errorType))))
+		}
 
 		if !c.popTypeResolution() {
 			c.reportCircularityError( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: exportSymbol ?? symbol */ TODO)
-			return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.type ??= errorType */ TODO
+			if links.type_ == nil {
+				links.type_ = c.errorType
+			}
+			return links.type_
 		}
 	}
 	return links.type_
@@ -12518,7 +12534,10 @@ func (c *Checker) getBaseConstructorTypeOfClass(t InterfaceType) *Type {
 		}
 		if !c.popTypeResolution() {
 			c.error(t.symbol.valueDeclaration, Diagnostics._0_is_referenced_directly_or_indirectly_in_its_own_base_expression, c.symbolToString(t.symbol))
-			return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedBaseConstructorType ??= errorType */ TODO
+			if t.resolvedBaseConstructorType == nil {
+				t.resolvedBaseConstructorType = c.errorType
+			}
+			return t.resolvedBaseConstructorType
 		}
 		if (baseConstructorType.flags&TypeFlagsAny != 0) && baseConstructorType != c.nullWideningType && !c.isConstructorType(baseConstructorType) {
 			err := c.error(baseTypeNode.expression, Diagnostics.Type_0_is_not_a_constructor_function_type, c.typeToString(baseConstructorType))
@@ -12535,9 +12554,14 @@ func (c *Checker) getBaseConstructorTypeOfClass(t InterfaceType) *Type {
 					addRelatedInfo(err, createDiagnosticForNode(baseConstructorType.symbol.declarations[0], Diagnostics.Did_you_mean_for_0_to_be_constrained_to_type_new_args_Colon_any_1, c.symbolToString(baseConstructorType.symbol), c.typeToString(ctorReturn)))
 				}
 			}
-			return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedBaseConstructorType ??= errorType */ TODO
+			if t.resolvedBaseConstructorType == nil {
+				t.resolvedBaseConstructorType = c.errorType
+			}
+			return t.resolvedBaseConstructorType
 		}
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedBaseConstructorType ??= baseConstructorType */ TODO
+		if t.resolvedBaseConstructorType == nil {
+			t.resolvedBaseConstructorType = baseConstructorType
+		}
 	}
 	return t.resolvedBaseConstructorType
 }
@@ -12842,7 +12866,9 @@ func (c *Checker) getDeclaredTypeOfTypeAlias(symbol *Symbol) *Type {
 				c.error(ifElse(isNamedDeclaration(declaration), declaration.name || declaration, declaration), Diagnostics.Type_alias_0_circularly_references_itself, c.symbolToString(symbol))
 			}
 		}
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.declaredType ??= type */ TODO
+		if links.declaredType == nil {
+			links.declaredType = t
+		}
 	}
 	return links.declaredType
 }
@@ -14445,7 +14471,9 @@ func (c *Checker) getTypeOfMappedSymbol(symbol MappedSymbol) *Type {
 			c.error(c.currentNode, Diagnostics.Type_of_property_0_circularly_references_itself_in_mapped_type_1, c.symbolToString(symbol), c.typeToString(mappedType))
 			t = c.errorType
 		}
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: symbol.links.type ??= type */ TODO
+		if symbol.links.type_ == nil {
+			symbol.links.type_ = t
+		}
 	}
 	return symbol.links.type_
 }
@@ -14968,7 +14996,9 @@ func (c *Checker) getResolvedBaseConstraint(t /* TODO(TS-TO-GO) TypeNode UnionTy
 				}
 				result = c.circularConstraintType
 			}
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: t.immediateBaseConstraint ??= result || noConstraintType */ TODO
+			if t.immediateBaseConstraint == nil {
+				t.immediateBaseConstraint = result || c.noConstraintType
+			}
 		}
 		return t.immediateBaseConstraint
 	}
@@ -15264,7 +15294,9 @@ func (c *Checker) createUnionOrIntersectionProperty(containingType UnionOrInters
 			}
 			if prop != nil {
 				if prop.flags&SymbolFlagsClassMember != 0 {
-					/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: optionalFlag ??= isUnion ? SymbolFlags.None : SymbolFlags.Optional */ TODO
+					if optionalFlag == nil {
+						optionalFlag = ifElse(isUnion != 0, SymbolFlagsNone, SymbolFlagsOptional)
+					}
 					if isUnion != 0 {
 						optionalFlag |= prop.flags & SymbolFlagsOptional
 					} else {
@@ -16287,7 +16319,9 @@ func (c *Checker) getReturnTypeOfSignature(signature Signature) *Type {
 			}
 			t = c.anyType
 		}
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: signature.resolvedReturnType ??= type */ TODO
+		if signature.resolvedReturnType == nil {
+			signature.resolvedReturnType = t
+		}
 	}
 	return signature.resolvedReturnType
 }
@@ -16844,9 +16878,15 @@ func (c *Checker) getTypeArguments(t TypeReference) []*Type {
 			typeArguments = map_(node.elements, c.getTypeFromTypeNode)
 		}
 		if c.popTypeResolution() {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedTypeArguments ??= type.mapper ? instantiateTypes(typeArguments, type.mapper) : typeArguments */ TODO
+			if t.resolvedTypeArguments == nil {
+				t.resolvedTypeArguments = ifElse(t.mapper != nil, c.instantiateTypes(typeArguments, t.mapper), typeArguments)
+			}
 		} else {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: type.resolvedTypeArguments ??= concatenate(type.target.outerTypeParameters, type.target.localTypeParameters?.map(() => errorType) || emptyArray) */ TODO
+			if t.resolvedTypeArguments == nil {
+				t.resolvedTypeArguments = concatenate(t.target.outerTypeParameters, t.target.localTypeParameters. /* ? */ map_(func() IntrinsicType {
+					return c.errorType
+				}) || emptyArray)
+			}
 			c.error(t.node || c.currentNode, ifElse(t.target.symbol, Diagnostics.Type_arguments_for_0_circularly_reference_themselves, Diagnostics.Tuple_type_arguments_circularly_reference_themselves), t.target.symbol && c.symbolToString(t.target.symbol))
 		}
 	}
@@ -17553,7 +17593,10 @@ func (c *Checker) getGlobalAsyncIterableIteratorType(reportErrors bool) GenericT
 
 func (c *Checker) getGlobalBuiltinAsyncIteratorTypes() []GenericType {
 	// NOTE: This list does not include all built-in async iterator types, only those that are likely to be encountered frequently.
-	return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalBuiltinAsyncIteratorTypes ??= getGlobalBuiltinTypes(["ReadableStreamAsyncIterator"], 1) */ TODO
+	if c.deferredGlobalBuiltinAsyncIteratorTypes == nil {
+		c.deferredGlobalBuiltinAsyncIteratorTypes = c.getGlobalBuiltinTypes([]string{"ReadableStreamAsyncIterator"}, 1)
+	}
+	return c.deferredGlobalBuiltinAsyncIteratorTypes
 }
 
 func (c *Checker) getGlobalAsyncIteratorObjectType(reportErrors bool) GenericType {
@@ -17586,7 +17629,10 @@ func (c *Checker) getBuiltinIteratorReturnType() IntrinsicType {
 
 func (c *Checker) getGlobalBuiltinIteratorTypes() []GenericType {
 	// NOTE: This list does not include all built-in iterator types, only those that are likely to be encountered frequently.
-	return /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalBuiltinIteratorTypes ??= getGlobalBuiltinTypes(["ArrayIterator", "MapIterator", "SetIterator", "StringIterator"], 1) */ TODO
+	if c.deferredGlobalBuiltinIteratorTypes == nil {
+		c.deferredGlobalBuiltinIteratorTypes = c.getGlobalBuiltinTypes([]string{"ArrayIterator", "MapIterator", "SetIterator", "StringIterator"}, 1)
+	}
+	return c.deferredGlobalBuiltinIteratorTypes
 }
 
 func (c *Checker) getGlobalIteratorObjectType(reportErrors bool) GenericType {
@@ -26445,7 +26491,9 @@ func (c *Checker) literalTypesWithSameBaseType(types []*Type) bool {
 	for _, t := range types {
 		if t.flags&TypeFlagsNever != 0 {
 			baseType := c.getBaseTypeOfLiteralType(t)
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: commonBaseType ??= baseType */ TODO
+			if commonBaseType == nil {
+				commonBaseType = baseType
+			}
 			if baseType == t || baseType != commonBaseType {
 				return false
 			}
@@ -32175,8 +32223,9 @@ func (c *Checker) parameterInitializerContainsUndefined(declaration ParameterDec
 			return true
 		}
 
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.parameterInitializerContainsUndefined ??= containsUndefined */
-		TODO
+		if links.parameterInitializerContainsUndefined == nil {
+			links.parameterInitializerContainsUndefined = containsUndefined
+		}
 	}
 
 	return links.parameterInitializerContainsUndefined
@@ -34344,7 +34393,9 @@ func (c *Checker) getSpreadIndices(elements []*Node) /* TODO(TS-TO-GO) inferred 
 	var last TODO
 	for i := 0; i < elements.length; i++ {
 		if isSpreadElement(elements[i]) {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: first ??= i */ TODO
+			if first == nil {
+				first = i
+			}
 			last = i
 		}
 	}
@@ -35107,7 +35158,9 @@ func (c *Checker) checkGrammarRegularExpressionLiteral(node RegularExpressionLit
 	sourceFile := getSourceFileOfNode(node)
 	if !c.hasParseDiagnostics(sourceFile) && !node.isUnterminated {
 		var lastError *DiagnosticWithLocation
-		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: scanner ??= createScanner(ScriptTarget.ESNext, /*skipTrivia* / true) */ TODO
+		if c.scanner == nil {
+			c.scanner = createScanner(ScriptTargetESNext /*skipTrivia*/, true)
+		}
 		c.scanner.setScriptTarget(sourceFile.languageVersion)
 		c.scanner.setLanguageVariant(sourceFile.languageVariant)
 		c.scanner.setOnError(func(message DiagnosticMessage, length number, arg0 any) {
@@ -40283,7 +40336,9 @@ func (c *Checker) getInstantiationExpressionType(exprType *Type, node NodeWithTy
 		result := getInstantiatedTypePart(t)
 		hasSomeApplicableSignature = hasSomeApplicableSignature || hasApplicableSignature
 		if hasSignatures && !hasApplicableSignature {
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: nonApplicableType ??= type */ TODO
+			if nonApplicableType == nil {
+				nonApplicableType = t
+			}
 		}
 		return result
 
@@ -42092,7 +42147,9 @@ func (c *Checker) checkAwaitGrammar(node /* TODO(TS-TO-GO) TypeNode UnionType: A
 			if !c.hasParseDiagnostics(sourceFile) {
 				var span *TextSpan
 				if !isEffectiveExternalModule(sourceFile, c.compilerOptions) {
-					/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
+					if span == nil {
+						span = getSpanOfTokenAtPosition(sourceFile, node.pos)
+					}
 					var message any
 					if isAwaitExpression(node) {
 						message = Diagnostics.await_expressions_are_only_allowed_at_the_top_level_of_a_file_when_that_file_is_a_module_but_this_file_has_no_imports_or_exports_Consider_adding_an_empty_export_to_make_this_file_a_module
@@ -42107,7 +42164,9 @@ func (c *Checker) checkAwaitGrammar(node /* TODO(TS-TO-GO) TypeNode UnionType: A
 				case ModuleKindNode16,
 					ModuleKindNodeNext:
 					if sourceFile.impliedNodeFormat == ModuleKindCommonJS {
-						/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
+						if span == nil {
+							span = getSpanOfTokenAtPosition(sourceFile, node.pos)
+						}
 						c.diagnostics.add(createFileDiagnostic(sourceFile, span.start, span.length, Diagnostics.The_current_file_is_a_CommonJS_module_and_cannot_use_await_at_the_top_level))
 						hasError = true
 						break
@@ -42122,7 +42181,9 @@ func (c *Checker) checkAwaitGrammar(node /* TODO(TS-TO-GO) TypeNode UnionType: A
 					}
 					fallthrough
 				default:
-					/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: span ??= getSpanOfTokenAtPosition(sourceFile, node.pos) */ TODO
+					if span == nil {
+						span = getSpanOfTokenAtPosition(sourceFile, node.pos)
+					}
 					var message any
 					if isAwaitExpression(node) {
 						message = Diagnostics.Top_level_await_expressions_are_only_allowed_when_the_module_option_is_set_to_es2022_esnext_system_node16_nodenext_or_preserve_and_the_target_option_is_set_to_es2017_or_higher
@@ -48309,8 +48370,9 @@ func (c *Checker) getIterationTypesOfIteratorWorker(t *Type, resolver IterationT
 		noCache = true
 	}
 
-	/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: iterationTypes ??= getIterationTypesOfIteratorSlow(type, resolver, errorNode, errorOutputContainer, noCache) */
-	TODO
+	if iterationTypes == nil {
+		iterationTypes = c.getIterationTypesOfIteratorSlow(t, resolver, errorNode, errorOutputContainer, noCache)
+	}
 	if iterationTypes == c.noIterationTypes {
 		return nil
 	} else {
@@ -48492,7 +48554,9 @@ func (c *Checker) getIterationTypesOfMethod(t *Type, resolver IterationTypesReso
 				diagnostic = resolver.mustBeAMethodDiagnostic
 			}
 			if errorOutputContainer != nil {
-				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: errorOutputContainer.errors ??= [] */ TODO
+				if errorOutputContainer.errors == nil {
+					errorOutputContainer.errors = []never{}
+				}
 				errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, diagnostic, methodName))
 			} else {
 				c.error(errorNode, diagnostic, methodName)
@@ -48573,7 +48637,9 @@ func (c *Checker) getIterationTypesOfMethod(t *Type, resolver IterationTypesReso
 	if iterationTypes == c.noIterationTypes {
 		if errorNode != nil {
 			if errorOutputContainer != nil {
-				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: errorOutputContainer.errors ??= [] */ TODO
+				if errorOutputContainer.errors == nil {
+					errorOutputContainer.errors = []never{}
+				}
 				errorOutputContainer.errors.push(createDiagnosticForNode(errorNode, resolver.mustHaveAValueDiagnostic, methodName))
 			} else {
 				c.error(errorNode, resolver.mustHaveAValueDiagnostic, methodName)
@@ -53843,7 +53909,9 @@ func (c *Checker) checkExternalEmitHelpers(location *Node, helpers ExternalEmitH
 			helpersModule := c.resolveHelpersModule(sourceFile, location)
 			if helpersModule != c.unknownSymbol {
 				links := c.getSymbolLinks(helpersModule)
-				/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: links.requestedExternalEmitHelpers ??= 0 as ExternalEmitHelpers */ TODO
+				if links.requestedExternalEmitHelpers == nil {
+					links.requestedExternalEmitHelpers = 0.(ExternalEmitHelpers)
+				}
 				if (links.requestedExternalEmitHelpers & helpers) != helpers {
 					uncheckedHelpers := helpers & ^links.requestedExternalEmitHelpers
 					for helper := ExternalEmitHelpersFirstEmitHelper; helper <= ExternalEmitHelpersLastEmitHelper; helper <<= 1 {
@@ -54019,8 +54087,9 @@ func (c *Checker) checkGrammarModifiers(node /* TODO(TS-TO-GO) TypeNode UnionTyp
 				sawExportBeforeDecorators = true
 			}
 
-			/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: firstDecorator ??= modifier */
-			TODO
+			if firstDecorator == nil {
+				firstDecorator = modifier
+			}
 		} else {
 			if modifier.kind != SyntaxKindReadonlyKeyword {
 				if node.kind == SyntaxKindPropertySignature || node.kind == SyntaxKindMethodSignature {
