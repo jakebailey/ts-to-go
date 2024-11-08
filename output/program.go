@@ -2173,7 +2173,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			entry := entries[i]
 			if reuseResolutions {
 				name := nameAndModeGetter.getName(entry)
-				mode := nameAndModeGetter.getMode(entry, containingSourceFile /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: redirectedReference?.commandLine.options ?? options */, TODO)
+				mode := nameAndModeGetter.getMode(entry, containingSourceFile, ifNotNilElse(redirectedReference. /* ? */ commandLine.options, options))
 				oldResolution := getResolutionFromOldProgram(name, mode)
 				oldResolved := oldResolution && getResolved(oldResolution)
 				if oldResolved != nil {
@@ -4926,7 +4926,7 @@ func shouldTransformImportCallWorker(sourceFile Pick[SourceFile, Union[ /* TODO(
 /** @internal Prefer `program.getEmitModuleFormatOfFile` when possible. */
 
 func getEmitModuleFormatOfFileWorker(sourceFile Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], options CompilerOptions) ModuleKind {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getImpliedNodeFormatForEmitWorker(sourceFile, options) ?? getEmitModuleKind(options) */ TODO
+	return ifNotNilElse(getImpliedNodeFormatForEmitWorker(sourceFile, options), getEmitModuleKind(options))
 }
 
 /** @internal Prefer `program.getImpliedNodeFormatForEmit` when possible. */

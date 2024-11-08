@@ -3111,7 +3111,7 @@ func (printer *Printer) emitVariableDeclaration(node VariableDeclaration) {
 	printer.emit(node.name)
 	printer.emit(node.exclamationToken)
 	printer.emitTypeAnnotation(node.type_)
-	printer.emitInitializer(node.initializer /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: node.type?.end ?? node.name.emitNode?.typeNode?.end ?? node.name.end */, TODO, node, printer.parenthesizer.parenthesizeExpressionForDisallowedComma)
+	printer.emitInitializer(node.initializer, ifNotNilElse(ifNotNilElse(node.type_. /* ? */ end, node.name.emitNode. /* ? */ typeNode. /* ? */ end), node.name.end), node, printer.parenthesizer.parenthesizeExpressionForDisallowedComma)
 }
 
 func (printer *Printer) emitVariableDeclarationList(node VariableDeclarationList) {
@@ -5250,7 +5250,7 @@ func (printer *Printer) getTempFlags(formattedNameKey string) TempFlags {
 	case "#":
 		return printer.privateNameTempFlags
 	default:
-		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: formattedNameTempFlags?.get(formattedNameKey) ?? TempFlags.Auto */ TODO
+		return ifNotNilElse(printer.formattedNameTempFlags. /* ? */ get(formattedNameKey), TempFlagsAuto)
 	}
 }
 

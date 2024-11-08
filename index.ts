@@ -978,6 +978,13 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
         let tok: string | undefined;
         switch (op.getKind()) {
+            case ts.SyntaxKind.QuestionQuestionToken:
+                writer.write("ifNotNilElse(");
+                visitExpression(left);
+                writer.write(", ");
+                visitExpression(right);
+                writer.write(")");
+                return;
             case ts.SyntaxKind.AmpersandAmpersandToken:
             case ts.SyntaxKind.BarBarToken:
             case ts.SyntaxKind.LessThanEqualsToken:

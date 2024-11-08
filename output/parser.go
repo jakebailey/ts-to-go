@@ -1831,7 +1831,7 @@ func parseErrorForMissingSemicolonAfter(node Union[Expression, PropertyName]) {
 	}
 
 	// The user alternatively might have misspelled or forgotten to add a space after a common keyword.
-	suggestion := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getSpellingSuggestion(expressionText, viableKeywordSuggestions, identity) ?? getSpaceSuggestion(expressionText) */ TODO
+	suggestion := ifNotNilElse(getSpellingSuggestion(expressionText, viableKeywordSuggestions, identity), getSpaceSuggestion(expressionText))
 	if suggestion {
 		parseErrorAt(pos, node.end, Diagnostics.Unknown_keyword_or_identifier_Did_you_mean_0, suggestion)
 		return
@@ -2011,12 +2011,12 @@ func parseSemicolon() bool {
 
 func createNodeArray(elements []T, pos number, end number, hasTrailingComma bool) NodeArray[T] {
 	array := factoryCreateNodeArray(elements, hasTrailingComma)
-	setTextRangePosEnd(array, pos /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: end ?? scanner.getTokenFullStart() */, TODO)
+	setTextRangePosEnd(array, pos, ifNotNilElse(end, scanner.getTokenFullStart()))
 	return array
 }
 
 func finishNode(node T, pos number, end number) T {
-	setTextRangePosEnd(node, pos /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: end ?? scanner.getTokenFullStart() */, TODO)
+	setTextRangePosEnd(node, pos, ifNotNilElse(end, scanner.getTokenFullStart()))
 	if contextFlags != 0 {
 		(node.(Mutable[T])).flags |= contextFlags
 	}
@@ -2549,7 +2549,7 @@ func currentNode(parsingContext ParsingContext, pos number) *Node {
 		return nil
 	}
 
-	node := syntaxCursor.currentNode( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: pos ?? scanner.getTokenFullStart() */ TODO)
+	node := syntaxCursor.currentNode(ifNotNilElse(pos, scanner.getTokenFullStart()))
 
 	// Can't reuse a missing node.
 	// Can't reuse a node that intersected the change range.
@@ -8439,7 +8439,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 					if linkEnd == 0 {
 						removeLeadingNewlines(comments)
 					}
-					parts.push(finishNode(factory.createJSDocText(comments.join("")) /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: linkEnd ?? start */, TODO, commentEnd))
+					parts.push(finishNode(factory.createJSDocText(comments.join("")), ifNotNilElse(linkEnd, start), commentEnd))
 					parts.push(link)
 					comments = []never{}
 					linkEnd = scanner.getTokenEnd()
@@ -8461,7 +8461,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		}
 		trimmedComments := comments.join("").trimEnd()
 		if parts.length != 0 && trimmedComments.length != 0 {
-			parts.push(finishNode(factory.createJSDocText(trimmedComments) /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: linkEnd ?? start */, TODO, commentsPos))
+			parts.push(finishNode(factory.createJSDocText(trimmedComments), ifNotNilElse(linkEnd, start), commentsPos))
 		}
 		if parts.length != 0 && tags {
 			Debug.assertIsDefined(commentsPos, "having parsed tags implies that the end of the comment span should be set")
@@ -8671,7 +8671,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 				linkStart := scanner.getTokenEnd() - 1
 				link := parseJSDocLink(linkStart)
 				if link != nil {
-					parts.push(finishNode(factory.createJSDocText(comments.join("")) /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: linkEnd ?? commentsPos */, TODO, commentEnd))
+					parts.push(finishNode(factory.createJSDocText(comments.join("")), ifNotNilElse(linkEnd, commentsPos), commentEnd))
 					parts.push(link)
 					comments = []never{}
 					linkEnd = scanner.getTokenEnd()
@@ -8718,7 +8718,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		trimmedComments := comments.join("").trimEnd()
 		if parts.length != 0 {
 			if trimmedComments.length != 0 {
-				parts.push(finishNode(factory.createJSDocText(trimmedComments) /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: linkEnd ?? commentsPos */, TODO))
+				parts.push(finishNode(factory.createJSDocText(trimmedComments), ifNotNilElse(linkEnd, commentsPos)))
 			}
 			return createNodeArray(parts, commentsPos, scanner.getTokenEnd())
 		} else if trimmedComments.length != 0 {
@@ -9115,7 +9115,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		if end || comment != nil {
 			end = getNodePos()
 		} else {
-			end = ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: fullName ?? typeExpression ?? tagName */ TODO).end
+			end = (ifNotNilElse(ifNotNilElse(fullName, typeExpression), tagName)).end
 		}
 
 		if !comment {

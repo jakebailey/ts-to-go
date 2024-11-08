@@ -344,7 +344,7 @@ func packageIdToPackageName(TODO_IDENTIFIER PackageId) string {
 /** @internal */
 
 func packageIdToString(packageId PackageId) string {
-	return __TEMPLATE__(packageIdToPackageName(packageId), "@", packageId.version /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: packageId.peerDependencies ?? "" */, TODO)
+	return __TEMPLATE__(packageIdToPackageName(packageId), "@", packageId.version, ifNotNilElse(packageId.peerDependencies, ""))
 }
 
 /** @internal */
@@ -711,7 +711,7 @@ func getTokenPosOfNode(node *Node, sourceFile SourceFileLike, includeJsDoc bool)
 
 	if isJSDocNode(node) || node.kind == SyntaxKindJsxText {
 		// JsxText cannot actually contain comments, even though the scanner will think it sees comments
-		return skipTrivia(( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: sourceFile ?? getSourceFileOfNode(node) */ TODO).text, node.pos /*stopAfterLineBreak*/, false /*stopAtComments*/, true)
+		return skipTrivia((ifNotNilElse(sourceFile, getSourceFileOfNode(node))).text, node.pos /*stopAfterLineBreak*/, false /*stopAtComments*/, true)
 	}
 
 	if includeJsDoc && hasJSDocNodes(node) {
@@ -732,7 +732,7 @@ func getTokenPosOfNode(node *Node, sourceFile SourceFileLike, includeJsDoc bool)
 		}
 	}
 
-	return skipTrivia(( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: sourceFile ?? getSourceFileOfNode(node) */ TODO).text, node.pos, false, false, isInJSDoc(node))
+	return skipTrivia((ifNotNilElse(sourceFile, getSourceFileOfNode(node))).text, node.pos, false, false, isInJSDoc(node))
 }
 
 /** @internal */
@@ -1108,7 +1108,7 @@ func getLiteralText(node LiteralLikeNode, sourceFile *SourceFile, flags GetLiter
 			escapeText = escapeNonAsciiString
 		}
 
-		rawText := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (node as TemplateLiteralLikeNode).rawText ?? escapeTemplateSubstitution(escapeText(node.text, CharacterCodes.backtick)) */ TODO
+		rawText := ifNotNilElse((node.AsTemplateLiteralLikeNode()).rawText, escapeTemplateSubstitution(escapeText(node.text, CharacterCodesbacktick)))
 		switch node.kind {
 		case SyntaxKindNoSubstitutionTemplateLiteral:
 			return "`" + rawText + "`"
@@ -2383,7 +2383,7 @@ func getContainingClassExcludingClassDecorators(node *Node) *ClassLikeDeclaratio
 	if decorator != nil && isClassLike(decorator.parent) {
 		return getContainingClass(decorator.parent)
 	} else {
-		return getContainingClass( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: decorator ?? node */ TODO)
+		return getContainingClass(ifNotNilElse(decorator, node))
 	}
 }
 
@@ -6006,7 +6006,7 @@ func getPathsBasePath(options CompilerOptions, host /* TODO(TS-TO-GO) TypeNode T
 	if options.paths == nil {
 		return nil
 	}
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options.baseUrl ?? Debug.checkDefined(options.pathsBasePath || host.getCurrentDirectory?.(), "Encountered 'paths' without a 'baseUrl', config file, or host 'getCurrentDirectory'.") */ TODO
+	return ifNotNilElse(options.baseUrl, Debug.checkDefined(options.pathsBasePath || host.getCurrentDirectory(), "Encountered 'paths' without a 'baseUrl', config file, or host 'getCurrentDirectory'."))
 }
 
 /** @internal */
@@ -7508,7 +7508,7 @@ func getStartPositionOfRange(range_ TextRange, sourceFile SourceFile, includeCom
 func getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(pos number, stopPos number, sourceFile SourceFile, includeComments bool) number {
 	startPos := skipTrivia(sourceFile.text, pos /*stopAfterLineBreak*/, false, includeComments)
 	prevPos := getPreviousNonWhitespacePosition(startPos, stopPos, sourceFile)
-	return getLinesBetweenPositions(sourceFile /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: prevPos ?? stopPos */, TODO, startPos)
+	return getLinesBetweenPositions(sourceFile, ifNotNilElse(prevPos, stopPos), startPos)
 }
 
 /** @internal */
@@ -8670,7 +8670,7 @@ var _computedOptions = createComputedCompilerOptions(map[any]any{ /* TODO(TS-TO-
 			} else {
 				target = compilerOptions.target
 			}
-			return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: target ?? ((compilerOptions.module === ModuleKind.Node16 && ScriptTarget.ES2022) || (compilerOptions.module === ModuleKind.NodeNext && ScriptTarget.ESNext) || ScriptTarget.ES5) */ TODO
+			return ifNotNilElse(target, ((compilerOptions.module == ModuleKindNode16 && ScriptTargetES2022) || (compilerOptions.module == ModuleKindNodeNext && ScriptTargetESNext) || ScriptTargetES5))
 		},
 	},
 	"module": map[any]any{ /* TODO(TS-TO-GO): was object literal */

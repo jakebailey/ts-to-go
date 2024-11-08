@@ -3707,7 +3707,7 @@ func getContainerFlags(node *Node) ContainerFlags {
 func lookupSymbolForName(container *Node, name string) *Symbol {
 	local := tryCast(container, canHaveLocals). /* ? */ locals. /* ? */ get(name)
 	if local != nil {
-		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: local.exportSymbol ?? local */ TODO
+		return ifNotNilElse(local.exportSymbol, local)
 	}
 	if isSourceFile(container) && container.jsGlobalAugmentations != nil && container.jsGlobalAugmentations.has(name) {
 		return container.jsGlobalAugmentations.get(name)

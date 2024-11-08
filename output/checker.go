@@ -3779,9 +3779,9 @@ func (c *Checker) markSymbolOfAliasDeclarationIfTypeOnly(aliasDeclaration Declar
 
 func (c *Checker) markSymbolOfAliasDeclarationIfTypeOnlyWorker(aliasDeclarationLinks SymbolLinks, target *Symbol, overwriteEmpty bool) bool {
 	if target != nil && (aliasDeclarationLinks.typeOnlyDeclaration == nil || overwriteEmpty && aliasDeclarationLinks.typeOnlyDeclaration == false) {
-		exportSymbol := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: target.exports?.get(InternalSymbolName.ExportEquals) ?? target */ TODO
+		exportSymbol := ifNotNilElse(target.exports. /* ? */ get(InternalSymbolNameExportEquals), target)
 		typeOnly := exportSymbol.declarations && find(exportSymbol.declarations, isTypeOnlyImportOrExportDeclaration)
-		aliasDeclarationLinks.typeOnlyDeclaration = /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: typeOnly ?? getSymbolLinks(exportSymbol).typeOnlyDeclaration ?? false */ TODO
+		aliasDeclarationLinks.typeOnlyDeclaration = ifNotNilElse(ifNotNilElse(typeOnly, c.getSymbolLinks(exportSymbol).typeOnlyDeclaration), false)
 	}
 	return aliasDeclarationLinks.typeOnlyDeclaration
 }
@@ -4910,7 +4910,7 @@ func (c *Checker) createIntrinsicType(kind TypeFlags, intrinsicName string, obje
 }
 
 func (c *Checker) checkIntrinsicName(name string, debug *string) {
-	key := __TEMPLATE__(name, "," /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: debug ?? "" */, TODO)
+	key := __TEMPLATE__(name, ",", ifNotNilElse(debug, ""))
 	if c.seenIntrinsicNames.has(key) {
 		Debug.fail(__TEMPLATE__("Duplicate intrinsic type name ", name, ifElse(debug, __TEMPLATE__(" (", debug, ")"), ""), "; you may need to pass a name to createIntrinsicType."))
 	}
@@ -6781,7 +6781,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		depth := 3
 		return getCheckFlags(propertySymbol)&CheckFlagsReverseMapped != 0 && (contains(context.reverseMappedStack, propertySymbol.(ReverseMappedSymbol)) || (context.reverseMappedStack[0] && (getObjectFlags(last(context.reverseMappedStack).links.propertyType)&ObjectFlagsAnonymous != 0)) || isDeeplyNestedReverseMappedTypeProperty())
 		isDeeplyNestedReverseMappedTypeProperty := func() bool {
-			if ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: context.reverseMappedStack?.length ?? 0 */ TODO) < depth {
+			if (ifNotNilElse(context.reverseMappedStack. /* ? */ length, 0)) < depth {
 				return false
 			}
 			for i := 0; i < depth; i++ {
@@ -7073,23 +7073,23 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		case kind == SyntaxKindConstructSignature:
 			node = factory.createConstructSignature(typeParameters, parameters, returnTypeNode)
 		case kind == SyntaxKindMethodSignature:
-			node = factory.createMethodSignature(modifiers /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, options. /* ? */ questionToken, typeParameters, parameters, returnTypeNode)
+			node = factory.createMethodSignature(modifiers, ifNotNilElse(options. /* ? */ name, factory.createIdentifier("")), options. /* ? */ questionToken, typeParameters, parameters, returnTypeNode)
 		case kind == SyntaxKindMethodDeclaration:
-			node = factory.createMethodDeclaration(modifiers /*asteriskToken*/, nil /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO /*questionToken*/, nil, typeParameters, parameters, returnTypeNode /*body*/, nil)
+			node = factory.createMethodDeclaration(modifiers /*asteriskToken*/, nil, ifNotNilElse(options. /* ? */ name, factory.createIdentifier("")) /*questionToken*/, nil, typeParameters, parameters, returnTypeNode /*body*/, nil)
 		case kind == SyntaxKindConstructor:
 			node = factory.createConstructorDeclaration(modifiers, parameters /*body*/, nil)
 		case kind == SyntaxKindGetAccessor:
-			node = factory.createGetAccessorDeclaration(modifiers /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, parameters, returnTypeNode /*body*/, nil)
+			node = factory.createGetAccessorDeclaration(modifiers, ifNotNilElse(options. /* ? */ name, factory.createIdentifier("")), parameters, returnTypeNode /*body*/, nil)
 		case kind == SyntaxKindSetAccessor:
-			node = factory.createSetAccessorDeclaration(modifiers /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: options?.name ?? factory.createIdentifier("") */, TODO, parameters /*body*/, nil)
+			node = factory.createSetAccessorDeclaration(modifiers, ifNotNilElse(options. /* ? */ name, factory.createIdentifier("")), parameters /*body*/, nil)
 		case kind == SyntaxKindIndexSignature:
 			node = factory.createIndexSignature(modifiers, parameters, returnTypeNode)
 		case kind == SyntaxKindJSDocFunctionType:
 			node = factory.createJSDocFunctionType(parameters, returnTypeNode)
 		case kind == SyntaxKindFunctionType:
-			node = factory.createFunctionTypeNode(typeParameters, parameters /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: returnTypeNode ?? factory.createTypeReferenceNode(factory.createIdentifier("")) */, TODO)
+			node = factory.createFunctionTypeNode(typeParameters, parameters, ifNotNilElse(returnTypeNode, factory.createTypeReferenceNode(factory.createIdentifier(""))))
 		case kind == SyntaxKindConstructorType:
-			node = factory.createConstructorTypeNode(modifiers, typeParameters, parameters /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: returnTypeNode ?? factory.createTypeReferenceNode(factory.createIdentifier("")) */, TODO)
+			node = factory.createConstructorTypeNode(modifiers, typeParameters, parameters, ifNotNilElse(returnTypeNode, factory.createTypeReferenceNode(factory.createIdentifier(""))))
 		case kind == SyntaxKindFunctionDeclaration:
 			node = factory.createFunctionDeclaration(modifiers /*asteriskToken*/, nil, ifElse(options. /* ? */ name != nil, cast(options.name, isIdentifier), factory.createIdentifier("")), typeParameters, parameters, returnTypeNode /*body*/, nil)
 		case kind == SyntaxKindFunctionExpression:
@@ -7230,7 +7230,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 
 			if context.flags&NodeBuilderFlagsGenerateNamesForShadowedTypeParams != 0 && some(typeParameters) {
 				cleanupTypeParams = pushFakeScope("typeParams", func(add /* TODO(TS-TO-GO) inferred type (name: __String, symbol: Symbol) => void */ any) {
-					for _, typeParam := range /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: typeParameters ?? emptyArray */ TODO {
+					for _, typeParam := range ifNotNilElse(typeParameters, emptyArray) {
 						typeParamName := typeParameterToName(typeParam, context).escapedText
 						add(typeParamName, typeParam.symbol)
 					}
@@ -7248,7 +7248,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 				}
 				Debug.assertOptionalNode(existingFakeScope, isBlock)
 
-				locals := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: existingFakeScope?.locals ?? createSymbolTable() */ TODO
+				locals := ifNotNilElse(existingFakeScope. /* ? */ locals, createSymbolTable())
 				var newLocals *[]string
 				var oldLocals *[] /* TODO(TS-TO-GO) TypeNode TypeLiteral: { name: __String; oldSymbol: Symbol; } */ any
 				addAll(func(name string, symbol *Symbol) {
@@ -8137,7 +8137,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			context.flags |= NodeBuilderFlagsAllowUniqueESSymbolType
 		}
 
-		decl := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: declaration ?? symbol.valueDeclaration ?? symbol.declarations?.[0] */ TODO
+		decl := ifNotNilElse(ifNotNilElse(declaration, symbol.valueDeclaration), symbol.declarations[0])
 		var expr Expression
 		if decl != nil && c.isDeclarationWithPossibleInnerTypeNodeReuse(decl) {
 			expr = c.getPossibleTypeNodeReuseExpression(decl)
@@ -8491,8 +8491,8 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			}
 
 			startRecoveryScope := func() /* TODO(TS-TO-GO) inferred type () => void */ any {
-				trackedSymbolsTop := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: trackedSymbols?.length ?? 0 */ TODO
-				unreportedErrorsTop := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: unreportedErrors?.length ?? 0 */ TODO
+				trackedSymbolsTop := ifNotNilElse(trackedSymbols. /* ? */ length, 0)
+				unreportedErrorsTop := ifNotNilElse(unreportedErrors. /* ? */ length, 0)
 				return func() {
 					hadError = false
 					// Reset the tracked symbols to before the error
@@ -12021,7 +12021,7 @@ func (c *Checker) getWriteTypeOfAccessors(symbol *Symbol) *Type {
 			return c.errorType
 		}
 
-		setter := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getDeclarationOfKind<AccessorDeclaration>(symbol, SyntaxKind.SetAccessor) ?? tryCast(getDeclarationOfKind<PropertyDeclaration>(symbol, SyntaxKind.PropertyDeclaration), isAutoAccessorPropertyDeclaration) */ TODO
+		setter := ifNotNilElse(getDeclarationOfKind(symbol, SyntaxKindSetAccessor), tryCast(getDeclarationOfKind(symbol, SyntaxKindPropertyDeclaration), isAutoAccessorPropertyDeclaration))
 		writeType := c.getAnnotatedAccessorType(setter)
 		if !c.popTypeResolution() {
 			if c.getAnnotatedAccessorTypeNode(setter) != nil {
@@ -12137,7 +12137,7 @@ func (c *Checker) getTypeOfAlias(symbol *Symbol) *Type {
 		}
 
 		if !c.popTypeResolution() {
-			c.reportCircularityError( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: exportSymbol ?? symbol */ TODO)
+			c.reportCircularityError(ifNotNilElse(exportSymbol, symbol))
 			if links.type_ == nil {
 				links.type_ = c.errorType
 			}
@@ -13651,7 +13651,7 @@ func (c *Checker) getExpandedParameters(sig Signature, skipUnionExpanding bool) 
 			}
 			counters := NewMap[string, number]()
 			for _, i := range duplicates {
-				counter := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: counters.get(names[i]) ?? 1 */ TODO
+				counter := ifNotNilElse(counters.get(names[i]), 1)
 				var name string
 				for !tryAddToSet(uniqueNames /* TODO(TS-TO-GO) EqualsToken BinaryExpression: name = `${names[i]}_${counter}` as __String */, TODO) {
 					counter++
@@ -15111,7 +15111,7 @@ func (c *Checker) getApparentTypeOfIntersectionType(t IntersectionType, thisArgu
 		return t.resolvedApparentType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedApparentType = getTypeWithThisArgument(type, thisArgument, /*needApparentType* / true) */ TODO)
 	}
 	key := __TEMPLATE__("I", c.getTypeId(t), ",", c.getTypeId(thisArgument))
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, getTypeWithThisArgument(type, thisArgument, /*needApparentType* / true)) */ TODO
+	return ifNotNilElse(c.getCachedType(key), c.setCachedType(key, c.getTypeWithThisArgument(t, thisArgument /*needApparentType*/, true)))
 }
 
 func (c *Checker) getResolvedTypeParameterDefault(typeParameter TypeParameter) *Type {
@@ -15183,7 +15183,7 @@ func (c *Checker) getApparentTypeOfMappedType(t MappedType) *Type {
 }
 
 func (c *Checker) getResolvedApparentTypeOfMappedType(t MappedType) *Type {
-	target := ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: type.target ?? type */ TODO).AsMappedType()
+	target := (ifNotNilElse(t.target, t)).AsMappedType()
 	typeVariable := c.getHomomorphicTypeVariable(target)
 	if typeVariable != nil && target.declaration.nameType == nil {
 		// We have a homomorphic mapped type or an instantiation of a homomorphic mapped type, i.e. a type
@@ -15417,7 +15417,7 @@ func (c *Checker) createUnionOrIntersectionProperty(containingType UnionOrInters
 		propTypes.push(t)
 	}
 	addRange(propTypes, indexTypes)
-	result := c.createSymbol(SymbolFlagsProperty|( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: optionalFlag ?? 0 */ TODO), name, syntheticFlag|checkFlags)
+	result := c.createSymbol(SymbolFlagsProperty|(ifNotNilElse(optionalFlag, 0)), name, syntheticFlag|checkFlags)
 	result.links.containingType = containingType
 	if !hasNonUniformValueDeclaration && firstValueDeclaration != nil {
 		result.valueDeclaration = firstValueDeclaration
@@ -17501,7 +17501,7 @@ func (c *Checker) getGlobalBuiltinTypes(typeNames []string, arity number) []*Typ
 	for _, typeName := range typeNames {
 		types = append(types, c.getGlobalType(typeName.(string), arity /*reportErrors*/, false))
 	}
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: types ?? emptyArray */ TODO
+	return ifNotNilElse(types, emptyArray)
 }
 
 func (c *Checker) getGlobalTypedPropertyDescriptorType() GenericType {
@@ -17699,35 +17699,35 @@ func (c *Checker) getGlobalBigIntType() ObjectType {
 }
 
 func (c *Checker) getGlobalClassDecoratorContextType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassDecoratorContextType ??= getGlobalType("ClassDecoratorContext" as __String, /*arity* / 1, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassDecoratorContextType ??= getGlobalType("ClassDecoratorContext" as __String, /*arity* / 1, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassMethodDecoratorContextType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassMethodDecoratorContextType ??= getGlobalType("ClassMethodDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassMethodDecoratorContextType ??= getGlobalType("ClassMethodDecoratorContext" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassGetterDecoratorContextType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassGetterDecoratorContextType ??= getGlobalType("ClassGetterDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassGetterDecoratorContextType ??= getGlobalType("ClassGetterDecoratorContext" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassSetterDecoratorContextType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassSetterDecoratorContextType ??= getGlobalType("ClassSetterDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassSetterDecoratorContextType ??= getGlobalType("ClassSetterDecoratorContext" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassAccessorDecoratorContextType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassAccessorDecoratorContextType ??= getGlobalType("ClassAccessorDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassAccessorDecoratorContextType ??= getGlobalType("ClassAccessorDecoratorContext" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassAccessorDecoratorTargetType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassAccessorDecoratorTargetType ??= getGlobalType("ClassAccessorDecoratorTarget" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassAccessorDecoratorTargetType ??= getGlobalType("ClassAccessorDecoratorTarget" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassAccessorDecoratorResultType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassAccessorDecoratorResultType ??= getGlobalType("ClassAccessorDecoratorResult" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassAccessorDecoratorResultType ??= getGlobalType("ClassAccessorDecoratorResult" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalClassFieldDecoratorContextType(reportErrors bool) GenericType {
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (deferredGlobalClassFieldDecoratorContextType ??= getGlobalType("ClassFieldDecoratorContext" as __String, /*arity* / 2, reportErrors)) ?? emptyGenericType */ TODO
+	return ifNotNilElse(( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: deferredGlobalClassFieldDecoratorContextType ??= getGlobalType("ClassFieldDecoratorContext" as __String, /*arity* / 2, reportErrors) */ TODO), c.emptyGenericType)
 }
 
 func (c *Checker) getGlobalNaNSymbol() *Symbol {
@@ -19668,7 +19668,7 @@ func (c *Checker) getPropertyTypeForIndexType(originalObjectType *Type, objectTy
 		prop := c.getPropertyOfType(objectType, propName)
 		if prop != nil {
 			if accessFlags&AccessFlagsReportDeprecated != 0 && accessNode != nil && prop.declarations != nil && c.isDeprecatedSymbol(prop) && c.isUncalledFunctionReference(accessNode, prop) {
-				deprecatedNode := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: accessExpression?.argumentExpression ?? (isIndexedAccessTypeNode(accessNode) ? accessNode.indexType : accessNode) */ TODO
+				deprecatedNode := ifNotNilElse(accessExpression. /* ? */ argumentExpression, (ifElse(isIndexedAccessTypeNode(accessNode), accessNode.indexType, accessNode)))
 				c.addDeprecatedSuggestion(deprecatedNode, prop.declarations, propName /* as string */)
 			}
 			if accessExpression != nil {
@@ -20522,7 +20522,7 @@ func (c *Checker) getTypeFromImportTypeNode(node ImportTypeNode) *Type {
 				} else {
 					symbolFromModule = c.getSymbol(c.getExportsOfSymbol(mergedResolvedSymbol), current.escapedText, meaning)
 				}
-				next := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: symbolFromModule ?? symbolFromVariable */ TODO
+				next := ifNotNilElse(symbolFromModule, symbolFromVariable)
 				if next == nil {
 					c.error(current, Diagnostics.Namespace_0_has_no_exported_member_1, c.getFullyQualifiedName(currentNamespace), declarationNameToString(current))
 					links.resolvedType = c.errorType
@@ -21619,7 +21619,7 @@ func (c *Checker) instantiateMappedTupleType(tupleType TupleTypeReference, mappe
 		case flags&ElementFlagsVariadic != 0:
 			return c.instantiateType(mappedType, c.prependTypeMapping(typeVariable, t, mapper))
 		default:
-			return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getElementTypeOfArrayType(instantiateType(mappedType, prependTypeMapping(typeVariable, createArrayType(type), mapper))) ?? unknownType */ TODO
+			return ifNotNilElse(c.getElementTypeOfArrayType(c.instantiateType(mappedType, c.prependTypeMapping(typeVariable, c.createArrayType(t), mapper))), c.unknownType)
 		}
 	})
 	modifiers := c.getMappedTypeModifiers(mappedType)
@@ -23041,7 +23041,7 @@ func (c *Checker) isEnumTypeRelatedTo(source *Symbol, target *Symbol, errorRepor
 				// If the other is a string, we have a mismatch in types.
 				if sourceIsString || targetIsString {
 					if errorReporter != nil {
-						knownStringValue := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: sourceValue ?? targetValue */ TODO
+						knownStringValue := ifNotNilElse(sourceValue, targetValue)
 						Debug.assert( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof knownStringValue */ TODO == "string")
 						escapedValue := __TEMPLATE__("\"", escapeString(knownStringValue), "\"")
 						errorReporter(Diagnostics.One_value_of_0_1_is_the_string_2_and_the_other_is_assumed_to_be_an_unknown_numeric_value, symbolName(targetSymbol), symbolName(targetProperty), escapedValue)
@@ -26734,7 +26734,7 @@ func (c *Checker) getBaseTypeOfLiteralType(t *Type) *Type {
 
 func (c *Checker) getBaseTypeOfLiteralTypeUnion(t UnionType) *Type {
 	key := __TEMPLATE__("B", c.getTypeId(t))
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, mapType(type, getBaseTypeOfLiteralType)) */ TODO
+	return ifNotNilElse(c.getCachedType(key), c.setCachedType(key, c.mapType(t, c.getBaseTypeOfLiteralType)))
 }
 
 // This like getBaseTypeOfLiteralType, but instead treats enum literals as strings/numbers instead
@@ -27397,9 +27397,9 @@ func (c *Checker) shouldReportErrorsFromWideningWithContextualSignature(declarat
 	switch wideningKind {
 	case WideningKindFunctionReturn:
 		if flags&FunctionFlagsGenerator != 0 {
-			returnType = /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getIterationTypeOfGeneratorFunctionReturnType(IterationTypeKind.Return, returnType, !!(flags & FunctionFlags.Async)) ?? returnType */ TODO
+			returnType = ifNotNilElse(c.getIterationTypeOfGeneratorFunctionReturnType(IterationTypeKindReturn, returnType, flags&FunctionFlagsAsync != 0), returnType)
 		} else if flags&FunctionFlagsAsync != 0 {
-			returnType = /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getAwaitedTypeNoAlias(returnType) ?? returnType */ TODO
+			returnType = ifNotNilElse(c.getAwaitedTypeNoAlias(returnType), returnType)
 		}
 		return c.isGenericType(returnType)
 	case WideningKindGeneratorYield:
@@ -29562,7 +29562,7 @@ func (c *Checker) getAssignmentReducedType(declaredType UnionType, assignedType 
 		return assignedType
 	}
 	key := __TEMPLATE__("A", c.getTypeId(declaredType), ",", c.getTypeId(assignedType))
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, getAssignmentReducedTypeWorker(declaredType, assignedType)) */ TODO
+	return ifNotNilElse(c.getCachedType(key), c.setCachedType(key, c.getAssignmentReducedTypeWorker(declaredType, assignedType)))
 }
 
 func (c *Checker) getAssignmentReducedTypeWorker(declaredType UnionType, assignedType *Type) *Type {
@@ -31809,7 +31809,7 @@ func (c *Checker) getFlowTypeOfReference(reference *Node, declaredType *Type, in
 		} else {
 			key = nil
 		}
-		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType(key, getNarrowedTypeWorker(type, candidate, assumeTrue, checkDerived)) */ TODO
+		return ifNotNilElse(c.getCachedType(key), c.setCachedType(key, getNarrowedTypeWorker(t, candidate, assumeTrue, checkDerived)))
 	}
 
 	getNarrowedTypeWorker := func(t *Type, candidate *Type, assumeTrue bool, checkDerived bool) *Type {
@@ -33903,9 +33903,9 @@ func (c *Checker) getContextualTypeForYieldOperand(node YieldExpression, context
 			}
 			if node.asteriskToken != nil {
 				iterationTypes := c.getIterationTypesOfGeneratorFunctionReturnType(contextualReturnType, isAsyncGenerator)
-				yieldType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: iterationTypes?.yieldType ?? silentNeverType */ TODO
-				returnType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getContextualType(node, contextFlags) ?? silentNeverType */ TODO
-				nextType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: iterationTypes?.nextType ?? unknownType */ TODO
+				yieldType := ifNotNilElse(iterationTypes. /* ? */ yieldType, c.silentNeverType)
+				returnType := ifNotNilElse(c.getContextualType(node, contextFlags), c.silentNeverType)
+				nextType := ifNotNilElse(iterationTypes. /* ? */ nextType, c.unknownType)
 				generatorType := c.createGeneratorType(yieldType, returnType, nextType /*isAsyncGenerator*/, false)
 				if isAsyncGenerator {
 					asyncGeneratorType := c.createGeneratorType(yieldType, returnType, nextType /*isAsyncGenerator*/, true)
@@ -34293,7 +34293,7 @@ func (c *Checker) getTypeOfPropertyOfContextualType(t *Type, name string, nameTy
 		if c.isGenericMappedType(t) && c.getMappedTypeNameTypeKind(t) != MappedTypeNameTypeKindRemapping {
 			return c.getIndexedMappedTypeSubstitutedTypeOfContextualType(t, name, nameType)
 		} else {
-			return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getTypeOfConcretePropertyOfContextualType(t, name) ?? getTypeFromIndexInfosOfContextualType(t, name, nameType) */ TODO
+			return ifNotNilElse(c.getTypeOfConcretePropertyOfContextualType(t, name), c.getTypeFromIndexInfosOfContextualType(t, name, nameType))
 		}
 	}, /*noReductions*/ true)
 }
@@ -34524,7 +34524,28 @@ func (c *Checker) isPossiblyDiscriminantValue(node Expression) bool {
 
 func (c *Checker) discriminateContextualTypeByObjectMembers(node ObjectLiteralExpression, contextualType UnionType) *Type {
 	key := __TEMPLATE__("D", getNodeId(node), ",", c.getTypeId(contextualType))
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getCachedType(key) ?? setCachedType( key, getMatchingUnionConstituentForObjectLiteral(contextualType, node) ?? discriminateTypeByDiscriminableItems( contextualType, concatenate( map( filter(node.properties, (p): p is PropertyAssignment | ShorthandPropertyAssignment => { if (!p.symbol) { return false; } if (p.kind === SyntaxKind.PropertyAssignment) { return isPossiblyDiscriminantValue(p.initializer) && isDiscriminantProperty(contextualType, p.symbol.escapedName); } if (p.kind === SyntaxKind.ShorthandPropertyAssignment) { return isDiscriminantProperty(contextualType, p.symbol.escapedName); } return false; }), prop => ([() => getContextFreeTypeOfExpression(prop.kind === SyntaxKind.PropertyAssignment ? prop.initializer : prop.name), prop.symbol.escapedName] as const), ), map( filter(getPropertiesOfType(contextualType), s => !!(s.flags & SymbolFlags.Optional) && !!node?.symbol?.members && !node.symbol.members.has(s.escapedName) && isDiscriminantProperty(contextualType, s.escapedName)), s => [() => undefinedType, s.escapedName] as const, ), ), isTypeAssignableTo, ), ) */ TODO
+	return ifNotNilElse(c.getCachedType(key), c.setCachedType(key, ifNotNilElse(c.getMatchingUnionConstituentForObjectLiteral(contextualType, node), c.discriminateTypeByDiscriminableItems(contextualType, concatenate(map_(filter(node.properties, func(p /* TODO(TS-TO-GO) inferred type MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment */ any) bool {
+		if !p.symbol {
+			return false
+		}
+		if p.kind == SyntaxKindPropertyAssignment {
+			return c.isPossiblyDiscriminantValue(p.initializer) && c.isDiscriminantProperty(contextualType, p.symbol.escapedName)
+		}
+		if p.kind == SyntaxKindShorthandPropertyAssignment {
+			return c.isDiscriminantProperty(contextualType, p.symbol.escapedName)
+		}
+		return false
+	}), func(prop /* TODO(TS-TO-GO) inferred type PropertyAssignment | ShorthandPropertyAssignment */ any) /* TODO(TS-TO-GO) inferred type [() => Type, __String] */ any {
+		return ([]any{func() *Type {
+			return c.getContextFreeTypeOfExpression(ifElse(prop.kind == SyntaxKindPropertyAssignment, prop.initializer, prop.name))
+		}, prop.symbol.escapedName})
+	}), map_(filter(c.getPropertiesOfType(contextualType), func(s *Symbol) bool {
+		return s.flags&SymbolFlagsOptional != 0 && node. /* ? */ symbol. /* ? */ members != nil && !node.symbol.members.has(s.escapedName) && c.isDiscriminantProperty(contextualType, s.escapedName)
+	}), func(s *Symbol) /* TODO(TS-TO-GO) inferred type [() => IntrinsicType, __String] */ any {
+		return []any{func() IntrinsicType {
+			return c.undefinedType
+		}, s.escapedName}
+	})), c.isTypeAssignableTo))))
 }
 
 func (c *Checker) discriminateContextualTypeByJSXAttributes(node JsxAttributes, contextualType UnionType) *Type {
@@ -37238,7 +37259,7 @@ func (c *Checker) getSuggestedSymbolForNonexistentJSXAttribute(name Union[Identi
 	default:
 		jsxSpecific = nil
 	}
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: jsxSpecific ?? getSpellingSuggestionForName(strName, properties, SymbolFlags.Value) */ TODO
+	return ifNotNilElse(jsxSpecific, c.getSpellingSuggestionForName(strName, properties, SymbolFlagsValue))
 }
 
 func (c *Checker) getSuggestionForNonexistentProperty(name Union[Identifier, PrivateIdentifier, string], containingType *Type) *string {
@@ -40546,7 +40567,7 @@ func (c *Checker) getTupleElementLabel(d Union[ParameterDeclaration, NamedTupleM
 		if restParameter != nil {
 			return c.getTupleElementLabelFromBindingElement(restParameter, index, elementFlags)
 		} else {
-			return __TEMPLATE__( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: restSymbol?.escapedName ?? "arg" */ TODO, "_", index).(string)
+			return __TEMPLATE__(ifNotNilElse(restSymbol. /* ? */ escapedName, "arg"), "_", index).(string)
 		}
 	}
 	Debug.assert(isIdentifier(d.name))
@@ -45774,7 +45795,7 @@ func (c *Checker) createAwaitedTypeIfNeeded(t *Type) *Type {
 	//   - The base constraint of `T` is an object type with a callable `then` method.
 
 	if c.isAwaitedTypeNeeded(t) {
-		return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: tryCreateAwaitedType(type) ?? type */ TODO
+		return ifNotNilElse(c.tryCreateAwaitedType(t), t)
 	}
 
 	Debug.assert(c.isAwaitedTypeInstantiation(t) || c.getPromisedTypeOfPromise(t) == nil, "type provided should not be a non-generic 'promise'-like.")
@@ -47430,7 +47451,7 @@ func (c *Checker) checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(con
 		} else {
 			t = c.checkExpression(location)
 		}
-		if t.flags&TypeFlagsEnumLiteral != 0 && isPropertyAccessExpression(location) && ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getNodeLinks(location.expression).resolvedSymbol ?? unknownSymbol */ TODO).flags&SymbolFlagsEnum != 0 {
+		if t.flags&TypeFlagsEnumLiteral != 0 && isPropertyAccessExpression(location) && (ifNotNilElse(c.getNodeLinks(location.expression).resolvedSymbol, c.unknownSymbol)).flags&SymbolFlagsEnum != 0 {
 			// EnumLiteral type at condition with known value is always truthy or always falsy, likely an error
 			c.error(location, Diagnostics.This_condition_will_always_return_0, ifElse((t.AsLiteralType()).value, "true", "false"))
 			return
@@ -48318,7 +48339,7 @@ func (c *Checker) getIterationTypesOfIterableSlow(t *Type, resolver IterationTyp
 	}
 
 	iteratorType := c.getIntersectionType(map_(signatures, c.getReturnTypeOfSignature))
-	iterationTypes := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getIterationTypesOfIteratorWorker(iteratorType, resolver, errorNode, errorOutputContainer, noCache) ?? noIterationTypes */ TODO
+	iterationTypes := ifNotNilElse(c.getIterationTypesOfIteratorWorker(iteratorType, resolver, errorNode, errorOutputContainer, noCache), c.noIterationTypes)
 	if noCache {
 		return iterationTypes
 	} else {
@@ -48781,7 +48802,7 @@ func (c *Checker) checkReturnStatement(node ReturnStatement) {
 				c.error(node, Diagnostics.Return_type_of_constructor_signature_must_be_assignable_to_the_instance_type_of_the_class)
 			}
 		} else if c.getReturnTypeFromAnnotation(container) != nil {
-			unwrappedReturnType := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: unwrapReturnType(returnType, functionFlags) ?? returnType */ TODO
+			unwrappedReturnType := ifNotNilElse(c.unwrapReturnType(returnType, functionFlags), returnType)
 			var unwrappedExprType *Type
 			if functionFlags&FunctionFlagsAsync != 0 {
 				unwrappedExprType = c.checkAwaitedType(exprType /*withAlias*/, false, node, Diagnostics.The_return_type_of_an_async_function_must_either_be_a_valid_promise_or_must_not_contain_a_callable_then_member)
@@ -49257,7 +49278,7 @@ func (c *Checker) getFirstTransformableStaticClassElement(node ClassLikeDeclarat
 	if willTransformStaticElementsOfDecoratedClass || willTransformPrivateElementsOrClassStaticBlocks {
 		for _, member := range node.members {
 			if willTransformStaticElementsOfDecoratedClass && classElementOrClassElementParameterIsDecorated(false, member, node) {
-				return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: firstOrUndefined(getDecorators(node)) ?? node */ TODO
+				return ifNotNilElse(firstOrUndefined(getDecorators(node)), node)
 			} else if willTransformPrivateElementsOrClassStaticBlocks {
 				if isClassStaticBlockDeclaration(member) {
 					return member
@@ -49284,7 +49305,7 @@ func (c *Checker) checkClassExpressionExternalHelpers(node ClassExpression) {
 	willTransformESDecorators := !c.legacyDecorators && c.languageVersion < LanguageFeatureMinimumTarget.ClassAndClassElementDecorators
 	var location *Node
 	if willTransformESDecorators && classOrConstructorParameterIsDecorated(false, node) {
-		location = /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: firstOrUndefined(getDecorators(node)) ?? node */ TODO
+		location = ifNotNilElse(firstOrUndefined(getDecorators(node)), node)
 	} else {
 		location = c.getFirstTransformableStaticClassElement(node)
 	}
@@ -50550,7 +50571,7 @@ func (c *Checker) checkAliasSymbol(node AliasDeclarationNode) {
 			} else {
 				Debug.assert(node.kind != SyntaxKindVariableDeclaration)
 				importDeclaration := findAncestor(node, or(isImportDeclaration, isImportEqualsDeclaration))
-				moduleSpecifier := /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: (importDeclaration && tryGetModuleSpecifierFromDeclaration(importDeclaration)?.text) ?? "..." */ TODO
+				moduleSpecifier := ifNotNilElse((importDeclaration && tryGetModuleSpecifierFromDeclaration(importDeclaration). /* ? */ text), "...")
 				importedIdentifier := unescapeLeadingUnderscores(ifElse(isIdentifier(errorNode), errorNode.escapedText, symbol.escapedName))
 				c.error(errorNode, Diagnostics._0_is_a_type_and_cannot_be_imported_in_JavaScript_files_Use_1_in_a_JSDoc_type_annotation, importedIdentifier, __TEMPLATE__("import(\"", moduleSpecifier, "\").", importedIdentifier))
 			}
@@ -52329,7 +52350,7 @@ func (c *Checker) getSymbolAtLocation(node *Node, ignoreErrors bool) *Symbol {
 		if isBinaryExpression(node.parent) {
 			t := c.getTypeOfExpression(node.parent.right)
 			hasInstanceMethodType := c.getSymbolHasInstanceMethodOfObjectType(t)
-			return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: hasInstanceMethodType?.symbol ?? type.symbol */ TODO
+			return ifNotNilElse(hasInstanceMethodType. /* ? */ symbol, t.symbol)
 		}
 		return nil
 	case SyntaxKindMetaProperty:
@@ -53088,7 +53109,7 @@ func (c *Checker) calculateNodeCheckFlagWorker(node *Node, flag LazyNodeCheckFla
 
 	isExpressionNodeOrShorthandPropertyAssignmentName := func(node Identifier) bool {
 		// TODO(jakebailey): Just use isExpressionNode once that considers these identifiers to be expressions.
-		return isExpressionNode(node) || isShorthandPropertyAssignment(node.parent) && ( /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: node.parent.objectAssignmentInitializer ?? node.parent.name */ TODO) == node
+		return isExpressionNode(node) || isShorthandPropertyAssignment(node.parent) && (ifNotNilElse(node.parent.objectAssignmentInitializer, node.parent.name)) == node
 	}
 
 	checkSingleIdentifier := func(node *Node) {
@@ -53135,7 +53156,7 @@ func (c *Checker) calculateNodeCheckFlagWorker(node *Node, flag LazyNodeCheckFla
 
 func (c *Checker) getEnumMemberValue(node EnumMember) EvaluatorResult {
 	c.computeEnumMemberValues(node.parent)
-	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getNodeLinks(node).enumMemberValue ?? evaluatorResult(/*value* / undefined) */ TODO
+	return ifNotNilElse(c.getNodeLinks(node).enumMemberValue, evaluatorResult(nil))
 }
 
 func (c *Checker) canHaveConstantValue(node *Node) bool {
