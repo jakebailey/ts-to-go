@@ -77,7 +77,7 @@ func textSpanOverlapsWith(span TextSpan, other TextSpan) bool {
 
 func textSpanOverlap(span1 TextSpan, span2 TextSpan) *TextSpan {
 	overlap := textSpanIntersection(span1, span2)
-	if overlap && overlap.length == 0 {
+	if overlap != nil && overlap.length == 0 {
 		return nil
 	} else {
 		return overlap
@@ -414,8 +414,8 @@ func validateLocaleAndSetLanguage(locale string, sys /* TODO(TS-TO-GO) TypeNode 
 	lowerCaseLocale := locale.toLowerCase()
 	matchResult := regexp.MustParse(`^([a-z]+)(?:[_-]([a-z]+))?$`).exec(lowerCaseLocale)
 
-	if !matchResult {
-		if errors {
+	if matchResult == nil {
+		if errors != nil {
 			errors.push(createCompilerDiagnostic(Diagnostics.Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1, "en", "ja-jp"))
 		}
 		return
@@ -455,7 +455,7 @@ func validateLocaleAndSetLanguage(locale string, sys /* TODO(TS-TO-GO) TypeNode 
 			fileContents = sys.readFile(filePath)
 		}
 		{ // catch
-			if errors {
+			if errors != nil {
 				errors.push(createCompilerDiagnostic(Diagnostics.Unable_to_open_file_0, filePath))
 			}
 			return false
@@ -465,7 +465,7 @@ func validateLocaleAndSetLanguage(locale string, sys /* TODO(TS-TO-GO) TypeNode 
 			setLocalizedDiagnosticMessages(JSON.parse(fileContents))
 		}
 		{ // catch
-			if errors {
+			if errors != nil {
 				errors.push(createCompilerDiagnostic(Diagnostics.Corrupted_locale_file_0, filePath))
 			}
 			return false
@@ -481,13 +481,13 @@ func validateLocaleAndSetLanguage(locale string, sys /* TODO(TS-TO-GO) TypeNode 
 /* OVERLOAD: export function getOriginalNode(node: Node | undefined): Node | undefined; */
 /* OVERLOAD: export function getOriginalNode<T extends Node>(node: Node | undefined, nodeTest: (node: Node) => node is T): T | undefined; */
 func getOriginalNode(node *Node, nodeTest func(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is T */ any) *T {
-	if node {
+	if node != nil {
 		for node.original != nil {
 			node = node.original
 		}
 	}
 
-	if !node || !nodeTest {
+	if node == nil || nodeTest == nil {
 		return node /* as T | undefined */
 	}
 
@@ -508,7 +508,7 @@ func getOriginalNode(node *Node, nodeTest func(node *Node) /* TODO(TS-TO-GO) Typ
 /* OVERLOAD: export function findAncestor<T extends Node>(node: Node | undefined, callback: (element: Node) => element is T): T | undefined; */
 /* OVERLOAD: export function findAncestor(node: Node | undefined, callback: (element: Node) => boolean | "quit"): Node | undefined; */
 func findAncestor(node *Node, callback func(element *Node) /* TODO(TS-TO-GO) TypeNode UnionType: boolean | "quit" */ any) *Node {
-	for node {
+	for node != nil {
 		result := callback(node)
 		if result == "quit" {
 			return nil
@@ -553,9 +553,9 @@ func getParseTreeNode(node *Node, nodeTest func(node *Node) bool) *Node {
 	}
 
 	node = node.original
-	for node {
+	for node != nil {
 		if isParseTreeNode(node) {
-			if !nodeTest || nodeTest(node) {
+			if nodeTest == nil || nodeTest(node) {
 				return node
 			} else {
 				return nil
@@ -606,7 +606,7 @@ func identifierToKeywordKind(node Identifier) *KeywordSyntaxKind {
 }
 
 func symbolName(symbol *Symbol) string {
-	if symbol.valueDeclaration && isPrivateIdentifierClassElementDeclaration(symbol.valueDeclaration) {
+	if symbol.valueDeclaration != nil && isPrivateIdentifierClassElementDeclaration(symbol.valueDeclaration) {
 		return idText(symbol.valueDeclaration.name)
 	}
 	return unescapeLeadingUnderscores(symbol.escapedName)
@@ -658,7 +658,7 @@ func nameForNamelessJSDocTypedef(declaration /* TODO(TS-TO-GO) TypeNode UnionTyp
 
 func getDeclarationIdentifier(node /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression */ any) *Identifier {
 	name := getNameOfDeclaration(node)
-	if name && isIdentifier(name) {
+	if name != nil && isIdentifier(name) {
 		return name
 	} else {
 		return nil
@@ -686,7 +686,7 @@ func getNameOfJSDocTypedef(declaration JSDocTypedefTag) /* TODO(TS-TO-GO) TypeNo
 /** @internal */
 
 func isNamedDeclaration(node *Node) bool {
-	return !!(node.AsNamedDeclaration()).name
+	return (node.AsNamedDeclaration()).name != nil
 	// A 'name' property should always be a DeclarationName.
 }
 
@@ -857,7 +857,7 @@ func getJSDocTypeParameterTagsNoCache(param TypeParameterDeclaration) []JSDocTem
  */
 
 func hasJSDocParameterTags(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | SignatureDeclaration */ any) bool {
-	return !!getFirstJSDocTag(node, isJSDocParameterTag)
+	return getFirstJSDocTag(node, isJSDocParameterTag) != nil
 }
 
 /** Gets the JSDoc augments tag for the node if present */
@@ -975,7 +975,7 @@ func getJSDocSatisfiesTag(node *Node) *JSDocSatisfiesTag {
 func getJSDocTypeTag(node *Node) *JSDocTypeTag {
 	// We should have already issued an error if there were multiple type jsdocs, so just use the first one.
 	tag := getFirstJSDocTag(node, isJSDocTypeTag)
-	if tag && tag.typeExpression && tag.typeExpression.type_ {
+	if tag != nil && tag.typeExpression && tag.typeExpression.type_ {
 		return tag
 	}
 	return nil
@@ -995,9 +995,9 @@ func getJSDocTypeTag(node *Node) *JSDocTypeTag {
 
 func getJSDocType(node *Node) *TypeNode {
 	var tag /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeTag | JSDocParameterTag | undefined */ any = getFirstJSDocTag(node, isJSDocTypeTag)
-	if !tag && isParameter(node) {
+	if tag == nil && isParameter(node) {
 		tag = find(getJSDocParameterTags(node), func(tag JSDocParameterTag) bool {
-			return !!tag.typeExpression
+			return tag.typeExpression != nil
 		})
 	}
 
@@ -1013,11 +1013,11 @@ func getJSDocType(node *Node) *TypeNode {
 
 func getJSDocReturnType(node *Node) *TypeNode {
 	returnTag := getJSDocReturnTag(node)
-	if returnTag && returnTag.typeExpression {
+	if returnTag != nil && returnTag.typeExpression != nil {
 		return returnTag.typeExpression.type_
 	}
 	typeTag := getJSDocTypeTag(node)
-	if typeTag && typeTag.typeExpression {
+	if typeTag != nil && typeTag.typeExpression {
 		t := typeTag.typeExpression.type_
 		if isTypeLiteralNode(t) {
 			sig := find(t.members, isCallSignatureDeclaration)
@@ -1106,13 +1106,13 @@ func formatJSDocLink(link /* TODO(TS-TO-GO) TypeNode UnionType: JSDocLink | JSDo
 		kind = "linkplain"
 	}
 	var name string
-	if link.name {
+	if link.name != nil {
 		name = entityNameToString(link.name)
 	} else {
 		name = ""
 	}
 	var space /* TODO(TS-TO-GO) inferred type "" | " " */ any
-	if link.name && (link.text == "" || link.text.startsWith("://")) {
+	if link.name != nil && (link.text == "" || link.text.startsWith("://")) {
 		space = ""
 	} else {
 		space = " "
@@ -1135,7 +1135,7 @@ func getEffectiveTypeParameterDeclarations(node DeclarationWithTypeParameters) [
 	if isJSDocSignature(node) {
 		if isJSDocOverloadTag(node.parent) {
 			jsDoc := getJSDocRoot(node.parent)
-			if jsDoc && length(jsDoc.tags) {
+			if jsDoc != nil && length(jsDoc.tags) != 0 {
 				return flatMap(jsDoc.tags, func(tag JSDocTag) *NodeArray[TypeParameterDeclaration] {
 					if isJSDocTemplateTag(tag) {
 						return tag.typeParameters
@@ -1157,7 +1157,7 @@ func getEffectiveTypeParameterDeclarations(node DeclarationWithTypeParameters) [
 			}
 		})
 	}
-	if node.typeParameters {
+	if node.typeParameters != nil {
 		return node.typeParameters
 	}
 	if canHaveIllegalTypeParameters(node) && node.typeParameters {
@@ -1165,11 +1165,11 @@ func getEffectiveTypeParameterDeclarations(node DeclarationWithTypeParameters) [
 	}
 	if isInJSFile(node) {
 		decls := getJSDocTypeParameterDeclarations(node)
-		if decls.length {
+		if decls.length != 0 {
 			return decls
 		}
 		typeTag := getJSDocType(node)
-		if typeTag && isFunctionTypeNode(typeTag) && typeTag.typeParameters {
+		if typeTag != nil && isFunctionTypeNode(typeTag) && typeTag.typeParameters != nil {
 			return typeTag.typeParameters
 		}
 	}
@@ -1178,7 +1178,7 @@ func getEffectiveTypeParameterDeclarations(node DeclarationWithTypeParameters) [
 
 func getEffectiveConstraintOfTypeParameter(node TypeParameterDeclaration) *TypeNode {
 	switch {
-	case node.constraint:
+	case node.constraint != nil:
 		return node.constraint
 	case isJSDocTemplateTag(node.parent) && node == node.parent.typeParameters[0]:
 		return node.parent.constraint
@@ -1200,26 +1200,26 @@ func isGetOrSetAccessorDeclaration(node *Node) bool {
 }
 
 func isPropertyAccessChain(node *Node) bool {
-	return isPropertyAccessExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
+	return isPropertyAccessExpression(node) && node.flags&NodeFlagsOptionalChain != 0
 }
 
 func isElementAccessChain(node *Node) bool {
-	return isElementAccessExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
+	return isElementAccessExpression(node) && node.flags&NodeFlagsOptionalChain != 0
 }
 
 func isCallChain(node *Node) bool {
-	return isCallExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
+	return isCallExpression(node) && node.flags&NodeFlagsOptionalChain != 0
 }
 
 func isOptionalChain(node *Node) bool {
 	kind := node.kind
-	return !!(node.flags & NodeFlagsOptionalChain) && (kind == SyntaxKindPropertyAccessExpression || kind == SyntaxKindElementAccessExpression || kind == SyntaxKindCallExpression || kind == SyntaxKindNonNullExpression)
+	return node.flags&NodeFlagsOptionalChain != 0 && (kind == SyntaxKindPropertyAccessExpression || kind == SyntaxKindElementAccessExpression || kind == SyntaxKindCallExpression || kind == SyntaxKindNonNullExpression)
 }
 
 /** @internal */
 
 func isOptionalChainRoot(node *Node) bool {
-	return isOptionalChain(node) && !isNonNullExpression(node) && !!node.questionDotToken
+	return isOptionalChain(node) && !isNonNullExpression(node) && node.questionDotToken != nil
 }
 
 /**
@@ -1256,7 +1256,7 @@ func isNullishCoalesce(node *Node) bool {
 }
 
 func isConstTypeReference(node *Node) bool {
-	return isTypeReferenceNode(node) && isIdentifier(node.typeName) && node.typeName.escapedText == "const" && !node.typeArguments
+	return isTypeReferenceNode(node) && isIdentifier(node.typeName) && node.typeName.escapedText == "const" && node.typeArguments == nil
 }
 
 /* OVERLOAD: export function skipPartiallyEmittedExpressions(node: Expression): Expression; */
@@ -1266,7 +1266,7 @@ func skipPartiallyEmittedExpressions(node *Node) *Node {
 }
 
 func isNonNullChain(node *Node) bool {
-	return isNonNullExpression(node) && !!(node.flags & NodeFlagsOptionalChain)
+	return isNonNullExpression(node) && node.flags&NodeFlagsOptionalChain != 0
 }
 
 func isBreakOrContinueStatement(node *Node) bool {
@@ -1380,7 +1380,7 @@ func isTypeOnlyExportDeclaration(node *Node) bool {
 	case SyntaxKindExportSpecifier:
 		return (node.AsExportSpecifier()).isTypeOnly || (node.AsExportSpecifier()).parent.parent.isTypeOnly
 	case SyntaxKindExportDeclaration:
-		return (node.AsExportDeclaration()).isTypeOnly && !!(node.AsExportDeclaration()).moduleSpecifier && !(node.AsExportDeclaration()).exportClause
+		return (node.AsExportDeclaration()).isTypeOnly && (node.AsExportDeclaration()).moduleSpecifier != nil && (node.AsExportDeclaration()).exportClause == nil
 	case SyntaxKindNamespaceExport:
 		return (node.AsNamespaceExport()).parent.isTypeOnly
 	}
@@ -1415,7 +1415,7 @@ func isGeneratedPrivateIdentifier(node *Node) bool {
 
 func isFileLevelReservedGeneratedIdentifier(node GeneratedIdentifier) bool {
 	flags := node.emitNode.autoGenerate.flags
-	return !!(flags & GeneratedIdentifierFlagsFileLevel) && !!(flags & GeneratedIdentifierFlagsOptimistic) && !!(flags & GeneratedIdentifierFlagsReservedInNestedScopes)
+	return flags&GeneratedIdentifierFlagsFileLevel != 0 && flags&GeneratedIdentifierFlagsOptimistic != 0 && flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0
 }
 
 // Private Identifiers
@@ -1457,7 +1457,7 @@ func isModifierKind(token SyntaxKind) bool {
 /** @internal */
 
 func isParameterPropertyModifier(kind SyntaxKind) bool {
-	return !!(modifierToFlag(kind) & ModifierFlagsParameterPropertyModifier)
+	return modifierToFlag(kind)&ModifierFlagsParameterPropertyModifier != 0
 }
 
 /** @internal */
@@ -1488,13 +1488,13 @@ func isBindingName(node *Node) bool {
 // Functions
 
 func isFunctionLike(node *Node) bool {
-	return !!node && isFunctionLikeKind(node.kind)
+	return node != nil && isFunctionLikeKind(node.kind)
 }
 
 /** @internal */
 
 func isFunctionLikeOrClassStaticBlockDeclaration(node *Node) bool {
-	return !!node && (isFunctionLikeKind(node.kind) || isClassStaticBlockDeclaration(node))
+	return node != nil && (isFunctionLikeKind(node.kind) || isClassStaticBlockDeclaration(node))
 }
 
 /** @internal */
@@ -1627,7 +1627,7 @@ func isFunctionOrConstructorTypeNode(node *Node) bool {
 // Binding patterns
 
 func isBindingPattern(node *Node) bool {
-	if node {
+	if node != nil {
 		kind := node.kind
 		return kind == SyntaxKindArrayBindingPattern || kind == SyntaxKindObjectBindingPattern
 	}
@@ -2256,7 +2256,7 @@ func hasJSDocNodes(node *Node) bool {
 	}
 
 	TODO_IDENTIFIER := node.AsJSDocContainer()
-	return !!jsDoc && jsDoc.length > 0
+	return jsDoc != nil && jsDoc.length > 0
 }
 
 /**
@@ -2266,7 +2266,7 @@ func hasJSDocNodes(node *Node) bool {
  */
 
 func hasType(node *Node) bool {
-	return !!(node.AsHasType()).type_
+	return (node.AsHasType()).type_ != nil
 }
 
 /**
@@ -2276,7 +2276,7 @@ func hasType(node *Node) bool {
  */
 
 func hasInitializer(node *Node) bool {
-	return !!(node.AsHasInitializer()).initializer
+	return (node.AsHasInitializer()).initializer != nil
 }
 
 /** True if has initializer node attached to it. */
@@ -2312,7 +2312,7 @@ var MAX_SMI_X86 = 0x3fff_ffff
 func guessIndentation(lines []string) *number {
 	indentation := MAX_SMI_X86
 	for _, line := range lines {
-		if !line.length {
+		if line.length == 0 {
 			continue
 		}
 		i := 0
@@ -2345,7 +2345,7 @@ func isJSDocLinkLike(node *Node) bool {
 
 func hasRestParameter(s /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) bool {
 	last := lastOrUndefined(s.parameters)
-	return !!last && isRestParameter(last)
+	return last != nil && isRestParameter(last)
 }
 
 func isRestParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any) bool {
@@ -2355,7 +2355,7 @@ func isRestParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclara
 	} else {
 		t = node.type_
 	}
-	return (node.AsParameterDeclaration()).dotDotDotToken != nil || !!t && t.kind == SyntaxKindJSDocVariadicType
+	return (node.AsParameterDeclaration()).dotDotDotToken != nil || t && t.kind == SyntaxKindJSDocVariadicType
 }
 
 func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {
@@ -2366,7 +2366,7 @@ func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {
 func isInternalDeclaration(node *Node, sourceFile SourceFile) bool {
 	/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: sourceFile ??= getSourceFileOfNode(node) */ TODO
 	parseTreeNode := getParseTreeNode(node)
-	if parseTreeNode && parseTreeNode.kind == SyntaxKindParameter {
+	if parseTreeNode != nil && parseTreeNode.kind == SyntaxKindParameter {
 		paramIdx := (parseTreeNode.parent.AsSignatureDeclaration()).parameters.indexOf(parseTreeNode.AsParameterDeclaration())
 		var previousSibling *ParameterDeclaration
 		if paramIdx > 0 {
@@ -2376,7 +2376,7 @@ func isInternalDeclaration(node *Node, sourceFile SourceFile) bool {
 		}
 		text := sourceFile.text
 		var commentRanges *[]CommentRange
-		if previousSibling {
+		if previousSibling != nil {
 			commentRanges = concatenate(getTrailingCommentRanges(text, skipTrivia(text, previousSibling.end+1 /*stopAfterLineBreak*/, false /*stopAtComments*/, true)), getLeadingCommentRanges(text, node.pos))
 		} else {
 			commentRanges = getTrailingCommentRanges(text, skipTrivia(text, node.pos /*stopAfterLineBreak*/, false /*stopAtComments*/, true))
@@ -2384,7 +2384,7 @@ func isInternalDeclaration(node *Node, sourceFile SourceFile) bool {
 		return some(commentRanges) && hasInternalAnnotation(last(commentRanges), sourceFile)
 	}
 	leadingCommentRanges := parseTreeNode && getLeadingCommentRangesOfNode(parseTreeNode, sourceFile)
-	return !!forEach(leadingCommentRanges, func(range_ CommentRange) bool {
+	return forEach(leadingCommentRanges, func(range_ CommentRange) bool {
 		return hasInternalAnnotation(range_, sourceFile)
 	})
 }

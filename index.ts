@@ -345,7 +345,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
             writer.newLine();
             writer.write("case ");
-            visitExpression(cond);
+            visitExpression(cond, undefined, true);
             writer.write(":");
             writer.indent(() => {
                 if (Node.isConditionalExpression(whenTrue)) {
@@ -378,7 +378,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
         writer.newLineIfLastNot();
         writer.write("if ");
-        visitExpression(cond);
+        visitExpression(cond, undefined, true);
         writer.write(" {");
         writer.indent(() => {
             sideEffect();
@@ -398,8 +398,14 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         return block?.getParentIfKind(ts.SyntaxKind.FunctionDeclaration)?.getName() === createFunction;
     }
 
-    function visitExpression(node: Expression, inStatement?: boolean): void {
+    function visitExpression(
+        node: Expression,
+        inStatement?: boolean,
+        needBool?: boolean,
+        needBoolInvert?: boolean,
+    ): void {
         const text = node.getText();
+
         if (Node.isRegularExpressionLiteral(node)) {
             const re = node.getLiteralValue();
             let source = re.source.replaceAll("`", "\\`");
@@ -430,7 +436,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             const type = node.getTypeNodeOrThrow();
             if (type.getText() === "const") {
                 // Skip over as const
-                visitExpression(node.getExpression());
+                visitExpression(node.getExpression(), undefined, needBool);
                 return;
             }
 
@@ -572,7 +578,31 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             if (token === "~") {
                 token = "^";
             }
-            if (inStatement && (token === "++" || token === "--")) {
+
+            if (token === "!") {
+                let operand: Expression = node.getOperand();
+                let invert = true;
+                if (
+                    Node.isPrefixUnaryExpression(operand) &&
+                    operand.getOperatorToken() === ts.SyntaxKind.ExclamationToken
+                ) {
+                    // Remove !!
+                    operand = operand.getOperand();
+                    invert = false;
+                    if (Node.isParenthesizedExpression(operand)) {
+                        operand = operand.getExpression();
+                    }
+                }
+
+                if (invert && !isConvertibleToBool(operand.getType())) {
+                    writer.write("!");
+                    invert = false;
+                }
+
+                visitExpression(operand, undefined, true, invert);
+                return;
+            }
+            else if (inStatement && (token === "++" || token === "--")) {
                 visitExpression(node.getOperand());
                 writer.write(token);
             }
@@ -587,11 +617,20 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
         else if (Node.isParenthesizedExpression(node)) {
             writer.write("(");
-            visitExpression(node.getExpression());
+            visitExpression(node.getExpression(), undefined, needBool);
             writer.write(")");
+            return;
         }
         else if (Node.isBinaryExpression(node)) {
-            writeBinaryExpression(node, inStatement);
+            writeBinaryExpression(node, inStatement, needBool);
+
+            if (needBool) {
+                switch (node.getOperatorToken().getKind()) {
+                    case ts.SyntaxKind.AmpersandAmpersandToken:
+                    case ts.SyntaxKind.BarBarToken:
+                        return; // handled in writeBinaryExpression
+                }
+            }
         }
         else if (Node.isTrueLiteral(node)) {
             writer.write("true");
@@ -692,10 +731,11 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                     writer.conditionalWrite(i < args.length - 1, ", ");
                 }
                 writer.write(")");
-                return;
             }
-            writeTodoNode(node);
-            writer.write(` TODO`);
+            else {
+                writeTodoNode(node);
+                writer.write(` TODO`);
+            }
         }
         else if (Node.isVoidExpression(node)) {
             visitExpression(node.getExpression());
@@ -722,7 +762,6 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
             writeTodoNode(node);
             writer.write(` TODO`);
-            return;
         }
         else if (Node.isSpreadElement(node)) {
             visitExpression(node.getExpression());
@@ -791,11 +830,11 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             const whenFalse = node.getWhenFalse();
             // TODO: this causes side effects; should these be funcs?
             writer.write("ifElse(");
-            visitExpression(cond);
+            visitExpression(cond, undefined, true);
             writer.write(", ");
-            visitExpression(whenTrue);
+            visitExpression(whenTrue, undefined, needBool);
             writer.write(", ");
-            visitExpression(whenFalse);
+            visitExpression(whenFalse, undefined, needBool);
             writer.write(")");
         }
         else if (Node.isTemplateExpression(node)) {
@@ -829,6 +868,69 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writeTodoNode(node);
             writer.write(` TODO`);
         }
+
+        if (needBool) {
+            // keep in sync with isConvertibleToBool
+            const type = node.getType();
+            // if type is union with undefined, add != nil
+            if (
+                type.isUnion() && type.isNullable() &&
+                !type.getUnionTypes().some(t =>
+                    t.isString() || t.isStringLiteral()
+                    || t.isBoolean() || t.isBooleanLiteral()
+                    || t.isNumber() || t.isNumberLiteral()
+                    || t.isEnum() || t.isEnumLiteral()
+                )
+            ) {
+                if (needBoolInvert) {
+                    writer.write(" == nil");
+                }
+                else {
+                    writer.write(" != nil");
+                }
+            }
+            else if (type.isString() || type.isStringLiteral()) {
+                if (needBoolInvert) {
+                    writer.write(' == ""');
+                }
+                else {
+                    writer.write(' != ""');
+                }
+            }
+            else if (type.isNumber() || type.isNumberLiteral()) {
+                if (needBoolInvert) {
+                    writer.write(" == 0");
+                }
+                else {
+                    writer.write(" != 0");
+                }
+            }
+            else if (type.isEnum() || type.isEnumLiteral()) {
+                if (needBoolInvert) {
+                    writer.write(" == 0");
+                }
+                else {
+                    writer.write(" != 0");
+                }
+            }
+        }
+    }
+
+    function isConvertibleToBool(type: Type) {
+        if (
+            type.isUnion() && type.isNullable() &&
+            !type.getUnionTypes().some(t =>
+                t.isString() || t.isStringLiteral()
+                || t.isBoolean() || t.isBooleanLiteral()
+                || t.isNumber() || t.isNumberLiteral()
+                || t.isEnum() || t.isEnumLiteral()
+            )
+        ) {
+            return true;
+        }
+        return type.isString() || type.isStringLiteral()
+            || type.isNumber() || type.isNumberLiteral()
+            || type.isEnum() || type.isEnumLiteral();
     }
 
     function isAssignmentOperator(kind: ts.SyntaxKind): boolean {
@@ -851,10 +953,21 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
     }
 
-    function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean) {
+    function writeBinaryExpression(node: BinaryExpression, isStatement?: boolean, needBool?: boolean) {
         const op = node.getOperatorToken();
         const left = node.getLeft();
         let right = node.getRight();
+
+        if (needBool) {
+            switch (op.getKind()) {
+                case ts.SyntaxKind.AmpersandAmpersandToken:
+                case ts.SyntaxKind.BarBarToken:
+                    needBool = true;
+                    break;
+                default:
+                    needBool = false;
+            }
+        }
 
         let tok: string | undefined;
         switch (op.getKind()) {
@@ -864,8 +977,6 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case ts.SyntaxKind.LessThanToken:
             case ts.SyntaxKind.GreaterThanEqualsToken:
             case ts.SyntaxKind.GreaterThanToken:
-            case ts.SyntaxKind.AmpersandToken:
-            case ts.SyntaxKind.BarToken:
             case ts.SyntaxKind.MinusToken:
             case ts.SyntaxKind.PlusToken:
             case ts.SyntaxKind.AsteriskToken:
@@ -873,6 +984,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case ts.SyntaxKind.AsteriskAsteriskToken:
             case ts.SyntaxKind.CaretToken:
             case ts.SyntaxKind.PercentToken:
+            case ts.SyntaxKind.AmpersandToken:
+            case ts.SyntaxKind.BarToken:
                 tok = ts.tokenToString(op.getKind())!;
                 break;
             case ts.SyntaxKind.EqualsEqualsEqualsToken:
@@ -922,7 +1035,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
         assert(tok);
 
-        visitExpression(left);
+        visitExpression(left, undefined, needBool);
         if (tok === "||=") {
             writer.write(" = ");
             visitExpression(left);
@@ -936,7 +1049,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         else {
             writer.write(` ${tok} `);
         }
-        visitExpression(right);
+        visitExpression(right, undefined, needBool);
     }
 
     const referencesCache = new Map<Node, Node[]>();
@@ -1031,7 +1144,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
     function visitIfStatement(node: IfStatement) {
         writer.write("if ");
-        visitExpression(node.getExpression());
+        visitExpression(node.getExpression(), undefined, true);
 
         writer.write(" {");
         writer.indent(() => {
@@ -1603,7 +1716,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             writer.write("; ");
             const condition = node.getCondition();
             if (condition) {
-                visitExpression(condition);
+                visitExpression(condition, undefined, true);
             }
             writer.write("; ");
             const incrementor = node.getIncrementor();
@@ -1621,7 +1734,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
         if (!isGlobal && Node.isWhileStatement(node)) {
             writer.write("for ");
-            visitExpression(node.getExpression());
+            visitExpression(node.getExpression(), undefined, true);
             writer.write(" {");
             writer.indent(() => {
                 visitStatement(node.getStatement());
@@ -1633,7 +1746,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
         if (!isGlobal && Node.isDoStatement(node)) {
             writer.write("for ok := true; ok; ok = ");
-            visitExpression(node.getExpression());
+            visitExpression(node.getExpression(), undefined, true);
             writer.write(" { // do-while loop");
             writer.indent(() => {
                 visitStatement(node.getStatement());

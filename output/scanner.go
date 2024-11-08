@@ -370,7 +370,7 @@ func computeLineStarts(text string) []number {
 /* OVERLOAD: export function getPositionOfLineAndCharacter(sourceFile: SourceFileLike, line: number, character: number, allowEdits?: true): number; */
 // eslint-disable-line @typescript-eslint/unified-signatures
 func getPositionOfLineAndCharacter(sourceFile SourceFileLike, line number, character number, allowEdits /* TODO(TS-TO-GO) TypeNode LiteralType: true */ any) number {
-	if sourceFile.getPositionOfLineAndCharacter {
+	if sourceFile.getPositionOfLineAndCharacter != nil {
 		return sourceFile.getPositionOfLineAndCharacter(line, character, allowEdits)
 	} else {
 		return computePositionOfLineAndCharacter(getLineStarts(sourceFile), line, character, sourceFile.text, allowEdits)
@@ -579,7 +579,7 @@ func skipTrivia(text string, pos number, stopAfterLineBreak bool, stopAtComments
 			if stopAfterLineBreak {
 				return pos
 			}
-			canConsumeStar = !!inJSDoc
+			canConsumeStar = inJSDoc
 			continue
 		case CharacterCodestab,
 			CharacterCodesverticalTab,
@@ -671,7 +671,7 @@ func isConflictMarkerTrivia(text string, pos number) bool {
 }
 
 func scanConflictMarkerTrivia(text string, pos number, error func(diag DiagnosticMessage, pos number, len number)) number {
-	if error {
+	if error != nil {
 		error(Diagnostics.Merge_conflict_marker_encountered, pos, mergeConflictMarkerLength)
 	}
 
@@ -884,7 +884,7 @@ func getTrailingCommentRanges(text string, pos number) *[]CommentRange {
 
 func getShebang(text string) *string {
 	match := shebangTriviaRegex.exec(text)
-	if match {
+	if match != nil {
 		return match[0]
 	}
 }
@@ -1114,7 +1114,7 @@ func (scanner *Scanner) charCodeChecked(pos number) number {
 /* OVERLOAD: function error(message: DiagnosticMessage): void; */
 /* OVERLOAD: function error(message: DiagnosticMessage, errPos: number, length: number, arg0?: any): void; */
 func (scanner *Scanner) error(message DiagnosticMessage, errPos number /*  = pos */, length number, arg0 any) {
-	if onError {
+	if onError != nil {
 		oldPos := scanner.pos
 		scanner.pos = errPos
 		onError(message, length || 0, arg0)
@@ -1206,7 +1206,7 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 			// Separators in decimal and exponent parts are still allowed according to the spec
 			scanner.tokenFlags |= TokenFlagsContainsLeadingZero
 			mainFragment = "" + +scanner.tokenValue
-		} else if !scanner.tokenValue {
+		} else if scanner.tokenValue == "" {
 			// a single zero
 			mainFragment = "0"
 		} else {
@@ -1239,7 +1239,7 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		}
 		preNumericPart := scanner.pos
 		finalFragment := scanner.scanNumberFragment()
-		if !finalFragment {
+		if finalFragment == "" {
 			scanner.error(Diagnostics.Digit_expected)
 		} else {
 			scientificFragment = scanner.text.substring(end, preNumericPart) + finalFragment
@@ -1247,7 +1247,7 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		}
 	}
 	var result string
-	if scanner.tokenFlags & TokenFlagsContainsSeparator {
+	if scanner.tokenFlags&TokenFlagsContainsSeparator != 0 {
 		result = mainFragment
 		if decimalFragment {
 			result += "." + decimalFragment
@@ -1260,15 +1260,15 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		// No need to use all the fragments; no _ removal needed
 	}
 
-	if scanner.tokenFlags & TokenFlagsContainsLeadingZero {
+	if scanner.tokenFlags&TokenFlagsContainsLeadingZero != 0 {
 		scanner.error(Diagnostics.Decimals_with_leading_zeros_are_not_allowed, start, end-start)
 		// if a literal has a leading zero, it must not be bigint
 		scanner.tokenValue = "" + +result
 		return SyntaxKindNumericLiteral
 	}
 
-	if decimalFragment != nil || scanner.tokenFlags&TokenFlagsScientific {
-		scanner.checkForIdentifierStartAfterNumericLiteral(start, decimalFragment == nil && !!(scanner.tokenFlags&TokenFlagsScientific))
+	if decimalFragment != nil || scanner.tokenFlags&TokenFlagsScientific != 0 {
+		scanner.checkForIdentifierStartAfterNumericLiteral(start, decimalFragment == nil && scanner.tokenFlags&TokenFlagsScientific != 0)
 		// if value is not an integer, it can be safely coerced to a number
 		scanner.tokenValue = "" + +result
 		return SyntaxKindNumericLiteral
@@ -1321,7 +1321,7 @@ func (scanner *Scanner) scanDigits() bool {
 
 func (scanner *Scanner) scanExactNumberOfHexDigits(count number, canHaveSeparators bool) number {
 	valueString := scanner.scanHexDigits(count /*scanAsManyAsPossible*/, false, canHaveSeparators)
-	if valueString {
+	if valueString != "" {
 		return parseInt(valueString, 16)
 	} else {
 		return -1
@@ -1551,9 +1551,9 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		}
 		// '\47'
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
-		if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
+		if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
 			code := parseInt(scanner.text.substring(start+1, scanner.pos), 8)
-			if flags&EscapeSequenceScanningFlagsRegularExpression && !(flags & EscapeSequenceScanningFlagsAtomEscape) && ch != CharacterCodes_0 {
+			if flags&EscapeSequenceScanningFlagsRegularExpression != 0 && (flags&EscapeSequenceScanningFlagsAtomEscape != 0) && ch != CharacterCodes_0 {
 				scanner.error(Diagnostics.Octal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class_If_this_was_intended_as_an_escape_sequence_use_the_syntax_0_instead, start, scanner.pos-start, "\\x"+code.toString(16).padStart(2, "0"))
 			} else {
 				scanner.error(Diagnostics.Octal_escape_sequences_are_not_allowed_Use_the_syntax_0, start, scanner.pos-start, "\\x"+code.toString(16).padStart(2, "0"))
@@ -1565,8 +1565,8 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		CharacterCodes_9:
 		// the invalid '\8' and '\9'
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
-		if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
-			if flags&EscapeSequenceScanningFlagsRegularExpression && !(flags & EscapeSequenceScanningFlagsAtomEscape) {
+		if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
+			if flags&EscapeSequenceScanningFlagsRegularExpression != 0 && (flags&EscapeSequenceScanningFlagsAtomEscape != 0) {
 				scanner.error(Diagnostics.Decimal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class, start, scanner.pos-start)
 			} else {
 				scanner.error(Diagnostics.Escape_sequence_0_is_not_allowed, start, scanner.pos-start, scanner.text.substring(start, scanner.pos))
@@ -1594,10 +1594,10 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		if scanner.pos < scanner.end && scanner.charCodeUnchecked(scanner.pos) == CharacterCodesopenBrace {
 			// '\u{DDDDDD}'
 			scanner.pos -= 2
-			result := scanner.scanExtendedUnicodeEscape(!!(flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors))
-			if !(flags & EscapeSequenceScanningFlagsAllowExtendedUnicodeEscape) {
+			result := scanner.scanExtendedUnicodeEscape(flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0)
+			if flags&EscapeSequenceScanningFlagsAllowExtendedUnicodeEscape != 0 {
 				scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
-				if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
+				if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
 					scanner.error(Diagnostics.Unicode_escape_sequences_are_only_available_when_the_Unicode_u_flag_or_the_Unicode_Sets_v_flag_is_set, start, scanner.pos-start)
 				}
 			}
@@ -1607,7 +1607,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		for ; scanner.pos < start+6; scanner.pos++ {
 			if !(scanner.pos < scanner.end && isHexDigit(scanner.charCodeUnchecked(scanner.pos))) {
 				scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
-				if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
+				if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
 					scanner.error(Diagnostics.Hexadecimal_digit_expected)
 				}
 				return scanner.text.substring(start, scanner.pos)
@@ -1616,7 +1616,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		scanner.tokenFlags |= TokenFlagsUnicodeEscape
 		escapedValue := parseInt(scanner.text.substring(start+2, scanner.pos), 16)
 		escapedValueString := String.fromCharCode(escapedValue)
-		if flags&EscapeSequenceScanningFlagsAnyUnicodeMode && escapedValue >= 0xD800 && escapedValue <= 0xDBFF && scanner.pos+6 < scanner.end && scanner.text.substring(scanner.pos, scanner.pos+2) == "\\u" && scanner.charCodeUnchecked(scanner.pos+2) != CharacterCodesopenBrace {
+		if flags&EscapeSequenceScanningFlagsAnyUnicodeMode != 0 && escapedValue >= 0xD800 && escapedValue <= 0xDBFF && scanner.pos+6 < scanner.end && scanner.text.substring(scanner.pos, scanner.pos+2) == "\\u" && scanner.charCodeUnchecked(scanner.pos+2) != CharacterCodesopenBrace {
 			// For regular expressions in any Unicode mode, \u HexLeadSurrogate \u HexTrailSurrogate is treated as a single character
 			// for the purpose of determining whether a character class range is out of order
 			// https://tc39.es/ecma262/#prod-RegExpUnicodeEscapeSequence
@@ -1640,7 +1640,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		for ; scanner.pos < start+4; scanner.pos++ {
 			if !(scanner.pos < scanner.end && isHexDigit(scanner.charCodeUnchecked(scanner.pos))) {
 				scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
-				if flags & EscapeSequenceScanningFlagsReportInvalidEscapeErrors {
+				if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
 					scanner.error(Diagnostics.Hexadecimal_digit_expected)
 				}
 				return scanner.text.substring(start, scanner.pos)
@@ -1661,7 +1661,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		CharacterCodesparagraphSeparator:
 		return ""
 	default:
-		if flags&EscapeSequenceScanningFlagsAnyUnicodeMode || flags&EscapeSequenceScanningFlagsRegularExpression && !(flags&EscapeSequenceScanningFlagsAnnexB) && isIdentifierPart(ch, languageVersion) {
+		if flags&EscapeSequenceScanningFlagsAnyUnicodeMode != 0 || flags&EscapeSequenceScanningFlagsRegularExpression != 0 && (flags&EscapeSequenceScanningFlagsAnnexB != 0) && isIdentifierPart(ch, languageVersion) {
 			scanner.error(Diagnostics.This_character_cannot_be_escaped_in_a_regular_expression, scanner.pos-2, 2)
 		}
 		return String.fromCharCode(ch)
@@ -1674,7 +1674,7 @@ func (scanner *Scanner) scanExtendedUnicodeEscape(shouldEmitInvalidEscapeError b
 	escapedStart := scanner.pos
 	escapedValueString := scanner.scanMinimumNumberOfHexDigits(1 /*canHaveSeparators*/, false)
 	var escapedValue number
-	if escapedValueString {
+	if escapedValueString != "" {
 		escapedValue = parseInt(escapedValueString, 16)
 	} else {
 		escapedValue = -1
@@ -1737,7 +1737,7 @@ func (scanner *Scanner) peekExtendedUnicodeEscape() number {
 		scanner.pos += 3
 		escapedValueString := scanner.scanMinimumNumberOfHexDigits(1 /*canHaveSeparators*/, false)
 		var escapedValue number
-		if escapedValueString {
+		if escapedValueString != "" {
 			escapedValue = parseInt(escapedValueString, 16)
 		} else {
 			escapedValue = -1
@@ -1838,7 +1838,7 @@ func (scanner *Scanner) checkBigIntSuffix() SyntaxKind {
 	if scanner.charCodeUnchecked(scanner.pos) == CharacterCodesn {
 		scanner.tokenValue += "n"
 		// Use base 10 instead of base 2 or base 8 for shorter literals
-		if scanner.tokenFlags & TokenFlagsBinaryOrOctalSpecifier {
+		if scanner.tokenFlags&TokenFlagsBinaryOrOctalSpecifier != 0 {
 			scanner.tokenValue = parsePseudoBigInt(scanner.tokenValue) + "n"
 		}
 		scanner.pos++
@@ -1847,9 +1847,9 @@ func (scanner *Scanner) checkBigIntSuffix() SyntaxKind {
 		// Number() may not support 0b or 0o, so use parseInt() instead
 		var numericValue number
 		switch {
-		case scanner.tokenFlags & TokenFlagsBinarySpecifier:
+		case scanner.tokenFlags&TokenFlagsBinarySpecifier != 0:
 			numericValue = parseInt(scanner.tokenValue.slice(2), 2)
-		case scanner.tokenFlags & TokenFlagsOctalSpecifier:
+		case scanner.tokenFlags&TokenFlagsOctalSpecifier != 0:
 			numericValue = parseInt(scanner.tokenValue.slice(2), 8)
 		default:
 			numericValue = +scanner.tokenValue
@@ -2000,7 +2000,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AsteriskAsteriskToken */ TODO
 			}
 			scanner.pos++
-			if scanner.skipJsDocLeadingAsterisks && (scanner.tokenFlags&TokenFlagsPrecedingJSDocLeadingAsterisks) == 0 && (scanner.tokenFlags & TokenFlagsPrecedingLineBreak) {
+			if scanner.skipJsDocLeadingAsterisks != 0 && (scanner.tokenFlags&TokenFlagsPrecedingJSDocLeadingAsterisks) == 0 && (scanner.tokenFlags&TokenFlagsPrecedingLineBreak != 0) {
 				// decoration at the start of a JSDoc comment line
 				scanner.tokenFlags |= TokenFlagsPrecedingJSDocLeadingAsterisks
 				continue
@@ -2126,7 +2126,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesX || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesx) {
 				scanner.pos += 2
 				scanner.tokenValue = scanner.scanMinimumNumberOfHexDigits(1 /*canHaveSeparators*/, true)
-				if !scanner.tokenValue {
+				if scanner.tokenValue == "" {
 					scanner.error(Diagnostics.Hexadecimal_digit_expected)
 					scanner.tokenValue = "0"
 				}
@@ -2137,7 +2137,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			} else if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesB || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesb) {
 				scanner.pos += 2
 				scanner.tokenValue = scanner.scanBinaryOrOctalDigits(2)
-				if !scanner.tokenValue {
+				if scanner.tokenValue == "" {
 					scanner.error(Diagnostics.Binary_digit_expected)
 					scanner.tokenValue = "0"
 				}
@@ -2148,7 +2148,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			} else if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesO || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodeso) {
 				scanner.pos += 2
 				scanner.tokenValue = scanner.scanBinaryOrOctalDigits(8)
-				if !scanner.tokenValue {
+				if scanner.tokenValue == "" {
 					scanner.error(Diagnostics.Octal_digit_expected)
 					scanner.tokenValue = "0"
 				}
@@ -2545,7 +2545,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 			scanner.pos++
 		}
 		endOfRegExpBody := scanner.pos
-		if scanner.tokenFlags & TokenFlagsUnterminated {
+		if scanner.tokenFlags&TokenFlagsUnterminated != 0 {
 			// Search for the nearest unbalanced bracket for better recovery. Since the expression is
 			// invalid anyways, we take nested square brackets into consideration for the best guess.
 			scanner.pos = startOfRegExpBody
@@ -2561,9 +2561,9 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 					inEscape = true
 				} else if ch == CharacterCodesopenBracket {
 					characterClassDepth++
-				} else if ch == CharacterCodescloseBracket && characterClassDepth {
+				} else if ch == CharacterCodescloseBracket && characterClassDepth != 0 {
 					characterClassDepth--
-				} else if !characterClassDepth {
+				} else if characterClassDepth == 0 {
 					if ch == CharacterCodesopenBrace {
 						inDecimalQuantifier = true
 					} else if ch == CharacterCodescloseBrace && inDecimalQuantifier {
@@ -2571,7 +2571,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 					} else if !inDecimalQuantifier {
 						if ch == CharacterCodesopenParen {
 							groupDepth++
-						} else if ch == CharacterCodescloseParen && groupDepth {
+						} else if ch == CharacterCodescloseParen && groupDepth != 0 {
 							groupDepth--
 						} else if ch == CharacterCodescloseParen || ch == CharacterCodescloseBracket || ch == CharacterCodescloseBrace {
 							// We encountered an unbalanced bracket outside a character class. Treat this position as the end of regex.
@@ -2600,7 +2600,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 					flag := characterCodeToRegularExpressionFlag(ch)
 					if flag == nil {
 						scanner.error(Diagnostics.Unknown_regular_expression_flag, scanner.pos, size)
-					} else if regExpFlags & flag {
+					} else if regExpFlags&flag != 0 {
 						scanner.error(Diagnostics.Duplicate_regular_expression_flag, scanner.pos, size)
 					} else if ((regExpFlags | flag) & RegularExpressionFlagsAnyUnicodeMode) == RegularExpressionFlagsAnyUnicodeMode {
 						scanner.error(Diagnostics.The_Unicode_u_flag_and_the_Unicode_Sets_v_flag_cannot_be_set_simultaneously, scanner.pos, size)
@@ -2628,10 +2628,10 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 	// See: https://github.com/microsoft/TypeScript/issues/52924
 	/* eslint-disable no-var */
 
-	unicodeSetsMode := !!(regExpFlags & RegularExpressionFlagsUnicodeSets)
+	unicodeSetsMode := regExpFlags&RegularExpressionFlagsUnicodeSets != 0
 	/** Grammar parameter */
 
-	anyUnicodeMode := !!(regExpFlags & RegularExpressionFlagsAnyUnicodeMode)
+	anyUnicodeMode := regExpFlags&RegularExpressionFlagsAnyUnicodeMode != 0
 
 	// Regular expressions are checked more strictly when either in 'u' or 'v' mode, or
 	// when not using the looser interpretation of the syntax from ECMA-262 Annex B.
@@ -2773,7 +2773,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 				digitsStart := scanner.pos
 				scanner.scanDigits()
 				min := scanner.tokenValue
-				if !anyUnicodeModeOrNonAnnexB && !min {
+				if !anyUnicodeModeOrNonAnnexB && min == "" {
 					isPreviousTermQuantifiable = true
 					break
 				}
@@ -2781,18 +2781,18 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 					scanner.pos++
 					scanner.scanDigits()
 					max := scanner.tokenValue
-					if !min {
-						if max || scanner.charCodeChecked(scanner.pos) == CharacterCodescloseBrace {
+					if min == "" {
+						if max != "" || scanner.charCodeChecked(scanner.pos) == CharacterCodescloseBrace {
 							scanner.error(Diagnostics.Incomplete_quantifier_Digit_expected, digitsStart, 0)
 						} else {
 							scanner.error(Diagnostics.Unexpected_0_Did_you_mean_to_escape_it_with_backslash, start, 1, String.fromCharCode(ch))
 							isPreviousTermQuantifiable = true
 							break
 						}
-					} else if max && Number.parseInt(min) > Number.parseInt(max) && (anyUnicodeModeOrNonAnnexB || scanner.charCodeChecked(scanner.pos) == CharacterCodescloseBrace) {
+					} else if max != "" && Number.parseInt(min) > Number.parseInt(max) && (anyUnicodeModeOrNonAnnexB || scanner.charCodeChecked(scanner.pos) == CharacterCodescloseBrace) {
 						scanner.error(Diagnostics.Numbers_out_of_order_in_quantifier, digitsStart, scanner.pos-digitsStart)
 					}
-				} else if !min {
+				} else if min == "" {
 					if anyUnicodeModeOrNonAnnexB {
 						scanner.error(Diagnostics.Unexpected_0_Did_you_mean_to_escape_it_with_backslash, start, 1, String.fromCharCode(ch))
 					}
@@ -2865,9 +2865,9 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 			flag := characterCodeToRegularExpressionFlag(ch)
 			if flag == nil {
 				scanner.error(Diagnostics.Unknown_regular_expression_flag, scanner.pos, size)
-			} else if currFlags & flag {
+			} else if currFlags&flag != 0 {
 				scanner.error(Diagnostics.Duplicate_regular_expression_flag, scanner.pos, size)
-			} else if !(flag & RegularExpressionFlagsModifiers) {
+			} else if flag&RegularExpressionFlagsModifiers != 0 {
 				scanner.error(Diagnostics.This_regular_expression_flag_cannot_be_toggled_within_a_subpattern, scanner.pos, size)
 			} else {
 				currFlags |= flag
@@ -3030,16 +3030,16 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 				if isClassContentExit(ch) {
 					return
 				}
-				if !minCharacter && anyUnicodeModeOrNonAnnexB {
+				if minCharacter == "" && anyUnicodeModeOrNonAnnexB {
 					scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, minStart, scanner.pos-1-minStart)
 				}
 				maxStart := scanner.pos
 				maxCharacter := scanClassAtom()
-				if !maxCharacter && anyUnicodeModeOrNonAnnexB {
+				if maxCharacter == "" && anyUnicodeModeOrNonAnnexB {
 					scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, maxStart, scanner.pos-maxStart)
 					continue
 				}
-				if !minCharacter {
+				if minCharacter == "" {
 					continue
 				}
 				minCharacterValue := codePointAt(minCharacter, 0)
@@ -3137,7 +3137,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 					operand = scanner.text.slice(start, scanner.pos)
 					continue
 				} else {
-					if !operand {
+					if operand == "" {
 						scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, start, scanner.pos-1-start)
 					}
 					secondStart := scanner.pos
@@ -3146,11 +3146,11 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 						scanner.error(Diagnostics.Anything_that_would_possibly_match_more_than_a_single_character_is_invalid_inside_a_negated_character_class, secondStart, scanner.pos-secondStart)
 					}
 					expressionMayContainStrings = expressionMayContainStrings || mayContainStrings
-					if !secondOperand {
+					if secondOperand == "" {
 						scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, secondStart, scanner.pos-secondStart)
 						break
 					}
-					if !operand {
+					if operand == "" {
 						break
 					}
 					minCharacterValue := codePointAt(operand, 0)
@@ -3543,7 +3543,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 	forEach(groupNameReferences, func(reference /* TODO(TS-TO-GO) inferred type TextRange & { name: string; } */ any) {
 		if !groupSpecifiers. /* ? */ has(reference.name) {
 			scanner.error(Diagnostics.There_is_no_capturing_group_named_0_in_this_regular_expression, reference.pos, reference.end-reference.pos, reference.name)
-			if groupSpecifiers {
+			if groupSpecifiers != nil {
 				suggestion := getSpellingSuggestion(reference.name, groupSpecifiers, identity)
 				if suggestion {
 					scanner.error(Diagnostics.Did_you_mean_0, reference.pos, reference.end-reference.pos, suggestion)
@@ -3556,7 +3556,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 		// is treated as either a LegacyOctalEscapeSequence or an IdentityEscape in Annex B,
 		// an error is nevertheless reported since it's most likely a mistake.
 		if escape.value > numberOfCapturingGroups {
-			if numberOfCapturingGroups {
+			if numberOfCapturingGroups != 0 {
 				scanner.error(Diagnostics.This_backreference_refers_to_a_group_that_does_not_exist_There_are_only_0_capturing_groups_in_this_regular_expression, escape.pos, escape.end-escape.pos, numberOfCapturingGroups)
 			} else {
 				scanner.error(Diagnostics.This_backreference_refers_to_a_group_that_does_not_exist_There_are_no_capturing_groups_in_this_regular_expression, escape.pos, escape.end-escape.pos)
@@ -3589,7 +3589,7 @@ func (scanner *Scanner) appendIfCommentDirective(commentDirectives *[]CommentDir
 
 func (scanner *Scanner) getDirectiveFromComment(text string, commentDirectiveRegEx RegExp) *CommentDirectiveType {
 	match := commentDirectiveRegEx.exec(scanner.text)
-	if !match {
+	if match == nil {
 		return nil
 	}
 

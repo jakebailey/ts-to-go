@@ -34,7 +34,7 @@ func computeCommonSourceDirectoryOfFilenames(fileNames []string, currentDirector
 		sourcePathComponents.pop()
 		// The base file name is not part of the common directory path
 
-		if !commonPathComponents {
+		if commonPathComponents == nil {
 			// first file
 			commonPathComponents = sourcePathComponents
 			return
@@ -65,7 +65,7 @@ func computeCommonSourceDirectoryOfFilenames(fileNames []string, currentDirector
 		return ""
 	}
 
-	if !commonPathComponents {
+	if commonPathComponents == nil {
 		return currentDirectory
 	}
 
@@ -88,7 +88,7 @@ func createGetSourceFile(readFile /* TODO(TS-TO-GO) TypeNode IndexedAccessType: 
 			performance.measure("I/O Read", "beforeIORead", "afterIORead")
 		}
 		{ // catch e
-			if onError {
+			if onError != nil {
 				onError(e.message)
 			}
 			text = ""
@@ -117,7 +117,7 @@ func createWriteFileMeasuringIO(actualWriteFile func(path string, data string, w
 			performance.measure("I/O Write", "beforeIOWrite", "afterIOWrite")
 		}
 		{ // catch e
-			if onError {
+			if onError != nil {
 				onError(e.message)
 			}
 		}
@@ -275,7 +275,7 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 	}
 
 	var getSourceFileWithCache * /* TODO(TS-TO-GO) TypeNode IndexedAccessType: CompilerHost["getSourceFile"] */ any
-	if getSourceFile {
+	if getSourceFile != nil {
 		getSourceFileWithCache = func(fileName string, languageVersionOrOptions /* TODO(TS-TO-GO) inferred type ScriptTarget | CreateSourceFileOptions */ any, onError * /* TODO(TS-TO-GO) inferred type ((message: string) => void) */ any, shouldCreateNewSourceFile *bool) *SourceFile {
 			key := toPath(fileName)
 			var impliedNodeFormat ResolutionMode
@@ -286,12 +286,12 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 			}
 			forImpliedNodeFormat := sourceFileCache.get(impliedNodeFormat)
 			value := forImpliedNodeFormat. /* ? */ get(key)
-			if value {
+			if value != nil {
 				return value
 			}
 
 			sourceFile := getSourceFile(fileName, languageVersionOrOptions, onError, shouldCreateNewSourceFile)
-			if sourceFile && (isDeclarationFileName(fileName) || fileExtensionIs(fileName, ExtensionJson)) {
+			if sourceFile != nil && (isDeclarationFileName(fileName) || fileExtensionIs(fileName, ExtensionJson)) {
 				sourceFileCache.set(impliedNodeFormat, (forImpliedNodeFormat || NewMap()).set(key, sourceFile))
 			}
 			return sourceFile
@@ -308,10 +308,10 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 			return value
 		}
 		newValue := originalFileExists.call(host, fileName)
-		fileExistsCache.set(key, !!newValue)
+		fileExistsCache.set(key, newValue)
 		return newValue
 	}
-	if originalWriteFile {
+	if originalWriteFile != nil {
 		host.writeFile = func(fileName string, data string, rest /* TODO(TS-TO-GO) inferred type [writeByteOrderMark: boolean, onError?: ((message: string) => void) | undefined, sourceFiles?: readonly SourceFile[] | undefined, data?: WriteFileCallbackData | undefined] */ any) {
 			key := toPath(fileName)
 			fileExistsCache.delete(key)
@@ -322,10 +322,10 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 				sourceFileCache.forEach(func(map_ Map[Path, SourceFile]) bool {
 					return map_.delete(key)
 				})
-			} else if getSourceFileWithCache {
+			} else if getSourceFileWithCache != nil {
 				sourceFileCache.forEach(func(map_ Map[Path, SourceFile]) {
 					sourceFile := map_.get(key)
-					if sourceFile && sourceFile.text != data {
+					if sourceFile != nil && sourceFile.text != data {
 						map_.delete(key)
 					}
 				})
@@ -335,7 +335,7 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 	}
 
 	// directoryExists
-	if originalDirectoryExists {
+	if originalDirectoryExists != nil {
 		host.directoryExists = func(directory string) any {
 			key := toPath(directory)
 			value := directoryExistsCache.get(key)
@@ -343,11 +343,11 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 				return value
 			}
 			newValue := originalDirectoryExists.call(host, directory)
-			directoryExistsCache.set(key, !!newValue)
+			directoryExistsCache.set(key, newValue)
 			return newValue
 		}
 
-		if originalCreateDirectory {
+		if originalCreateDirectory != nil {
 			host.createDirectory = func(directory string) {
 				key := toPath(directory)
 				directoryExistsCache.delete(key)
@@ -402,7 +402,7 @@ func formatDiagnostics(diagnostics []Diagnostic, host FormatDiagnosticsHost) str
 func formatDiagnostic(diagnostic Diagnostic, host FormatDiagnosticsHost) string {
 	errorMessage := __TEMPLATE__(diagnosticCategoryName(diagnostic), " TS", diagnostic.code, ": ", flattenDiagnosticMessageText(diagnostic.messageText, host.getNewLine()), host.getNewLine())
 
-	if diagnostic.file {
+	if diagnostic.file != nil {
 		TODO_IDENTIFIER := getLineAndCharacterOfPosition(diagnostic.file, diagnostic.start)
 		// TODO: GH#18217
 		fileName := diagnostic.file.fileName
@@ -542,7 +542,7 @@ func formatLocation(file SourceFile, start number, host FormatDiagnosticsHost, c
 func formatDiagnosticsWithColorAndContext(diagnostics []Diagnostic, host FormatDiagnosticsHost) string {
 	output := ""
 	for _, diagnostic := range diagnostics {
-		if diagnostic.file {
+		if diagnostic.file != nil {
 			TODO_IDENTIFIER := diagnostic
 			output += formatLocation(file, start, host)
 			// TODO: GH#18217
@@ -553,15 +553,15 @@ func formatDiagnosticsWithColorAndContext(diagnostics []Diagnostic, host FormatD
 		output += formatColorAndReset(__TEMPLATE__(" TS", diagnostic.code, ": "), ForegroundColorEscapeSequencesGrey)
 		output += flattenDiagnosticMessageText(diagnostic.messageText, host.getNewLine())
 
-		if diagnostic.file && diagnostic.code != Diagnostics.File_appears_to_be_binary.code {
+		if diagnostic.file != nil && diagnostic.code != Diagnostics.File_appears_to_be_binary.code {
 			output += host.getNewLine()
 			output += formatCodeSpan(diagnostic.file, diagnostic.start, diagnostic.length, "", getCategoryFormat(diagnostic.category), host)
 			// TODO: GH#18217
 		}
-		if diagnostic.relatedInformation {
+		if diagnostic.relatedInformation != nil {
 			output += host.getNewLine()
 			for _, TODO_IDENTIFIER := range diagnostic.relatedInformation {
-				if file {
+				if file != nil {
 					output += host.getNewLine()
 					output += halfIndent + formatLocation(file, start, host)
 					// TODO: GH#18217
@@ -584,7 +584,7 @@ func flattenDiagnosticMessageText(diag /* TODO(TS-TO-GO) TypeNode UnionType: str
 		return ""
 	}
 	result := ""
-	if indent {
+	if indent != 0 {
 		result += newLine
 
 		for i := 0; i < indent; i++ {
@@ -593,7 +593,7 @@ func flattenDiagnosticMessageText(diag /* TODO(TS-TO-GO) TypeNode UnionType: str
 	}
 	result += diag.messageText
 	indent++
-	if diag.next {
+	if diag.next != nil {
 		for _, kid := range diag.next {
 			result += flattenDiagnosticMessageText(kid, newLine, indent)
 		}
@@ -722,13 +722,13 @@ func getModeForUsageLocationWorker(file Pick[SourceFile /* TODO(TS-TO-GO) TypeNo
 		}
 	}
 
-	if compilerOptions && importSyntaxAffectsModuleResolution(compilerOptions) {
+	if compilerOptions != nil && importSyntaxAffectsModuleResolution(compilerOptions) {
 		return getEmitSyntaxForUsageLocationWorker(file, usage, compilerOptions)
 	}
 }
 
 func getEmitSyntaxForUsageLocationWorker(file Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], usage StringLiteralLike, compilerOptions CompilerOptions) ResolutionMode {
-	if !compilerOptions {
+	if compilerOptions == nil {
 		// This should always be provided, but we try to fail somewhat
 		// gracefully to allow projects like ts-node time to update.
 		return nil
@@ -765,7 +765,7 @@ func getEmitSyntaxForUsageLocationWorker(file Pick[SourceFile /* TODO(TS-TO-GO) 
 /** @internal */
 
 func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(node *Node, diagnostic DiagnosticMessage)) *ResolutionMode {
-	if !node {
+	if node == nil {
 		return nil
 	}
 	if length(node.elements) != 1 {
@@ -883,7 +883,7 @@ func loadWithModeAwareCache(entries []Entry, containingFile string, redirectedRe
 		mode := loader.nameAndMode.getMode(entry, containingSourceFile, redirectedReference. /* ? */ commandLine.options || options)
 		key := createModeAwareCacheKey(name, mode)
 		result := cache.get(key)
-		if !result {
+		if result == nil {
 			cache.set(key /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = loader.resolve(name, mode) */, TODO)
 		}
 		resolutions.push(result)
@@ -905,26 +905,26 @@ func forEachProjectReference(projectReferences *[]ProjectReference, resolvedProj
 
 	worker := func(projectReferences *[]ProjectReference, resolvedProjectReferences *[]*ResolvedProjectReference, parent *ResolvedProjectReference) *T {
 		// Visit project references first
-		if cbRef {
+		if cbRef != nil {
 			result := cbRef(projectReferences, parent)
-			if result {
+			if result != nil {
 				return result
 			}
 		}
 		var skipChildren *Set[ResolvedProjectReference]
 		return forEach(resolvedProjectReferences, func(resolvedRef *ResolvedProjectReference, index number) *T {
-			if resolvedRef && seenResolvedRefs. /* ? */ has(resolvedRef.sourceFile.path) {
+			if resolvedRef != nil && seenResolvedRefs. /* ? */ has(resolvedRef.sourceFile.path) {
 				( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: skipChildren ??= new Set() */ TODO).add(resolvedRef)
 				// ignore recursives
 				return nil
 			}
 			result := cbResolvedRef(resolvedRef, parent, index)
-			if result || !resolvedRef {
+			if result != nil || resolvedRef == nil {
 				return result
 			}
 			( /* TODO(TS-TO-GO) BarBarEqualsToken BinaryExpression: seenResolvedRefs ||= new Set() */ TODO).add(resolvedRef.sourceFile.path)
 		}) || forEach(resolvedProjectReferences, func(resolvedRef *ResolvedProjectReference) *T {
-			if resolvedRef && !skipChildren. /* ? */ has(resolvedRef) {
+			if resolvedRef != nil && !skipChildren. /* ? */ has(resolvedRef) {
 				return worker(resolvedRef.commandLine.projectReferences, resolvedRef.references, resolvedRef)
 			} else {
 				return nil
@@ -959,7 +959,7 @@ func getLibraryNameFromLibFileName(libFileName string) string {
 	components := libFileName.split(".")
 	path := components[1]
 	i := 2
-	for components[i] && components[i] != "d" {
+	for components[i] != "" && components[i] != "d" {
 		path += (ifElse(i == 2, "/", "-")) + components[i]
 		i++
 	}
@@ -1059,7 +1059,7 @@ func getReferencedFileLocation(program Program, ref ReferencedFile) /* TODO(TS-T
 
 func isProgramUptoDate(program *Program, rootFileNames []string, newOptions CompilerOptions, getSourceVersion func(path Path, fileName string) *string, fileExists func(fileName string) bool, hasInvalidatedResolutions HasInvalidatedResolutions, hasInvalidatedLibResolutions HasInvalidatedLibResolutions, hasChangedAutomaticTypeDirectiveNames *HasChangedAutomaticTypeDirectiveNames, getParsedCommandLine func(fileName string) *ParsedCommandLine, projectReferences *[]ProjectReference) bool {
 	// If we haven't created a program yet or have changed automatic type directives, then it is not up-to-date
-	if !program || hasChangedAutomaticTypeDirectiveNames() {
+	if program == nil || hasChangedAutomaticTypeDirectiveNames() {
 		return false
 	}
 
@@ -1093,7 +1093,7 @@ func isProgramUptoDate(program *Program, rootFileNames []string, newOptions Comp
 	}
 
 	// If library resolution is invalidated, then the program is not up-to-date
-	if program.resolvedLibReferences && forEachEntry(program.resolvedLibReferences, func(_value /* TODO(TS-TO-GO) inferred type LibResolution<ResolvedModuleWithFailedLookupLocations> */ any, libFileName string) bool {
+	if program.resolvedLibReferences != nil && forEachEntry(program.resolvedLibReferences, func(_value /* TODO(TS-TO-GO) inferred type LibResolution<ResolvedModuleWithFailedLookupLocations> */ any, libFileName string) bool {
 		return hasInvalidatedLibResolutions(libFileName)
 	}) {
 		return false
@@ -1101,7 +1101,7 @@ func isProgramUptoDate(program *Program, rootFileNames []string, newOptions Comp
 
 	// If everything matches but the text of config file is changed,
 	// error locations can change for program options, so update the program
-	if currentOptions.configFile && newOptions.configFile {
+	if currentOptions.configFile != nil && newOptions.configFile != nil {
 		return currentOptions.configFile.text == newOptions.configFile.text
 	}
 
@@ -1120,7 +1120,7 @@ func isProgramUptoDate(program *Program, rootFileNames []string, newOptions Comp
 	}
 
 	resolvedProjectReferenceUptoDate := func(oldResolvedRef *ResolvedProjectReference, oldRef ProjectReference) bool {
-		if oldResolvedRef {
+		if oldResolvedRef != nil {
 			// Assume true
 			if contains(seenResolvedRefs, oldResolvedRef) {
 				return true
@@ -1130,7 +1130,7 @@ func isProgramUptoDate(program *Program, rootFileNames []string, newOptions Comp
 			newParsedCommandLine := getParsedCommandLine(refPath)
 
 			// Check if config file exists
-			if !newParsedCommandLine {
+			if newParsedCommandLine == nil {
 				return false
 			}
 
@@ -1156,13 +1156,13 @@ func isProgramUptoDate(program *Program, rootFileNames []string, newOptions Comp
 		// In old program, not able to resolve project reference path,
 		// so if config file doesnt exist, it is uptodate.
 		refPath := resolveProjectReferencePath(oldRef)
-		return !getParsedCommandLine(refPath)
+		return getParsedCommandLine(refPath) == nil
 	}
 
 }
 
 func getConfigFileParsingDiagnostics(configFileParseResult ParsedCommandLine) []Diagnostic {
-	if configFileParseResult.options.configFile {
+	if configFileParseResult.options.configFile != nil {
 		return []Diagnostic{ /* TODO(TS-TO-GO) Node SpreadElement: ...configFileParseResult.options.configFile.parseDiagnostics */ /* TODO(TS-TO-GO) Node SpreadElement: ...configFileParseResult.errors */ }
 	} else {
 		return configFileParseResult.errors
@@ -1245,7 +1245,7 @@ type FileReasonToChainCache struct {
  */
 
 func shouldProgramCreateNewSourceFiles(program *Program, newOptions CompilerOptions) bool {
-	if !program {
+	if program == nil {
 		return false
 	}
 	// If any compiler options change, we can't reuse old source file even if version match
@@ -1378,7 +1378,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		return host.getDefaultLibFileName(options)
 	})
 	var defaultLibraryPath string
-	if host.getDefaultLibLocation {
+	if host.getDefaultLibLocation != nil {
 		defaultLibraryPath = host.getDefaultLibLocation()
 	} else {
 		defaultLibraryPath = getDirectoryPath(getDefaultLibraryFileName())
@@ -1403,14 +1403,14 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	var moduleResolutionCache *ModuleResolutionCache
 	var actualResolveModuleNamesWorker func(moduleNames []StringLiteralLike, containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, containingSourceFile SourceFile, reusedNames *[]StringLiteralLike) []ResolvedModuleWithFailedLookupLocations
 	hasInvalidatedResolutions := host.hasInvalidatedResolutions || returnFalse
-	if host.resolveModuleNameLiterals {
+	if host.resolveModuleNameLiterals != nil {
 		actualResolveModuleNamesWorker = host.resolveModuleNameLiterals.bind(host)
 		moduleResolutionCache = host.getModuleResolutionCache()
-	} else if host.resolveModuleNames {
+	} else if host.resolveModuleNames != nil {
 		actualResolveModuleNamesWorker = func(moduleNames []StringLiteralLike, containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, containingSourceFile SourceFile, reusedNames *[]StringLiteralLike) [] /* TODO(TS-TO-GO) inferred type ((ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations) | { resolvedModule: ResolvedModuleFull; }) */ any {
 			return host.resolveModuleNames(moduleNames.map_(getModuleResolutionName), containingFile, reusedNames. /* ? */ map_(getModuleResolutionName), redirectedReference, options, containingSourceFile).map_(func(resolved *ResolvedModule) /* TODO(TS-TO-GO) inferred type (ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations) | { resolvedModule: ResolvedModuleFull; } */ any {
 				switch {
-				case resolved:
+				case resolved != nil:
 					if (resolved.(ResolvedModuleFull)).extension != nil {
 						return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 							"resolvedModule": resolved.(ResolvedModuleFull),
@@ -1437,9 +1437,9 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	var actualResolveTypeReferenceDirectiveNamesWorker func(typeDirectiveNames []T, containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, containingSourceFile *SourceFile, reusedNames *[]T) []ResolvedTypeReferenceDirectiveWithFailedLookupLocations
-	if host.resolveTypeReferenceDirectiveReferences {
+	if host.resolveTypeReferenceDirectiveReferences != nil {
 		actualResolveTypeReferenceDirectiveNamesWorker = host.resolveTypeReferenceDirectiveReferences.bind(host)
-	} else if host.resolveTypeReferenceDirectives {
+	} else if host.resolveTypeReferenceDirectives != nil {
 		actualResolveTypeReferenceDirectiveNamesWorker = func(typeDirectiveNames []T, containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, containingSourceFile *SourceFile) [] /* TODO(TS-TO-GO) inferred type { resolvedTypeReferenceDirective: ResolvedTypeReferenceDirective | undefined; } */ any {
 			return host.resolveTypeReferenceDirectives(typeDirectiveNames.map_(getTypeReferenceResolutionName), containingFile, redirectedReference, options, containingSourceFile. /* ? */ impliedNodeFormat).map_(func(resolvedTypeReferenceDirective *ResolvedTypeReferenceDirective) /* TODO(TS-TO-GO) inferred type { resolvedTypeReferenceDirective: ResolvedTypeReferenceDirective | undefined; } */ any {
 				return (map[any]any{ /* TODO(TS-TO-GO): was object literal */
@@ -1456,7 +1456,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	hasInvalidatedLibResolutions := host.hasInvalidatedLibResolutions || returnFalse
 	var actualResolveLibrary func(libraryName string, resolveFrom string, options CompilerOptions, libFileName string) ResolvedModuleWithFailedLookupLocations
-	if host.resolveLibrary {
+	if host.resolveLibrary != nil {
 		actualResolveLibrary = host.resolveLibrary.bind(host)
 	} else {
 		libraryResolutionCache := createModuleResolutionCache(currentDirectory, getCanonicalFileName, options, moduleResolutionCache. /* ? */ getPackageJsonInfoCache())
@@ -1498,7 +1498,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	var mapFromFileToProjectReferenceRedirects *Map[Path, Path]
 	var mapFromToProjectReferenceRedirectSource *Map[Path, SourceOfProjectReferenceRedirect]
 
-	useSourceOfProjectReferenceRedirect := !!host.useSourceOfProjectReferenceRedirect() && !options.disableSourceOfProjectReferenceRedirect
+	useSourceOfProjectReferenceRedirect := host.useSourceOfProjectReferenceRedirect() && !options.disableSourceOfProjectReferenceRedirect
 	TODO_IDENTIFIER := updateHostForUseSourceOfProjectReferenceRedirect(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"compilerHost":                        host,
 		"getSymlinkCache":                     getSymlinkCache,
@@ -1511,7 +1511,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	readFile := host.readFile.bind(host) /* as typeof host.readFile */
 
 	tracing. /* ? */ push(tracing.Phase.Program, "shouldProgramCreateNewSourceFiles", map[any]any{ /* TODO(TS-TO-GO): was object literal */
-		"hasOldProgram": !!oldProgram,
+		"hasOldProgram": oldProgram != nil,
 	})
 	shouldCreateNewSourceFile := shouldProgramCreateNewSourceFiles(oldProgram, options)
 	tracing. /* ? */ pop()
@@ -1526,13 +1526,13 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		processingDefaultLibFiles = []never{}
 		processingOtherFiles = []never{}
 
-		if projectReferences {
-			if !resolvedProjectReferences {
+		if projectReferences != nil {
+			if resolvedProjectReferences == nil {
 				resolvedProjectReferences = projectReferences.map_(parseProjectReferenceConfigFile)
 			}
-			if rootNames.length {
+			if rootNames.length != 0 {
 				resolvedProjectReferences. /* ? */ forEach(func(parsedRef *ResolvedProjectReference, index number) {
-					if !parsedRef {
+					if parsedRef == nil {
 						return
 					}
 					out := parsedRef.commandLine.options.outFile
@@ -1584,7 +1584,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		/* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: automaticTypeDirectiveNames ??= rootNames.length ? getAutomaticTypeDirectiveNames(options, host) : emptyArray */
 		TODO
 		automaticTypeDirectiveResolutions = createModeAwareCache()
-		if automaticTypeDirectiveNames.length {
+		if automaticTypeDirectiveNames.length != 0 {
 			tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferences", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 				"count": automaticTypeDirectiveNames.length,
 			})
@@ -1613,11 +1613,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		//  - The '--noLib' flag is used.
 		//  - A 'no-default-lib' reference comment is encountered in
 		//      processing the root files.
-		if rootNames.length && !skipDefaultLib {
+		if rootNames.length != 0 && !skipDefaultLib {
 			// If '--lib' is not specified, include default library file according to '--target'
 			// otherwise, using options specified in '--lib' instead of '--target' default library file
 			defaultLibraryFileName := getDefaultLibraryFileName()
-			if !options.lib && defaultLibraryFileName {
+			if options.lib == nil && defaultLibraryFileName != "" {
 				processRootFile(defaultLibraryFileName /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"kind": FileIncludeKindLibFile,
 				})
@@ -1639,17 +1639,17 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	// Release any files we have acquired in the old program but are
 	// not part of the new program.
-	if oldProgram && host.onReleaseOldSourceFile {
+	if oldProgram != nil && host.onReleaseOldSourceFile != nil {
 		oldSourceFiles := oldProgram.getSourceFiles()
 		for _, oldSourceFile := range oldSourceFiles {
 			newFile := getSourceFileByPath(oldSourceFile.resolvedPath)
-			if shouldCreateNewSourceFile || !newFile || newFile.impliedNodeFormat != oldSourceFile.impliedNodeFormat || (oldSourceFile.resolvedPath == oldSourceFile.path && newFile.resolvedPath != oldSourceFile.path) {
-				host.onReleaseOldSourceFile(oldSourceFile, oldProgram.getCompilerOptions(), !!getSourceFileByPath(oldSourceFile.path), newFile)
+			if shouldCreateNewSourceFile || newFile == nil || newFile.impliedNodeFormat != oldSourceFile.impliedNodeFormat || (oldSourceFile.resolvedPath == oldSourceFile.path && newFile.resolvedPath != oldSourceFile.path) {
+				host.onReleaseOldSourceFile(oldSourceFile, oldProgram.getCompilerOptions(), getSourceFileByPath(oldSourceFile.path) != nil, newFile)
 			}
 		}
-		if !host.getParsedCommandLine {
+		if host.getParsedCommandLine == nil {
 			oldProgram.forEachResolvedProjectReference(func(resolvedProjectReference ResolvedProjectReference) {
-				if !getResolvedProjectReferenceByPath(resolvedProjectReference.sourceFile.path) {
+				if getResolvedProjectReferenceByPath(resolvedProjectReference.sourceFile.path) == nil {
 					host.onReleaseOldSourceFile(resolvedProjectReference.sourceFile, oldProgram.getCompilerOptions() /*hasSourceFileByPath*/, false /*newSourceFileByResolvedPath*/, nil)
 				}
 			})
@@ -1657,7 +1657,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	// Release commandlines that new program does not use
-	if oldProgram && host.onReleaseParsedCommandLine {
+	if oldProgram != nil && host.onReleaseParsedCommandLine != nil {
 		forEachProjectReference(oldProgram.getProjectReferences(), oldProgram.getResolvedProjectReferences(), func(oldResolvedRef *ResolvedProjectReference, parent *ResolvedProjectReference, index number) {
 			oldReference := parent. /* ? */ commandLine.projectReferences[index] || oldProgram.getProjectReferences()[index]
 			oldRefPath := resolveProjectReferencePath(oldReference)
@@ -1804,7 +1804,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	return program
 
 	updateAndGetProgramDiagnostics := func() DiagnosticCollection {
-		if lazyProgramDiagnosticExplainingFile {
+		if lazyProgramDiagnosticExplainingFile != nil {
 			// Add file processingDiagnostics
 			fileProcessingDiagnostics. /* ? */ forEach(func(diagnostic FilePreprocessingDiagnostics) {
 				switch diagnostic.kind {
@@ -1866,7 +1866,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	forEachResolution := func(resolutionCache *Map[Path, ModeAwareCache[T]], callback func(resolution T, moduleName string, mode ResolutionMode, filePath Path), file *SourceFile) {
-		if file {
+		if file != nil {
 			resolutionCache. /* ? */ get(file.path). /* ? */ forEach(func(resolution T, name string, mode ResolutionMode) {
 				return callback(resolution, name, mode, file.path)
 			})
@@ -1880,7 +1880,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getPackagesMap := func() Map[string, bool] {
-		if packageMap {
+		if packageMap != nil {
 			return packageMap
 		}
 		packageMap = NewMap()
@@ -1889,8 +1889,8 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		// Note: we only look at files already found by module resolution,
 		// so there may be files we did not consider.
 		forEachResolvedModule(func(TODO_IDENTIFIER ResolvedModuleWithFailedLookupLocations) {
-			if resolvedModule. /* ? */ packageId {
-				packageMap.set(resolvedModule.packageId.name, resolvedModule.extension == ExtensionDts || !!packageMap.get(resolvedModule.packageId.name))
+			if resolvedModule. /* ? */ packageId != nil {
+				packageMap.set(resolvedModule.packageId.name, resolvedModule.extension == ExtensionDts || packageMap.get(resolvedModule.packageId.name))
 			}
 		})
 		return packageMap
@@ -1901,7 +1901,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	packageBundlesTypes := func(packageName string) bool {
-		return !!getPackagesMap().get(packageName)
+		return getPackagesMap().get(packageName)
 	}
 
 	addResolutionDiagnostics := func(resolution /* TODO(TS-TO-GO) TypeNode UnionType: ResolvedModuleWithFailedLookupLocations | ResolvedTypeReferenceDirectiveWithFailedLookupLocations */ any) {
@@ -1916,10 +1916,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	addResolutionDiagnosticsFromResolutionOrCache := func(containingFile SourceFile, name string, resolution ResolvedModuleWithFailedLookupLocations, mode ResolutionMode) {
 		// diagnostics directly from the resolution
-		if host.resolveModuleNameLiterals || !host.resolveModuleNames {
+		if host.resolveModuleNameLiterals != nil || host.resolveModuleNames == nil {
 			return addResolutionDiagnostics(resolution)
 		}
-		if !moduleResolutionCache || isExternalModuleNameRelative(name) {
+		if moduleResolutionCache == nil || isExternalModuleNameRelative(name) {
 			return
 		}
 		containingFileName := getNormalizedAbsolutePath(containingFile.originalFileName, currentDirectory)
@@ -1931,7 +1931,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		// When it is, how we extract diagnostics from the module name resolver will have the be refined - the current cache
 		// APIs wrapping the underlying resolver make it almost impossible to smuggle the diagnostics out in a generalized way
 		fromCache := moduleResolutionCache.getFromNonRelativeNameCache(name, mode, containingDir, redirectedReference)
-		if fromCache {
+		if fromCache != nil {
 			addResolutionDiagnostics(fromCache)
 		}
 	}
@@ -1977,14 +1977,14 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	getRedirectReferenceForResolution := func(file SourceFile) *ResolvedProjectReference {
 		redirect := getResolvedProjectReferenceToRedirect(file.originalFileName)
-		if redirect || !isDeclarationFileName(file.originalFileName) {
+		if redirect != nil || !isDeclarationFileName(file.originalFileName) {
 			return redirect
 		}
 
 		// The originalFileName could not be actual source file name if file found was d.ts from referecned project
 		// So in this case try to look up if this is output from referenced project, if it is use the redirected project in that case
 		resultFromDts := getRedirectReferenceForResolutionFromSourceOfProject(file.path)
-		if resultFromDts {
+		if resultFromDts != nil {
 			return resultFromDts
 		}
 
@@ -1992,7 +1992,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		// but the resolved real path may be the .d.ts from project reference
 		// Note:: Currently we try the real path only if the
 		// file is from node_modules to avoid having to run real path on all file paths
-		if !host.realpath || !options.preserveSymlinks || !file.originalFileName.includes(nodeModulesPathPart) {
+		if host.realpath == nil || !options.preserveSymlinks || !file.originalFileName.includes(nodeModulesPathPart) {
 			return nil
 		}
 		realDeclarationPath := toPath(host.realpath(file.originalFileName))
@@ -2120,7 +2120,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			"nameAndModeGetter":    typeReferenceResolutionNameAndModeGetter,
 			"resolutionWorker":     resolveTypeReferenceDirectiveNamesWorker,
 			"getResolutionFromOldProgram": func(name string, mode ResolutionMode) *ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
-				if containingSourceFile {
+				if containingSourceFile != nil {
 					return oldProgram. /* ? */ getResolvedTypeReferenceDirective(containingSourceFile, name, mode)
 				} else {
 					return oldProgram. /* ? */ getAutomaticTypeDirectiveResolutions(). /* ? */ get(name, mode)
@@ -2128,7 +2128,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			},
 			"getResolved": getResolvedTypeReferenceDirectiveFromResolution,
 			"canReuseResolutionsInFile": func() bool {
-				if containingSourceFile {
+				if containingSourceFile != nil {
 					return containingSourceFile == oldProgram. /* ? */ getSourceFile(containingSourceFile.fileName) && !hasInvalidatedResolutions(containingSourceFile.path)
 				} else {
 					return !hasInvalidatedResolutions(toPath(containingFile /* as string */))
@@ -2151,10 +2151,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	resolveNamesReusingOldState := func(TODO_IDENTIFIER ResolveNamesReusingOldStateInput[Entry, SourceFileOrString, SourceFileOrUndefined, Resolution]) []Resolution {
-		if !entries.length {
+		if entries.length == 0 {
 			return emptyArray
 		}
-		if structureIsReused == StructureIsReusedNot && (!resolveToOwnAmbientModule || !containingSourceFile.ambientModuleNames.length) {
+		if structureIsReused == StructureIsReusedNot && (!resolveToOwnAmbientModule || containingSourceFile.ambientModuleNames.length == 0) {
 			// If the old program state does not permit reusing resolutions and `file` does not contain locally defined ambient modules,
 			// the best we can do is fallback to the default logic.
 			return resolutionWorker(entries, containingFile, nil)
@@ -2173,9 +2173,9 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				mode := nameAndModeGetter.getMode(entry, containingSourceFile /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: redirectedReference?.commandLine.options ?? options */, TODO)
 				oldResolution := getResolutionFromOldProgram(name, mode)
 				oldResolved := oldResolution && getResolved(oldResolution)
-				if oldResolved {
+				if oldResolved != nil {
 					if isTraceEnabled(options, host) {
-						trace(host, ifElse(resolutionWorker == resolveModuleNamesWorker /* as unknown */, ifElse(oldResolved.packageId, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2), ifElse(oldResolved.packageId, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2)), name, ifElse(containingSourceFile, getNormalizedAbsolutePath(containingSourceFile.originalFileName, currentDirectory), containingFile), oldResolved.resolvedFileName, oldResolved.packageId && packageIdToString(oldResolved.packageId))
+						trace(host, ifElse(resolutionWorker == resolveModuleNamesWorker /* as unknown */, ifElse(oldResolved.packageId != nil, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2), ifElse(oldResolved.packageId != nil, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2)), name, ifElse(containingSourceFile, getNormalizedAbsolutePath(containingSourceFile.originalFileName, currentDirectory), containingFile), oldResolved.resolvedFileName, oldResolved.packageId && packageIdToString(oldResolved.packageId))
 					}
 					( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: result ??= new Array(entries.length) */ TODO)[i] = oldResolution
 					( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: reusedNames ??= [] */ TODO).push(entry)
@@ -2200,11 +2200,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: unknownEntryIndices ??= [] */ TODO).push(i)
 		}
 
-		if !unknownEntries {
+		if unknownEntries == nil {
 			return result
 		}
 		resolutions := resolutionWorker(unknownEntries, containingFile, reusedNames)
-		if !result {
+		if result == nil {
 			return resolutions
 		}
 		resolutions.forEach(func(resolution Resolution, index number) Resolution {
@@ -2215,11 +2215,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	canReuseProjectReferences := func() bool {
 		return !forEachProjectReference(oldProgram.getProjectReferences(), oldProgram.getResolvedProjectReferences(), func(oldResolvedRef *ResolvedProjectReference, parent *ResolvedProjectReference, index number) bool {
-			newRef := (ifElse(parent, parent.commandLine.projectReferences, projectReferences))[index]
+			newRef := (ifElse(parent != nil, parent.commandLine.projectReferences, projectReferences))[index]
 			newResolvedRef := parseProjectReferenceConfigFile(newRef)
-			if oldResolvedRef {
+			if oldResolvedRef != nil {
 				// Resolved project reference has gone missing or changed
-				return !newResolvedRef || newResolvedRef.sourceFile != oldResolvedRef.sourceFile || !arrayIsEqualTo(oldResolvedRef.commandLine.fileNames, newResolvedRef.commandLine.fileNames)
+				return newResolvedRef == nil || newResolvedRef.sourceFile != oldResolvedRef.sourceFile || !arrayIsEqualTo(oldResolvedRef.commandLine.fileNames, newResolvedRef.commandLine.fileNames)
 			} else {
 				// A previously-unresolved reference may be resolved now
 				return newResolvedRef != nil
@@ -2227,7 +2227,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		}, func(oldProjectReferences *[]ProjectReference, parent *ResolvedProjectReference) bool {
 			// If array of references is changed, we cant resue old program
 			var newReferences *[]ProjectReference
-			if parent {
+			if parent != nil {
 				newReferences = getResolvedProjectReferenceByPath(parent.sourceFile.path).commandLine.projectReferences
 			} else {
 				newReferences = projectReferences
@@ -2237,7 +2237,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	tryReuseStructureFromOldProgram := func() StructureIsReused {
-		if !oldProgram {
+		if oldProgram == nil {
 			return StructureIsReusedNot
 		}
 
@@ -2258,7 +2258,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		if !canReuseProjectReferences() {
 			return StructureIsReusedNot
 		}
-		if projectReferences {
+		if projectReferences != nil {
 			resolvedProjectReferences = projectReferences.map_(parseProjectReferenceConfigFile)
 		}
 
@@ -2287,14 +2287,14 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		for _, oldSourceFile := range oldSourceFiles {
 			sourceFileOptions := getCreateSourceFileOptions(oldSourceFile.fileName, moduleResolutionCache, host, options)
 			var newSourceFile *SourceFile
-			if host.getSourceFileByPath {
+			if host.getSourceFileByPath != nil {
 				newSourceFile = host.getSourceFileByPath(oldSourceFile.fileName, oldSourceFile.resolvedPath, sourceFileOptions /*onError*/, nil, shouldCreateNewSourceFile)
 			} else {
 				newSourceFile = host.getSourceFile(oldSourceFile.fileName, sourceFileOptions /*onError*/, nil, shouldCreateNewSourceFile)
 			}
 			// TODO: GH#18217
 
-			if !newSourceFile {
+			if newSourceFile == nil {
 				return StructureIsReusedNot
 			}
 			if sourceFileOptions.packageJsonLocations. /* ? */ length {
@@ -2304,10 +2304,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			}
 			newSourceFile.packageJsonScope = sourceFileOptions.packageJsonScope
 
-			Debug.assert(!newSourceFile.redirectInfo, "Host should not return a redirect source file from `getSourceFile`")
+			Debug.assert(newSourceFile.redirectInfo == nil, "Host should not return a redirect source file from `getSourceFile`")
 
 			var fileChanged bool
-			if oldSourceFile.redirectInfo {
+			if oldSourceFile.redirectInfo != nil {
 				// We got `newSourceFile` by path, so it is actually for the unredirected file.
 				// This lets us know if the unredirected file has changed. If it has we should break the redirect.
 				if newSourceFile != oldSourceFile.redirectInfo.unredirected {
@@ -2432,13 +2432,13 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			return StructureIsReusedSafeModules
 		}
 
-		if oldProgram.resolvedLibReferences && forEachEntry(oldProgram.resolvedLibReferences, func(resolution /* TODO(TS-TO-GO) inferred type LibResolution<ResolvedModuleWithFailedLookupLocations> */ any, libFileName string) bool {
+		if oldProgram.resolvedLibReferences != nil && forEachEntry(oldProgram.resolvedLibReferences, func(resolution /* TODO(TS-TO-GO) inferred type LibResolution<ResolvedModuleWithFailedLookupLocations> */ any, libFileName string) bool {
 			return pathForLibFileWorker(libFileName).actual != resolution.actual
 		}) {
 			return StructureIsReusedSafeModules
 		}
 
-		if host.hasChangedAutomaticTypeDirectiveNames {
+		if host.hasChangedAutomaticTypeDirectiveNames != nil {
 			if host.hasChangedAutomaticTypeDirectiveNames() {
 				return StructureIsReusedSafeModules
 			}
@@ -2516,7 +2516,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			"fileExists": func(f string) bool {
 				// Use local caches
 				path := toPath(f)
-				if getSourceFileByPath(path) {
+				if getSourceFileByPath(path) != nil {
 					return true
 				}
 				if missingFileNames.has(path) {
@@ -2571,7 +2571,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	isSourceFileFromExternalLibrary := func(file SourceFile) bool {
-		return !!sourceFilesFoundSearchingNodeModules.get(file.path)
+		return sourceFilesFoundSearchingNodeModules.get(file.path)
 	}
 
 	isSourceFileDefaultLibrary := func(file SourceFile) bool {
@@ -2595,13 +2595,13 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		} else {
 			equalityComparer = equateStringsCaseInsensitive
 		}
-		if !options.lib {
+		if options.lib == nil {
 			return equalityComparer(file.fileName, getDefaultLibraryFileName())
 		} else {
 			return some(options.lib, func(libFileName string) bool {
 				// We might not have resolved lib if one of the root file included contained no-default-lib = true
 				resolvedLib := resolvedLibReferences.get(libFileName)
-				return !!resolvedLib && equalityComparer(file.fileName, resolvedLib.actual)
+				return resolvedLib != nil && equalityComparer(file.fileName, resolvedLib.actual)
 			})
 		}
 	}
@@ -2628,7 +2628,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	emitWorker := func(program Program, sourceFile *SourceFile, writeFileCallback *WriteFileCallback, cancellationToken CancellationToken, emitOnly /* TODO(TS-TO-GO) TypeNode UnionType: boolean | EmitOnly | undefined */ any, customTransformers *CustomTransformers, forceDtsEmit *bool, skipBuildInfo *bool) EmitResult {
 		if !forceDtsEmit {
 			result := handleNoEmitOptions(program, sourceFile, writeFileCallback, cancellationToken)
-			if result {
+			if result != nil {
 				return result
 			}
 		}
@@ -2664,11 +2664,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getDiagnosticsHelper := func(sourceFile *SourceFile, getDiagnostics func(sourceFile SourceFile, cancellationToken CancellationToken) []T, cancellationToken CancellationToken) []T {
-		if sourceFile {
+		if sourceFile != nil {
 			return sortAndDeduplicateDiagnostics(getDiagnostics(sourceFile, cancellationToken))
 		}
 		return sortAndDeduplicateDiagnostics(flatMap(program.getSourceFiles(), func(sourceFile SourceFile) []T {
-			if cancellationToken {
+			if cancellationToken != nil {
 				cancellationToken.throwIfCancellationRequested()
 			}
 			return getDiagnostics(sourceFile, cancellationToken)
@@ -2714,7 +2714,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		// For JavaScript files, we report semantic errors for using TypeScript-only
 		// constructs from within a JavaScript file as syntactic errors.
 		if isSourceFileJS(sourceFile) {
-			if !sourceFile.additionalSyntacticDiagnostics {
+			if sourceFile.additionalSyntacticDiagnostics == nil {
 				sourceFile.additionalSyntacticDiagnostics = getJSSyntacticDiagnosticsForFile(sourceFile)
 			}
 			return concatenate(sourceFile.additionalSyntacticDiagnostics, sourceFile.parseDiagnostics)
@@ -2742,11 +2742,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getBindAndCheckDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*Node) []Diagnostic {
-		if nodesToCheck {
+		if nodesToCheck != nil {
 			return getBindAndCheckDiagnosticsForFileNoCache(sourceFile, cancellationToken, nodesToCheck)
 		}
 		result := cachedBindAndCheckDiagnosticsForFile. /* ? */ get(sourceFile.path)
-		if !result {
+		if result == nil {
 			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: cachedBindAndCheckDiagnosticsForFile ??= new Map() */ TODO).set(sourceFile.path /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = getBindAndCheckDiagnosticsForFileNoCache(sourceFile, cancellationToken) */, TODO)
 		}
 		return result
@@ -2760,7 +2760,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 			typeChecker := getTypeChecker()
 
-			Debug.assert(!!sourceFile.bindDiagnostics)
+			Debug.assert(sourceFile.bindDiagnostics)
 
 			isJs := sourceFile.scriptKind == ScriptKindJS || sourceFile.scriptKind == ScriptKindJSX
 			isPlainJs := isPlainJsFile(sourceFile, options.checkJs)
@@ -2777,7 +2777,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				})
 			}
 			// skip ts-expect-error errors in plain JS files, and skip JSDoc errors except in checked JS
-			return getMergedBindAndCheckDiagnostics(sourceFile, !isPlainJs, !!nodesToCheck, bindDiagnostics, checkDiagnostics, ifElse(isCheckJs, sourceFile.jsDocDiagnostics, nil))
+			return getMergedBindAndCheckDiagnostics(sourceFile, !isPlainJs, nodesToCheck != nil, bindDiagnostics, checkDiagnostics, ifElse(isCheckJs, sourceFile.jsDocDiagnostics, nil))
 		})
 	}
 
@@ -2832,7 +2832,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	markPrecedingCommentDirectiveLine := func(diagnostic Diagnostic, directives CommentDirectivesMap) number {
 		TODO_IDENTIFIER := diagnostic
-		if !file {
+		if file == nil {
 			return -1
 		}
 
@@ -2932,7 +2932,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					return "skip"
 				case SyntaxKindModuleDeclaration:
 					var moduleKeyword string
-					if node.flags & NodeFlagsNamespace {
+					if node.flags&NodeFlagsNamespace != 0 {
 						moduleKeyword = tokenToString(SyntaxKindNamespaceKeyword)
 					} else {
 						moduleKeyword = tokenToString(SyntaxKindModuleKeyword)
@@ -2946,7 +2946,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				case SyntaxKindConstructor,
 					SyntaxKindMethodDeclaration,
 					SyntaxKindFunctionDeclaration:
-					if !(node.AsFunctionLikeDeclaration()).body {
+					if (node.AsFunctionLikeDeclaration()).body == nil {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.Signature_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -2973,11 +2973,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			walkArray := func(nodes NodeArray[*Node], parent *Node) * /* TODO(TS-TO-GO) inferred type "skip" */ any {
 				if canHaveIllegalDecorators(parent) {
 					decorator := find(parent.modifiers, isDecorator)
-					if decorator {
+					if decorator != nil {
 						// report illegal decorator
 						diagnostics.push(createDiagnosticForNode(decorator, Diagnostics.Decorators_are_not_valid_here))
 					}
-				} else if canHaveDecorators(parent) && parent.modifiers {
+				} else if canHaveDecorators(parent) && parent.modifiers != nil {
 					decoratorIndex := findIndex(parent.modifiers, isDecorator)
 					if decoratorIndex >= 0 {
 						if isParameter(parent) && !options.experimentalDecorators {
@@ -3098,7 +3098,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	getDeclarationDiagnosticsWorker := func(sourceFile SourceFile, cancellationToken CancellationToken) []DiagnosticWithLocation {
 		result := cachedDeclarationDiagnosticsForFile. /* ? */ get(sourceFile.path)
-		if !result {
+		if result == nil {
 			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: cachedDeclarationDiagnosticsForFile ??= new Map() */ TODO).set(sourceFile.path /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = getDeclarationDiagnosticsForFileNoCache(sourceFile, cancellationToken) */, TODO)
 		}
 		return result
@@ -3125,7 +3125,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getOptionsDiagnosticsOfConfigFile := func() []DiagnosticWithLocation {
-		if !options.configFile {
+		if options.configFile == nil {
 			return emptyArray
 		}
 		diagnostics := updateAndGetProgramDiagnostics().getDiagnostics(options.configFile.fileName)
@@ -3136,7 +3136,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getGlobalDiagnostics := func() SortedReadonlyArray[Diagnostic] {
-		if rootNames.length {
+		if rootNames.length != 0 {
 			return sortAndDeduplicateDiagnostics(getTypeChecker().getGlobalDiagnostics().slice())
 		} else {
 			return emptyArray. /* as any */ (SortedReadonlyArray[Diagnostic])
@@ -3210,7 +3210,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			collectModuleReferences(node /*inAmbientModule*/, false)
 		}
 
-		if (file.flags & NodeFlagsPossiblyContainsDynamicImport) || isJavaScriptFile {
+		if (file.flags&NodeFlagsPossiblyContainsDynamicImport != 0) || isJavaScriptFile {
 			collectDynamicImportOrRequireOrJsDocImportCalls(file)
 		}
 
@@ -3226,7 +3226,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				// TypeScript 1.0 spec (April 2014): 12.1.6
 				// An ExternalImportDeclaration in an AmbientExternalModuleDeclaration may reference other external modules
 				// only through top - level external module names. Relative external module names are not permitted.
-				if moduleNameExpr && isStringLiteral(moduleNameExpr) && moduleNameExpr.text && (!inAmbientModule || !isExternalModuleNameRelative(moduleNameExpr.text)) {
+				if moduleNameExpr != nil && isStringLiteral(moduleNameExpr) && moduleNameExpr.text != "" && (!inAmbientModule || !isExternalModuleNameRelative(moduleNameExpr.text)) {
 					setParentRecursive(node /*incremental*/, false)
 					// we need parent data on imports before the program is fully bound, so we ensure it's set here
 					imports = append(imports, moduleNameExpr)
@@ -3291,7 +3291,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					imports = append(imports, node.argument.literal)
 				} else if isJavaScriptFile && isJSDocImportTag(node) {
 					moduleNameExpr := getExternalModuleName(node)
-					if moduleNameExpr && isStringLiteral(moduleNameExpr) && moduleNameExpr.text {
+					if moduleNameExpr != nil && isStringLiteral(moduleNameExpr) && moduleNameExpr.text != "" {
 						setParentRecursive(node /*incremental*/, false)
 						imports = append(imports, moduleNameExpr)
 					}
@@ -3310,7 +3310,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			}
 			for true {
 				child := isJavaScriptFile && hasJSDocNodes(current) && forEach(current.jsDoc, getContainingChild) || forEachChild(current, getContainingChild)
-				if !child {
+				if child == nil {
 					return current
 				}
 				current = child
@@ -3341,7 +3341,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			if !options.allowNonTsExtensions && !forEach(flatten(supportedExtensionsWithJsonIfResolveJsonModule), func(extension Extension) bool {
 				return fileExtensionIs(canonicalFileName, extension)
 			}) {
-				if fail {
+				if fail != nil {
 					if hasJSFileExtension(canonicalFileName) {
 						fail(Diagnostics.File_0_is_a_JavaScript_file_Did_you_mean_to_enable_the_allowJs_option, fileName)
 					} else {
@@ -3352,8 +3352,8 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			}
 
 			sourceFile := getSourceFile(fileName)
-			if fail {
-				if !sourceFile {
+			if fail != nil {
+				if sourceFile == nil {
 					redirect := getProjectReferenceRedirect(fileName)
 					if redirect {
 						fail(Diagnostics.Output_file_0_has_not_been_built_from_source_file_1, redirect, fileName)
@@ -3371,7 +3371,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				return sourceFileNoExtension
 			}
 
-			if fail && options.allowNonTsExtensions {
+			if fail != nil && options.allowNonTsExtensions {
 				fail(Diagnostics.File_0_not_found, fileName)
 				return nil
 			}
@@ -3380,7 +3380,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			sourceFileWithAddedExtension := forEach(supportedExtensions[0], func(extension Extension) *SourceFile {
 				return getSourceFile(fileName + extension)
 			})
-			if fail && !sourceFileWithAddedExtension {
+			if fail != nil && sourceFileWithAddedExtension == nil {
 				fail(Diagnostics.Could_not_resolve_the_path_0_with_the_extensions_Colon_1, fileName, "'"+flatten(supportedExtensions).join("', '")+"'")
 			}
 			return sourceFileWithAddedExtension
@@ -3473,7 +3473,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			// but the resolved real path may be the .d.ts from project reference
 			// Note:: Currently we try the real path only if the
 			// file is from node_modules to avoid having to run real path on all file paths
-			if !source && host.realpath && options.preserveSymlinks && isDeclarationFileName(fileName) && fileName.includes(nodeModulesPathPart) {
+			if !source && host.realpath != nil && options.preserveSymlinks && isDeclarationFileName(fileName) && fileName.includes(nodeModulesPathPart) {
 				realPath := toPath(host.realpath(fileName))
 				if realPath != path {
 					source = getSourceOfProjectReferenceRedirect(realPath)
@@ -3486,7 +3486,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				} else {
 					file = nil
 				}
-				if file {
+				if file != nil {
 					addFileToFilesByName(file, path, fileName /*redirectedPath*/, nil)
 				}
 				return file
@@ -3539,7 +3539,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		var redirectedPath *Path
 		if !useSourceOfProjectReferenceRedirect {
 			redirectProject := getProjectReferenceRedirectProject(fileName)
-			if redirectProject {
+			if redirectProject != nil {
 				if redirectProject.commandLine.options.outFile {
 					// Shouldnt create many to 1 mapping file in --out scenario
 					return nil
@@ -3561,10 +3561,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			return addFilePreprocessingFileExplainingDiagnostic(nil, reason, Diagnostics.Cannot_read_file_0_Colon_1, []string{fileName, hostErrorMessage})
 		}, shouldCreateNewSourceFile)
 
-		if packageId {
+		if packageId != nil {
 			packageIdKey := packageIdToString(packageId)
 			fileFromPackageId := packageIdToSourceFile.get(packageIdKey)
-			if fileFromPackageId {
+			if fileFromPackageId != nil {
 				// Some other SourceFile already exists with this package name and version.
 				// Instead of creating a duplicate, just redirect to the existing one.
 				dupFile := createRedirectedSourceFile(fileFromPackageId, file, fileName, path, toPath(fileName), originalFileName, sourceFileOptions)
@@ -3574,7 +3574,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				sourceFileToPackageName.set(path, packageIdToPackageName(packageId))
 				processingOtherFiles.push(dupFile)
 				return dupFile
-			} else if file {
+			} else if file != nil {
 				// This is the first source file to have this packageId.
 				packageIdToSourceFile.set(packageIdKey, file)
 				sourceFileToPackageName.set(path, packageIdToPackageName(packageId))
@@ -3582,7 +3582,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		}
 		addFileToFilesByName(file, path, fileName, redirectedPath)
 
-		if file {
+		if file != nil {
 			sourceFilesFoundSearchingNodeModules.set(path, currentNodeModulesDepth > 0)
 			file.fileName = fileName
 			// Ensure that source file has same name as what we were looking for
@@ -3601,7 +3601,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				pathLowerCase := toFileNameLowerCase(path)
 				// for case-sensitive file systems check if we've already seen some file with similar filename ignoring case
 				existingFile := filesByNameIgnoreCase.get(pathLowerCase)
-				if existingFile {
+				if existingFile != nil {
 					reportFileNamesDifferOnlyInCasingError(fileName, existingFile, reason)
 				} else {
 					filesByNameIgnoreCase.set(pathLowerCase, file)
@@ -3632,7 +3632,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	addFileIncludeReason := func(file *SourceFile, reason FileIncludeReason, checkExisting bool) bool {
-		if file && (!checkExisting || !isReferencedFile(reason) || !filesWithReferencesProcessed. /* ? */ has(reason.file)) {
+		if file != nil && (!checkExisting || !isReferencedFile(reason) || !filesWithReferencesProcessed. /* ? */ has(reason.file)) {
 			fileReasons.add(file.path, reason)
 			return true
 		}
@@ -3640,7 +3640,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	addFileToFilesByName := func(file *SourceFile, path Path, fileName string, redirectedPath *Path) {
-		if redirectedPath {
+		if redirectedPath != nil {
 			updateFilesByNameMap(fileName, redirectedPath, file)
 			updateFilesByNameMap(fileName, path, file || false)
 		} else {
@@ -3664,7 +3664,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	getProjectReferenceRedirectProject := func(fileName string) *ResolvedProjectReference {
 		// Ignore dts or any json files
-		if !resolvedProjectReferences || !resolvedProjectReferences.length || isDeclarationFileName(fileName) || fileExtensionIs(fileName, ExtensionJson) {
+		if resolvedProjectReferences == nil || resolvedProjectReferences.length == 0 || isDeclarationFileName(fileName) || fileExtensionIs(fileName, ExtensionJson) {
 			return nil
 		}
 
@@ -3736,11 +3736,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	isSourceOfProjectReferenceRedirect := func(fileName string) bool {
-		return useSourceOfProjectReferenceRedirect && !!getResolvedProjectReferenceToRedirect(fileName)
+		return useSourceOfProjectReferenceRedirect && getResolvedProjectReferenceToRedirect(fileName) != nil
 	}
 
 	getResolvedProjectReferenceByPath := func(projectReferencePath Path) *ResolvedProjectReference {
-		if !projectReferenceRedirects {
+		if projectReferenceRedirects == nil {
 			return nil
 		}
 
@@ -3759,7 +3759,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	processTypeReferenceDirectives := func(file SourceFile) {
 		typeDirectives := file.typeReferenceDirectives
-		if !typeDirectives.length {
+		if typeDirectives.length == 0 {
 			return
 		}
 
@@ -3788,7 +3788,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	processTypeReferenceDirective := func(typeReferenceDirective string, mode ResolutionMode, resolution ResolvedTypeReferenceDirectiveWithFailedLookupLocations, reason FileIncludeReason) {
 		tracing. /* ? */ push(tracing.Phase.Program, "processTypeReferenceDirective", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"directive":   typeReferenceDirective,
-			"hasResolved": !!resolution.resolvedTypeReferenceDirective,
+			"hasResolved": resolution.resolvedTypeReferenceDirective != nil,
 			"refKind":     reason.kind,
 			"refPath":     ifElse(isReferencedFile(reason), reason.file, nil),
 		})
@@ -3799,7 +3799,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	processTypeReferenceDirectiveWorker := func(typeReferenceDirective string, mode ResolutionMode, resolution ResolvedTypeReferenceDirectiveWithFailedLookupLocations, reason FileIncludeReason) {
 		addResolutionDiagnostics(resolution)
 		TODO_IDENTIFIER := resolution
-		if resolvedTypeReferenceDirective {
+		if resolvedTypeReferenceDirective != nil {
 			if resolvedTypeReferenceDirective.isExternalLibraryImport {
 				currentNodeModulesDepth++
 			}
@@ -3818,7 +3818,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	pathForLibFile := func(libFileName string) string {
 		existing := resolvedLibReferences. /* ? */ get(libFileName)
-		if existing {
+		if existing != nil {
 			return existing.actual
 		}
 		result := pathForLibFileWorker(libFileName)
@@ -3828,17 +3828,17 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	pathForLibFileWorker := func(libFileName string) LibResolution {
 		existing := resolvedLibProcessing. /* ? */ get(libFileName)
-		if existing {
+		if existing != nil {
 			return existing
 		}
 
-		if structureIsReused != StructureIsReusedNot && oldProgram && !hasInvalidatedLibResolutions(libFileName) {
+		if structureIsReused != StructureIsReusedNot && oldProgram != nil && !hasInvalidatedLibResolutions(libFileName) {
 			oldResolution := oldProgram.resolvedLibReferences. /* ? */ get(libFileName)
-			if oldResolution {
+			if oldResolution != nil {
 				if oldResolution.resolution && isTraceEnabled(options, host) {
 					libraryName := getLibraryNameFromLibFileName(libFileName)
 					resolveFrom := getInferredLibraryNameResolveFrom(options, currentDirectory, libFileName)
-					trace(host, ifElse(oldResolution.resolution.resolvedModule, ifElse(oldResolution.resolution.resolvedModule.packageId, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2), Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_not_resolved), libraryName, getNormalizedAbsolutePath(resolveFrom, currentDirectory), oldResolution.resolution.resolvedModule. /* ? */ resolvedFileName, oldResolution.resolution.resolvedModule. /* ? */ packageId && packageIdToString(oldResolution.resolution.resolvedModule.packageId))
+					trace(host, ifElse(oldResolution.resolution.resolvedModule != nil, ifElse(oldResolution.resolution.resolvedModule.packageId != nil, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2), Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_not_resolved), libraryName, getNormalizedAbsolutePath(resolveFrom, currentDirectory), oldResolution.resolution.resolvedModule. /* ? */ resolvedFileName, oldResolution.resolution.resolvedModule. /* ? */ packageId && packageIdToString(oldResolution.resolution.resolvedModule.packageId))
 				}
 				( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: resolvedLibProcessing ??= new Map() */ TODO).set(libFileName, oldResolution)
 				return oldResolution
@@ -3857,7 +3857,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		tracing. /* ? */ pop()
 		var result LibResolution = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"resolution": resolution,
-			"actual":     ifElse(resolution.resolvedModule, resolution.resolvedModule.resolvedFileName, combinePaths(defaultLibraryPath, libFileName)),
+			"actual":     ifElse(resolution.resolvedModule != nil, resolution.resolvedModule.resolvedFileName, combinePaths(defaultLibraryPath, libFileName)),
 		}
 		( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: resolvedLibProcessing ??= new Map() */ TODO).set(libFileName, result)
 		return result
@@ -3892,7 +3892,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	processImportedModules := func(file SourceFile) {
 		collectExternalModuleReferences(file)
-		if file.imports.length || file.moduleAugmentations.length {
+		if file.imports.length != 0 || file.moduleAugmentations.length != 0 {
 			// Because global augmentation doesn't have string literal name, we can check for global augmentation as such.
 			moduleNames := getModuleNames(file)
 			resolutions := resolvedModulesProcessing. /* ? */ get(file.path) || resolveModuleNamesReusingOldState(moduleNames, file)
@@ -3907,13 +3907,13 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				resolutionsInFile.set(moduleName, mode, resolutions[index])
 				addResolutionDiagnosticsFromResolutionOrCache(file, moduleName, resolutions[index], mode)
 
-				if !resolution {
+				if resolution == nil {
 					continue
 				}
 
 				isFromNodeModulesSearch := resolution.isExternalLibraryImport
 				// If this is js file source of project reference, dont treat it as js file but as d.ts
-				isJsFile := !resolutionExtensionIsTSOrJson(resolution.extension) && !getProjectReferenceRedirectProject(resolution.resolvedFileName)
+				isJsFile := !resolutionExtensionIsTSOrJson(resolution.extension) && getProjectReferenceRedirectProject(resolution.resolvedFileName) == nil
 				isJsFileFromNodeModules := isFromNodeModulesSearch && isJsFile && (!resolution.originalPath || pathContainsNodeModules(resolution.resolvedFileName))
 				resolvedFileName := resolution.resolvedFileName
 
@@ -3929,7 +3929,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				elideImport := isJsFileFromNodeModules && currentNodeModulesDepth > maxNodeModuleJsDepth
 				// Don't add the file if it has a bad extension (e.g. 'tsx' if we don't have '--allowJs')
 				// This may still end up being an untyped module -- the file won't be included but imports will be allowed.
-				shouldAddFile := resolvedFileName && !getResolutionDiagnostic(optionsForFile, resolution, file) && !optionsForFile.noResolve && index < file.imports.length && !elideImport && !(isJsFile && !getAllowJSCompilerOption(optionsForFile)) && (isInJSFile(file.imports[index]) || !(file.imports[index].flags & NodeFlagsJSDoc))
+				shouldAddFile := resolvedFileName && getResolutionDiagnostic(optionsForFile, resolution, file) == nil && !optionsForFile.noResolve && index < file.imports.length && !elideImport && !(isJsFile && !getAllowJSCompilerOption(optionsForFile)) && (isInJSFile(file.imports[index]) || (file.imports[index].flags&NodeFlagsJSDoc != 0))
 
 				if elideImport {
 					modulesWithElidedImports.set(file.path, true)
@@ -3965,7 +3965,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	parseProjectReferenceConfigFile := func(ref ProjectReference) *ResolvedProjectReference {
-		if !projectReferenceRedirects {
+		if projectReferenceRedirects == nil {
 			projectReferenceRedirects = NewMap()
 		}
 
@@ -3979,9 +3979,9 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 		var commandLine *ParsedCommandLine
 		var sourceFile *JsonSourceFile
-		if host.getParsedCommandLine {
+		if host.getParsedCommandLine != nil {
 			commandLine = host.getParsedCommandLine(refPath)
-			if !commandLine {
+			if commandLine == nil {
 				addFileToFilesByName(nil, sourceFilePath, refPath /*redirectedPath*/, nil)
 				projectReferenceRedirects.set(sourceFilePath, false)
 				return nil
@@ -4010,7 +4010,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			"sourceFile":  sourceFile,
 		}
 		projectReferenceRedirects.set(sourceFilePath, resolvedRef)
-		if commandLine.projectReferences {
+		if commandLine.projectReferences != nil {
 			resolvedRef.references = commandLine.projectReferences.map_(parseProjectReferenceConfigFile)
 		}
 		return resolvedRef
@@ -4076,7 +4076,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			}
 		}
 
-		if options.paths {
+		if options.paths != nil {
 			/* TODO(TS-TO-GO) Node ForInStatement: for (const key in options.paths) { if (!hasProperty(options.paths, key)) { continue; } if (!hasZeroOrOneAsteriskCharacter(key)) { createDiagnosticForOptionPaths(/*onKey* / true, key, Diagnostics.Pattern_0_can_have_at_most_one_Asterisk_character, key); } if (isArray(options.paths[key])) { const len = options.paths[key].length; if (len === 0) { createDiagnosticForOptionPaths(/*onKey* / false, key, Diagnostics.Substitutions_for_pattern_0_shouldn_t_be_an_empty_array, key); } for (let i = 0; i < len; i++) { const subst = options.paths[key][i]; const typeOfSubst = typeof subst; if (typeOfSubst === "string") { if (!hasZeroOrOneAsteriskCharacter(subst)) { createDiagnosticForOptionPathKeyValue(key, i, Diagnostics.Substitution_0_in_pattern_1_can_have_at_most_one_Asterisk_character, subst, key); } if (!options.baseUrl && !pathIsRelative(subst) && !pathIsAbsolute(subst)) { createDiagnosticForOptionPathKeyValue(key, i, Diagnostics.Non_relative_paths_are_not_allowed_when_baseUrl_is_not_set_Did_you_forget_a_leading_Slash); } } else { createDiagnosticForOptionPathKeyValue(key, i, Diagnostics.Substitution_0_for_pattern_1_has_incorrect_type_expected_string_got_2, subst, key, typeOfSubst); } } } else { createDiagnosticForOptionPaths(/*onKey* / false, key, Diagnostics.Substitutions_for_pattern_0_should_be_an_array, key); } } */
 		}
 
@@ -4107,7 +4107,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_without_specifying_option_1_or_option_2, "declarationMap", "declaration", "composite")
 		}
 
-		if options.lib && options.noLib {
+		if options.lib != nil && options.noLib {
 			createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_with_option_1, "lib", "noLib")
 		}
 
@@ -4124,7 +4124,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			if options.preserveConstEnums == false {
 				createDiagnosticForOptionName(Diagnostics.Option_preserveConstEnums_cannot_be_disabled_when_0_is_enabled, ifElse(options.verbatimModuleSyntax, "verbatimModuleSyntax", "isolatedModules"), "preserveConstEnums")
 			}
-		} else if firstNonAmbientExternalModuleSourceFile && languageVersion < ScriptTargetES2015 && options.module == ModuleKindNone {
+		} else if firstNonAmbientExternalModuleSourceFile != nil && languageVersion < ScriptTargetES2015 && options.module == ModuleKindNone {
 			// We cannot use createDiagnosticFromNode because nodes do not have parents yet
 			span := getErrorSpanForNode(firstNonAmbientExternalModuleSourceFile, ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof firstNonAmbientExternalModuleSourceFile.externalModuleIndicator */ TODO == "boolean", firstNonAmbientExternalModuleSourceFile, firstNonAmbientExternalModuleSourceFile.externalModuleIndicator))
 			programDiagnostics.add(createFileDiagnostic(firstNonAmbientExternalModuleSourceFile, span.start, span.length, Diagnostics.Cannot_use_imports_exports_or_module_augmentations_when_module_is_none))
@@ -4134,7 +4134,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		if outputFile && !options.emitDeclarationOnly {
 			if options.module && !(options.module == ModuleKindAMD || options.module == ModuleKindSystem) {
 				createDiagnosticForOptionName(Diagnostics.Only_amd_and_system_modules_are_supported_alongside_0, "outFile", "module")
-			} else if options.module == nil && firstNonAmbientExternalModuleSourceFile {
+			} else if options.module == nil && firstNonAmbientExternalModuleSourceFile != nil {
 				span := getErrorSpanForNode(firstNonAmbientExternalModuleSourceFile, ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof firstNonAmbientExternalModuleSourceFile.externalModuleIndicator */ TODO == "boolean", firstNonAmbientExternalModuleSourceFile, firstNonAmbientExternalModuleSourceFile.externalModuleIndicator))
 				programDiagnostics.add(createFileDiagnostic(firstNonAmbientExternalModuleSourceFile, span.start, span.length, Diagnostics.Cannot_compile_modules_using_option_0_unless_the_module_flag_is_amd_or_system, "outFile"))
 			}
@@ -4183,7 +4183,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			if options.jsx == JsxEmitReactJSX || options.jsx == JsxEmitReactJSXDev {
 				createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_when_option_jsx_is_1, "jsxFactory", inverseJsxOptionMap.get(""+options.jsx))
 			}
-			if !parseIsolatedEntityName(options.jsxFactory, languageVersion) {
+			if parseIsolatedEntityName(options.jsxFactory, languageVersion) == nil {
 				createOptionValueDiagnostic("jsxFactory", Diagnostics.Invalid_value_for_jsxFactory_0_is_not_a_valid_identifier_or_qualified_name, options.jsxFactory)
 			}
 		} else if options.reactNamespace && !isIdentifierText(options.reactNamespace, languageVersion) {
@@ -4197,7 +4197,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			if options.jsx == JsxEmitReactJSX || options.jsx == JsxEmitReactJSXDev {
 				createDiagnosticForOptionName(Diagnostics.Option_0_cannot_be_specified_when_option_jsx_is_1, "jsxFragmentFactory", inverseJsxOptionMap.get(""+options.jsx))
 			}
-			if !parseIsolatedEntityName(options.jsxFragmentFactory, languageVersion) {
+			if parseIsolatedEntityName(options.jsxFragmentFactory, languageVersion) == nil {
 				createOptionValueDiagnostic("jsxFragmentFactory", Diagnostics.Invalid_value_for_jsxFragmentFactory_0_is_not_a_valid_identifier_or_qualified_name, options.jsxFragmentFactory)
 			}
 		}
@@ -4232,7 +4232,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		if options.resolvePackageJsonImports && !moduleResolutionSupportsPackageJsonExportsAndImports(moduleResolution) {
 			createDiagnosticForOptionName(Diagnostics.Option_0_can_only_be_used_when_moduleResolution_is_set_to_node16_nodenext_or_bundler, "resolvePackageJsonImports")
 		}
-		if options.customConditions && !moduleResolutionSupportsPackageJsonExportsAndImports(moduleResolution) {
+		if options.customConditions != nil && !moduleResolutionSupportsPackageJsonExportsAndImports(moduleResolution) {
 			createDiagnosticForOptionName(Diagnostics.Option_0_can_only_be_used_when_moduleResolution_is_set_to_node16_nodenext_or_bundler, "customConditions")
 		}
 
@@ -4240,10 +4240,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			createOptionValueDiagnostic("moduleResolution", Diagnostics.Option_0_can_only_be_used_when_module_is_set_to_preserve_or_to_es2015_or_later, "bundler")
 		}
 
-		if ModuleKind[moduleKind] && (ModuleKindNode16 <= moduleKind && moduleKind <= ModuleKindNodeNext) && !(ModuleResolutionKindNode16 <= moduleResolution && moduleResolution <= ModuleResolutionKindNodeNext) {
+		if ModuleKind[moduleKind] != "" && (ModuleKindNode16 <= moduleKind && moduleKind <= ModuleKindNodeNext) && !(ModuleResolutionKindNode16 <= moduleResolution && moduleResolution <= ModuleResolutionKindNodeNext) {
 			moduleKindName := ModuleKind[moduleKind]
 			createOptionValueDiagnostic("moduleResolution", Diagnostics.Option_moduleResolution_must_be_set_to_0_or_left_unspecified_when_option_module_is_set_to_1, moduleKindName, moduleKindName)
-		} else if ModuleResolutionKind[moduleResolution] && (ModuleResolutionKindNode16 <= moduleResolution && moduleResolution <= ModuleResolutionKindNodeNext) && !(ModuleKindNode16 <= moduleKind && moduleKind <= ModuleKindNodeNext) {
+		} else if ModuleResolutionKind[moduleResolution] != "" && (ModuleResolutionKindNode16 <= moduleResolution && moduleResolution <= ModuleResolutionKindNodeNext) && !(ModuleKindNode16 <= moduleKind && moduleKind <= ModuleKindNodeNext) {
 			moduleResolutionName := ModuleResolutionKind[moduleResolution]
 			createOptionValueDiagnostic("module", Diagnostics.Option_module_must_be_set_to_0_when_option_moduleResolution_is_set_to_1, moduleResolutionName, moduleResolutionName)
 		}
@@ -4407,8 +4407,8 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		var redirectInfo *[]DiagnosticMessageChain
 		cachedChain := file && fileReasonsToChain. /* ? */ get(file.path)
 		var chain *DiagnosticMessageChain
-		if cachedChain {
-			if cachedChain.fileIncludeReasonDetails {
+		if cachedChain != nil {
+			if cachedChain.fileIncludeReasonDetails != nil {
 				seenReasons = NewSet(reasons)
 				reasons. /* ? */ forEach(populateRelatedInfo)
 			} else {
@@ -4420,20 +4420,20 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			redirectInfo = file && explainIfFileIsRedirectAndImpliedFormat(file, getCompilerOptionsForFile(file))
 		}
 
-		if fileProcessingReason {
+		if fileProcessingReason != nil {
 			processReason(fileProcessingReason)
 		}
 		processedExtraReason := seenReasons. /* ? */ size != reasons. /* ? */ length
 
 		// If we have location and there is only one reason file is in which is the location, dont add details for file include
-		if locationReason && seenReasons. /* ? */ size == 1 {
+		if locationReason != nil && seenReasons. /* ? */ size == 1 {
 			seenReasons = nil
 		}
 
-		if seenReasons && cachedChain {
-			if cachedChain.details && !processedExtraReason {
+		if seenReasons != nil && cachedChain != nil {
+			if cachedChain.details != nil && !processedExtraReason {
 				chain = chainDiagnosticMessages(cachedChain.details, diagnostic, args || emptyArray...)
-			} else if cachedChain.fileIncludeReasonDetails {
+			} else if cachedChain.fileIncludeReasonDetails != nil {
 				if !processedExtraReason {
 					if !cachedFileIncludeDetailsHasProcessedExtraReason() {
 						fileIncludeReasonDetails = cachedChain.fileIncludeReasonDetails
@@ -4450,11 +4450,11 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			}
 		}
 
-		if !chain {
-			if !fileIncludeReasonDetails {
+		if chain == nil {
+			if fileIncludeReasonDetails == nil {
 				fileIncludeReasonDetails = seenReasons && chainDiagnosticMessages(fileIncludeReasons, Diagnostics.The_file_is_in_the_program_because_Colon)
 			}
-			chain = chainDiagnosticMessages(ifElse(redirectInfo, ifElse(fileIncludeReasonDetails, []DiagnosticMessageChain{fileIncludeReasonDetails /* TODO(TS-TO-GO) Node SpreadElement: ...redirectInfo */}, redirectInfo), fileIncludeReasonDetails), diagnostic, args || emptyArray...)
+			chain = chainDiagnosticMessages(ifElse(redirectInfo != nil, ifElse(fileIncludeReasonDetails != nil, []DiagnosticMessageChain{fileIncludeReasonDetails /* TODO(TS-TO-GO) Node SpreadElement: ...redirectInfo */}, redirectInfo), fileIncludeReasonDetails), diagnostic, args || emptyArray...)
 		}
 
 		// This is chain's next contains:
@@ -4464,24 +4464,24 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		//     fyi above whole secton is ommited if we have single reason and we are reporting at that reason's location
 		//   - redirect and additional information about file
 		// So cache result if we havent ommited file include reasons
-		if file {
-			if cachedChain {
+		if file != nil {
+			if cachedChain != nil {
 				// Cache new fileIncludeDetails if we have update
 				// Or if we had cached with more details than the reasons
-				if !cachedChain.fileIncludeReasonDetails || (!processedExtraReason && fileIncludeReasonDetails) {
+				if cachedChain.fileIncludeReasonDetails == nil || (!processedExtraReason && fileIncludeReasonDetails != nil) {
 					cachedChain.fileIncludeReasonDetails = fileIncludeReasonDetails
 				}
 			} else {
 				( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: fileReasonsToChain ??= new Map() */ TODO).set(file.path /* TODO(TS-TO-GO) EqualsToken BinaryExpression: cachedChain = { fileIncludeReasonDetails, redirectInfo } */, TODO)
 			}
 			// If we didnt compute extra file include reason , cache the details to use directly
-			if !cachedChain.details && !processedExtraReason {
+			if cachedChain.details == nil && !processedExtraReason {
 				cachedChain.details = chain.next
 			}
 		}
 
 		location := locationReason && getReferencedFileLocation(program, locationReason)
-		if location && isReferenceFileLocation(location) {
+		if location != nil && isReferenceFileLocation(location) {
 			return createFileDiagnosticFromMessageChain(location.file, location.pos, location.end-location.pos, chain, relatedInfo)
 		} else {
 			return createCompilerDiagnosticFromMessageChain(chain, relatedInfo)
@@ -4497,7 +4497,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		}
 
 		populateRelatedInfo := func(reason FileIncludeReason) {
-			if !locationReason && isReferencedFile(reason) {
+			if locationReason == nil && isReferencedFile(reason) {
 				// Report error at first reference file or file currently in processing and dont report in related information
 				locationReason = reason
 			} else if locationReason != reason {
@@ -4560,14 +4560,14 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			}
 		}
 
-		if !options.configFile {
+		if options.configFile == nil {
 			return nil
 		}
 		var configFileNode *Node
 		var message DiagnosticMessage
 		switch reason.kind {
 		case FileIncludeKindRootFile:
-			if !options.configFile.configFileSpecs {
+			if options.configFile.configFileSpecs == nil {
 				return nil
 			}
 			fileName := getNormalizedAbsolutePath(rootNames[reason.index], currentDirectory)
@@ -4597,7 +4597,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					return nil
 				}
 			})
-			if !referenceInfo {
+			if referenceInfo == nil {
 				return nil
 			}
 			TODO_IDENTIFIER := referenceInfo
@@ -4608,13 +4608,13 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					return nil
 				}
 			})
-			if referencesSyntax && referencesSyntax.elements.length > index {
+			if referencesSyntax != nil && referencesSyntax.elements.length > index {
 				return createDiagnosticForNodeInSourceFile(sourceFile, referencesSyntax.elements[index], ifElse(reason.kind == FileIncludeKindOutputFromProjectReference, Diagnostics.File_is_output_from_referenced_project_specified_here, Diagnostics.File_is_source_from_referenced_project_specified_here))
 			} else {
 				return nil
 			}
 		case FileIncludeKindAutomaticTypeDirectiveFile:
-			if !options.types {
+			if options.types == nil {
 				return nil
 			}
 			configFileNode = getOptionsSyntaxByArrayElementValue("types", reason.typeReference)
@@ -4646,10 +4646,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			buildInfoPath = nil
 		}
 		forEachProjectReference(projectReferences, resolvedProjectReferences, func(resolvedRef *ResolvedProjectReference, parent *ResolvedProjectReference, index number) {
-			ref := (ifElse(parent, parent.commandLine.projectReferences, projectReferences))[index]
+			ref := (ifElse(parent != nil, parent.commandLine.projectReferences, projectReferences))[index]
 			parentFile := parent && parent.sourceFile.AsJsonSourceFile()
 			verifyDeprecatedProjectReference(ref, parentFile, index)
-			if !resolvedRef {
+			if resolvedRef == nil {
 				createDiagnosticForReference(parentFile, index, Diagnostics.File_0_not_found, ref.path)
 				return
 			}
@@ -4657,12 +4657,12 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 			if !options.composite || options.noEmit {
 				// ok to not have composite if the current program is container only
 				var inputs []string
-				if parent {
+				if parent != nil {
 					inputs = parent.commandLine.fileNames
 				} else {
 					inputs = rootNames
 				}
-				if inputs.length {
+				if inputs.length != 0 {
 					if !options.composite {
 						createDiagnosticForReference(parentFile, index, Diagnostics.Referenced_project_0_must_have_setting_composite_Colon_true, ref.path)
 					}
@@ -4671,7 +4671,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 					}
 				}
 			}
-			if !parent && buildInfoPath && buildInfoPath == getTsBuildInfoEmitOutputFilePath(options) {
+			if parent == nil && buildInfoPath && buildInfoPath == getTsBuildInfoEmitOutputFilePath(options) {
 				createDiagnosticForReference(parentFile, index, Diagnostics.Cannot_write_file_0_because_it_will_overwrite_tsbuildinfo_file_generated_by_referenced_project_1, buildInfoPath, ref.path)
 				hasEmitBlockingDiagnostics.set(toPath(buildInfoPath), true)
 			}
@@ -4748,7 +4748,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 				return nil
 			}
 		})
-		if referencesSyntax && referencesSyntax.elements.length > index {
+		if referencesSyntax != nil && referencesSyntax.elements.length > index {
 			programDiagnostics.add(createDiagnosticForNodeInSourceFile(sourceFile || options.configFile, referencesSyntax.elements[index], message, args...))
 		} else {
 			programDiagnostics.add(createCompilerDiagnostic(message, args...))
@@ -4759,7 +4759,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	/* OVERLOAD: function createDiagnosticForOption(onKey: boolean, option1: string, option2: string | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): void; */
 	createDiagnosticForOption := func(onKey bool, option1 string, option2 *string, message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) {
 		compilerOptionsObjectLiteralSyntax := getCompilerOptionsObjectLiteralSyntax()
-		needCompilerDiagnostic := !compilerOptionsObjectLiteralSyntax || !createOptionDiagnosticInObjectLiteralSyntax(compilerOptionsObjectLiteralSyntax, onKey, option1, option2, message, args...)
+		needCompilerDiagnostic := compilerOptionsObjectLiteralSyntax == nil || !createOptionDiagnosticInObjectLiteralSyntax(compilerOptionsObjectLiteralSyntax, onKey, option1, option2, message, args...)
 
 		if needCompilerDiagnostic {
 			createCompilerOptionsDiagnostic(message, args...)
@@ -4771,7 +4771,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	/* OVERLOAD: function createCompilerOptionsDiagnostic(message: DiagnosticMessage | DiagnosticMessageChain, ...args: DiagnosticArguments): void; */
 	createCompilerOptionsDiagnostic := func(message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) {
 		compilerOptionsProperty := getCompilerOptionsPropertySyntax()
-		if compilerOptionsProperty {
+		if compilerOptionsProperty != nil {
 			// eslint-disable-next-line local/no-in-operator
 			if /* TODO(TS-TO-GO) InKeyword BinaryExpression: "messageText" in message */ TODO {
 				programDiagnostics.add(createDiagnosticForNodeFromMessageChain(options.configFile, compilerOptionsProperty.name, message))
@@ -4788,7 +4788,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	getCompilerOptionsObjectLiteralSyntax := func() *ObjectLiteralExpression {
 		if _compilerOptionsObjectLiteralSyntax == nil {
 			compilerOptionsProperty := getCompilerOptionsPropertySyntax()
-			if compilerOptionsProperty {
+			if compilerOptionsProperty != nil {
 				_compilerOptionsObjectLiteralSyntax = tryCast(compilerOptionsProperty.initializer, isObjectLiteralExpression) || false
 			} else {
 				_compilerOptionsObjectLiteralSyntax = false
@@ -4833,7 +4833,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 		// If this is source file, its not emitted file
 		filePath := toPath(file)
-		if getSourceFileByPath(filePath) {
+		if getSourceFileByPath(filePath) != nil {
 			return false
 		}
 
@@ -4856,7 +4856,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		if fileExtensionIsOneOf(filePath, supportedJSExtensionsFlat) || isDeclarationFileName(filePath) {
 			// Otherwise just check if sourceFile with the name exists
 			filePathWithoutExtension := removeFileExtension(filePath)
-			return !!getSourceFileByPath((filePathWithoutExtension + ExtensionTs).(Path)) || !!getSourceFileByPath((filePathWithoutExtension + ExtensionTsx).(Path))
+			return getSourceFileByPath((filePathWithoutExtension+ExtensionTs).(Path)) != nil || getSourceFileByPath((filePathWithoutExtension+ExtensionTsx).(Path)) != nil
 		}
 		return false
 	}
@@ -4866,10 +4866,10 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	}
 
 	getSymlinkCache := func() SymlinkCache {
-		if host.getSymlinkCache {
+		if host.getSymlinkCache != nil {
 			return host.getSymlinkCache()
 		}
-		if !symlinks {
+		if symlinks == nil {
 			symlinks = createSymlinkCache(currentDirectory, getCanonicalFileName)
 		}
 		if files && !symlinks.hasProcessedResolutions() {
@@ -4976,18 +4976,18 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 	host.compilerHost.fileExists = fileExists
 
 	var directoryExists TODO
-	if originalDirectoryExists {
+	if originalDirectoryExists != nil {
 		// This implementation of directoryExists checks if the directory being requested is
 		// directory of .d.ts file for the referenced Project.
 		// If it is it returns true irrespective of whether that directory exists on host
 		directoryExists = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: host.compilerHost.directoryExists = path => { if (originalDirectoryExists.call(host.compilerHost, path)) { handleDirectoryCouldBeSymlink(path); return true; } if (!host.getResolvedProjectReferences()) return false; if (!setOfDeclarationDirectories) { setOfDeclarationDirectories = new Set(); host.forEachResolvedProjectReference(ref => { const out = ref.commandLine.options.outFile; if (out) { setOfDeclarationDirectories!.add(getDirectoryPath(host.toPath(out))); } else { // Set declaration's in different locations only, if they are next to source the directory present doesnt change const declarationDir = ref.commandLine.options.declarationDir || ref.commandLine.options.outDir; if (declarationDir) { setOfDeclarationDirectories!.add(host.toPath(declarationDir)); } } }); } return fileOrDirectoryExistsUsingSource(path, /*isFile* / false); } */ TODO
 	}
 
-	if originalGetDirectories {
+	if originalGetDirectories != nil {
 		// Call getDirectories only if directory actually present on the host
 		// This is needed to ensure that we arent getting directories that we fake about presence for
 		host.compilerHost.getDirectories = func(path string) any {
-			if !host.getResolvedProjectReferences() || (originalDirectoryExists && originalDirectoryExists.call(host.compilerHost, path)) {
+			if host.getResolvedProjectReferences() == nil || (originalDirectoryExists != nil && originalDirectoryExists.call(host.compilerHost, path)) {
 				return originalGetDirectories.call(host.compilerHost, path)
 			} else {
 				return []never{}
@@ -4996,7 +4996,7 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 	}
 
 	// This is something we keep for life time of the host
-	if originalRealpath {
+	if originalRealpath != nil {
 		host.compilerHost.realpath = func(s string) any {
 			return host.getSymlinkCache().getSymlinkedFiles(). /* ? */ get(host.toPath(s)) || originalRealpath.call(host.compilerHost, s)
 		}
@@ -5022,7 +5022,7 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 		if originalFileExists.call(host.compilerHost, file) {
 			return true
 		}
-		if !host.getResolvedProjectReferences() {
+		if host.getResolvedProjectReferences() == nil {
 			return false
 		}
 		if !isDeclarationFileName(file) {
@@ -5056,12 +5056,12 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 	}
 
 	handleDirectoryCouldBeSymlink := func(directory string) {
-		if !host.getResolvedProjectReferences() || containsIgnoredPath(directory) {
+		if host.getResolvedProjectReferences() == nil || containsIgnoredPath(directory) {
 			return
 		}
 
 		// Because we already watch node_modules, handle symlinks in there
-		if !originalRealpath || !directory.includes(nodeModulesPathPart) {
+		if originalRealpath == nil || !directory.includes(nodeModulesPathPart) {
 			return
 		}
 		symlinkCache := host.getSymlinkCache()
@@ -5103,7 +5103,7 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 
 		symlinkCache := host.getSymlinkCache()
 		symlinkedDirectories := symlinkCache.getSymlinkedDirectories()
-		if !symlinkedDirectories {
+		if symlinkedDirectories == nil {
 			return false
 		}
 		fileOrDirectoryPath := host.toPath(fileOrDirectory)
@@ -5145,7 +5145,7 @@ var emitSkippedWithNoDiagnostics EmitResult = map[any]any{ /* TODO(TS-TO-GO): wa
 func handleNoEmitOptions(program /* TODO(TS-TO-GO) TypeNode UnionType: Program | T */ any, sourceFile *SourceFile, writeFile *WriteFileCallback, cancellationToken CancellationToken) *EmitResult {
 	options := program.getCompilerOptions()
 	if options.noEmit {
-		if sourceFile {
+		if sourceFile != nil {
 			return emitSkippedWithNoDiagnostics
 		} else {
 			return program.emitBuildInfo(writeFile, cancellationToken)
@@ -5164,11 +5164,11 @@ func handleNoEmitOptions(program /* TODO(TS-TO-GO) TypeNode UnionType: Program |
 		diagnostics = program.getDeclarationDiagnostics(nil, cancellationToken)
 	}
 
-	if !diagnostics.length {
+	if diagnostics.length == 0 {
 		return nil
 	}
 	var emittedFiles *[]string
-	if !sourceFile {
+	if sourceFile == nil {
 		emitResult := program.emitBuildInfo(writeFile, cancellationToken)
 		if emitResult.diagnostics {
 			diagnostics = []Diagnostic{ /* TODO(TS-TO-GO) Node SpreadElement: ...diagnostics */ /* TODO(TS-TO-GO) Node SpreadElement: ...emitResult.diagnostics */ }
@@ -5213,7 +5213,7 @@ func parseConfigHostFromCompilerHostLike(host /* TODO(TS-TO-GO) TypeNode Interse
 			return host.getCurrentDirectory()
 		},
 		"onUnRecoverableConfigFileDiagnostic": host.onUnRecoverableConfigFileDiagnostic || returnUndefined,
-		"trace": ifElse(host.trace, func(s string) {
+		"trace": ifElse(host.trace != nil, func(s string) {
 			return host.trace(s)
 		}, nil),
 	}
