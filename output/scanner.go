@@ -248,7 +248,7 @@ var commentDirectiveRegExSingleLine = regexp.MustParse(`^\/\/\/?\s*@(ts-expect-e
 
 var commentDirectiveRegExMultiLine = regexp.MustParse(`^(?:\/|\*)*\s*@(ts-expect-error|ts-ignore)`)
 
-var jsDocSeeOrLink = regexp.MustParse(`(?i:)@(?:see|link)`)
+var jsDocSeeOrLink = regexp.MustParse(`(?i)@(?:see|link)`)
 
 func lookupInUnicodeMap(code number, map_ []number) bool {
 	// Bail out quickly if it couldn't possibly be in the map.
