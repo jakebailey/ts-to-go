@@ -413,7 +413,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             for (const flag of re.flags.split("")) {
                 switch (flag) {
                     case "i":
-                        source = `(?i:${source})`;
+                        source = `(?i:)${source}`;
                         break;
                     default:
                         writeTodoNode(node);
