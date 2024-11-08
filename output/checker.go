@@ -330,9 +330,9 @@ const (
 )
 
 type IterationTypesResolver struct {
-	iterableCacheKey/* TODO(TS-TO-GO) TypeNode UnionType: "iterationTypesOfAsyncIterable" | "iterationTypesOfIterable" */ any
-	iteratorCacheKey/* TODO(TS-TO-GO) TypeNode UnionType: "iterationTypesOfAsyncIterator" | "iterationTypesOfIterator" */ any
-	iteratorSymbolName/* TODO(TS-TO-GO) TypeNode UnionType: "asyncIterator" | "iterator" */ any
+	iterableCacheKey              Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "iterationTypesOfAsyncIterable" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "iterationTypesOfIterable" */, any]
+	iteratorCacheKey              Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "iterationTypesOfAsyncIterator" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "iterationTypesOfIterator" */, any]
+	iteratorSymbolName            Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "asyncIterator" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "iterator" */, any]
 	getGlobalIteratorType         func(reportErrors bool) GenericType
 	getGlobalIterableType         func(reportErrors bool) GenericType
 	getGlobalIterableIteratorType func(reportErrors bool) GenericType
@@ -452,7 +452,7 @@ var typeofNEFacts ReadonlyMap[string, TypeFacts] = NewMap(Object.entries(map[any
 	"function":  TypeFactsTypeofNEFunction,
 }))
 
-type TypeSystemEntity /* TODO(TS-TO-GO) TypeNode UnionType: Node | Symbol | Type | Signature */ any
+type TypeSystemEntity Union[*Node, *Symbol, *Type, Signature]
 
 type TypeSystemPropertyName int32
 
@@ -1672,7 +1672,7 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 
 	type ExportCollisionTrackerTable Map[string, ExportCollisionTracker]
 
-	type ReplaceableIndexedAccessType /* TODO(TS-TO-GO) TypeNode IntersectionType: IndexedAccessType & { objectType: TypeParameter; indexType: TypeParameter; } */ any
+	type ReplaceableIndexedAccessType Intersection[IndexedAccessType /* TODO(TS-TO-GO) TypeNode TypeLiteral: { objectType: TypeParameter; indexType: TypeParameter; } */, any]
 
 	type ElaborationIterator IterableIterator[ /* TODO(TS-TO-GO) TypeNode TypeLiteral: { errorNode: Node; innerExpression: Expression | undefined; nameType: Type; errorMessage?: DiagnosticMessage | undefined; } */ any]
 
@@ -1684,11 +1684,11 @@ func createTypeChecker(host TypeCheckerHost) TypeChecker {
 		aliasTypeArguments []*Type
 	}
 
-	type PotentiallyUnusedIdentifier /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | ModuleDeclaration | ClassLikeDeclaration | InterfaceDeclaration | Block | CaseBlock | ForStatement | ForInStatement | ForOfStatement | Exclude<SignatureDeclaration, IndexSignatureDeclaration | JSDocFunctionType> | TypeAliasDeclaration | InferTypeNode */ any
+	type PotentiallyUnusedIdentifier Union[SourceFile, ModuleDeclaration, ClassLikeDeclaration, InterfaceDeclaration, Block, CaseBlock, ForStatement, ForInStatement, ForOfStatement, Exclude[SignatureDeclaration, Union[IndexSignatureDeclaration, JSDocFunctionType]], TypeAliasDeclaration, InferTypeNode]
 
-	type ImportedDeclaration /* TODO(TS-TO-GO) TypeNode UnionType: ImportClause | ImportSpecifier | NamespaceImport */ any
+	type ImportedDeclaration Union[ImportClause, ImportSpecifier, NamespaceImport]
 
-	type DeclarationWithPotentialInnerNodeReuse /* TODO(TS-TO-GO) TypeNode UnionType: | SignatureDeclaration | JSDocSignature | AccessorDeclaration | VariableLikeDeclaration | PropertyAccessExpression | ExportAssignment */ any
+	type DeclarationWithPotentialInnerNodeReuse Union[SignatureDeclaration, JSDocSignature, AccessorDeclaration, VariableLikeDeclaration, PropertyAccessExpression, ExportAssignment]
 }
 
 func (c *Checker) isDefinitelyReferenceToGlobalSymbolObject(node *Node) bool {
@@ -1865,7 +1865,7 @@ func (c *Checker) addErrorOrSuggestion(isError bool, diagnostic Diagnostic) {
 	}
 }
 
-func (c *Checker) errorOrSuggestion(isError bool, location *Node, message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) {
+func (c *Checker) errorOrSuggestion(isError bool, location *Node, message Union[DiagnosticMessage, DiagnosticMessageChain], args DiagnosticArguments) {
 	// Pseudo-synthesized input node
 	if location.pos < 0 || location.end < 0 {
 		if !isError {
@@ -1891,7 +1891,7 @@ func (c *Checker) errorAndMaybeSuggestAwait(location *Node, maybeMissingAwait bo
 	return diagnostic
 }
 
-func (c *Checker) addDeprecatedSuggestionWorker(declarations /* TODO(TS-TO-GO) TypeNode UnionType: Node | Node[] */ any, diagnostic DiagnosticWithLocation) DiagnosticWithLocation {
+func (c *Checker) addDeprecatedSuggestionWorker(declarations Union[*Node, []*Node], diagnostic DiagnosticWithLocation) DiagnosticWithLocation {
 	var deprecatedTag *JSDocDeprecatedTag
 	if Array.isArray(declarations) {
 		deprecatedTag = forEach(declarations, getJSDocDeprecatedTag)
@@ -2246,7 +2246,7 @@ func (c *Checker) mergeSymbolTable(target SymbolTable, source SymbolTable, unidi
 	})
 }
 
-func (c *Checker) mergeModuleAugmentation(moduleName /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteral | Identifier */ any) {
+func (c *Checker) mergeModuleAugmentation(moduleName Union[StringLiteral, Identifier]) {
 	moduleAugmentation := moduleName.parent.AsModuleDeclaration()
 	if moduleAugmentation.symbol.declarations[0] != moduleAugmentation {
 		// this is a combined symbol for multiple augmentations within the same file.
@@ -2537,7 +2537,7 @@ func (c *Checker) isBlockScopedNameDeclaredBeforeUse(declaration Declaration, us
 
 	/** stopAtAnyPropertyDeclaration is used for detecting ES-standard class field use-before-def errors */
 
-	isPropertyImmediatelyReferencedWithinDeclaration := func(declaration /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | ParameterPropertyDeclaration */ any, usage *Node, stopAtAnyPropertyDeclaration bool) bool {
+	isPropertyImmediatelyReferencedWithinDeclaration := func(declaration Union[PropertyDeclaration, ParameterPropertyDeclaration], usage *Node, stopAtAnyPropertyDeclaration bool) bool {
 		// always legal if usage is after declaration
 		if usage.end > declaration.end {
 			return false
@@ -2605,7 +2605,7 @@ func (c *Checker) checkAndReportErrorForInvalidInitializer(errorLocation *Node, 
 	return false
 }
 
-func (c *Checker) onFailedToResolveSymbol(errorLocation *Node, nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any, meaning SymbolFlags, nameNotFoundMessage DiagnosticMessage) {
+func (c *Checker) onFailedToResolveSymbol(errorLocation *Node, nameArg Union[string, Identifier], meaning SymbolFlags, nameNotFoundMessage DiagnosticMessage) {
 	var name /* TODO(TS-TO-GO) inferred type (string & { __escapedIdentifier: void; }) | (void & { __escapedIdentifier: void; }) | InternalSymbolName */ any
 	if isString(nameArg) {
 		name = nameArg
@@ -2659,7 +2659,7 @@ func (c *Checker) onFailedToResolveSymbol(errorLocation *Node, nameArg /* TODO(T
 	})
 }
 
-func (c *Checker) onSuccessfullyResolvedSymbol(errorLocation *Node, result *Symbol, meaning SymbolFlags, lastLocation *Node, associatedDeclarationForContainingInitializerOrBindingName /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | BindingElement | undefined */ any, withinDeferredContext bool) {
+func (c *Checker) onSuccessfullyResolvedSymbol(errorLocation *Node, result *Symbol, meaning SymbolFlags, lastLocation *Node, associatedDeclarationForContainingInitializerOrBindingName Union[ParameterDeclaration, BindingElement /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], withinDeferredContext bool) {
 	c.addLazyDiagnostic(func() {
 		name := result.escapedName
 		isInExternalModule := lastLocation && isSourceFile(lastLocation) && isExternalOrCommonJsModule(lastLocation)
@@ -2740,7 +2740,7 @@ func (c *Checker) addTypeOnlyDeclarationRelatedInfo(diagnostic Diagnostic, typeO
 	return addRelatedInfo(diagnostic, createDiagnosticForNode(typeOnlyDeclaration, ifElse(typeOnlyDeclaration.kind == SyntaxKindExportSpecifier || typeOnlyDeclaration.kind == SyntaxKindExportDeclaration || typeOnlyDeclaration.kind == SyntaxKindNamespaceExport, Diagnostics._0_was_exported_here, Diagnostics._0_was_imported_here), unescapedName))
 }
 
-func (c *Checker) diagnosticName(nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier | PrivateIdentifier */ any) string {
+func (c *Checker) diagnosticName(nameArg Union[string, Identifier, PrivateIdentifier]) string {
 	if isString(nameArg) {
 		return unescapeLeadingUnderscores(nameArg.(string))
 	} else {
@@ -2748,7 +2748,7 @@ func (c *Checker) diagnosticName(nameArg /* TODO(TS-TO-GO) TypeNode UnionType: _
 	}
 }
 
-func (c *Checker) checkAndReportErrorForMissingPrefix(errorLocation *Node, name string, nameArg /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any) bool {
+func (c *Checker) checkAndReportErrorForMissingPrefix(errorLocation *Node, name string, nameArg Union[string, Identifier]) bool {
 	if !isIdentifier(errorLocation) || errorLocation.escapedText != name || c.isTypeReferenceIdentifier(errorLocation) || isInTypeQuery(errorLocation) {
 		return false
 	}
@@ -3037,7 +3037,7 @@ func (c *Checker) isAliasableOrJsExpression(e Expression) bool {
 	return isAliasableExpression(e) || isFunctionExpression(e) && c.isJSConstructor(e)
 }
 
-func (c *Checker) getTargetOfImportEqualsDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportEqualsDeclaration | VariableDeclaration */ any, dontResolveAlias bool) *Symbol {
+func (c *Checker) getTargetOfImportEqualsDeclaration(node Union[ImportEqualsDeclaration, VariableDeclaration], dontResolveAlias bool) *Symbol {
 	commonJSPropertyAccess := c.getCommonJSPropertyAccess(node)
 	if commonJSPropertyAccess != nil {
 		name := (getLeftmostAccessExpression(commonJSPropertyAccess.expression).AsCallExpression()).arguments[0].AsStringLiteral()
@@ -3182,7 +3182,7 @@ func (c *Checker) getTargetOfImportClause(node ImportClause, dontResolveAlias bo
 	}
 }
 
-func (c *Checker) getTargetofModuleDefault(moduleSymbol *Symbol, node /* TODO(TS-TO-GO) TypeNode UnionType: ImportClause | ImportOrExportSpecifier */ any, dontResolveAlias bool) *Symbol {
+func (c *Checker) getTargetofModuleDefault(moduleSymbol *Symbol, node Union[ImportClause, ImportOrExportSpecifier], dontResolveAlias bool) *Symbol {
 	var exportDefaultSymbol *Symbol
 	if isShorthandAmbientModuleSymbol(moduleSymbol) {
 		exportDefaultSymbol = moduleSymbol
@@ -3227,7 +3227,7 @@ func (c *Checker) getTargetofModuleDefault(moduleSymbol *Symbol, node /* TODO(TS
 	return exportDefaultSymbol
 }
 
-func (c *Checker) getModuleSpecifierForImportOrExport(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportEqualsDeclaration | ImportClause | NamespaceImport | ImportOrExportSpecifier */ any) Expression {
+func (c *Checker) getModuleSpecifierForImportOrExport(node Union[ImportEqualsDeclaration, ImportClause, NamespaceImport, ImportOrExportSpecifier]) Expression {
 	switch node.kind {
 	case SyntaxKindImportClause:
 		return node.parent.moduleSpecifier
@@ -3341,7 +3341,7 @@ func (c *Checker) getPropertyOfVariable(symbol *Symbol, name string) *Symbol {
 	}
 }
 
-func (c *Checker) getExternalModuleMember(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportDeclaration | ExportDeclaration | VariableDeclaration | JSDocImportTag */ any, specifier /* TODO(TS-TO-GO) TypeNode UnionType: ImportOrExportSpecifier | BindingElement | PropertyAccessExpression */ any, dontResolveAlias bool /*  = false */) *Symbol {
+func (c *Checker) getExternalModuleMember(node Union[ImportDeclaration, ExportDeclaration, VariableDeclaration, JSDocImportTag], specifier Union[ImportOrExportSpecifier, BindingElement, PropertyAccessExpression], dontResolveAlias bool /*  = false */) *Symbol {
 	moduleSpecifier := getExternalModuleRequireArgument(node) || (node /* as ImportDeclaration | ExportDeclaration | JSDocImportTag */).moduleSpecifier
 	moduleSymbol := c.resolveExternalModuleName(node, moduleSpecifier)
 	// TODO: GH#18217
@@ -3485,7 +3485,7 @@ func (c *Checker) reportInvalidImportEqualsExportMember(node *Node, name ModuleE
 	}
 }
 
-func (c *Checker) getTargetOfImportSpecifier(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportSpecifier | BindingElement */ any, dontResolveAlias bool) *Symbol {
+func (c *Checker) getTargetOfImportSpecifier(node Union[ImportSpecifier, BindingElement], dontResolveAlias bool) *Symbol {
 	if isImportSpecifier(node) && moduleExportNameIsDefault(node.propertyName || node.name) {
 		specifier := c.getModuleSpecifierForImportOrExport(node)
 		moduleSymbol := specifier && c.resolveExternalModuleName(node, specifier)
@@ -3545,7 +3545,7 @@ func (c *Checker) getTargetOfExportSpecifier(node ExportSpecifier, meaning Symbo
 	return resolved
 }
 
-func (c *Checker) getTargetOfExportAssignment(node /* TODO(TS-TO-GO) TypeNode UnionType: ExportAssignment | BinaryExpression */ any, dontResolveAlias bool) *Symbol {
+func (c *Checker) getTargetOfExportAssignment(node Union[ExportAssignment, BinaryExpression], dontResolveAlias bool) *Symbol {
 	var expression Expression
 	if isExportAssignment(node) {
 		expression = node.expression
@@ -3751,7 +3751,7 @@ func (c *Checker) getSymbolFlags(symbol *Symbol, excludeTypeOnlyMeanings bool, e
  * must still be checked for a type-only marker, overwriting the previous negative result if found.
  */
 
-func (c *Checker) markSymbolOfAliasDeclarationIfTypeOnly(aliasDeclaration Declaration, immediateTarget *Symbol, finalTarget *Symbol, overwriteEmpty bool, exportStarDeclaration /* TODO(TS-TO-GO) TypeNode IntersectionType: ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */ any, exportStarName string) bool {
+func (c *Checker) markSymbolOfAliasDeclarationIfTypeOnly(aliasDeclaration Declaration, immediateTarget *Symbol, finalTarget *Symbol, overwriteEmpty bool, exportStarDeclaration Intersection[ExportDeclaration /* TODO(TS-TO-GO) TypeNode TypeLiteral: { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */, any], exportStarName string) bool {
 	if aliasDeclaration == nil || isPropertyAccessExpression(aliasDeclaration) {
 		return false
 	}
@@ -3857,7 +3857,7 @@ func (c *Checker) getContainingQualifiedNameNode(node QualifiedName) QualifiedNa
 }
 
 func (c *Checker) tryGetQualifiedNameAsValue(node QualifiedName) *Symbol {
-	var left /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | QualifiedName */ any = getFirstIdentifier(node)
+	var left Union[Identifier, QualifiedName] = getFirstIdentifier(node)
 	symbol := c.resolveName(left, left, SymbolFlagsValue /*nameNotFoundMessage*/, nil /*isUse*/, true)
 	if symbol == nil {
 		return nil
@@ -4413,7 +4413,7 @@ func (c *Checker) resolveESModuleSymbol(moduleSymbol *Symbol, referencingLocatio
  * Create a new symbol which has the module's type less the call and construct signatures
  */
 
-func (c *Checker) cloneTypeAsModuleType(symbol *Symbol, moduleType *Type, referenceParent /* TODO(TS-TO-GO) TypeNode UnionType: ImportDeclaration | ImportCall */ any) TransientSymbol {
+func (c *Checker) cloneTypeAsModuleType(symbol *Symbol, moduleType *Type, referenceParent Union[ImportDeclaration, ImportCall]) TransientSymbol {
 	result := c.createSymbol(symbol.flags, symbol.escapedName)
 	if symbol.declarations != nil {
 		result.declarations = symbol.declarations.slice()
@@ -4565,7 +4565,7 @@ func (c *Checker) extendExportSymbols(target SymbolTable, source *SymbolTable, l
 
 func (c *Checker) getExportsOfModuleWorker(moduleSymbol *Symbol) /* TODO(TS-TO-GO) inferred type { exports: SymbolTable; typeOnlyExportStarMap: Map<__String, ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; }> | undefined; } */ any {
 	var visitedSymbols []*Symbol = []never{}
-	var typeOnlyExportStarMap *Map[string /* TODO(TS-TO-GO) TypeNode IntersectionType: ExportDeclaration & { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */, any]
+	var typeOnlyExportStarMap *Map[string, Intersection[ExportDeclaration /* TODO(TS-TO-GO) TypeNode TypeLiteral: { readonly isTypeOnly: true; readonly moduleSpecifier: Expression; } */, any]]
 	nonTypeOnlyNames := NewSet[string]()
 
 	// A module defined by an 'export=' consists of one export that needs to be resolved
@@ -4821,7 +4821,7 @@ func (c *Checker) getVariableDeclarationOfObjectLiteral(symbol *Symbol, meaning 
 	// If we're trying to reference some object literal in, eg `var a = { x: 1 }`, the symbol for the literal, `__object`, is distinct
 	// from the symbol of the declaration it is being assigned to. Since we can use the declaration to refer to the literal, however,
 	// we'd like to make that connection here - potentially causing us to paint the declaration's visibility, and therefore the literal.
-	var firstDecl /* TODO(TS-TO-GO) TypeNode UnionType: Node | false */ any = length(symbol.declarations) != 0 && first(symbol.declarations)
+	var firstDecl Union[*Node /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any] = length(symbol.declarations) != 0 && first(symbol.declarations)
 	if meaning&SymbolFlagsValue != 0 && firstDecl && firstDecl.parent && isVariableDeclaration(firstDecl.parent) {
 		if isObjectLiteralExpression(firstDecl) && firstDecl == firstDecl.parent.initializer || isTypeLiteralNode(firstDecl) && firstDecl == firstDecl.parent.type_ {
 			return c.getSymbolOfDeclaration(firstDecl.parent)
@@ -5626,7 +5626,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 				return typePredicateToTypePredicateNodeHelper(typePredicate, context)
 			})
 		},
-		"expressionOrTypeToTypeNode": func(expr /* TODO(TS-TO-GO) TypeNode UnionType: Expression | JsxAttributeValue | undefined */ any, t *Type, addUndefined bool, enclosingDeclaration *Node, flags NodeBuilderFlags, internalFlags InternalNodeBuilderFlags, tracker SymbolTracker) *TypeNode {
+		"expressionOrTypeToTypeNode": func(expr Union[Expression, JsxAttributeValue /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], t *Type, addUndefined bool, enclosingDeclaration *Node, flags NodeBuilderFlags, internalFlags InternalNodeBuilderFlags, tracker SymbolTracker) *TypeNode {
 			return withContext(enclosingDeclaration, flags, internalFlags, tracker, func(context NodeBuilderContext) TypeNode {
 				return expressionOrTypeToTypeNode(context, expr, t, addUndefined)
 			})
@@ -5744,7 +5744,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 	 * Same as expressionOrTypeToTypeNodeHelper, but also checks if the expression can be syntactically typed.
 	 */
 
-	expressionOrTypeToTypeNode := func(context NodeBuilderContext, expr /* TODO(TS-TO-GO) TypeNode UnionType: Expression | JsxAttributeValue | undefined */ any, t *Type, addUndefined bool) TypeNode {
+	expressionOrTypeToTypeNode := func(context NodeBuilderContext, expr Union[Expression, JsxAttributeValue /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], t *Type, addUndefined bool) TypeNode {
 		restoreFlags := saveRestoreFlags(context)
 		if expr != nil && (context.internalFlags&InternalNodeBuilderFlagsNoSyntacticPrinter != 0) {
 			c.syntacticNodeBuilder.serializeTypeOfExpression(expr, context, addUndefined)
@@ -5755,7 +5755,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		return result
 	}
 
-	expressionOrTypeToTypeNodeHelper := func(context NodeBuilderContext, expr /* TODO(TS-TO-GO) TypeNode UnionType: Expression | JsxAttributeValue | undefined */ any, t *Type, addUndefined bool) TypeNode {
+	expressionOrTypeToTypeNodeHelper := func(context NodeBuilderContext, expr Union[Expression, JsxAttributeValue /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], t *Type, addUndefined bool) TypeNode {
 		if expr != nil {
 			var typeNode *TypeNode
 			switch {
@@ -6575,7 +6575,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			} else {
 				outerTypeParameters := type_.target.outerTypeParameters
 				i := 0
-				var resultType /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ImportTypeNode | undefined */ any
+				var resultType Union[TypeReferenceNode, ImportTypeNode /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 				if outerTypeParameters != nil {
 					length := outerTypeParameters.length
 					for i < length {
@@ -6640,7 +6640,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			}
 		}
 
-		appendReferenceToType := func(root /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ImportTypeNode */ any, ref TypeReferenceNode) /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ImportTypeNode */ any {
+		appendReferenceToType := func(root Union[TypeReferenceNode, ImportTypeNode], ref TypeReferenceNode) Union[TypeReferenceNode, ImportTypeNode] {
 			if isImportTypeNode(root) {
 				// first shift type arguments
 				typeArguments := root.typeArguments
@@ -7114,13 +7114,13 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		return node
 	}
 
-	type IntroducesNewScopeNode /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature | MappedTypeNode */ any
+	type IntroducesNewScopeNode Union[SignatureDeclaration, JSDocSignature, MappedTypeNode]
 
 	isNewScopeNode := func(node *Node) bool {
 		return isFunctionLike(node) || isJSDocSignature(node) || isMappedTypeNode(node)
 	}
 
-	getTypeParametersInScope := func(node /* TODO(TS-TO-GO) TypeNode UnionType: IntroducesNewScopeNode | ConditionalTypeNode */ any) *[]TypeParameter {
+	getTypeParametersInScope := func(node Union[IntroducesNewScopeNode, ConditionalTypeNode]) *[]TypeParameter {
 		switch {
 		case isFunctionLike(node) || isJSDocSignature(node):
 			return c.getSignatureFromDeclaration(node).typeParameters
@@ -7131,7 +7131,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		}
 	}
 
-	getParametersInScope := func(node /* TODO(TS-TO-GO) TypeNode UnionType: IntroducesNewScopeNode | ConditionalTypeNode */ any) *[]*Symbol {
+	getParametersInScope := func(node Union[IntroducesNewScopeNode, ConditionalTypeNode]) *[]*Symbol {
 		if isFunctionLike(node) || isJSDocSignature(node) {
 			return c.getSignatureFromDeclaration(node).parameters
 		} else {
@@ -7139,7 +7139,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		}
 	}
 
-	enterNewScope := func(context NodeBuilderContext, declaration /* TODO(TS-TO-GO) TypeNode UnionType: IntroducesNewScopeNode | ConditionalTypeNode | undefined */ any, expandedParams *[]*Symbol, typeParameters *[]TypeParameter, originalParameters *[]*Symbol, mapper TypeMapper) /* TODO(TS-TO-GO) inferred type () => void */ any {
+	enterNewScope := func(context NodeBuilderContext, declaration Union[IntroducesNewScopeNode, ConditionalTypeNode /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], expandedParams *[]*Symbol, typeParameters *[]TypeParameter, originalParameters *[]*Symbol, mapper TypeMapper) /* TODO(TS-TO-GO) inferred type () => void */ any {
 		cleanupContext := cloneNodeBuilderContext(context)
 		// For regular function/method declarations, the enclosing declaration will already be signature.declaration,
 		// so this is a no-op, but for arrow functions and function expressions, the enclosing declaration will be
@@ -7237,7 +7237,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 				})
 			}
 
-			pushFakeScope := func(kind /* TODO(TS-TO-GO) TypeNode UnionType: "params" | "typeParams" */ any, addAll func(addSymbol func(name string, symbol *Symbol))) * /* TODO(TS-TO-GO) inferred type (() => void) */ any {
+			pushFakeScope := func(kind Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "params" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "typeParams" */, any], addAll func(addSymbol func(name string, symbol *Symbol))) * /* TODO(TS-TO-GO) inferred type (() => void) */ any {
 				// We only ever need to look two declarations upward.
 				Debug.assert(context.enclosingDeclaration)
 				var existingFakeScope *Node
@@ -7350,8 +7350,8 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		return factory.createTypePredicateNode(assertsModifier, parameterName, typeNode)
 	}
 
-	getEffectiveParameterDeclaration := func(parameterSymbol *Symbol) /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag | undefined */ any {
-		var parameterDeclaration /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag | undefined */ any = getDeclarationOfKind(parameterSymbol, SyntaxKindParameter)
+	getEffectiveParameterDeclaration := func(parameterSymbol *Symbol) Union[ParameterDeclaration, JSDocParameterTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+		var parameterDeclaration Union[ParameterDeclaration, JSDocParameterTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = getDeclarationOfKind(parameterSymbol, SyntaxKindParameter)
 		if parameterDeclaration != nil {
 			return parameterDeclaration
 		}
@@ -7392,7 +7392,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 		return parameterNode
 	}
 
-	parameterToParameterDeclarationName := func(parameterSymbol *Symbol, parameterDeclaration /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag | undefined */ any, context NodeBuilderContext) /* TODO(TS-TO-GO) inferred type string | BindingName */ any {
+	parameterToParameterDeclarationName := func(parameterSymbol *Symbol, parameterDeclaration Union[ParameterDeclaration, JSDocParameterTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], context NodeBuilderContext) /* TODO(TS-TO-GO) inferred type string | BindingName */ any {
 		switch {
 		case parameterDeclaration != nil:
 			switch {
@@ -7556,7 +7556,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			context.typeParameterSymbolList = NewSet(context.typeParameterSymbolList)
 		}
 		context.typeParameterSymbolList.add(symbolId)
-		var typeParameterNodes /* TODO(TS-TO-GO) TypeNode UnionType: readonly TypeNode[] | readonly TypeParameterDeclaration[] | undefined */ any
+		var typeParameterNodes Union[[]TypeNode, []TypeParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 		if context.flags&NodeBuilderFlagsWriteTypeParametersInQualifiedName != 0 && index < (chain.length-1) {
 			parentSymbol := symbol
 			nextSymbol := chain[index+1]
@@ -7759,7 +7759,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			return factory.createTypeReferenceNode(entityName, lastTypeArgs.(NodeArray[TypeNode]))
 		}
 
-		createAccessFromSymbolChain := func(chain []*Symbol, index number, stopper number) /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | IndexedAccessTypeNode */ any {
+		createAccessFromSymbolChain := func(chain []*Symbol, index number, stopper number) Union[EntityName, IndexedAccessTypeNode] {
 			var typeParameterNodes *[] /* TODO(TS-TO-GO) inferred type TypeNode[] | readonly TypeParameterDeclaration */ any
 			if index == (chain.length - 1) {
 				typeParameterNodes = overrideTypeArguments
@@ -8524,7 +8524,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 
 		}
 
-		onEnterNewScope := func(node /* TODO(TS-TO-GO) TypeNode UnionType: IntroducesNewScopeNode | ConditionalTypeNode */ any) /* TODO(TS-TO-GO) inferred type () => void */ any {
+		onEnterNewScope := func(node Union[IntroducesNewScopeNode, ConditionalTypeNode]) /* TODO(TS-TO-GO) inferred type () => void */ any {
 			return enterNewScope(context, node, getParametersInScope(node), getTypeParametersInScope(node))
 		}
 
@@ -10017,8 +10017,8 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 
 		/* OVERLOAD: function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: true, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | AccessorDeclaration | (T | AccessorDeclaration)[]; */
 		/* OVERLOAD: function makeSerializePropertySymbol<T extends Node>( createProperty: ( modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined, ) => T, methodKind: SignatureDeclaration["kind"], useAccessors: false, ): (p: Symbol, isStatic: boolean, baseType: Type | undefined) => T | T[]; */
-		makeSerializePropertySymbol := func(createProperty func(modifiers *[]Modifier, name /* TODO(TS-TO-GO) TypeNode UnionType: string | PropertyName */ any, questionOrExclamationToken *QuestionToken, t *TypeNode, initializer Expression) T, methodKind /* TODO(TS-TO-GO) TypeNode IndexedAccessType: SignatureDeclaration["kind"] */ any, useAccessors bool) func(p *Symbol, isStatic bool, baseType *Type) /* TODO(TS-TO-GO) TypeNode UnionType: T | AccessorDeclaration | (T | AccessorDeclaration)[] */ any {
-			return func /* serializePropertySymbol */ (p *Symbol, isStatic bool, baseType *Type) /* TODO(TS-TO-GO) TypeNode UnionType: T | AccessorDeclaration | (T | AccessorDeclaration)[] */ any {
+		makeSerializePropertySymbol := func(createProperty func(modifiers *[]Modifier, name Union[string, PropertyName], questionOrExclamationToken *QuestionToken, t *TypeNode, initializer Expression) T, methodKind /* TODO(TS-TO-GO) TypeNode IndexedAccessType: SignatureDeclaration["kind"] */ any, useAccessors bool) func(p *Symbol, isStatic bool, baseType *Type) Union[T, AccessorDeclaration, []Union[T, AccessorDeclaration]] {
+			return func /* serializePropertySymbol */ (p *Symbol, isStatic bool, baseType *Type) Union[T, AccessorDeclaration, []Union[T, AccessorDeclaration]] {
 				modifierFlags := getDeclarationModifierFlagsFromSymbol(p)
 				isPrivate := modifierFlags&ModifierFlagsPrivate != 0
 				if isStatic && (p.flags&(SymbolFlagsType|SymbolFlagsNamespace|SymbolFlagsAlias) != 0) {
@@ -10820,7 +10820,7 @@ func (c *Checker) getNonUndefinedType(t *Type) *Type {
 //
 // We construct a synthetic element access expression corresponding to 'obj.x' such that the control
 // flow analyzer doesn't have to handle all the different syntactic forms.
-func (c *Checker) getFlowTypeOfDestructuring(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | PropertyAssignment | ShorthandPropertyAssignment | Expression */ any, declaredType *Type) *Type {
+func (c *Checker) getFlowTypeOfDestructuring(node Union[BindingElement, PropertyAssignment, ShorthandPropertyAssignment, Expression], declaredType *Type) *Type {
 	reference := c.getSyntheticElementAccess(node)
 	if reference != nil {
 		return c.getFlowTypeOfReference(reference, declaredType)
@@ -10829,7 +10829,7 @@ func (c *Checker) getFlowTypeOfDestructuring(node /* TODO(TS-TO-GO) TypeNode Uni
 	}
 }
 
-func (c *Checker) getSyntheticElementAccess(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | PropertyAssignment | ShorthandPropertyAssignment | Expression */ any) *ElementAccessExpression {
+func (c *Checker) getSyntheticElementAccess(node Union[BindingElement, PropertyAssignment, ShorthandPropertyAssignment, Expression]) *ElementAccessExpression {
 	parentAccess := c.getParentElementAccess(node)
 	if parentAccess != nil && canHaveFlowNode(parentAccess) && parentAccess.flowNode != nil {
 		propName := c.getDestructuringPropertyName(node)
@@ -10853,7 +10853,7 @@ func (c *Checker) getSyntheticElementAccess(node /* TODO(TS-TO-GO) TypeNode Unio
 	}
 }
 
-func (c *Checker) getParentElementAccess(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | PropertyAssignment | ShorthandPropertyAssignment | Expression */ any) Expression {
+func (c *Checker) getParentElementAccess(node Union[BindingElement, PropertyAssignment, ShorthandPropertyAssignment, Expression]) Expression {
 	ancestor := node.parent.parent
 	switch ancestor.kind {
 	case SyntaxKindBindingElement,
@@ -10868,7 +10868,7 @@ func (c *Checker) getParentElementAccess(node /* TODO(TS-TO-GO) TypeNode UnionTy
 	}
 }
 
-func (c *Checker) getDestructuringPropertyName(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | PropertyAssignment | ShorthandPropertyAssignment | Expression */ any) *string {
+func (c *Checker) getDestructuringPropertyName(node Union[BindingElement, PropertyAssignment, ShorthandPropertyAssignment, Expression]) *string {
 	parent := node.parent
 	if node.kind == SyntaxKindBindingElement && parent.kind == SyntaxKindObjectBindingPattern {
 		return c.getLiteralPropertyNameText((node.AsBindingElement()).propertyName || (node.AsBindingElement()).name.AsIdentifier())
@@ -11011,7 +11011,7 @@ func (c *Checker) addOptionality(t *Type, isProperty bool /*  = false */, isOpti
 }
 
 // Return the inferred type for a variable, parameter, or property declaration
-func (c *Checker) getTypeForVariableLikeDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement | JSDocPropertyLikeTag */ any, includeOptionality bool, checkMode CheckMode) *Type {
+func (c *Checker) getTypeForVariableLikeDeclaration(declaration Union[ParameterDeclaration, PropertyDeclaration, PropertySignature, VariableDeclaration, BindingElement, JSDocPropertyLikeTag], includeOptionality bool, checkMode CheckMode) *Type {
 	// A variable declared in a for..in statement is of type string, or of type keyof T when the
 	// right hand expression is of a type parameter type.
 	if isVariableDeclaration(declaration) && declaration.parent.parent.kind == SyntaxKindForInStatement {
@@ -11445,7 +11445,7 @@ func (c *Checker) getAnnotatedTypeForAssignmentDeclaration(declaredType *Type, e
 
 /** If we don't have an explicit JSDoc type, get the type from the initializer. */
 
-func (c *Checker) getInitializerTypeFromAssignmentDeclaration(symbol *Symbol, resolvedSymbol *Symbol, expression /* TODO(TS-TO-GO) TypeNode UnionType: BinaryExpression | CallExpression */ any, kind AssignmentDeclarationKind) *Type {
+func (c *Checker) getInitializerTypeFromAssignmentDeclaration(symbol *Symbol, resolvedSymbol *Symbol, expression Union[BinaryExpression, CallExpression], kind AssignmentDeclarationKind) *Type {
 	if isCallExpression(expression) {
 		if resolvedSymbol != nil {
 			return c.getTypeOfSymbol(resolvedSymbol)
@@ -11730,7 +11730,7 @@ func (c *Checker) getTypeFromBindingPattern(pattern BindingPattern, includePatte
 // Here, the array literal [1, "one"] is contextually typed by the type [any, string], which is the implied type of the
 // binding pattern [x, s = ""]. Because the contextual type is a tuple type, the resulting type of [1, "one"] is the
 // tuple type [number, string]. Thus, the type inferred for 'x' is number and the type inferred for 's' is string.
-func (c *Checker) getWidenedTypeForVariableLikeDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement | JSDocPropertyLikeTag */ any, reportErrors bool) *Type {
+func (c *Checker) getWidenedTypeForVariableLikeDeclaration(declaration Union[ParameterDeclaration, PropertyDeclaration, PropertySignature, VariableDeclaration, BindingElement, JSDocPropertyLikeTag], reportErrors bool) *Type {
 	return c.widenTypeForVariableLikeDeclaration(c.getTypeForVariableLikeDeclaration(declaration /*includeOptionality*/, true, CheckModeNormal), declaration, reportErrors)
 }
 
@@ -11940,7 +11940,7 @@ func (c *Checker) getTypeOfVariableOrParameterOrPropertyWorker(symbol *Symbol) *
 	return t
 }
 
-func (c *Checker) getAnnotatedAccessorTypeNode(accessor /* TODO(TS-TO-GO) TypeNode UnionType: AccessorDeclaration | PropertyDeclaration | undefined */ any) *TypeNode {
+func (c *Checker) getAnnotatedAccessorTypeNode(accessor Union[AccessorDeclaration, PropertyDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *TypeNode {
 	if accessor != nil {
 		switch accessor.kind {
 		case SyntaxKindGetAccessor:
@@ -11958,7 +11958,7 @@ func (c *Checker) getAnnotatedAccessorTypeNode(accessor /* TODO(TS-TO-GO) TypeNo
 	return nil
 }
 
-func (c *Checker) getAnnotatedAccessorType(accessor /* TODO(TS-TO-GO) TypeNode UnionType: AccessorDeclaration | PropertyDeclaration | undefined */ any) *Type {
+func (c *Checker) getAnnotatedAccessorType(accessor Union[AccessorDeclaration, PropertyDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *Type {
 	node := c.getAnnotatedAccessorTypeNode(accessor)
 	return node && c.getTypeFromTypeNode(node)
 }
@@ -13180,7 +13180,7 @@ func (c *Checker) isNonBindableDynamicName(node DeclarationName) bool {
  * members.
  */
 
-func (c *Checker) addDeclarationToLateBoundSymbol(symbol *Symbol, member /* TODO(TS-TO-GO) TypeNode UnionType: LateBoundDeclaration | BinaryExpression */ any, symbolFlags SymbolFlags) {
+func (c *Checker) addDeclarationToLateBoundSymbol(symbol *Symbol, member Union[LateBoundDeclaration, BinaryExpression], symbolFlags SymbolFlags) {
 	Debug.assert(getCheckFlags(symbol)&CheckFlagsLate != 0, "Expected a late-bound symbol.")
 	symbol.flags |= symbolFlags
 	c.getSymbolLinks(member.symbol).lateSymbol = symbol
@@ -13225,7 +13225,7 @@ func (c *Checker) addDeclarationToLateBoundSymbol(symbol *Symbol, member /* TODO
  * @param decl The member to bind.
  */
 
-func (c *Checker) lateBindMember(parent *Symbol, earlySymbols *SymbolTable, lateSymbols Map[string, TransientSymbol], decl /* TODO(TS-TO-GO) TypeNode UnionType: LateBoundDeclaration | LateBoundBinaryExpressionDeclaration */ any) *Symbol {
+func (c *Checker) lateBindMember(parent *Symbol, earlySymbols *SymbolTable, lateSymbols Map[string, TransientSymbol], decl Union[LateBoundDeclaration, LateBoundBinaryExpressionDeclaration]) *Symbol {
 	Debug.assert(decl.symbol, "The member is expected to have a symbol.")
 	links := c.getNodeLinks(decl)
 	if links.resolvedSymbol == nil {
@@ -13287,7 +13287,7 @@ func (c *Checker) lateBindMember(parent *Symbol, earlySymbols *SymbolTable, late
 	return links.resolvedSymbol
 }
 
-func (c *Checker) lateBindIndexSignature(parent *Symbol, earlySymbols *SymbolTable, lateSymbols Map[string, TransientSymbol], decl /* TODO(TS-TO-GO) TypeNode UnionType: LateBoundDeclaration | LateBoundBinaryExpressionDeclaration */ any) {
+func (c *Checker) lateBindIndexSignature(parent *Symbol, earlySymbols *SymbolTable, lateSymbols Map[string, TransientSymbol], decl Union[LateBoundDeclaration, LateBoundBinaryExpressionDeclaration]) {
 	// First, late bind the index symbol itself, if needed
 	indexSymbol := lateSymbols.get(InternalSymbolNameIndex)
 	if indexSymbol == nil {
@@ -13530,7 +13530,7 @@ func (c *Checker) resolveTypeReferenceMembers(t TypeReference) {
 	c.resolveObjectTypeMembers(t, source, typeParameters, paddedTypeArguments)
 }
 
-func (c *Checker) createSignature(declaration /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature | undefined */ any, typeParameters *[]TypeParameter, thisParameter *Symbol, parameters []*Symbol, resolvedReturnType *Type, resolvedTypePredicate *TypePredicate, minArgumentCount number, flags SignatureFlags) Signature {
+func (c *Checker) createSignature(declaration Union[SignatureDeclaration, JSDocSignature /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], typeParameters *[]TypeParameter, thisParameter *Symbol, parameters []*Symbol, resolvedReturnType *Type, resolvedTypePredicate *TypePredicate, minArgumentCount number, flags SignatureFlags) Signature {
 	sig := NewSignature(c.checker, flags)
 	sig.declaration = declaration
 	sig.typeParameters = typeParameters
@@ -14702,8 +14702,8 @@ func (c *Checker) forEachPropertyOfType(t *Type, action func(symbol *Symbol, esc
 	}
 }
 
-func (c *Checker) isTypeInvalidDueToUnionDiscriminant(contextualType *Type, obj /* TODO(TS-TO-GO) TypeNode UnionType: ObjectLiteralExpression | JsxAttributes */ any) bool {
-	list := obj.properties.(NodeArray[ /* TODO(TS-TO-GO) TypeNode UnionType: ObjectLiteralElementLike | JsxAttributeLike */ any])
+func (c *Checker) isTypeInvalidDueToUnionDiscriminant(contextualType *Type, obj Union[ObjectLiteralExpression, JsxAttributes]) bool {
+	list := obj.properties.(NodeArray[Union[ObjectLiteralElementLike, JsxAttributeLike]])
 	return list.some(func(property /* TODO(TS-TO-GO) inferred type ObjectLiteralElementLike | JsxAttributeLike */ any) bool {
 		nameType := property.name && (ifElse(isJsxNamespacedName(property.name), c.getStringLiteralType(getTextOfJsxAttributeName(property.name)), c.getLiteralTypeFromPropertyName(property.name)))
 		var name *string
@@ -14743,7 +14743,7 @@ func (c *Checker) getAllPossiblePropertiesOfTypes(types []*Type) []*Symbol {
 	return arrayFrom(props.values())
 }
 
-func (c *Checker) getConstraintOfType(t /* TODO(TS-TO-GO) TypeNode UnionType: InstantiableType | UnionOrIntersectionType */ any) *Type {
+func (c *Checker) getConstraintOfType(t Union[InstantiableType, UnionOrIntersectionType]) *Type {
 	switch {
 	case t.flags&TypeFlagsTypeParameter != 0:
 		return c.getConstraintOfTypeParameter(t.AsTypeParameter())
@@ -14958,7 +14958,7 @@ func (c *Checker) hasNonCircularBaseConstraint(t InstantiableType) bool {
  * circularly references the type variable.
  */
 
-func (c *Checker) getResolvedBaseConstraint(t /* TODO(TS-TO-GO) TypeNode UnionType: InstantiableType | UnionOrIntersectionType */ any) *Type {
+func (c *Checker) getResolvedBaseConstraint(t Union[InstantiableType, UnionOrIntersectionType]) *Type {
 	if t.resolvedBaseConstraint != nil {
 		return t.resolvedBaseConstraint
 	}
@@ -15841,11 +15841,11 @@ func (c *Checker) tryFindAmbientModule(moduleName string, withAugmentations bool
 	}
 }
 
-func (c *Checker) hasEffectiveQuestionToken(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag | JSDocPropertyTag */ any) bool {
+func (c *Checker) hasEffectiveQuestionToken(node Union[ParameterDeclaration, JSDocParameterTag, JSDocPropertyTag]) bool {
 	return hasQuestionToken(node) || isOptionalJSDocPropertyLikeTag(node) || isParameter(node) && isJSDocOptionalParameter(node)
 }
 
-func (c *Checker) isOptionalParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag | JSDocPropertyTag */ any) bool {
+func (c *Checker) isOptionalParameter(node Union[ParameterDeclaration, JSDocParameterTag, JSDocPropertyTag]) bool {
 	if c.hasEffectiveQuestionToken(node) {
 		return true
 	}
@@ -15945,7 +15945,7 @@ func (c *Checker) fillMissingTypeArguments(typeArguments *[]*Type, typeParameter
 	return typeArguments && typeArguments.slice()
 }
 
-func (c *Checker) getSignatureFromDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) Signature {
+func (c *Checker) getSignatureFromDeclaration(declaration Union[SignatureDeclaration, JSDocSignature]) Signature {
 	links := c.getNodeLinks(declaration)
 	if links.resolvedSignature == nil {
 		var parameters []*Symbol = []never{}
@@ -16060,7 +16060,7 @@ func (c *Checker) getSignatureFromDeclaration(declaration /* TODO(TS-TO-GO) Type
  * 2. It has at least one parameter, and the last parameter has a matching `@param` with a type that starts with `...`
  */
 
-func (c *Checker) maybeAddJsSyntheticRestParameter(declaration /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any, parameters []*Symbol) bool {
+func (c *Checker) maybeAddJsSyntheticRestParameter(declaration Union[SignatureDeclaration, JSDocSignature], parameters []*Symbol) bool {
 	if isJSDocSignature(declaration) || !c.containsArgumentsReference(declaration) {
 		return false
 	}
@@ -16100,7 +16100,7 @@ func (c *Checker) maybeAddJsSyntheticRestParameter(declaration /* TODO(TS-TO-GO)
 	return true
 }
 
-func (c *Checker) getSignatureOfTypeTag(node /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) *Signature {
+func (c *Checker) getSignatureOfTypeTag(node Union[SignatureDeclaration, JSDocSignature]) *Signature {
 	// should be attached to a function declaration or expression
 	if !(isInJSFile(node) && isFunctionLikeDeclaration(node)) {
 		return nil
@@ -16122,7 +16122,7 @@ func (c *Checker) getParameterTypeOfTypeTag(func_ FunctionLikeDeclaration, param
 	}
 }
 
-func (c *Checker) getReturnTypeOfTypeTag(node /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) *Type {
+func (c *Checker) getReturnTypeOfTypeTag(node Union[SignatureDeclaration, JSDocSignature]) *Type {
 	signature := c.getSignatureOfTypeTag(node)
 	return signature && c.getReturnTypeOfSignature(signature)
 }
@@ -16326,7 +16326,7 @@ func (c *Checker) getReturnTypeOfSignature(signature Signature) *Type {
 	return signature.resolvedReturnType
 }
 
-func (c *Checker) getReturnTypeFromAnnotation(declaration /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) *Type {
+func (c *Checker) getReturnTypeFromAnnotation(declaration Union[SignatureDeclaration, JSDocSignature]) *Type {
 	if declaration.kind == SyntaxKindConstructor {
 		return c.getDeclaredTypeOfClassOrInterface(c.getMergedSymbol((declaration.parent.AsClassDeclaration()).symbol))
 	}
@@ -16839,7 +16839,7 @@ func (c *Checker) cloneTypeReference(source TypeReference) TypeReference {
 	return t
 }
 
-func (c *Checker) createDeferredTypeReference(target GenericType, node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ArrayTypeNode | TupleTypeNode */ any, mapper TypeMapper, aliasSymbol *Symbol, aliasTypeArguments []*Type) DeferredTypeReference {
+func (c *Checker) createDeferredTypeReference(target GenericType, node Union[TypeReferenceNode, ArrayTypeNode, TupleTypeNode], mapper TypeMapper, aliasSymbol *Symbol, aliasTypeArguments []*Type) DeferredTypeReference {
 	if aliasSymbol == nil {
 		aliasSymbol = c.getAliasSymbolForTypeNode(node)
 		localAliasTypeArguments := c.getTypeArgumentsForAliasSymbol(aliasSymbol)
@@ -17787,7 +17787,7 @@ func (c *Checker) getTupleElementFlags(node TypeNode) /* TODO(TS-TO-GO) inferred
 	}
 }
 
-func (c *Checker) getRestTypeElementFlags(node /* TODO(TS-TO-GO) TypeNode UnionType: RestTypeNode | NamedTupleMember */ any) /* TODO(TS-TO-GO) inferred type ElementFlags.Rest | ElementFlags.Variadic */ any {
+func (c *Checker) getRestTypeElementFlags(node Union[RestTypeNode, NamedTupleMember]) /* TODO(TS-TO-GO) inferred type ElementFlags.Rest | ElementFlags.Variadic */ any {
 	if c.getArrayElementTypeNode(node.type_) != nil {
 		return ElementFlagsRest
 	} else {
@@ -17795,7 +17795,7 @@ func (c *Checker) getRestTypeElementFlags(node /* TODO(TS-TO-GO) TypeNode UnionT
 	}
 }
 
-func (c *Checker) getArrayOrTupleTargetType(node /* TODO(TS-TO-GO) TypeNode UnionType: ArrayTypeNode | TupleTypeNode */ any) GenericType {
+func (c *Checker) getArrayOrTupleTargetType(node Union[ArrayTypeNode, TupleTypeNode]) GenericType {
 	readonly := c.isReadonlyTypeOperator(node.parent)
 	elementType := c.getArrayElementTypeNode(node)
 	if elementType != nil {
@@ -17809,7 +17809,7 @@ func (c *Checker) getArrayOrTupleTargetType(node /* TODO(TS-TO-GO) TypeNode Unio
 	return c.getTupleTargetType(elementFlags, readonly, map_((node.AsTupleTypeNode()).elements, c.memberIfLabeledElementDeclaration))
 }
 
-func (c *Checker) memberIfLabeledElementDeclaration(member *Node) /* TODO(TS-TO-GO) TypeNode UnionType: NamedTupleMember | ParameterDeclaration | undefined */ any {
+func (c *Checker) memberIfLabeledElementDeclaration(member *Node) Union[NamedTupleMember, ParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	if isNamedTupleMember(member) || isParameter(member) {
 		return member
 	} else {
@@ -17819,7 +17819,7 @@ func (c *Checker) memberIfLabeledElementDeclaration(member *Node) /* TODO(TS-TO-
 
 // Return true if the given type reference node is directly aliased or if it needs to be deferred
 // because it is possibly contained in a circular chain of eagerly resolved types.
-func (c *Checker) isDeferredTypeReferenceNode(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ArrayTypeNode | TupleTypeNode */ any, hasDefaultTypeArguments bool) bool {
+func (c *Checker) isDeferredTypeReferenceNode(node Union[TypeReferenceNode, ArrayTypeNode, TupleTypeNode], hasDefaultTypeArguments bool) bool {
 	return c.getAliasSymbolForTypeNode(node) != nil || c.isResolvedByTypeAlias(node) && (ifElse(node.kind == SyntaxKindArrayType, c.mayResolveTypeAlias(node.elementType), ifElse(node.kind == SyntaxKindTupleType, some(node.elements, c.mayResolveTypeAlias), hasDefaultTypeArguments || some(node.typeArguments, c.mayResolveTypeAlias))))
 }
 
@@ -17877,7 +17877,7 @@ func (c *Checker) mayResolveTypeAlias(node *Node) bool {
 	return false
 }
 
-func (c *Checker) getTypeFromArrayOrTupleTypeNode(node /* TODO(TS-TO-GO) TypeNode UnionType: ArrayTypeNode | TupleTypeNode */ any) *Type {
+func (c *Checker) getTypeFromArrayOrTupleTypeNode(node Union[ArrayTypeNode, TupleTypeNode]) *Type {
 	links := c.getNodeLinks(node)
 	if links.resolvedType == nil {
 		target := c.getArrayOrTupleTargetType(node)
@@ -17908,7 +17908,7 @@ func (c *Checker) isReadonlyTypeOperator(node *Node) bool {
 	return isTypeOperatorNode(node) && node.operator == SyntaxKindReadonlyKeyword
 }
 
-func (c *Checker) createTupleType(elementTypes []*Type, elementFlags []ElementFlags, readonly bool /*  = false */, namedMemberDeclarations [] /* TODO(TS-TO-GO) TypeNode UnionType: NamedTupleMember | ParameterDeclaration | undefined */ any /*  = [] */) *Type {
+func (c *Checker) createTupleType(elementTypes []*Type, elementFlags []ElementFlags, readonly bool /*  = false */, namedMemberDeclarations []Union[NamedTupleMember, ParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] /*  = [] */) *Type {
 	tupleTarget := c.getTupleTargetType(elementFlags || map_(elementTypes, func(_ *Type) /* TODO(TS-TO-GO) inferred type ElementFlags.Required */ any {
 		return ElementFlagsRequired
 	}), readonly, namedMemberDeclarations)
@@ -17922,7 +17922,7 @@ func (c *Checker) createTupleType(elementTypes []*Type, elementFlags []ElementFl
 	}
 }
 
-func (c *Checker) getTupleTargetType(elementFlags []ElementFlags, readonly bool, namedMemberDeclarations [] /* TODO(TS-TO-GO) TypeNode UnionType: NamedTupleMember | ParameterDeclaration | undefined */ any) GenericType {
+func (c *Checker) getTupleTargetType(elementFlags []ElementFlags, readonly bool, namedMemberDeclarations []Union[NamedTupleMember, ParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) GenericType {
 	if elementFlags.length == 1 && elementFlags[0]&ElementFlagsRest != 0 {
 		// [...X[]] is equivalent to just X[]
 		if readonly {
@@ -17965,7 +17965,7 @@ func (c *Checker) getTupleTargetType(elementFlags []ElementFlags, readonly bool,
 //
 // Note that the generic type created by this function has no symbol associated with it. The same
 // is true for each of the synthesized type parameters.
-func (c *Checker) createTupleTargetType(elementFlags []ElementFlags, readonly bool, namedMemberDeclarations [] /* TODO(TS-TO-GO) TypeNode UnionType: NamedTupleMember | ParameterDeclaration | undefined */ any) TupleType {
+func (c *Checker) createTupleTargetType(elementFlags []ElementFlags, readonly bool, namedMemberDeclarations []Union[NamedTupleMember, ParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) TupleType {
 	arity := elementFlags.length
 	minLength := countWhere(elementFlags, func(f ElementFlags) bool {
 		return f&(ElementFlagsRequired|ElementFlagsVariadic) != 0
@@ -18065,7 +18065,7 @@ func (c *Checker) createNormalizedTupleType(target TupleType, elementTypes []*Ty
 	// In either layout, zero or more generic variadic elements may be present at any location.
 	var expandedTypes []*Type = []never{}
 	var expandedFlags []ElementFlags = []never{}
-	var expandedDeclarations [] /* TODO(TS-TO-GO) TypeNode UnionType: NamedTupleMember | ParameterDeclaration | undefined */ any = []never{}
+	var expandedDeclarations []Union[NamedTupleMember, ParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = []never{}
 	lastRequiredIndex := -1
 	firstRestIndex := -1
 	lastOptionalOrRestIndex := -1
@@ -18126,7 +18126,7 @@ func (c *Checker) createNormalizedTupleType(target TupleType, elementTypes []*Ty
 		return tupleTarget
 	}
 
-	addElement := func(t *Type, flags ElementFlags, declaration /* TODO(TS-TO-GO) TypeNode UnionType: NamedTupleMember | ParameterDeclaration | undefined */ any) {
+	addElement := func(t *Type, flags ElementFlags, declaration Union[NamedTupleMember, ParameterDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 		if flags&ElementFlagsRequired != 0 {
 			lastRequiredIndex = expandedFlags.length
 		}
@@ -18389,7 +18389,7 @@ func (c *Checker) removeStringLiteralsMatchedByTemplateLiterals(types []*Type) {
 	}
 }
 
-func (c *Checker) isTypeMatchedByTemplateLiteralOrStringMapping(t *Type, template /* TODO(TS-TO-GO) TypeNode UnionType: TemplateLiteralType | StringMappingType */ any) bool {
+func (c *Checker) isTypeMatchedByTemplateLiteralOrStringMapping(t *Type, template Union[TemplateLiteralType, StringMappingType]) bool {
 	if template.flags&TypeFlagsTemplateLiteral != 0 {
 		return c.isTypeMatchedByTemplateLiteralType(t, template.AsTemplateLiteralType())
 	} else {
@@ -19149,20 +19149,20 @@ func (c *Checker) getTypeFromIntersectionTypeNode(node IntersectionTypeNode) *Ty
 	return links.resolvedType
 }
 
-func (c *Checker) createIndexType(t /* TODO(TS-TO-GO) TypeNode UnionType: InstantiableType | UnionOrIntersectionType */ any, indexFlags IndexFlags) IndexType {
+func (c *Checker) createIndexType(t Union[InstantiableType, UnionOrIntersectionType], indexFlags IndexFlags) IndexType {
 	result := c.createType(TypeFlagsIndex).AsIndexType()
 	result.type_ = t
 	result.indexFlags = indexFlags
 	return result
 }
 
-func (c *Checker) createOriginIndexType(t /* TODO(TS-TO-GO) TypeNode UnionType: InstantiableType | UnionOrIntersectionType */ any) IndexType {
+func (c *Checker) createOriginIndexType(t Union[InstantiableType, UnionOrIntersectionType]) IndexType {
 	result := c.createOriginType(TypeFlagsIndex).AsIndexType()
 	result.type_ = t
 	return result
 }
 
-func (c *Checker) getIndexTypeForGenericType(t /* TODO(TS-TO-GO) TypeNode UnionType: InstantiableType | UnionOrIntersectionType */ any, indexFlags IndexFlags) IndexType {
+func (c *Checker) getIndexTypeForGenericType(t Union[InstantiableType, UnionOrIntersectionType], indexFlags IndexFlags) IndexType {
 	if indexFlags&IndexFlagsStringsOnly != 0 {
 		return t.resolvedStringIndexType || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: type.resolvedStringIndexType = createIndexType(type, IndexFlags.StringsOnly) */ TODO)
 	} else {
@@ -19263,7 +19263,7 @@ func (c *Checker) hasDistributiveNameType(mappedType MappedType) bool {
 
 }
 
-func (c *Checker) getLiteralTypeFromPropertyName(name /* TODO(TS-TO-GO) TypeNode UnionType: PropertyName | JsxAttributeName */ any) *Type {
+func (c *Checker) getLiteralTypeFromPropertyName(name Union[PropertyName, JsxAttributeName]) *Type {
 	if isPrivateIdentifier(name) {
 		return c.neverType
 	}
@@ -19621,7 +19621,7 @@ func (c *Checker) isJSLiteralType(t *Type) bool {
 	return false
 }
 
-func (c *Checker) getPropertyNameFromIndex(indexType *Type, accessNode /* TODO(TS-TO-GO) TypeNode UnionType: PropertyName | ObjectBindingPattern | ArrayBindingPattern | IndexedAccessTypeNode | ElementAccessExpression | SyntheticExpression | undefined */ any) *string {
+func (c *Checker) getPropertyNameFromIndex(indexType *Type, accessNode Union[PropertyName, ObjectBindingPattern, ArrayBindingPattern, IndexedAccessTypeNode, ElementAccessExpression, SyntheticExpression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *string {
 	switch {
 	case isTypeUsableAsPropertyName(indexType):
 		return getPropertyNameFromType(indexType)
@@ -19647,7 +19647,7 @@ func (c *Checker) isUncalledFunctionReference(node *Node, symbol *Symbol) bool {
 	return true
 }
 
-func (c *Checker) getPropertyTypeForIndexType(originalObjectType *Type, objectType *Type, indexType *Type, fullIndexType *Type, accessNode /* TODO(TS-TO-GO) TypeNode UnionType: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName | SyntheticExpression | undefined */ any, accessFlags AccessFlags) *Type {
+func (c *Checker) getPropertyTypeForIndexType(originalObjectType *Type, objectType *Type, indexType *Type, fullIndexType *Type, accessNode Union[ElementAccessExpression, IndexedAccessTypeNode, PropertyName, BindingName, SyntheticExpression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], accessFlags AccessFlags) *Type {
 	var accessExpression *ElementAccessExpression
 	if accessNode != nil && accessNode.kind == SyntaxKindElementAccessExpression {
 		accessExpression = accessNode
@@ -19853,7 +19853,7 @@ func (c *Checker) getPropertyTypeForIndexType(originalObjectType *Type, objectTy
 
 }
 
-func (c *Checker) getIndexNodeForAccessExpression(accessNode /* TODO(TS-TO-GO) TypeNode UnionType: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName | SyntheticExpression */ any) /* TODO(TS-TO-GO) inferred type Expression | TypeNode | ObjectBindingPattern | ArrayBindingPattern */ any {
+func (c *Checker) getIndexNodeForAccessExpression(accessNode Union[ElementAccessExpression, IndexedAccessTypeNode, PropertyName, BindingName, SyntheticExpression]) /* TODO(TS-TO-GO) inferred type Expression | TypeNode | ObjectBindingPattern | ArrayBindingPattern */ any {
 	switch {
 	case accessNode.kind == SyntaxKindElementAccessExpression:
 		return accessNode.argumentExpression
@@ -20084,7 +20084,7 @@ func (c *Checker) couldAccessOptionalProperty(objectType *Type, indexType *Type)
 	})
 }
 
-func (c *Checker) getIndexedAccessType(objectType *Type, indexType *Type, accessFlags AccessFlags /*  = AccessFlags.None */, accessNode /* TODO(TS-TO-GO) TypeNode UnionType: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName | SyntheticExpression */ any, aliasSymbol *Symbol, aliasTypeArguments []*Type) *Type {
+func (c *Checker) getIndexedAccessType(objectType *Type, indexType *Type, accessFlags AccessFlags /*  = AccessFlags.None */, accessNode Union[ElementAccessExpression, IndexedAccessTypeNode, PropertyName, BindingName, SyntheticExpression], aliasSymbol *Symbol, aliasTypeArguments []*Type) *Type {
 	return c.getIndexedAccessTypeOrUndefined(objectType, indexType, accessFlags, accessNode, aliasSymbol, aliasTypeArguments) || (ifElse(accessNode != nil, c.errorType, c.unknownType))
 }
 
@@ -20101,7 +20101,7 @@ func (c *Checker) indexTypeLessThan(indexType *Type, limit number) bool {
 	})
 }
 
-func (c *Checker) getIndexedAccessTypeOrUndefined(objectType *Type, indexType *Type, accessFlags AccessFlags /*  = AccessFlags.None */, accessNode /* TODO(TS-TO-GO) TypeNode UnionType: ElementAccessExpression | IndexedAccessTypeNode | PropertyName | BindingName | SyntheticExpression */ any, aliasSymbol *Symbol, aliasTypeArguments []*Type) *Type {
+func (c *Checker) getIndexedAccessTypeOrUndefined(objectType *Type, indexType *Type, accessFlags AccessFlags /*  = AccessFlags.None */, accessNode Union[ElementAccessExpression, IndexedAccessTypeNode, PropertyName, BindingName, SyntheticExpression], aliasSymbol *Symbol, aliasTypeArguments []*Type) *Type {
 	if objectType == c.wildcardType || indexType == c.wildcardType {
 		return c.wildcardType
 	}
@@ -20566,7 +20566,7 @@ func (c *Checker) resolveImportSymbolType(node ImportTypeNode, links NodeLinks, 
 	}
 }
 
-func (c *Checker) getTypeFromTypeLiteralOrFunctionOrConstructorTypeNode(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | FunctionOrConstructorTypeNode | JSDocTypeLiteral | JSDocFunctionType | JSDocSignature */ any) *Type {
+func (c *Checker) getTypeFromTypeLiteralOrFunctionOrConstructorTypeNode(node Union[TypeLiteralNode, FunctionOrConstructorTypeNode, JSDocTypeLiteral, JSDocFunctionType, JSDocSignature]) *Type {
 	links := c.getNodeLinks(node)
 	if links.resolvedType == nil {
 		// Deferred resolution of members is handled by resolveObjectTypeMembers
@@ -20815,7 +20815,7 @@ func (c *Checker) getIndexInfoWithReadonly(info IndexInfo, readonly bool) IndexI
 	}
 }
 
-func (c *Checker) createLiteralType(flags TypeFlags, value /* TODO(TS-TO-GO) TypeNode UnionType: string | number | PseudoBigInt */ any, symbol *Symbol, regularType LiteralType) LiteralType {
+func (c *Checker) createLiteralType(flags TypeFlags, value Union[string, number, PseudoBigInt], symbol *Symbol, regularType LiteralType) LiteralType {
 	t := c.createTypeWithSymbol(flags, symbol).AsLiteralType()
 	t.value = value
 	t.regularType = regularType || t
@@ -20865,7 +20865,7 @@ func (c *Checker) getBigIntLiteralType(value PseudoBigInt) BigIntLiteralType {
 	return c.bigIntLiteralTypes.get(key) || ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: bigIntLiteralTypes.set(key, type = createLiteralType(TypeFlags.BigIntLiteral, value) as BigIntLiteralType), type */ TODO)
 }
 
-func (c *Checker) getEnumLiteralType(value /* TODO(TS-TO-GO) TypeNode UnionType: string | number */ any, enumId number, symbol *Symbol) LiteralType {
+func (c *Checker) getEnumLiteralType(value Union[string, number], enumId number, symbol *Symbol) LiteralType {
 	var t TODO
 	key := __TEMPLATE__(enumId, ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof value */ TODO == "string", "@", "#"), value)
 	flags := TypeFlagsEnumLiteral | (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof value */ TODO == "string", TypeFlagsStringLiteral, TypeFlagsNumberLiteral))
@@ -20943,7 +20943,7 @@ func (c *Checker) getThisType(node *Node) *Type {
 	return c.errorType
 }
 
-func (c *Checker) getTypeFromThisTypeNode(node /* TODO(TS-TO-GO) TypeNode UnionType: ThisExpression | ThisTypeNode */ any) *Type {
+func (c *Checker) getTypeFromThisTypeNode(node Union[ThisExpression, ThisTypeNode]) *Type {
 	links := c.getNodeLinks(node)
 	if links.resolvedType == nil {
 		links.resolvedType = c.getThisType(node)
@@ -20951,7 +20951,7 @@ func (c *Checker) getTypeFromThisTypeNode(node /* TODO(TS-TO-GO) TypeNode UnionT
 	return links.resolvedType
 }
 
-func (c *Checker) getTypeFromRestTypeNode(node /* TODO(TS-TO-GO) TypeNode UnionType: RestTypeNode | NamedTupleMember */ any) *Type {
+func (c *Checker) getTypeFromRestTypeNode(node Union[RestTypeNode, NamedTupleMember]) *Type {
 	return c.getTypeFromTypeNode(c.getArrayElementTypeNode(node.type_) || node.type_)
 }
 
@@ -21217,7 +21217,7 @@ func (c *Checker) makeDeferredTypeMapper(sources []TypeParameter, targets []func
 	})
 }
 
-func (c *Checker) makeCompositeTypeMapper(kind /* TODO(TS-TO-GO) TypeNode UnionType: TypeMapKind.Composite | TypeMapKind.Merged */ any, mapper1 TypeMapper, mapper2 TypeMapper) TypeMapper {
+func (c *Checker) makeCompositeTypeMapper(kind Union[ /* TODO(TS-TO-GO) Node QualifiedName: TypeMapKind.Composite */ any /* TODO(TS-TO-GO) Node QualifiedName: TypeMapKind.Merged */, any], mapper1 TypeMapper, mapper2 TypeMapper) TypeMapper {
 	return Debug.attachDebugPrototypeIfDebug(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"kind":    kind,
 		"mapper1": mapper1,
@@ -21350,7 +21350,7 @@ func (c *Checker) instantiateSymbol(symbol *Symbol, mapper TypeMapper) *Symbol {
 	return result
 }
 
-func (c *Checker) getObjectTypeInstantiation(t /* TODO(TS-TO-GO) TypeNode UnionType: AnonymousType | DeferredTypeReference */ any, mapper TypeMapper, aliasSymbol *Symbol, aliasTypeArguments []*Type) *Type {
+func (c *Checker) getObjectTypeInstantiation(t Union[AnonymousType, DeferredTypeReference], mapper TypeMapper, aliasSymbol *Symbol, aliasTypeArguments []*Type) *Type {
 	var declaration /* TODO(TS-TO-GO) inferred type Declaration | NodeWithTypeArguments | ArrayTypeNode | TupleTypeNode */ any
 	switch {
 	case t.objectFlags&ObjectFlagsReference != 0:
@@ -21928,7 +21928,7 @@ func (c *Checker) instantiateIndexInfo(info IndexInfo, mapper TypeMapper) IndexI
 
 // Returns true if the given expression contains (at any level of nesting) a function or arrow expression
 // that is subject to contextual typing.
-func (c *Checker) isContextSensitive(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | MethodDeclaration | ObjectLiteralElementLike | JsxAttributeLike | JsxChild */ any) bool {
+func (c *Checker) isContextSensitive(node Union[Expression, MethodDeclaration, ObjectLiteralElementLike, JsxAttributeLike, JsxChild]) bool {
 	Debug.assert(node.kind != SyntaxKindMethodDeclaration || isObjectLiteralMethod(node))
 	switch node.kind {
 	case SyntaxKindFunctionExpression,
@@ -25885,7 +25885,7 @@ func (c *Checker) getBestMatchingType(source *Type, target UnionOrIntersectionTy
 	return c.findMatchingDiscriminantType(source, target, isRelatedTo) || c.findMatchingTypeReferenceOrTypeAliasReference(source, target) || c.findBestTypeForObjectLiteral(source, target) || c.findBestTypeForInvokable(source, target) || c.findMostOverlappyType(source, target)
 }
 
-func (c *Checker) discriminateTypeByDiscriminableItems(target UnionType, discriminators [] /* TODO(TS-TO-GO) TypeNode TupleType: [() => Type, __String] */ any, related func(source *Type, target *Type) /* TODO(TS-TO-GO) TypeNode UnionType: boolean | Ternary */ any) *Type {
+func (c *Checker) discriminateTypeByDiscriminableItems(target UnionType, discriminators [] /* TODO(TS-TO-GO) TypeNode TupleType: [() => Type, __String] */ any, related func(source *Type, target *Type) Union[bool, Ternary]) *Type {
 	types := target.types
 	var include []Ternary = types.map_(func(t *Type) /* TODO(TS-TO-GO) inferred type Ternary.False | Ternary.True */ any {
 		if t.flags&TypeFlagsPrimitive != 0 {
@@ -27476,7 +27476,7 @@ func (c *Checker) createInferenceContext(typeParameters []TypeParameter, signatu
 	return c.createInferenceContextWorker(typeParameters.map_(c.createInferenceInfo), signature, flags, compareTypes || c.compareTypesAssignable)
 }
 
-func (c *Checker) cloneInferenceContext(context T, extraFlags InferenceFlags /*  = 0 */) /* TODO(TS-TO-GO) TypeNode UnionType: InferenceContext | T & undefined */ any {
+func (c *Checker) cloneInferenceContext(context T, extraFlags InferenceFlags /*  = 0 */) Union[InferenceContext, Intersection[T /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]] {
 	return context && c.createInferenceContextWorker(map_(context.inferences, c.cloneInferenceInfo), context.signature, context.flags|extraFlags, context.compareTypes)
 }
 
@@ -27529,7 +27529,7 @@ func (c *Checker) clearCachedInferences(inferences []InferenceInfo) {
 	}
 }
 
-func (c *Checker) addIntraExpressionInferenceSite(context InferenceContext, node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | MethodDeclaration */ any, t *Type) {
+func (c *Checker) addIntraExpressionInferenceSite(context InferenceContext, node Union[Expression, MethodDeclaration], t *Type) {
 	( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: context.intraExpressionInferenceSites ??= [] */ TODO).push(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"node": node,
 		"t":    t,
@@ -27601,7 +27601,7 @@ func (c *Checker) cloneInferredPartOfContext(context InferenceContext) *Inferenc
 	}
 }
 
-func (c *Checker) getMapperFromContext(context T) /* TODO(TS-TO-GO) TypeNode UnionType: TypeMapper | T & undefined */ any {
+func (c *Checker) getMapperFromContext(context T) Union[TypeMapper, Intersection[T /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]] {
 	return context && context.mapper
 }
 
@@ -29281,7 +29281,7 @@ func (c *Checker) isMatchingReference(source *Node, target *Node) bool {
 	return false
 }
 
-func (c *Checker) getAccessedPropertyName(access /* TODO(TS-TO-GO) TypeNode UnionType: AccessExpression | BindingElement | ParameterDeclaration */ any) *string {
+func (c *Checker) getAccessedPropertyName(access Union[AccessExpression, BindingElement, ParameterDeclaration]) *string {
 	if isPropertyAccessExpression(access) {
 		return access.name.escapedText
 	}
@@ -29517,7 +29517,7 @@ func (c *Checker) isOrContainsMatchingReference(source *Node, target *Node) bool
 	return c.isMatchingReference(source, target) || c.containsMatchingReference(source, target)
 }
 
-func (c *Checker) hasMatchingArgument(expression /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | NewExpression */ any, reference *Node) bool {
+func (c *Checker) hasMatchingArgument(expression Union[CallExpression, NewExpression], reference *Node) bool {
 	if expression.arguments != nil {
 		for _, argument := range expression.arguments {
 			if c.isOrContainsMatchingReference(reference, argument) || c.optionalChainContainsReference(argument, reference) {
@@ -29901,7 +29901,7 @@ func (c *Checker) getAssignedTypeOfSpreadExpression(node SpreadElement) *Type {
 	return c.getTypeOfDestructuredSpreadExpression(c.getAssignedType(node.parent.AsArrayLiteralExpression()))
 }
 
-func (c *Checker) getAssignedTypeOfPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAssignment | ShorthandPropertyAssignment */ any) *Type {
+func (c *Checker) getAssignedTypeOfPropertyAssignment(node Union[PropertyAssignment, ShorthandPropertyAssignment]) *Type {
 	return c.getTypeOfDestructuredProperty(c.getAssignedType(node.parent), node.name)
 }
 
@@ -29968,7 +29968,7 @@ func (c *Checker) getInitialTypeOfVariableDeclaration(node VariableDeclaration) 
 	return c.errorType
 }
 
-func (c *Checker) getInitialType(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | BindingElement */ any) *Type {
+func (c *Checker) getInitialType(node Union[VariableDeclaration, BindingElement]) *Type {
 	if node.kind == SyntaxKindVariableDeclaration {
 		return c.getInitialTypeOfVariableDeclaration(node)
 	} else {
@@ -29976,7 +29976,7 @@ func (c *Checker) getInitialType(node /* TODO(TS-TO-GO) TypeNode UnionType: Vari
 	}
 }
 
-func (c *Checker) isEmptyArrayAssignment(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | BindingElement | Expression */ any) bool {
+func (c *Checker) isEmptyArrayAssignment(node Union[VariableDeclaration, BindingElement, Expression]) bool {
 	return node.kind == SyntaxKindVariableDeclaration && (node.AsVariableDeclaration()).initializer && c.isEmptyArrayLiteral((node.AsVariableDeclaration()).initializer) || node.kind != SyntaxKindBindingElement && node.parent.kind == SyntaxKindBinaryExpression && c.isEmptyArrayLiteral((node.parent.AsBinaryExpression()).right)
 }
 
@@ -30007,7 +30007,7 @@ func (c *Checker) getReferenceRoot(node *Node) *Node {
 	}
 }
 
-func (c *Checker) getTypeOfSwitchClause(clause /* TODO(TS-TO-GO) TypeNode UnionType: CaseClause | DefaultClause */ any) *Type {
+func (c *Checker) getTypeOfSwitchClause(clause Union[CaseClause, DefaultClause]) *Type {
 	if clause.kind == SyntaxKindCaseClause {
 		return c.getRegularTypeOfLiteralType(c.getTypeOfExpression(clause.expression))
 	}
@@ -30419,7 +30419,7 @@ func (c *Checker) getTypeOfDottedName(node Expression, diagnostic *Diagnostic) *
 	}
 }
 
-func (c *Checker) getEffectsSignature(node /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | InstanceofExpression */ any) *Signature {
+func (c *Checker) getEffectsSignature(node Union[CallExpression, InstanceofExpression]) *Signature {
 	links := c.getNodeLinks(node)
 	signature := links.effectsSignature
 	if signature == nil {
@@ -31174,7 +31174,7 @@ func (c *Checker) getFlowTypeOfReference(reference *Node, declaredType *Type, in
 		return nil
 	}
 
-	narrowTypeByDiscriminant := func(t *Type, access /* TODO(TS-TO-GO) TypeNode UnionType: AccessExpression | BindingElement | ParameterDeclaration */ any, narrowType func(t *Type) *Type) *Type {
+	narrowTypeByDiscriminant := func(t *Type, access Union[AccessExpression, BindingElement, ParameterDeclaration], narrowType func(t *Type) *Type) *Type {
 		propName := c.getAccessedPropertyName(access)
 		if propName == nil {
 			return t
@@ -31197,7 +31197,7 @@ func (c *Checker) getFlowTypeOfReference(reference *Node, declaredType *Type, in
 		})
 	}
 
-	narrowTypeByDiscriminantProperty := func(t *Type, access /* TODO(TS-TO-GO) TypeNode UnionType: AccessExpression | BindingElement | ParameterDeclaration */ any, operator SyntaxKind, value Expression, assumeTrue bool) *Type {
+	narrowTypeByDiscriminantProperty := func(t *Type, access Union[AccessExpression, BindingElement, ParameterDeclaration], operator SyntaxKind, value Expression, assumeTrue bool) *Type {
 		if (operator == SyntaxKindEqualsEqualsEqualsToken || operator == SyntaxKindExclamationEqualsEqualsToken) && t.flags&TypeFlagsUnion != 0 {
 			keyPropertyName := c.getKeyPropertyName(t.AsUnionType())
 			if keyPropertyName && keyPropertyName == c.getAccessedPropertyName(access) {
@@ -31219,7 +31219,7 @@ func (c *Checker) getFlowTypeOfReference(reference *Node, declaredType *Type, in
 		})
 	}
 
-	narrowTypeBySwitchOnDiscriminantProperty := func(type_ *Type, access /* TODO(TS-TO-GO) TypeNode UnionType: AccessExpression | BindingElement | ParameterDeclaration */ any, data FlowSwitchClauseData) *Type {
+	narrowTypeBySwitchOnDiscriminantProperty := func(type_ *Type, access Union[AccessExpression, BindingElement, ParameterDeclaration], data FlowSwitchClauseData) *Type {
 		if data.clauseStart < data.clauseEnd && type_.flags&TypeFlagsUnion != 0 && c.getKeyPropertyName(type_.AsUnionType()) == c.getAccessedPropertyName(access) {
 			clauseTypes := c.getSwitchClauseTypes(data.switchStatement).slice(data.clauseStart, data.clauseEnd)
 			candidate := c.getUnionType(map_(clauseTypes, func(t *Type) *Type {
@@ -31259,7 +31259,7 @@ func (c *Checker) getFlowTypeOfReference(reference *Node, declaredType *Type, in
 		}
 	}
 
-	narrowTypeByInKeyword := func(t *Type, nameType /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteralType | NumberLiteralType | UniqueESSymbolType */ any, assumeTrue bool) *Type {
+	narrowTypeByInKeyword := func(t *Type, nameType Union[StringLiteralType, NumberLiteralType, UniqueESSymbolType], assumeTrue bool) *Type {
 		name := getPropertyNameFromType(nameType)
 		isKnownProperty := c.someType(t, func(t *Type) bool {
 			return isTypePresencePossible(t, name /*assumeTrue*/, true)
@@ -32429,7 +32429,7 @@ func (c *Checker) markIdentifierAliasReferenced(location Identifier) {
 	}
 }
 
-func (c *Checker) markPropertyAliasReferenced(location /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName */ any, propSymbol *Symbol, parentType *Type) {
+func (c *Checker) markPropertyAliasReferenced(location Union[PropertyAccessExpression, QualifiedName], propSymbol *Symbol, parentType *Type) {
 	var left /* TODO(TS-TO-GO) inferred type LeftHandSideExpression | QualifiedName */ any
 	if isPropertyAccessExpression(location) {
 		left = location.expression
@@ -32496,7 +32496,7 @@ func (c *Checker) markExportAssignmentAliasReferenced(location ExportAssignment)
 	}
 }
 
-func (c *Checker) markJsxAliasReferenced(node /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningLikeElement | JsxOpeningFragment */ any) {
+func (c *Checker) markJsxAliasReferenced(node Union[JsxOpeningLikeElement, JsxOpeningFragment]) {
 	if c.getJsxNamespaceContainerForImplicitImport(node) == nil {
 		// The reactNamespace/jsxFactory's root symbol should be marked as 'used' so we don't incorrectly elide its import.
 		// And if there is no reactNamespace/jsxFactory's symbol in scope when targeting React emit, we should issue an error.
@@ -32543,7 +32543,7 @@ func (c *Checker) markJsxAliasReferenced(node /* TODO(TS-TO-GO) TypeNode UnionTy
 	return
 }
 
-func (c *Checker) markAsyncFunctionAliasReferenced(location /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | MethodSignature */ any) {
+func (c *Checker) markAsyncFunctionAliasReferenced(location Union[FunctionLikeDeclaration, MethodSignature]) {
 	if c.languageVersion < ScriptTargetES2015 {
 		if getFunctionFlags(location)&FunctionFlagsAsync != 0 {
 			returnTypeNode := getEffectiveReturnTypeNode(location)
@@ -32670,7 +32670,7 @@ func (c *Checker) markAliasSymbolAsReferenced(symbol *Symbol) undefined {
 	}
 }
 
-func (c *Checker) markExportAsReferenced(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportEqualsDeclaration | ExportSpecifier */ any) {
+func (c *Checker) markExportAsReferenced(node Union[ImportEqualsDeclaration, ExportSpecifier]) {
 	symbol := c.getSymbolOfDeclaration(node)
 	target := c.resolveAlias(symbol)
 	if target {
@@ -33159,7 +33159,7 @@ func (c *Checker) checkNestedBlockScopedBinding(node Identifier, symbol *Symbol)
 	}
 }
 
-func (c *Checker) isBindingCapturedByNode(node *Node, decl /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | BindingElement */ any) bool {
+func (c *Checker) isBindingCapturedByNode(node *Node, decl Union[VariableDeclaration, BindingElement]) bool {
 	links := c.getNodeLinks(node)
 	return links && contains(links.capturedBlockScopeBindings, c.getSymbolOfDeclaration(decl))
 }
@@ -34482,7 +34482,7 @@ func (c *Checker) getContextualTypeForJsxExpression(node JsxExpression, contextF
 	}
 }
 
-func (c *Checker) getContextualTypeForJsxAttribute(attribute /* TODO(TS-TO-GO) TypeNode UnionType: JsxAttribute | JsxSpreadAttribute */ any, contextFlags *ContextFlags) *Type {
+func (c *Checker) getContextualTypeForJsxAttribute(attribute Union[JsxAttribute, JsxSpreadAttribute], contextFlags *ContextFlags) *Type {
 	// When we trying to resolve JsxOpeningLikeElement as a stateless function element, we will already give its attributes a contextual type
 	// which is a type of the parameter of the signature we are trying out.
 	// If there is no contextual type (e.g. we are trying to resolve stateful component), get attributes type from resolving element's tagName
@@ -34560,7 +34560,7 @@ func (c *Checker) discriminateContextualTypeByJSXAttributes(node JsxAttributes, 
 
 // Return the contextual type for a given expression node. During overload resolution, a contextual type may temporarily
 // be "pushed" onto a node using the contextualType property.
-func (c *Checker) getApparentTypeOfContextualType(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | MethodDeclaration */ any, contextFlags *ContextFlags) *Type {
+func (c *Checker) getApparentTypeOfContextualType(node Union[Expression, MethodDeclaration], contextFlags *ContextFlags) *Type {
 	var contextualType *Type
 	if isObjectLiteralMethod(node) {
 		contextualType = c.getContextualTypeForObjectLiteralMethod(node, contextFlags)
@@ -35114,7 +35114,7 @@ func (c *Checker) getContextualSignatureForFunctionLikeDeclaration(node Function
 // If the contextual type is a union type, get the signature from each type possible and if they are
 // all identical ignoring their return type, the result is same signature but with return type as
 // union type of return types from these signatures
-func (c *Checker) getContextualSignature(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionExpression | ArrowFunction | MethodDeclaration */ any) *Signature {
+func (c *Checker) getContextualSignature(node Union[FunctionExpression, ArrowFunction, MethodDeclaration]) *Signature {
 	Debug.assert(node.kind != SyntaxKindMethodDeclaration || isObjectLiteralMethod(node))
 	typeTagSignature := c.getSignatureOfTypeTag(node)
 	if typeTagSignature != nil {
@@ -35216,7 +35216,7 @@ func (c *Checker) checkSyntheticExpression(node SyntheticExpression) *Type {
 	}
 }
 
-func (c *Checker) hasDefaultValue(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | ObjectLiteralElementLike | Expression */ any) bool {
+func (c *Checker) hasDefaultValue(node Union[BindingElement, ObjectLiteralElementLike, Expression]) bool {
 	return node.kind == SyntaxKindBindingElement && (node.AsBindingElement()).initializer != nil || node.kind == SyntaxKindPropertyAssignment && c.hasDefaultValue((node.AsPropertyAssignment()).initializer) || node.kind == SyntaxKindShorthandPropertyAssignment && (node.AsShorthandPropertyAssignment()).objectAssignmentInitializer != nil || node.kind == SyntaxKindBinaryExpression && (node.AsBinaryExpression()).operatorToken.kind == SyntaxKindEqualsToken
 }
 
@@ -35696,7 +35696,7 @@ func (c *Checker) checkJsxFragment(node JsxFragment) *Type {
 	return c.getJsxElementTypeAt(node) || c.anyType
 }
 
-func (c *Checker) isHyphenatedJsxName(name /* TODO(TS-TO-GO) TypeNode UnionType: string | __String */ any) bool {
+func (c *Checker) isHyphenatedJsxName(name Union[string, string]) bool {
 	return (name /* as string */).includes("-")
 }
 
@@ -35871,7 +35871,7 @@ func (c *Checker) createJsxAttributesTypeFromAttributesProperty(openingLikeEleme
 
 }
 
-func (c *Checker) checkJsxChildren(node /* TODO(TS-TO-GO) TypeNode UnionType: JsxElement | JsxFragment */ any, checkMode CheckMode) []*Type {
+func (c *Checker) checkJsxChildren(node Union[JsxElement, JsxFragment], checkMode CheckMode) []*Type {
 	var childrenTypes []*Type = []never{}
 	for _, child := range node.children {
 		// In React, JSX text that contains only whitespaces will be ignored so we don't want to type-check that
@@ -35890,7 +35890,7 @@ func (c *Checker) checkJsxChildren(node /* TODO(TS-TO-GO) TypeNode UnionType: Js
 	return childrenTypes
 }
 
-func (c *Checker) checkSpreadPropOverrides(t *Type, props SymbolTable, spread /* TODO(TS-TO-GO) TypeNode UnionType: SpreadAssignment | JsxSpreadAttribute */ any) {
+func (c *Checker) checkSpreadPropOverrides(t *Type, props SymbolTable, spread Union[SpreadAssignment, JsxSpreadAttribute]) {
 	for _, right := range c.getPropertiesOfType(t) {
 		if right.flags&SymbolFlagsOptional != 0 {
 			left := props.get(right.escapedName)
@@ -35930,7 +35930,7 @@ func (c *Checker) getJsxType(name string, location *Node) *Type {
  * May also return unknownSymbol if both of these lookups fail.
  */
 
-func (c *Checker) getIntrinsicTagSymbol(node /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningLikeElement | JsxClosingElement */ any) *Symbol {
+func (c *Checker) getIntrinsicTagSymbol(node Union[JsxOpeningLikeElement, JsxClosingElement]) *Symbol {
 	links := c.getNodeLinks(node)
 	if links.resolvedSymbol == nil {
 		intrinsicElementsType := c.getJsxType(JsxNames.IntrinsicElements, node)
@@ -36296,7 +36296,7 @@ func (c *Checker) checkJsxPreconditions(errorNode *Node) {
 	}
 }
 
-func (c *Checker) checkJsxOpeningLikeElementOrOpeningFragment(node /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningLikeElement | JsxOpeningFragment */ any) {
+func (c *Checker) checkJsxOpeningLikeElementOrOpeningFragment(node Union[JsxOpeningLikeElement, JsxOpeningFragment]) {
 	isNodeOpeningLikeElement := isJsxOpeningLikeElement(node)
 
 	if isNodeOpeningLikeElement {
@@ -36417,7 +36417,7 @@ func (c *Checker) isPrototypeProperty(symbol *Symbol) *bool {
  * @param prop The symbol for the property being accessed.
  */
 
-func (c *Checker) checkPropertyAccessibility(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName | PropertyAccessExpression | VariableDeclaration | ParameterDeclaration | ImportTypeNode | PropertyAssignment | ShorthandPropertyAssignment | BindingElement */ any, isSuper bool, writing bool, t *Type, prop *Symbol, reportError bool /*  = true */) bool {
+func (c *Checker) checkPropertyAccessibility(node Union[PropertyAccessExpression, QualifiedName, PropertyAccessExpression, VariableDeclaration, ParameterDeclaration, ImportTypeNode, PropertyAssignment, ShorthandPropertyAssignment, BindingElement], isSuper bool, writing bool, t *Type, prop *Symbol, reportError bool /*  = true */) bool {
 	var errorNode * /* TODO(TS-TO-GO) inferred type ObjectBindingPattern | ArrayBindingPattern | PropertyName | ImportTypeNode */ any
 	switch {
 	case !reportError:
@@ -36601,7 +36601,7 @@ func (c *Checker) symbolHasNonMethodDeclaration(symbol *Symbol) bool {
 	})
 }
 
-func (c *Checker) checkNonNullExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any) *Type {
+func (c *Checker) checkNonNullExpression(node Union[Expression, QualifiedName]) *Type {
 	return c.checkNonNullType(c.checkExpression(node), node)
 }
 
@@ -36819,11 +36819,11 @@ func (c *Checker) checkPrivateIdentifierPropertyAccess(leftType *Type, right Pri
 	return false
 }
 
-func (c *Checker) isThisPropertyAccessInConstructor(node /* TODO(TS-TO-GO) TypeNode UnionType: ElementAccessExpression | PropertyAccessExpression | QualifiedName */ any, prop *Symbol) *bool {
+func (c *Checker) isThisPropertyAccessInConstructor(node Union[ElementAccessExpression, PropertyAccessExpression, QualifiedName], prop *Symbol) *bool {
 	return (c.isConstructorDeclaredProperty(prop) || isThisProperty(node) && c.isAutoTypedProperty(prop)) && getThisContainer(node /*includeArrowFunctions*/, true /*includeClassComputedPropertyName*/, false) == c.getDeclaringConstructor(prop)
 }
 
-func (c *Checker) checkPropertyAccessExpressionOrQualifiedName(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName */ any, left /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any, leftType *Type, right /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier */ any, checkMode *CheckMode, writeOnly bool) *Type {
+func (c *Checker) checkPropertyAccessExpressionOrQualifiedName(node Union[PropertyAccessExpression, QualifiedName], left Union[Expression, QualifiedName], leftType *Type, right Union[Identifier, PrivateIdentifier], checkMode *CheckMode, writeOnly bool) *Type {
 	parentSymbol := c.getNodeLinks(left).resolvedSymbol
 	assignmentKind := getAssignmentTargetKind(node)
 	apparentType := c.getApparentType(ifElse(assignmentKind != AssignmentKindNone || c.isMethodAccessForCall(node), c.getWidenedType(leftType), leftType))
@@ -36975,7 +36975,7 @@ func (c *Checker) isUncheckedJSSuggestion(node *Node, suggestion *Symbol, exclud
 	return false
 }
 
-func (c *Checker) getFlowTypeOfAccessExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: ElementAccessExpression | PropertyAccessExpression | QualifiedName */ any, prop *Symbol, propType *Type, errorNode *Node, checkMode *CheckMode) *Type {
+func (c *Checker) getFlowTypeOfAccessExpression(node Union[ElementAccessExpression, PropertyAccessExpression, QualifiedName], prop *Symbol, propType *Type, errorNode *Node, checkMode *CheckMode) *Type {
 	// Only compute control flow type if this is a property access expression that isn't an
 	// assignment target, and the referenced property was declared as a variable, property,
 	// accessor, or optional method.
@@ -37021,7 +37021,7 @@ func (c *Checker) getFlowTypeOfAccessExpression(node /* TODO(TS-TO-GO) TypeNode 
 	}
 }
 
-func (c *Checker) checkPropertyNotUsedBeforeDeclaration(prop *Symbol, node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName */ any, right /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier */ any) {
+func (c *Checker) checkPropertyNotUsedBeforeDeclaration(prop *Symbol, node Union[PropertyAccessExpression, QualifiedName], right Union[Identifier, PrivateIdentifier]) {
 	TODO_IDENTIFIER := prop
 	if valueDeclaration == nil || getSourceFileOfNode(node).isDeclarationFile {
 		return
@@ -37107,7 +37107,7 @@ func (c *Checker) getSuperClass(classType InterfaceType) *Type {
 	return c.getIntersectionType(x)
 }
 
-func (c *Checker) reportNonexistentProperty(propNode /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier */ any, containingType *Type, isUncheckedJS bool) {
+func (c *Checker) reportNonexistentProperty(propNode Union[Identifier, PrivateIdentifier], containingType *Type, isUncheckedJS bool) {
 	var errorInfo *DiagnosticMessageChain
 	var relatedInfo *Diagnostic
 	if !isPrivateIdentifier(propNode) && containingType.flags&TypeFlagsUnion != 0 && (containingType.flags&TypeFlagsPrimitive != 0) {
@@ -37175,7 +37175,7 @@ func (c *Checker) typeHasStaticProperty(propName string, containingType *Type) b
 	return prop != nil && prop.valueDeclaration != nil && isStatic(prop.valueDeclaration)
 }
 
-func (c *Checker) getSuggestedLibForNonExistentName(name /* TODO(TS-TO-GO) TypeNode UnionType: __String | Identifier */ any) *string {
+func (c *Checker) getSuggestedLibForNonExistentName(name Union[string, Identifier]) *string {
 	missingName := c.diagnosticName(name)
 	allFeatures := getScriptTargetFeatures()
 	typeFeatures := allFeatures.get(missingName)
@@ -37203,7 +37203,7 @@ func (c *Checker) getSuggestedSymbolForNonexistentClassMember(name string, baseT
 	return c.getSpellingSuggestionForName(name, c.getPropertiesOfType(baseType), SymbolFlagsClassMember)
 }
 
-func (c *Checker) getSuggestedSymbolForNonexistentProperty(name /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | string */ any, containingType *Type) *Symbol {
+func (c *Checker) getSuggestedSymbolForNonexistentProperty(name Union[Identifier, PrivateIdentifier, string], containingType *Type) *Symbol {
 	props := c.getPropertiesOfType(containingType)
 	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof name */ TODO != "string" {
 		parent := name.parent
@@ -37217,7 +37217,7 @@ func (c *Checker) getSuggestedSymbolForNonexistentProperty(name /* TODO(TS-TO-GO
 	return c.getSpellingSuggestionForName(name, props, SymbolFlagsValue)
 }
 
-func (c *Checker) getSuggestedSymbolForNonexistentJSXAttribute(name /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | string */ any, containingType *Type) *Symbol {
+func (c *Checker) getSuggestedSymbolForNonexistentJSXAttribute(name Union[Identifier, PrivateIdentifier, string], containingType *Type) *Symbol {
 	var strName string
 	if isString(name) {
 		strName = name
@@ -37241,7 +37241,7 @@ func (c *Checker) getSuggestedSymbolForNonexistentJSXAttribute(name /* TODO(TS-T
 	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: jsxSpecific ?? getSpellingSuggestionForName(strName, properties, SymbolFlags.Value) */ TODO
 }
 
-func (c *Checker) getSuggestionForNonexistentProperty(name /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | string */ any, containingType *Type) *string {
+func (c *Checker) getSuggestionForNonexistentProperty(name Union[Identifier, PrivateIdentifier, string], containingType *Type) *string {
 	suggestion := c.getSuggestedSymbolForNonexistentProperty(name, containingType)
 	return suggestion && symbolName(suggestion)
 }
@@ -37282,7 +37282,7 @@ func (c *Checker) getSuggestedSymbolForNonexistentModule(name Identifier, target
 
 func (c *Checker) getSuggestionForNonexistentIndexSignature(objectType *Type, expr ElementAccessExpression, keyedType *Type) *string {
 	// check if object type has setter or getter
-	hasProp := func(name /* TODO(TS-TO-GO) TypeNode UnionType: "set" | "get" */ any) bool {
+	hasProp := func(name Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "set" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "get" */, any]) bool {
 		prop := c.getPropertyOfObjectType(objectType, name.(string))
 		if prop != nil {
 			s := c.getSingleCallSignature(c.getTypeOfSymbol(prop))
@@ -37385,11 +37385,11 @@ func (c *Checker) markPropertyAsReferenced(prop *Symbol, nodeForCheckWriteOnly *
 	(ifElse(getCheckFlags(prop)&CheckFlagsInstantiated != 0, c.getSymbolLinks(prop).target, prop)).isReferenced = SymbolFlagsAll
 }
 
-func (c *Checker) isSelfTypeAccess(name /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any, parent *Symbol) bool {
+func (c *Checker) isSelfTypeAccess(name Union[Expression, QualifiedName], parent *Symbol) bool {
 	return name.kind == SyntaxKindThisKeyword || parent != nil && isEntityNameExpression(name) && parent == c.getResolvedSymbol(getFirstIdentifier(name))
 }
 
-func (c *Checker) isValidPropertyAccess(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName | ImportTypeNode */ any, propertyName string) bool {
+func (c *Checker) isValidPropertyAccess(node Union[PropertyAccessExpression, QualifiedName, ImportTypeNode], propertyName string) bool {
 	switch node.kind {
 	case SyntaxKindPropertyAccessExpression:
 		return c.isValidPropertyAccessWithType(node, node.expression.kind == SyntaxKindSuperKeyword, propertyName, c.getWidenedType(c.checkExpression(node.expression)))
@@ -37411,12 +37411,12 @@ func (c *Checker) isValidPropertyAccess(node /* TODO(TS-TO-GO) TypeNode UnionTyp
  * @param property the accessed property's symbol.
  */
 
-func (c *Checker) isValidPropertyAccessForCompletions(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | ImportTypeNode | QualifiedName */ any, t *Type, property *Symbol) bool {
+func (c *Checker) isValidPropertyAccessForCompletions(node Union[PropertyAccessExpression, ImportTypeNode, QualifiedName], t *Type, property *Symbol) bool {
 	return c.isPropertyAccessible(node, node.kind == SyntaxKindPropertyAccessExpression && node.expression.kind == SyntaxKindSuperKeyword /*isWrite*/, false, t, property)
 	// Previously we validated the 'this' type of methods but this adversely affected performance. See #31377 for more context.
 }
 
-func (c *Checker) isValidPropertyAccessWithType(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | QualifiedName | ImportTypeNode */ any, isSuper bool, propertyName string, t *Type) bool {
+func (c *Checker) isValidPropertyAccessWithType(node Union[PropertyAccessExpression, QualifiedName, ImportTypeNode], isSuper bool, propertyName string, t *Type) bool {
 	// Short-circuiting for improved performance.
 	if c.isTypeAny(t) {
 		return true
@@ -38311,7 +38311,7 @@ func (c *Checker) getThisArgumentOfCall(node CallLikeExpression) Expression {
 	}
 }
 
-func (c *Checker) createSyntheticExpression(parent *Node, t *Type, isSpread bool, tupleNameSource /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | NamedTupleMember */ any) SyntheticExpression {
+func (c *Checker) createSyntheticExpression(parent *Node, t *Type, isSpread bool, tupleNameSource Union[ParameterDeclaration, NamedTupleMember]) SyntheticExpression {
 	result := parseNodeFactory.createSyntheticExpression(t, isSpread, tupleNameSource)
 	setTextRangeWorker(result, parent)
 	setParent(result, parent)
@@ -38441,7 +38441,7 @@ func (c *Checker) getDiagnosticSpanForCallNode(node CallExpression) /* TODO(TS-T
 	}
 }
 
-func (c *Checker) getDiagnosticForCallNode(node CallLikeExpression, message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) DiagnosticWithLocation {
+func (c *Checker) getDiagnosticForCallNode(node CallLikeExpression, message Union[DiagnosticMessage, DiagnosticMessageChain], args DiagnosticArguments) DiagnosticWithLocation {
 	if isCallExpression(node) {
 		TODO_IDENTIFIER := c.getDiagnosticSpanForCallNode(node)
 		if /* TODO(TS-TO-GO) InKeyword BinaryExpression: "message" in message */ TODO {
@@ -39352,7 +39352,7 @@ func (c *Checker) resolveNewExpression(node NewExpression, candidatesOutArray *[
 	return c.resolveErrorCall(node)
 }
 
-func (c *Checker) someSignature(signatures /* TODO(TS-TO-GO) TypeNode UnionType: Signature | readonly Signature[] */ any, f func(s Signature) bool) bool {
+func (c *Checker) someSignature(signatures Union[Signature, []Signature], f func(s Signature) bool) bool {
 	if isArray(signatures) {
 		return some(signatures, func(signature Signature) bool {
 			return c.someSignature(signature, f)
@@ -39853,7 +39853,7 @@ func (c *Checker) getSymbolOfExpando(node *Node, allowDeclaration bool) *Symbol 
 	if !node.parent {
 		return nil
 	}
-	var name /* TODO(TS-TO-GO) TypeNode UnionType: Expression | BindingName | undefined */ any
+	var name Union[Expression, BindingName /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 	var decl *Node
 	if isVariableDeclaration(node.parent) && node.parent.initializer == node {
 		if !isInJSFile(node) && !(c.isVarConstLike(node.parent) && isFunctionLikeDeclaration(node)) {
@@ -39911,7 +39911,7 @@ func (c *Checker) getAssignedJSPrototype(node *Node) * /* TODO(TS-TO-GO) inferre
  * @returns On success, the expression's signature's return type. On failure, anyType.
  */
 
-func (c *Checker) checkCallExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | NewExpression */ any, checkMode CheckMode) *Type {
+func (c *Checker) checkCallExpression(node Union[CallExpression, NewExpression], checkMode CheckMode) *Type {
 	c.checkGrammarTypeArguments(node, node.typeArguments)
 
 	signature := c.getResolvedSignature(node /*candidatesOutArray*/, nil, checkMode)
@@ -40211,7 +40211,7 @@ func (c *Checker) isValidConstAssertionArgument(node *Node) bool {
 	return false
 }
 
-func (c *Checker) checkAssertionWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeAssertion | AssertionExpression */ any, checkMode *CheckMode) *Type {
+func (c *Checker) checkAssertionWorker(node Union[JSDocTypeAssertion, AssertionExpression], checkMode *CheckMode) *Type {
 	TODO_IDENTIFIER := c.getAssertionTypeAndExpression(node)
 	exprType := c.checkExpression(expression, checkMode)
 	if isConstTypeReference(t) {
@@ -40227,7 +40227,7 @@ func (c *Checker) checkAssertionWorker(node /* TODO(TS-TO-GO) TypeNode UnionType
 	return c.getTypeFromTypeNode(t)
 }
 
-func (c *Checker) getAssertionTypeAndExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeAssertion | AssertionExpression */ any) /* TODO(TS-TO-GO) inferred type { type: TypeNode; expression: Expression; } */ any {
+func (c *Checker) getAssertionTypeAndExpression(node Union[JSDocTypeAssertion, AssertionExpression]) /* TODO(TS-TO-GO) inferred type { type: TypeNode; expression: Expression; } */ any {
 	var t TypeNode
 	var expression Expression
 	switch node.kind {
@@ -40246,7 +40246,7 @@ func (c *Checker) getAssertionTypeAndExpression(node /* TODO(TS-TO-GO) TypeNode 
 	}
 }
 
-func (c *Checker) checkAssertionDeferred(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeAssertion | AssertionExpression */ any) {
+func (c *Checker) checkAssertionDeferred(node Union[JSDocTypeAssertion, AssertionExpression]) {
 	TODO_IDENTIFIER := c.getAssertionTypeAndExpression(node)
 	var errNode /* TODO(TS-TO-GO) inferred type TypeNode | AssertionExpression */ any
 	if isParenthesizedExpression(node) {
@@ -40282,7 +40282,7 @@ func (c *Checker) checkNonNullAssertion(node NonNullExpression) *Type {
 	}
 }
 
-func (c *Checker) checkExpressionWithTypeArguments(node /* TODO(TS-TO-GO) TypeNode UnionType: ExpressionWithTypeArguments | TypeQueryNode */ any) *Type {
+func (c *Checker) checkExpressionWithTypeArguments(node Union[ExpressionWithTypeArguments, TypeQueryNode]) *Type {
 	c.checkGrammarExpressionWithTypeArguments(node)
 	forEach(node.typeArguments, c.checkSourceElement)
 	if node.kind == SyntaxKindExpressionWithTypeArguments {
@@ -40480,7 +40480,7 @@ func (c *Checker) getTypeOfParameter(symbol *Symbol) *Type {
  * @param elementFlags The {@see ElementFlags} of the tuple element
  */
 
-func (c *Checker) getTupleElementLabelFromBindingElement(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | ParameterDeclaration */ any, index number, elementFlags ElementFlags) string {
+func (c *Checker) getTupleElementLabelFromBindingElement(node Union[BindingElement, ParameterDeclaration], index number, elementFlags ElementFlags) string {
 	switch node.name.kind {
 	case SyntaxKindIdentifier:
 		name := node.name.escapedText
@@ -40540,7 +40540,7 @@ func (c *Checker) getTupleElementLabelFromBindingElement(node /* TODO(TS-TO-GO) 
 
 /* OVERLOAD: function getTupleElementLabel(d: ParameterDeclaration | NamedTupleMember): __String; */
 /* OVERLOAD: function getTupleElementLabel(d: ParameterDeclaration | NamedTupleMember | undefined, index: number, elementFlags: ElementFlags, restSymbol?: Symbol): __String; */
-func (c *Checker) getTupleElementLabel(d /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | NamedTupleMember | undefined */ any, index number /*  = 0 */, elementFlags ElementFlags /*  = ElementFlags.Fixed */, restSymbol *Symbol) string {
+func (c *Checker) getTupleElementLabel(d Union[ParameterDeclaration, NamedTupleMember /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], index number /*  = 0 */, elementFlags ElementFlags /*  = ElementFlags.Fixed */, restSymbol *Symbol) string {
 	if d == nil {
 		restParameter := tryCast(restSymbol. /* ? */ valueDeclaration, isParameter)
 		if restParameter != nil {
@@ -40963,7 +40963,7 @@ func (c *Checker) getClassMemberDecoratorContextOverrideType(nameType *Type, isP
 	return overrideType
 }
 
-func (c *Checker) createClassMemberDecoratorContextTypeForNode(node /* TODO(TS-TO-GO) TypeNode UnionType: MethodDeclaration | AccessorDeclaration | PropertyDeclaration */ any, thisType *Type, valueType *Type) *Type {
+func (c *Checker) createClassMemberDecoratorContextTypeForNode(node Union[MethodDeclaration, AccessorDeclaration, PropertyDeclaration], thisType *Type, valueType *Type) *Type {
 	isStatic := hasStaticModifier(node)
 	isPrivate := isPrivateIdentifier(node.name)
 	var nameType *Type
@@ -41365,7 +41365,7 @@ func (c *Checker) createPromiseLikeType(promisedType *Type) *Type {
 	return c.unknownType
 }
 
-func (c *Checker) createPromiseReturnType(func_ /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | ImportCall */ any, promisedType *Type) *Type {
+func (c *Checker) createPromiseReturnType(func_ Union[FunctionLikeDeclaration, ImportCall], promisedType *Type) *Type {
 	promiseType := c.createPromiseType(promisedType)
 	if promiseType == c.unknownType {
 		c.error(func_, ifElse(isImportCall(func_), Diagnostics.A_dynamic_import_call_returns_a_Promise_Make_sure_you_have_a_declaration_for_Promise_or_include_ES2015_in_your_lib_option, Diagnostics.An_async_function_or_method_must_return_a_Promise_Make_sure_you_have_a_declaration_for_Promise_or_include_ES2015_in_your_lib_option))
@@ -41801,7 +41801,7 @@ func (c *Checker) checkIfExpressionRefinesParameter(func_ FunctionLikeDeclaratio
  * @param returnType - return type of the function, can be undefined if return type is not explicitly specified
  */
 
-func (c *Checker) checkAllCodePathsInNonVoidFunctionReturnOrThrow(func_ /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | MethodSignature */ any, returnType *Type) {
+func (c *Checker) checkAllCodePathsInNonVoidFunctionReturnOrThrow(func_ Union[FunctionLikeDeclaration, MethodSignature], returnType *Type) {
 	c.addLazyDiagnostic(checkAllCodePathsInNonVoidFunctionReturnOrThrowDiagnostics)
 	return
 
@@ -41851,7 +41851,7 @@ func (c *Checker) checkAllCodePathsInNonVoidFunctionReturnOrThrow(func_ /* TODO(
 
 }
 
-func (c *Checker) checkFunctionExpressionOrObjectLiteralMethod(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionExpression | ArrowFunction | MethodDeclaration */ any, checkMode CheckMode) *Type {
+func (c *Checker) checkFunctionExpressionOrObjectLiteralMethod(node Union[FunctionExpression, ArrowFunction, MethodDeclaration], checkMode CheckMode) *Type {
 	Debug.assert(node.kind != SyntaxKindMethodDeclaration || isObjectLiteralMethod(node))
 	c.checkNodeDeferred(node)
 
@@ -41892,7 +41892,7 @@ func (c *Checker) checkFunctionExpressionOrObjectLiteralMethod(node /* TODO(TS-T
 	return c.getTypeOfSymbol(c.getSymbolOfDeclaration(node))
 }
 
-func (c *Checker) contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionExpression | ArrowFunction | MethodDeclaration */ any, checkMode CheckMode) {
+func (c *Checker) contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node Union[FunctionExpression, ArrowFunction, MethodDeclaration], checkMode CheckMode) {
 	links := c.getNodeLinks(node)
 	// Check if function expression is contextually typed and assign parameter types if so.
 	if links.flags&NodeCheckFlagsContextChecked != 0 {
@@ -41944,7 +41944,7 @@ func (c *Checker) contextuallyCheckFunctionExpressionOrObjectLiteralMethod(node 
 	}
 }
 
-func (c *Checker) checkFunctionExpressionOrObjectLiteralMethodDeferred(node /* TODO(TS-TO-GO) TypeNode UnionType: ArrowFunction | FunctionExpression | MethodDeclaration */ any) {
+func (c *Checker) checkFunctionExpressionOrObjectLiteralMethodDeferred(node Union[ArrowFunction, FunctionExpression, MethodDeclaration]) {
 	Debug.assert(node.kind != SyntaxKindMethodDeclaration || isObjectLiteralMethod(node))
 
 	functionFlags := getFunctionFlags(node)
@@ -42127,7 +42127,7 @@ func (c *Checker) checkVoidExpression(node VoidExpression) *Type {
 	return c.undefinedWideningType
 }
 
-func (c *Checker) checkAwaitGrammar(node /* TODO(TS-TO-GO) TypeNode UnionType: AwaitExpression | VariableDeclarationList */ any) bool {
+func (c *Checker) checkAwaitGrammar(node Union[AwaitExpression, VariableDeclarationList]) bool {
 	// Grammar checking
 	hasError := false
 	container := getContainingFunctionOrClassStaticBlock(node)
@@ -42591,7 +42591,7 @@ func (c *Checker) checkArrayLiteralDestructuringElementAssignment(node ArrayLite
 	return nil
 }
 
-func (c *Checker) checkDestructuringAssignment(exprOrAssignment /* TODO(TS-TO-GO) TypeNode UnionType: Expression | ShorthandPropertyAssignment */ any, sourceType *Type, checkMode CheckMode, rightIsThis bool) *Type {
+func (c *Checker) checkDestructuringAssignment(exprOrAssignment Union[Expression, ShorthandPropertyAssignment], sourceType *Type, checkMode CheckMode, rightIsThis bool) *Type {
 	var target Expression
 	if exprOrAssignment.kind == SyntaxKindShorthandPropertyAssignment {
 		prop := exprOrAssignment.AsShorthandPropertyAssignment()
@@ -42820,7 +42820,7 @@ func (c *Checker) createCheckBinaryExpression() /* TODO(TS-TO-GO) inferred type 
 		return result
 	}
 
-	foldState := func(state WorkArea, result *Type, _side /* TODO(TS-TO-GO) TypeNode UnionType: "left" | "right" */ any) WorkArea {
+	foldState := func(state WorkArea, result *Type, _side Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "left" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "right" */, any]) WorkArea {
 		setLastResult(state, result)
 		return state
 	}
@@ -43546,7 +43546,7 @@ func (c *Checker) checkExpressionWithContextualType(node Expression, contextualT
 	return result
 }
 
-func (c *Checker) checkExpressionCached(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any, checkMode CheckMode) *Type {
+func (c *Checker) checkExpressionCached(node Union[Expression, QualifiedName], checkMode CheckMode) *Type {
 	if checkMode {
 		return c.checkExpression(node, checkMode)
 	}
@@ -43731,7 +43731,7 @@ func (c *Checker) checkObjectLiteralMethod(node MethodDeclaration, checkMode Che
 	return c.instantiateTypeWithSingleGenericCallSignature(node, uninstantiatedType, checkMode)
 }
 
-func (c *Checker) instantiateTypeWithSingleGenericCallSignature(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | MethodDeclaration | QualifiedName */ any, t *Type, checkMode CheckMode) *Type {
+func (c *Checker) instantiateTypeWithSingleGenericCallSignature(node Union[Expression, MethodDeclaration, QualifiedName], t *Type, checkMode CheckMode) *Type {
 	if checkMode && checkMode&(CheckModeInferential|CheckModeSkipGenericFunctions) != 0 {
 		callSignature := c.getSingleSignature(t, SignatureKindCall /*allowMembers*/, true)
 		constructSignature := c.getSingleSignature(t, SignatureKindConstruct /*allowMembers*/, true)
@@ -43974,7 +43974,7 @@ func (c *Checker) getContextFreeTypeOfExpression(node Expression) *Type {
 	return t
 }
 
-func (c *Checker) checkExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any, checkMode CheckMode, forceTuple bool) *Type {
+func (c *Checker) checkExpression(node Union[Expression, QualifiedName], checkMode CheckMode, forceTuple bool) *Type {
 	tracing. /* ? */ push(tracing.Phase.Check, "checkExpression", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"kind": node.kind,
 		"pos":  node.pos,
@@ -43994,7 +43994,7 @@ func (c *Checker) checkExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: Exp
 	return t
 }
 
-func (c *Checker) checkConstEnumAccess(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any, t *Type) {
+func (c *Checker) checkConstEnumAccess(node Union[Expression, QualifiedName], t *Type) {
 	// enum object type for const enums are only permitted in:
 	// - 'left' in property access
 	// - 'object' in indexed access
@@ -44031,7 +44031,7 @@ func (c *Checker) checkParenthesizedExpression(node ParenthesizedExpression, che
 	return c.checkExpression(node.expression, checkMode)
 }
 
-func (c *Checker) checkExpressionWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | QualifiedName */ any, checkMode *CheckMode, forceTuple bool) *Type {
+func (c *Checker) checkExpressionWorker(node Union[Expression, QualifiedName], checkMode *CheckMode, forceTuple bool) *Type {
 	kind := node.kind
 	if c.cancellationToken != nil {
 		// Only bother checking on a few construct kinds.  We don't want to be excessively
@@ -44542,7 +44542,7 @@ func (c *Checker) checkClassForStaticPropertyNameConflicts(node ClassLikeDeclara
 	}
 }
 
-func (c *Checker) checkObjectTypeForDuplicateDeclarations(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | InterfaceDeclaration */ any) {
+func (c *Checker) checkObjectTypeForDuplicateDeclarations(node Union[TypeLiteralNode, InterfaceDeclaration]) {
 	names := NewMap[string, bool]()
 	for _, member := range node.members {
 		if member.kind == SyntaxKindPropertySignature {
@@ -44568,7 +44568,7 @@ func (c *Checker) checkObjectTypeForDuplicateDeclarations(node /* TODO(TS-TO-GO)
 	}
 }
 
-func (c *Checker) checkTypeForDuplicateIndexSignatures(node /* TODO(TS-TO-GO) TypeNode UnionType: ClassLikeDeclaration | InterfaceDeclaration | TypeLiteralNode */ any) {
+func (c *Checker) checkTypeForDuplicateIndexSignatures(node Union[ClassLikeDeclaration, InterfaceDeclaration, TypeLiteralNode]) {
 	if node.kind == SyntaxKindInterfaceDeclaration {
 		nodeSymbol := c.getSymbolOfDeclaration(node)
 		// in case of merging interface declaration it is possible that we'll enter this check procedure several times for every declaration
@@ -44612,7 +44612,7 @@ func (c *Checker) checkTypeForDuplicateIndexSignatures(node /* TODO(TS-TO-GO) Ty
 	}
 }
 
-func (c *Checker) checkPropertyDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | PropertySignature */ any) {
+func (c *Checker) checkPropertyDeclaration(node Union[PropertyDeclaration, PropertySignature]) {
 	// Grammar checking
 	if !c.checkGrammarModifiers(node) && !c.checkGrammarProperty(node) {
 		c.checkGrammarComputedPropertyName(node.name)
@@ -44634,7 +44634,7 @@ func (c *Checker) checkPropertySignature(node PropertySignature) {
 	return c.checkPropertyDeclaration(node)
 }
 
-func (c *Checker) checkMethodDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: MethodDeclaration | MethodSignature */ any) {
+func (c *Checker) checkMethodDeclaration(node Union[MethodDeclaration, MethodSignature]) {
 	// Grammar checking
 	if !c.checkGrammarMethod(node) {
 		c.checkGrammarComputedPropertyName(node.name)
@@ -44660,7 +44660,7 @@ func (c *Checker) checkMethodDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionTy
 	c.setNodeLinksForPrivateIdentifierScope(node)
 }
 
-func (c *Checker) setNodeLinksForPrivateIdentifierScope(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | PropertySignature | MethodDeclaration | MethodSignature | AccessorDeclaration */ any) {
+func (c *Checker) setNodeLinksForPrivateIdentifierScope(node Union[PropertyDeclaration, PropertySignature, MethodDeclaration, MethodSignature, AccessorDeclaration]) {
 	if isPrivateIdentifier(node.name) {
 		if c.languageVersion < LanguageFeatureMinimumTarget.PrivateNamesAndClassStaticBlocks || c.languageVersion < LanguageFeatureMinimumTarget.ClassAndClassElementDecorators || !c.useDefineForClassFields {
 			for lexicalScope := getEnclosingBlockScopeContainer(node); lexicalScope; lexicalScope = getEnclosingBlockScopeContainer(lexicalScope) {
@@ -44856,18 +44856,18 @@ func (c *Checker) checkMissingDeclaration(node *Node) {
 	c.checkDecorators(node)
 }
 
-func (c *Checker) getEffectiveTypeArgumentAtIndex(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ExpressionWithTypeArguments */ any, typeParameters []TypeParameter, index number) *Type {
+func (c *Checker) getEffectiveTypeArgumentAtIndex(node Union[TypeReferenceNode, ExpressionWithTypeArguments], typeParameters []TypeParameter, index number) *Type {
 	if node.typeArguments != nil && index < node.typeArguments.length {
 		return c.getTypeFromTypeNode(node.typeArguments[index])
 	}
 	return c.getEffectiveTypeArguments(node, typeParameters)[index]
 }
 
-func (c *Checker) getEffectiveTypeArguments(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ExpressionWithTypeArguments | NodeWithTypeArguments */ any, typeParameters []TypeParameter) []*Type {
+func (c *Checker) getEffectiveTypeArguments(node Union[TypeReferenceNode, ExpressionWithTypeArguments, NodeWithTypeArguments], typeParameters []TypeParameter) []*Type {
 	return c.fillMissingTypeArguments(map_(node.typeArguments, c.getTypeFromTypeNode), typeParameters, c.getMinTypeArgumentCount(typeParameters), isInJSFile(node))
 }
 
-func (c *Checker) checkTypeArgumentConstraints(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ExpressionWithTypeArguments | NodeWithTypeArguments */ any, typeParameters []TypeParameter) bool {
+func (c *Checker) checkTypeArgumentConstraints(node Union[TypeReferenceNode, ExpressionWithTypeArguments, NodeWithTypeArguments], typeParameters []TypeParameter) bool {
 	var typeArguments *[]*Type
 	var mapper *TypeMapper
 	result := true
@@ -44891,7 +44891,7 @@ func (c *Checker) getTypeParametersForTypeAndSymbol(t *Type, symbol *Symbol) *[]
 	return nil
 }
 
-func (c *Checker) getTypeParametersForTypeReferenceOrImport(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ExpressionWithTypeArguments | ImportTypeNode */ any) *[]TypeParameter {
+func (c *Checker) getTypeParametersForTypeReferenceOrImport(node Union[TypeReferenceNode, ExpressionWithTypeArguments, ImportTypeNode]) *[]TypeParameter {
 	t := c.getTypeFromTypeNode(node)
 	if !c.isErrorType(t) {
 		symbol := c.getNodeLinks(node).resolvedSymbol
@@ -44902,7 +44902,7 @@ func (c *Checker) getTypeParametersForTypeReferenceOrImport(node /* TODO(TS-TO-G
 	return nil
 }
 
-func (c *Checker) checkTypeReferenceNode(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ExpressionWithTypeArguments */ any) {
+func (c *Checker) checkTypeReferenceNode(node Union[TypeReferenceNode, ExpressionWithTypeArguments]) {
 	c.checkGrammarTypeArguments(node, node.typeArguments)
 	if node.kind == SyntaxKindTypeReference && !isInJSFile(node) && !isInJSDoc(node) && node.typeArguments != nil && node.typeName.end != node.typeArguments.pos {
 		// If there was a token between the type name and the type arguments, check if it was a DotToken
@@ -44915,7 +44915,7 @@ func (c *Checker) checkTypeReferenceNode(node /* TODO(TS-TO-GO) TypeNode UnionTy
 	c.checkTypeReferenceOrImport(node)
 }
 
-func (c *Checker) checkTypeReferenceOrImport(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeReferenceNode | ExpressionWithTypeArguments | ImportTypeNode */ any) {
+func (c *Checker) checkTypeReferenceOrImport(node Union[TypeReferenceNode, ExpressionWithTypeArguments, ImportTypeNode]) {
 	t := c.getTypeFromTypeNode(node)
 	if !c.isErrorType(t) {
 		if node.typeArguments != nil {
@@ -45012,7 +45012,7 @@ func (c *Checker) checkUnionOrIntersectionType(node UnionOrIntersectionTypeNode)
 	c.getTypeFromTypeNode(node)
 }
 
-func (c *Checker) checkIndexedAccessIndexType(t *Type, accessNode /* TODO(TS-TO-GO) TypeNode UnionType: IndexedAccessTypeNode | ElementAccessExpression */ any) *Type {
+func (c *Checker) checkIndexedAccessIndexType(t *Type, accessNode Union[IndexedAccessTypeNode, ElementAccessExpression]) *Type {
 	if t.flags&TypeFlagsIndexedAccess != 0 {
 		return t
 	}
@@ -45955,7 +45955,7 @@ func (c *Checker) getAwaitedTypeNoAlias(t *Type, errorNode *Node, diagnosticMess
  * @param node The signature to check
  */
 
-func (c *Checker) checkAsyncFunctionReturnType(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | MethodSignature */ any, returnTypeNode TypeNode, returnTypeErrorLocation TypeNode) {
+func (c *Checker) checkAsyncFunctionReturnType(node Union[FunctionLikeDeclaration, MethodSignature], returnTypeNode TypeNode, returnTypeErrorLocation TypeNode) {
 	// As part of our emit for an async function, we will need to emit the entity name of
 	// the return type annotation as an expression. To meet the necessary runtime semantics
 	// for __awaiter, we must also check that the type of the declaration (e.g. the static
@@ -46326,7 +46326,7 @@ func (c *Checker) checkFunctionDeclaration(node FunctionDeclaration) {
 
 }
 
-func (c *Checker) checkJSDocTypeAliasTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypedefTag | JSDocCallbackTag */ any) {
+func (c *Checker) checkJSDocTypeAliasTag(node Union[JSDocTypedefTag, JSDocCallbackTag]) {
 	if node.typeExpression == nil {
 		// If the node had `@property` tags, `typeExpression` would have been set to the first property tag.
 		c.error(node.name, Diagnostics.JSDoc_typedef_tag_should_either_have_a_type_annotation_or_be_followed_by_property_or_member_tags)
@@ -46364,7 +46364,7 @@ func (c *Checker) checkJSDocSatisfiesTag(node JSDocSatisfiesTag) {
 	}
 }
 
-func (c *Checker) checkJSDocLinkLikeTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocLink | JSDocLinkCode | JSDocLinkPlain */ any) {
+func (c *Checker) checkJSDocLinkLikeTag(node Union[JSDocLink, JSDocLinkCode, JSDocLinkPlain]) {
 	if node.name != nil {
 		c.resolveJSDocMemberName(node.name /*ignoreErrors*/, true)
 	}
@@ -46431,7 +46431,7 @@ func (c *Checker) checkJSDocAugmentsTag(node JSDocAugmentsTag) {
 	}
 }
 
-func (c *Checker) checkJSDocAccessibilityModifiers(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocPublicTag | JSDocProtectedTag | JSDocPrivateTag */ any) {
+func (c *Checker) checkJSDocAccessibilityModifiers(node Union[JSDocPublicTag, JSDocProtectedTag, JSDocPrivateTag]) {
 	host := getJSDocHost(node)
 	if host != nil && isPrivateIdentifierClassElementDeclaration(host) {
 		c.error(node, Diagnostics.An_accessibility_modifier_cannot_be_used_with_a_private_identifier)
@@ -46440,7 +46440,7 @@ func (c *Checker) checkJSDocAccessibilityModifiers(node /* TODO(TS-TO-GO) TypeNo
 
 /* OVERLOAD: function getIdentifierFromEntityNameExpression(node: Identifier | PropertyAccessExpression): Identifier | PrivateIdentifier; */
 /* OVERLOAD: function getIdentifierFromEntityNameExpression(node: Expression): Identifier | PrivateIdentifier | undefined; */
-func (c *Checker) getIdentifierFromEntityNameExpression(node Expression) /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | undefined */ any {
+func (c *Checker) getIdentifierFromEntityNameExpression(node Expression) Union[Identifier, PrivateIdentifier /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	switch node.kind {
 	case SyntaxKindIdentifier:
 		return node.AsIdentifier()
@@ -46451,7 +46451,7 @@ func (c *Checker) getIdentifierFromEntityNameExpression(node Expression) /* TODO
 	}
 }
 
-func (c *Checker) checkFunctionOrMethodDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionDeclaration | MethodDeclaration | MethodSignature */ any) {
+func (c *Checker) checkFunctionOrMethodDeclaration(node Union[FunctionDeclaration, MethodDeclaration, MethodSignature]) {
 	c.checkDecorators(node)
 	c.checkSignatureDeclaration(node)
 	functionFlags := getFunctionFlags(node)
@@ -46604,7 +46604,7 @@ func (c *Checker) isIdentifierThatStartsWithUnderscore(node *Node) bool {
 	return isIdentifier(node) && idText(node).charCodeAt(0) == CharacterCodes_
 }
 
-func (c *Checker) checkUnusedClassMembers(node /* TODO(TS-TO-GO) TypeNode UnionType: ClassDeclaration | ClassExpression */ any, addDiagnostic AddUnusedDiagnostic) {
+func (c *Checker) checkUnusedClassMembers(node Union[ClassDeclaration, ClassExpression], addDiagnostic AddUnusedDiagnostic) {
 	for _, member := range node.members {
 		switch member.kind {
 		case SyntaxKindMethodDeclaration,
@@ -46642,7 +46642,7 @@ func (c *Checker) checkUnusedInferTypeParameter(node InferTypeNode, addDiagnosti
 	}
 }
 
-func (c *Checker) checkUnusedTypeParameters(node /* TODO(TS-TO-GO) TypeNode UnionType: ClassLikeDeclaration | SignatureDeclaration | InterfaceDeclaration | TypeAliasDeclaration */ any, addDiagnostic AddUnusedDiagnostic) {
+func (c *Checker) checkUnusedTypeParameters(node Union[ClassLikeDeclaration, SignatureDeclaration, InterfaceDeclaration, TypeAliasDeclaration], addDiagnostic AddUnusedDiagnostic) {
 	// Only report errors on the last declaration for the type parameter container;
 	// this ensures that all uses have been accounted for.
 	declarations := c.getSymbolOfDeclaration(node).declarations
@@ -46690,7 +46690,7 @@ func (c *Checker) isTypeParameterUnused(typeParameter TypeParameterDeclaration) 
 	return (c.getMergedSymbol(typeParameter.symbol).isReferenced&SymbolFlagsTypeParameter != 0) && !c.isIdentifierThatStartsWithUnderscore(typeParameter.name)
 }
 
-func (c *Checker) addToGroup(map_ Map[string /* TODO(TS-TO-GO) TypeNode TupleType: [K, V[]] */, any], key K, value V, getKey func(key K) /* TODO(TS-TO-GO) TypeNode UnionType: number | string */ any) {
+func (c *Checker) addToGroup(map_ Map[string /* TODO(TS-TO-GO) TypeNode TupleType: [K, V[]] */, any], key K, value V, getKey func(key K) Union[number, string]) {
 	keyString := String(getKey(key))
 	group := map_.get(keyString)
 	if group != nil {
@@ -47055,7 +47055,7 @@ func (c *Checker) checkCollisionsForDeclarationName(node *Node, name *Identifier
 	}
 }
 
-func (c *Checker) checkVarDeclaredNamesNotShadowed(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | BindingElement */ any) undefined {
+func (c *Checker) checkVarDeclaredNamesNotShadowed(node Union[VariableDeclaration, BindingElement]) undefined {
 	// - ScriptBody : StatementList
 	// It is a Syntax Error if any element of the LexicallyDeclaredNames of StatementList
 	// also occurs in the VarDeclaredNames of StatementList.
@@ -47132,7 +47132,7 @@ func (c *Checker) convertAutoToAny(t *Type) *Type {
 }
 
 // Check variable, parameter, or property declaration
-func (c *Checker) checkVariableLikeDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | PropertyDeclaration | PropertySignature | VariableDeclaration | BindingElement */ any) {
+func (c *Checker) checkVariableLikeDeclaration(node Union[ParameterDeclaration, PropertyDeclaration, PropertySignature, VariableDeclaration, BindingElement]) {
 	c.checkDecorators(node)
 	if !isBindingElement(node) {
 		c.checkSourceElement(node.type_)
@@ -47393,13 +47393,13 @@ func (c *Checker) checkIfStatement(node IfStatement) {
 	c.checkSourceElement(node.elseStatement)
 }
 
-func (c *Checker) checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(condExpr Expression, condType *Type, body /* TODO(TS-TO-GO) TypeNode UnionType: Statement | Expression */ any) {
+func (c *Checker) checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(condExpr Expression, condType *Type, body Union[Statement, Expression]) {
 	if !c.strictNullChecks {
 		return
 	}
 	bothHelper(condExpr, body)
 
-	bothHelper := func(condExpr Expression, body /* TODO(TS-TO-GO) TypeNode UnionType: Expression | Statement | undefined */ any) {
+	bothHelper := func(condExpr Expression, body Union[Expression, Statement /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 		condExpr = skipParentheses(condExpr)
 
 		helper(condExpr, body)
@@ -47410,7 +47410,7 @@ func (c *Checker) checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(con
 		}
 	}
 
-	helper := func(condExpr Expression, body /* TODO(TS-TO-GO) TypeNode UnionType: Expression | Statement | undefined */ any) {
+	helper := func(condExpr Expression, body Union[Expression, Statement /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 		var location Expression
 		if isLogicalOrCoalescingBinaryExpression(condExpr) {
 			location = skipParentheses(condExpr.right)
@@ -47477,7 +47477,7 @@ func (c *Checker) checkTestingKnownTruthyCallableOrAwaitableOrEnumMemberType(con
 
 }
 
-func (c *Checker) isSymbolUsedInConditionBody(expr Expression, body /* TODO(TS-TO-GO) TypeNode UnionType: Statement | Expression */ any, testedNode *Node, testedSymbol *Symbol) bool {
+func (c *Checker) isSymbolUsedInConditionBody(expr Expression, body Union[Statement, Expression], testedNode *Node, testedSymbol *Symbol) bool {
 	return forEachChild(body, func /* check */ (childNode *Node) *bool {
 		if isIdentifier(childNode) {
 			childSymbol := c.getSymbolAtLocation(childNode)
@@ -48432,7 +48432,7 @@ func (c *Checker) getIterationTypesOfIteratorFast(t *Type, resolver IterationTyp
 	}
 }
 
-func (c *Checker) isIteratorResult(t *Type, kind /* TODO(TS-TO-GO) TypeNode UnionType: IterationTypeKind.Yield | IterationTypeKind.Return */ any) bool {
+func (c *Checker) isIteratorResult(t *Type, kind Union[ /* TODO(TS-TO-GO) Node QualifiedName: IterationTypeKind.Yield */ any /* TODO(TS-TO-GO) Node QualifiedName: IterationTypeKind.Return */, any]) bool {
 	// From https://tc39.github.io/ecma262/#sec-iteratorresult-interface:
 	// > [done] is the result status of an iterator `next` method call. If the end of the iterator was reached `done` is `true`.
 	// > If the end was not reached `done` is `false` and a value is available.
@@ -48514,7 +48514,7 @@ func (c *Checker) getIterationTypesOfIteratorResult(t *Type) IterationTypes {
  * record is returned. Otherwise, we return `undefined`.
  */
 
-func (c *Checker) getIterationTypesOfMethod(t *Type, resolver IterationTypesResolver, methodName /* TODO(TS-TO-GO) TypeNode UnionType: "next" | "return" | "throw" */ any, errorNode *Node, errorOutputContainer * /* TODO(TS-TO-GO) TypeNode TypeLiteral: { errors: Diagnostic[] | undefined; } */ any) *IterationTypes {
+func (c *Checker) getIterationTypesOfMethod(t *Type, resolver IterationTypesResolver, methodName Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "next" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "return" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "throw" */, any], errorNode *Node, errorOutputContainer * /* TODO(TS-TO-GO) TypeNode TypeLiteral: { errors: Diagnostic[] | undefined; } */ any) *IterationTypes {
 	method := c.getPropertyOfType(t, methodName.(string))
 
 	// Ignore 'return' or 'throw' if they are missing.
@@ -49484,7 +49484,7 @@ func (c *Checker) checkMembersForOverrideModifier(node ClassLikeDeclaration, t I
  * Note: `member` cannot be a synthetic node.
  */
 
-func (c *Checker) checkExistingMemberForOverrideModifier(node ClassLikeDeclaration, staticType ObjectType, baseStaticType *Type, baseWithThis *Type, t InterfaceType, typeWithThis *Type, member /* TODO(TS-TO-GO) TypeNode UnionType: ClassElement | ParameterPropertyDeclaration */ any, memberIsParameterProperty bool, reportErrors bool /*  = true */) MemberOverrideStatus {
+func (c *Checker) checkExistingMemberForOverrideModifier(node ClassLikeDeclaration, staticType ObjectType, baseStaticType *Type, baseWithThis *Type, t InterfaceType, typeWithThis *Type, member Union[ClassElement, ParameterPropertyDeclaration], memberIsParameterProperty bool, reportErrors bool /*  = true */) MemberOverrideStatus {
 	declaredProp := member.name && c.getSymbolAtLocation(member.name) || c.getSymbolAtLocation(member)
 	if declaredProp == nil {
 		return MemberOverrideStatusOk
@@ -49941,7 +49941,7 @@ func (c *Checker) isPropertyWithoutInitializer(node *Node) bool {
 	return node.kind == SyntaxKindPropertyDeclaration && !hasAbstractModifier(node) && (node.AsPropertyDeclaration()).exclamationToken == nil && (node.AsPropertyDeclaration()).initializer == nil
 }
 
-func (c *Checker) isPropertyInitializedInStaticBlocks(propName /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier */ any, propType *Type, staticBlocks []ClassStaticBlockDeclaration, startPos number, endPos number) bool {
+func (c *Checker) isPropertyInitializedInStaticBlocks(propName Union[Identifier, PrivateIdentifier], propType *Type, staticBlocks []ClassStaticBlockDeclaration, startPos number, endPos number) bool {
 	for _, staticBlock := range staticBlocks {
 		// static block must be within the provided range as they are evaluated in document order (unlike constructors)
 		if staticBlock.pos >= startPos && staticBlock.pos <= endPos {
@@ -49958,7 +49958,7 @@ func (c *Checker) isPropertyInitializedInStaticBlocks(propName /* TODO(TS-TO-GO)
 	return false
 }
 
-func (c *Checker) isPropertyInitializedInConstructor(propName /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | ComputedPropertyName */ any, propType *Type, constructor ConstructorDeclaration) bool {
+func (c *Checker) isPropertyInitializedInConstructor(propName Union[Identifier, PrivateIdentifier, ComputedPropertyName], propType *Type, constructor ConstructorDeclaration) bool {
 	var reference /* TODO(TS-TO-GO) inferred type PropertyAccessExpression | ElementAccessExpression */ any
 	if isComputedPropertyName(propName) {
 		reference = factory.createElementAccessExpression(factory.createThis(), propName.expression)
@@ -50455,7 +50455,7 @@ func (c *Checker) getFirstNonModuleExportsIdentifier(node EntityNameOrEntityName
 	}
 }
 
-func (c *Checker) checkExternalImportOrExportDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportDeclaration | ImportEqualsDeclaration | ExportDeclaration */ any) bool {
+func (c *Checker) checkExternalImportOrExportDeclaration(node Union[ImportDeclaration, ImportEqualsDeclaration, ExportDeclaration]) bool {
 	moduleName := getExternalModuleName(node)
 	if moduleName == nil || nodeIsMissing(moduleName) {
 		// Should be a parse error.
@@ -50681,7 +50681,7 @@ func (c *Checker) resolveAliasWithDeprecationCheck(symbol *Symbol, location *Nod
 	return targetSymbol
 }
 
-func (c *Checker) checkImportBinding(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportEqualsDeclaration | ImportClause | NamespaceImport | ImportSpecifier */ any) {
+func (c *Checker) checkImportBinding(node Union[ImportEqualsDeclaration, ImportClause, NamespaceImport, ImportSpecifier]) {
 	c.checkCollisionsForDeclarationName(node, node.name)
 	c.checkAliasSymbol(node)
 	if node.kind == SyntaxKindImportSpecifier {
@@ -50692,7 +50692,7 @@ func (c *Checker) checkImportBinding(node /* TODO(TS-TO-GO) TypeNode UnionType: 
 	}
 }
 
-func (c *Checker) checkImportAttributes(declaration /* TODO(TS-TO-GO) TypeNode UnionType: ImportDeclaration | ExportDeclaration | JSDocImportTag */ any) *bool {
+func (c *Checker) checkImportAttributes(declaration Union[ImportDeclaration, ExportDeclaration, JSDocImportTag]) *bool {
 	node := declaration.attributes
 	if node != nil {
 		importAttributesType := c.getGlobalImportAttributesType(true)
@@ -51026,7 +51026,7 @@ func (c *Checker) hasExportedMembers(moduleSymbol *Symbol) *bool {
 	})
 }
 
-func (c *Checker) checkExternalModuleExports(node /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | ModuleDeclaration */ any) {
+func (c *Checker) checkExternalModuleExports(node Union[SourceFile, ModuleDeclaration]) {
 	moduleSymbol := c.getSymbolOfDeclaration(node)
 	links := c.getSymbolLinks(moduleSymbol)
 	if !links.exportsChecked {
@@ -51295,7 +51295,7 @@ func (c *Checker) checkSourceElementWorker(node *Node) {
 	}
 }
 
-func (c *Checker) checkJSDocCommentWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: string | readonly JSDocComment[] | undefined */ any) {
+func (c *Checker) checkJSDocCommentWorker(node Union[string, []JSDocComment /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 	if isArray(node) {
 		forEach(node, func(tag JSDocComment) {
 			if isJSDocLinkLike(tag) {
@@ -51866,7 +51866,7 @@ func (c *Checker) isNodeWithinClass(node *Node, classDeclaration ClassLikeDeclar
 	})
 }
 
-func (c *Checker) getLeftSideOfImportEqualsOrExportAssignment(nodeOnRightSide EntityName) /* TODO(TS-TO-GO) TypeNode UnionType: ImportEqualsDeclaration | ExportAssignment | undefined */ any {
+func (c *Checker) getLeftSideOfImportEqualsOrExportAssignment(nodeOnRightSide EntityName) Union[ImportEqualsDeclaration, ExportAssignment /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	for nodeOnRightSide.parent.kind == SyntaxKindQualifiedName {
 		nodeOnRightSide = nodeOnRightSide.parent.AsQualifiedName()
 	}
@@ -51894,7 +51894,7 @@ func (c *Checker) isInRightSideOfImportOrExportAssignment(node EntityName) bool 
 	return c.getLeftSideOfImportEqualsOrExportAssignment(node) != nil
 }
 
-func (c *Checker) getSpecialPropertyAssignmentSymbolFromEntityName(entityName /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | PropertyAccessExpression */ any) *Symbol {
+func (c *Checker) getSpecialPropertyAssignmentSymbolFromEntityName(entityName Union[EntityName, PropertyAccessExpression]) *Symbol {
 	specialPropertyAssignmentKind := getAssignmentDeclarationKind(entityName.parent.parent.AsBinaryExpression())
 	switch specialPropertyAssignmentKind {
 	case AssignmentDeclarationKindExportsProperty,
@@ -51937,7 +51937,7 @@ func (c *Checker) isThisPropertyAndThisTyped(node PropertyAccessExpression) *boo
 	}
 }
 
-func (c *Checker) getSymbolOfNameOrPropertyAccessExpression(name /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | PrivateIdentifier | PropertyAccessExpression | JSDocMemberName */ any) *Symbol {
+func (c *Checker) getSymbolOfNameOrPropertyAccessExpression(name Union[EntityName, PrivateIdentifier, PropertyAccessExpression, JSDocMemberName]) *Symbol {
 	if isDeclarationName(name) {
 		return c.getSymbolOfNode(name.parent)
 	}
@@ -52149,7 +52149,7 @@ func (c *Checker) getApplicableIndexSymbol(t *Type, keyType *Type) *Symbol {
  * For unqualified names, a container K may be provided as a second argument.
  */
 
-func (c *Checker) resolveJSDocMemberName(name /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | JSDocMemberName */ any, ignoreErrors bool, container *Symbol) *Symbol {
+func (c *Checker) resolveJSDocMemberName(name Union[EntityName, JSDocMemberName], ignoreErrors bool, container *Symbol) *Symbol {
 	if isEntityName(name) {
 		// resolve static values first
 		meaning := SymbolFlagsType | SymbolFlagsNamespace | SymbolFlagsValue
@@ -52377,7 +52377,7 @@ func (c *Checker) getShorthandAssignmentValueSymbol(location *Node) *Symbol {
 
 /** Returns the target of an export specifier without following aliases */
 
-func (c *Checker) getExportSpecifierLocalTargetSymbol(node /* TODO(TS-TO-GO) TypeNode UnionType: ExportSpecifier | Identifier */ any) *Symbol {
+func (c *Checker) getExportSpecifierLocalTargetSymbol(node Union[ExportSpecifier, Identifier]) *Symbol {
 	if isExportSpecifier(node) {
 		name := node.propertyName || node.name
 		switch {
@@ -52679,7 +52679,7 @@ func (c *Checker) isNameOfModuleOrEnumDeclaration(node Identifier) bool {
 
 // When resolved as an expression identifier, if the given node references an exported entity, return the declaration
 // node of the exported entity's container. Otherwise, return undefined.
-func (c *Checker) getReferencedExportContainer(nodeIn Identifier, prefixLocals bool) /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | ModuleDeclaration | EnumDeclaration | undefined */ any {
+func (c *Checker) getReferencedExportContainer(nodeIn Identifier, prefixLocals bool) Union[SourceFile, ModuleDeclaration, EnumDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	node := getParseTreeNode(nodeIn, isIdentifier)
 	if node != nil {
 		// When resolving the export container for the name of a module or enum
@@ -52916,7 +52916,7 @@ func (c *Checker) isImplementationOfOverload(node SignatureDeclaration) bool {
 	return false
 }
 
-func (c *Checker) declaredParameterTypeContainsUndefined(parameter /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any) bool {
+func (c *Checker) declaredParameterTypeContainsUndefined(parameter Union[ParameterDeclaration, JSDocParameterTag]) bool {
 	typeNode := c.getNonlocalEffectiveTypeAnnotationNode(parameter)
 	if typeNode == nil {
 		return false
@@ -52925,11 +52925,11 @@ func (c *Checker) declaredParameterTypeContainsUndefined(parameter /* TODO(TS-TO
 	return c.containsUndefinedType(t)
 }
 
-func (c *Checker) requiresAddingImplicitUndefined(parameter /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any, enclosingDeclaration *Node) bool {
+func (c *Checker) requiresAddingImplicitUndefined(parameter Union[ParameterDeclaration, JSDocParameterTag], enclosingDeclaration *Node) bool {
 	return (c.isRequiredInitializedParameter(parameter, enclosingDeclaration) || c.isOptionalUninitializedParameterProperty(parameter)) && !c.declaredParameterTypeContainsUndefined(parameter)
 }
 
-func (c *Checker) isRequiredInitializedParameter(parameter /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any, enclosingDeclaration *Node) bool {
+func (c *Checker) isRequiredInitializedParameter(parameter Union[ParameterDeclaration, JSDocParameterTag], enclosingDeclaration *Node) bool {
 	if !c.strictNullChecks || c.isOptionalParameter(parameter) || isJSDocParameterTag(parameter) || parameter.initializer == nil {
 		return false
 	}
@@ -52939,7 +52939,7 @@ func (c *Checker) isRequiredInitializedParameter(parameter /* TODO(TS-TO-GO) Typ
 	return true
 }
 
-func (c *Checker) isOptionalUninitializedParameterProperty(parameter /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any) bool {
+func (c *Checker) isOptionalUninitializedParameterProperty(parameter Union[ParameterDeclaration, JSDocParameterTag]) bool {
 	return c.strictNullChecks && c.isOptionalParameter(parameter) && (isJSDocParameterTag(parameter) || parameter.initializer == nil) && hasSyntacticModifier(parameter, ModifierFlagsParameterPropertyModifier)
 }
 
@@ -53037,7 +53037,7 @@ func (c *Checker) calculateNodeCheckFlagWorker(node *Node, flag LazyNodeCheckFla
 		return Debug.assertNever(flag, __TEMPLATE__("Unhandled node check flag calculation: ", Debug.formatNodeCheckFlags(flag)))
 	}
 
-	forEachNodeRecursively := func(root *Node, cb func(node *Node, parent *Node) /* TODO(TS-TO-GO) TypeNode UnionType: T | "skip" | undefined */ any) *T {
+	forEachNodeRecursively := func(root *Node, cb func(node *Node, parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *T {
 		rootResult := cb(root, root.parent)
 		if rootResult == "skip" {
 			return nil
@@ -53148,7 +53148,7 @@ func (c *Checker) canHaveConstantValue(node *Node) bool {
 	return false
 }
 
-func (c *Checker) getConstantValue(node /* TODO(TS-TO-GO) TypeNode UnionType: EnumMember | AccessExpression */ any) /* TODO(TS-TO-GO) TypeNode UnionType: string | number | undefined */ any {
+func (c *Checker) getConstantValue(node Union[EnumMember, AccessExpression]) Union[string, number /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	if node.kind == SyntaxKindEnumMember {
 		return c.getEnumMemberValue(node).value
 	}
@@ -53272,7 +53272,7 @@ func (c *Checker) getTypeReferenceSerializationKind(typeNameIn EntityName, locat
 	}
 }
 
-func (c *Checker) createTypeOfDeclaration(declarationIn /* TODO(TS-TO-GO) TypeNode UnionType: AccessorDeclaration | VariableLikeDeclaration | PropertyAccessExpression */ any, enclosingDeclaration *Node, flags NodeBuilderFlags, internalFlags InternalNodeBuilderFlags, tracker SymbolTracker) *TypeNode {
+func (c *Checker) createTypeOfDeclaration(declarationIn Union[AccessorDeclaration, VariableLikeDeclaration, PropertyAccessExpression], enclosingDeclaration *Node, flags NodeBuilderFlags, internalFlags InternalNodeBuilderFlags, tracker SymbolTracker) *TypeNode {
 	declaration := getParseTreeNode(declarationIn, isVariableLikeOrAccessor)
 	if declaration == nil {
 		return factory.createToken(SyntaxKindAnyKeyword).AsKeywordTypeNode()
@@ -53481,7 +53481,7 @@ func (c *Checker) getReferencedValueDeclarations(referenceIn Identifier) *[]Decl
 	return nil
 }
 
-func (c *Checker) isLiteralConstDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | PropertyDeclaration | PropertySignature | ParameterDeclaration */ any) bool {
+func (c *Checker) isLiteralConstDeclaration(node Union[VariableDeclaration, PropertyDeclaration, PropertySignature, ParameterDeclaration]) bool {
 	if isDeclarationReadonly(node) || isVariableDeclaration(node) && c.isVarConstLike(node) {
 		return c.isFreshLiteralType(c.getTypeOfSymbol(c.getSymbolOfDeclaration(node)))
 	}
@@ -53514,7 +53514,7 @@ func (c *Checker) literalTypeToNode(t FreshableType, enclosing *Node, tracker Sy
 	}
 }
 
-func (c *Checker) createLiteralConstValue(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | PropertyDeclaration | PropertySignature | ParameterDeclaration */ any, tracker SymbolTracker) Expression {
+func (c *Checker) createLiteralConstValue(node Union[VariableDeclaration, PropertyDeclaration, PropertySignature, ParameterDeclaration], tracker SymbolTracker) Expression {
 	t := c.getTypeOfSymbol(c.getSymbolOfDeclaration(node))
 	return c.literalTypeToNode(t.AsFreshableType(), node, tracker)
 }
@@ -53567,7 +53567,7 @@ func (c *Checker) getNonlocalEffectiveTypeAnnotationNode(node *Node) *TypeNode {
 	return nil
 }
 
-func (c *Checker) getNonlocalEffectiveReturnTypeAnnotationNode(node /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) *TypeNode {
+func (c *Checker) getNonlocalEffectiveReturnTypeAnnotationNode(node Union[SignatureDeclaration, JSDocSignature]) *TypeNode {
 	direct := getEffectiveReturnTypeNode(node)
 	if direct != nil {
 		return direct
@@ -53751,7 +53751,7 @@ func (c *Checker) createResolver() EmitResolver {
 
 }
 
-func (c *Checker) getExternalModuleFileFromDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: AnyImportOrReExport | ModuleDeclaration | ImportTypeNode | ImportCall */ any) *SourceFile {
+func (c *Checker) getExternalModuleFileFromDeclaration(declaration Union[AnyImportOrReExport, ModuleDeclaration, ImportTypeNode, ImportCall]) *SourceFile {
 	var specifier Expression
 	if declaration.kind == SyntaxKindModuleDeclaration {
 		specifier = tryCast(declaration.name, isStringLiteral)
@@ -53775,7 +53775,7 @@ func (c *Checker) initializeTypeChecker() {
 	c.amalgamatedDuplicates = NewMap()
 
 	// Initialize global symbol table
-	var augmentations *[][] /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteral | Identifier */ any
+	var augmentations *[][]Union[StringLiteral, Identifier]
 	for _, file := range host.getSourceFiles() {
 		if file.redirectInfo != nil {
 			continue
@@ -54020,7 +54020,7 @@ func (c *Checker) resolveHelpersModule(file SourceFile, errorNode *Node) *Symbol
 
 // GRAMMAR CHECKING
 
-func (c *Checker) checkGrammarModifiers(node /* TODO(TS-TO-GO) TypeNode UnionType: HasModifiers | HasDecorators | HasIllegalModifiers | HasIllegalDecorators */ any) bool {
+func (c *Checker) checkGrammarModifiers(node Union[HasModifiers, HasDecorators, HasIllegalModifiers, HasIllegalDecorators]) bool {
 	quickResult := c.reportObviousDecoratorErrors(node) || c.reportObviousModifierErrors(node)
 	if quickResult != nil {
 		return quickResult
@@ -54375,7 +54375,7 @@ func (c *Checker) checkGrammarModifiers(node /* TODO(TS-TO-GO) TypeNode UnionTyp
  * undefined: Need to do full checking on the modifiers.
  */
 
-func (c *Checker) reportObviousModifierErrors(node /* TODO(TS-TO-GO) TypeNode UnionType: HasModifiers | HasIllegalModifiers */ any) *bool {
+func (c *Checker) reportObviousModifierErrors(node Union[HasModifiers, HasIllegalModifiers]) *bool {
 	if node.modifiers == nil {
 		return false
 	}
@@ -54393,7 +54393,7 @@ func (c *Checker) findFirstModifierExcept(node HasModifiers, allowedModifier Syn
 	}
 }
 
-func (c *Checker) findFirstIllegalModifier(node /* TODO(TS-TO-GO) TypeNode UnionType: HasModifiers | HasIllegalModifiers */ any) *Modifier {
+func (c *Checker) findFirstIllegalModifier(node Union[HasModifiers, HasIllegalModifiers]) *Modifier {
 	switch node.kind {
 	case SyntaxKindGetAccessor,
 		SyntaxKindSetAccessor,
@@ -54447,12 +54447,12 @@ func (c *Checker) findFirstIllegalModifier(node /* TODO(TS-TO-GO) TypeNode Union
 	}
 }
 
-func (c *Checker) reportObviousDecoratorErrors(node /* TODO(TS-TO-GO) TypeNode UnionType: HasModifiers | HasDecorators | HasIllegalModifiers | HasIllegalDecorators */ any) *bool {
+func (c *Checker) reportObviousDecoratorErrors(node Union[HasModifiers, HasDecorators, HasIllegalModifiers, HasIllegalDecorators]) *bool {
 	decorator := c.findFirstIllegalDecorator(node)
 	return decorator && c.grammarErrorOnFirstToken(decorator, Diagnostics.Decorators_are_not_valid_here)
 }
 
-func (c *Checker) findFirstIllegalDecorator(node /* TODO(TS-TO-GO) TypeNode UnionType: HasModifiers | HasDecorators | HasIllegalModifiers | HasIllegalDecorators */ any) *Decorator {
+func (c *Checker) findFirstIllegalDecorator(node Union[HasModifiers, HasDecorators, HasIllegalModifiers, HasIllegalDecorators]) *Decorator {
 	if canHaveIllegalDecorators(node) {
 		return find(node.modifiers, isDecorator)
 	} else {
@@ -54547,7 +54547,7 @@ func (c *Checker) checkGrammarForUseStrictSimpleParameterList(node FunctionLikeD
 	return false
 }
 
-func (c *Checker) checkGrammarFunctionLikeDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | MethodSignature */ any) bool {
+func (c *Checker) checkGrammarFunctionLikeDeclaration(node Union[FunctionLikeDeclaration, MethodSignature]) bool {
 	// Prevent cascading error by short-circuit
 	file := getSourceFileOfNode(node)
 	return c.checkGrammarModifiers(node) || c.checkGrammarTypeParameterList(node.typeParameters, file) || c.checkGrammarParameterList(node.parameters) || c.checkGrammarArrowFunction(node, file) || (isFunctionLikeDeclaration(node) && c.checkGrammarForUseStrictSimpleParameterList(node))
@@ -54653,7 +54653,7 @@ func (c *Checker) checkGrammarHeritageClause(node HeritageClause) bool {
 	return some(types, c.checkGrammarExpressionWithTypeArguments)
 }
 
-func (c *Checker) checkGrammarExpressionWithTypeArguments(node /* TODO(TS-TO-GO) TypeNode UnionType: ExpressionWithTypeArguments | TypeQueryNode */ any) bool {
+func (c *Checker) checkGrammarExpressionWithTypeArguments(node Union[ExpressionWithTypeArguments, TypeQueryNode]) bool {
 	if isExpressionWithTypeArguments(node) && isImportKeyword(node.expression) && node.typeArguments != nil {
 		return c.grammarErrorOnNode(node, Diagnostics.This_use_of_import_is_invalid_import_calls_can_be_written_but_they_must_have_parentheses_and_cannot_have_type_arguments)
 	}
@@ -55105,7 +55105,7 @@ func (c *Checker) checkGrammarForInvalidDynamicName(node DeclarationName, messag
 	}
 }
 
-func (c *Checker) checkGrammarMethod(node /* TODO(TS-TO-GO) TypeNode UnionType: MethodDeclaration | MethodSignature */ any) *bool {
+func (c *Checker) checkGrammarMethod(node Union[MethodDeclaration, MethodSignature]) *bool {
 	if c.checkGrammarFunctionLikeDeclaration(node) {
 		return true
 	}
@@ -55237,7 +55237,7 @@ func (c *Checker) isSimpleLiteralEnumReference(expr Expression) *bool {
 	}
 }
 
-func (c *Checker) checkAmbientInitializer(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | PropertyDeclaration | PropertySignature */ any) *bool {
+func (c *Checker) checkAmbientInitializer(node Union[VariableDeclaration, PropertyDeclaration, PropertySignature]) *bool {
 	initializer := node.initializer
 	if initializer != nil {
 		isInvalidInitializer := !(c.isStringOrNumberLiteralExpression(initializer) || c.isSimpleLiteralEnumReference(initializer) || initializer.kind == SyntaxKindTrueKeyword || initializer.kind == SyntaxKindFalseKeyword || c.isBigIntLiteralExpression(initializer))
@@ -55309,7 +55309,7 @@ func (c *Checker) checkGrammarVariableDeclaration(node VariableDeclaration) bool
 	return blockScopeKind != 0 && c.checkGrammarNameInLetOrConstDeclarations(node.name)
 }
 
-func (c *Checker) checkESModuleMarker(name /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | BindingPattern */ any) bool {
+func (c *Checker) checkESModuleMarker(name Union[Identifier, BindingPattern]) bool {
 	if name.kind == SyntaxKindIdentifier {
 		if idText(name) == "__esModule" {
 			return c.grammarErrorOnNodeSkippedOn("noEmit", name, Diagnostics.Identifier_expected_esModule_is_reserved_as_an_exported_marker_when_transforming_ECMAScript_modules)
@@ -55325,7 +55325,7 @@ func (c *Checker) checkESModuleMarker(name /* TODO(TS-TO-GO) TypeNode UnionType:
 	return false
 }
 
-func (c *Checker) checkGrammarNameInLetOrConstDeclarations(name /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | BindingPattern */ any) bool {
+func (c *Checker) checkGrammarNameInLetOrConstDeclarations(name Union[Identifier, BindingPattern]) bool {
 	if name.kind == SyntaxKindIdentifier {
 		if name.escapedText == "let" {
 			return c.grammarErrorOnNode(name, Diagnostics.let_is_not_allowed_to_be_used_as_a_name_in_let_or_const_declarations)
@@ -55483,7 +55483,7 @@ func (c *Checker) checkGrammarConstructorTypeAnnotation(node ConstructorDeclarat
 	}
 }
 
-func (c *Checker) checkGrammarProperty(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | PropertySignature */ any) *bool {
+func (c *Checker) checkGrammarProperty(node Union[PropertyDeclaration, PropertySignature]) *bool {
 	if isComputedPropertyName(node.name) && isBinaryExpression(node.name.expression) && node.name.expression.operatorToken.kind == SyntaxKindInKeyword {
 		return c.grammarErrorOnNode(node.parent.members[0], Diagnostics.A_mapped_type_may_not_declare_properties_or_methods)
 	}
@@ -55860,7 +55860,7 @@ func (c *Checker) getCombinedNodeFlagsCached(node *Node) NodeFlags {
 	return c.lastGetCombinedNodeFlagsResult
 }
 
-func (c *Checker) isVarConstLike(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | VariableDeclarationList */ any) bool {
+func (c *Checker) isVarConstLike(node Union[VariableDeclaration, VariableDeclarationList]) bool {
 	blockScopeKind := c.getCombinedNodeFlagsCached(node) & NodeFlagsBlockScoped
 	return blockScopeKind == NodeFlagsConst || blockScopeKind == NodeFlagsUsing || blockScopeKind == NodeFlagsAwaitUsing
 }

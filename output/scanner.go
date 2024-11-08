@@ -1780,7 +1780,7 @@ func (scanner *Scanner) scanIdentifierParts() string {
 	return result
 }
 
-func (scanner *Scanner) getIdentifierToken() /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.Identifier | KeywordSyntaxKind */ any {
+func (scanner *Scanner) getIdentifierToken() Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.Identifier */ any, KeywordSyntaxKind] {
 	// Reserved words are between 2 and 12 characters long and start with a lowercase letter
 	len := scanner.tokenValue.length
 	if len >= 2 && len <= 12 {
@@ -1797,7 +1797,7 @@ func (scanner *Scanner) getIdentifierToken() /* TODO(TS-TO-GO) TypeNode UnionTyp
 	return scanner.token
 }
 
-func (scanner *Scanner) scanBinaryOrOctalDigits(base /* TODO(TS-TO-GO) TypeNode UnionType: 2 | 8 */ any) string {
+func (scanner *Scanner) scanBinaryOrOctalDigits(base Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: 2 */ any /* TODO(TS-TO-GO) TypeNode LiteralType: 8 */, any]) string {
 	value := ""
 	// For counting number of digits; Valid binaryIntegerLiteral must have at least one binary digit following B or b.
 	// Similarly valid octalIntegerLiteral must have at least one octal digit following o or O.
@@ -2647,10 +2647,10 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 	var groupSpecifiers *Set[string]
 	/** All references to named capturing groups in the regex. */
 
-	var groupNameReferences *[] /* TODO(TS-TO-GO) TypeNode IntersectionType: TextRange & { name: string; } */ any
+	var groupNameReferences *[]Intersection[TextRange /* TODO(TS-TO-GO) TypeNode TypeLiteral: { name: string; } */, any]
 	/** All numeric backreferences within the regex. */
 
-	var decimalEscapes *[] /* TODO(TS-TO-GO) TypeNode IntersectionType: TextRange & { value: number; } */ any
+	var decimalEscapes *[]Intersection[TextRange /* TODO(TS-TO-GO) TypeNode TypeLiteral: { value: number; } */, any]
 	/** A stack of scopes for named capturing groups. @see {scanGroupName} */
 
 	var namedCapturingGroupsScopeStack []*Set[string] = []never{}
@@ -3781,7 +3781,7 @@ func (scanner *Scanner) reScanJsxAttributeValue() SyntaxKind {
 	return scanner.scanJsxAttributeValue()
 }
 
-func (scanner *Scanner) scanJSDocCommentTextToken(inBackticks bool) /* TODO(TS-TO-GO) TypeNode UnionType: JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken */ any {
+func (scanner *Scanner) scanJSDocCommentTextToken(inBackticks bool) Union[JSDocSyntaxKind /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.JSDocCommentTextToken */, any] {
 	scanner.fullStartPos = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: tokenStart = pos */ TODO
 	scanner.tokenFlags = TokenFlagsNone
 	if scanner.pos >= scanner.end {

@@ -327,7 +327,7 @@ func getTypeParameterOwner(d Declaration) Declaration {
 	}
 }
 
-type ParameterPropertyDeclaration /* TODO(TS-TO-GO) TypeNode IntersectionType: ParameterDeclaration & { parent: ConstructorDeclaration; name: Identifier; } */ any
+type ParameterPropertyDeclaration Intersection[ParameterDeclaration /* TODO(TS-TO-GO) TypeNode TypeLiteral: { parent: ConstructorDeclaration; name: Identifier; } */, any]
 
 func isParameterPropertyDeclaration(node *Node, parent *Node) bool {
 	return isParameter(node) && hasSyntacticModifier(node, ModifierFlagsParameterPropertyModifier) && parent.kind == SyntaxKindConstructor
@@ -343,14 +343,14 @@ func isEmptyBindingPattern(node BindingName) bool {
 // TODO(jakebailey): It is very weird that we have BindingElement and ArrayBindingElement;
 // we should have ObjectBindingElement and ArrayBindingElement, which are both BindingElement,
 // just like BindingPattern is a ObjectBindingPattern or a ArrayBindingPattern.
-func isEmptyBindingElement(node /* TODO(TS-TO-GO) TypeNode UnionType: BindingElement | ArrayBindingElement */ any) bool {
+func isEmptyBindingElement(node Union[BindingElement, ArrayBindingElement]) bool {
 	if isOmittedExpression(node) {
 		return true
 	}
 	return isEmptyBindingPattern(node.name)
 }
 
-func walkUpBindingElementsAndPatterns(binding BindingElement) /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | ParameterDeclaration */ any {
+func walkUpBindingElementsAndPatterns(binding BindingElement) Union[VariableDeclaration, ParameterDeclaration] {
 	node := binding.parent
 	for isBindingElement(node.parent) {
 		node = node.parent.parent
@@ -507,7 +507,7 @@ func getOriginalNode(node *Node, nodeTest func(node *Node) /* TODO(TS-TO-GO) Typ
 
 /* OVERLOAD: export function findAncestor<T extends Node>(node: Node | undefined, callback: (element: Node) => element is T): T | undefined; */
 /* OVERLOAD: export function findAncestor(node: Node | undefined, callback: (element: Node) => boolean | "quit"): Node | undefined; */
-func findAncestor(node *Node, callback func(element *Node) /* TODO(TS-TO-GO) TypeNode UnionType: boolean | "quit" */ any) *Node {
+func findAncestor(node *Node, callback func(element *Node) Union[bool /* TODO(TS-TO-GO) TypeNode LiteralType: "quit" */, any]) *Node {
 	for node != nil {
 		result := callback(node)
 		if result == "quit" {
@@ -587,7 +587,7 @@ func unescapeLeadingUnderscores(identifier string) string {
 	}
 }
 
-func idText(identifierOrPrivateName /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier */ any) string {
+func idText(identifierOrPrivateName Union[Identifier, PrivateIdentifier]) string {
 	return unescapeLeadingUnderscores(identifierOrPrivateName.escapedText)
 }
 
@@ -618,7 +618,7 @@ func symbolName(symbol *Symbol) string {
  * will be merged with)
  */
 
-func nameForNamelessJSDocTypedef(declaration /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypedefTag | JSDocEnumTag */ any) /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | undefined */ any {
+func nameForNamelessJSDocTypedef(declaration Union[JSDocTypedefTag, JSDocEnumTag]) Union[Identifier, PrivateIdentifier /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	hostNode := declaration.parent.parent
 	if !hostNode {
 		return nil
@@ -656,7 +656,7 @@ func nameForNamelessJSDocTypedef(declaration /* TODO(TS-TO-GO) TypeNode UnionTyp
 	}
 }
 
-func getDeclarationIdentifier(node /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression */ any) *Identifier {
+func getDeclarationIdentifier(node Union[Declaration, Expression]) *Identifier {
 	name := getNameOfDeclaration(node)
 	if name != nil && isIdentifier(name) {
 		return name
@@ -679,7 +679,7 @@ func nodeHasName(statement *Node, name Identifier) bool {
 	return false
 }
 
-func getNameOfJSDocTypedef(declaration JSDocTypedefTag) /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | undefined */ any {
+func getNameOfJSDocTypedef(declaration JSDocTypedefTag) Union[Identifier, PrivateIdentifier /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	return declaration.name || nameForNamelessJSDocTypedef(declaration)
 }
 
@@ -692,7 +692,7 @@ func isNamedDeclaration(node *Node) bool {
 
 /** @internal */
 
-func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression */ any) *DeclarationName {
+func getNonAssignedNameOfDeclaration(declaration Union[Declaration, Expression]) *DeclarationName {
 	switch declaration.kind {
 	case SyntaxKindIdentifier:
 		return declaration.AsIdentifier()
@@ -739,7 +739,7 @@ func getNonAssignedNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode Unio
 	return (declaration.AsNamedDeclaration()).name
 }
 
-func getNameOfDeclaration(declaration /* TODO(TS-TO-GO) TypeNode UnionType: Declaration | Expression | undefined */ any) *DeclarationName {
+func getNameOfDeclaration(declaration Union[Declaration, Expression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *DeclarationName {
 	if declaration == nil {
 		return nil
 	}
@@ -856,7 +856,7 @@ func getJSDocTypeParameterTagsNoCache(param TypeParameterDeclaration) []JSDocTem
  * for example on a variable declaration whose initializer is a function expression.
  */
 
-func hasJSDocParameterTags(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionLikeDeclaration | SignatureDeclaration */ any) bool {
+func hasJSDocParameterTags(node Union[FunctionLikeDeclaration, SignatureDeclaration]) bool {
 	return getFirstJSDocTag(node, isJSDocParameterTag) != nil
 }
 
@@ -994,7 +994,7 @@ func getJSDocTypeTag(node *Node) *JSDocTypeTag {
  */
 
 func getJSDocType(node *Node) *TypeNode {
-	var tag /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeTag | JSDocParameterTag | undefined */ any = getFirstJSDocTag(node, isJSDocTypeTag)
+	var tag Union[JSDocTypeTag, JSDocParameterTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = getFirstJSDocTag(node, isJSDocTypeTag)
 	if tag == nil && isParameter(node) {
 		tag = find(getJSDocParameterTags(node), func(tag JSDocParameterTag) bool {
 			return tag.typeExpression != nil
@@ -1083,7 +1083,7 @@ func getAllJSDocTagsOfKind(node *Node, kind SyntaxKind) []JSDocTag {
 
 /** Gets the text of a jsdoc comment, flattening links to their text. */
 
-func getTextOfJSDocComment(comment /* TODO(TS-TO-GO) TypeNode UnionType: string | NodeArray<JSDocComment> */ any) *string {
+func getTextOfJSDocComment(comment Union[string, NodeArray[JSDocComment]]) *string {
 	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof comment */ TODO == "string" {
 		return comment
 	} else {
@@ -1097,7 +1097,7 @@ func getTextOfJSDocComment(comment /* TODO(TS-TO-GO) TypeNode UnionType: string 
 	}
 }
 
-func formatJSDocLink(link /* TODO(TS-TO-GO) TypeNode UnionType: JSDocLink | JSDocLinkCode | JSDocLinkPlain */ any) string {
+func formatJSDocLink(link Union[JSDocLink, JSDocLinkCode, JSDocLinkPlain]) string {
 	var kind /* TODO(TS-TO-GO) inferred type "link" | "linkcode" | "linkplain" */ any
 	switch {
 	case link.kind == SyntaxKindJSDocLink:
@@ -2337,7 +2337,7 @@ func guessIndentation(lines []string) *number {
 	}
 }
 
-func isStringLiteralLike(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | FileReference */ any) bool {
+func isStringLiteralLike(node Union[*Node, FileReference]) bool {
 	return (node.AsNode()).kind == SyntaxKindStringLiteral || (node.AsNode()).kind == SyntaxKindNoSubstitutionTemplateLiteral
 }
 
@@ -2345,12 +2345,12 @@ func isJSDocLinkLike(node *Node) bool {
 	return node.kind == SyntaxKindJSDocLink || node.kind == SyntaxKindJSDocLinkCode || node.kind == SyntaxKindJSDocLinkPlain
 }
 
-func hasRestParameter(s /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) bool {
+func hasRestParameter(s Union[SignatureDeclaration, JSDocSignature]) bool {
 	last := lastOrUndefined(s.parameters)
 	return last != nil && isRestParameter(last)
 }
 
-func isRestParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any) bool {
+func isRestParameter(node Union[ParameterDeclaration, JSDocParameterTag]) bool {
 	var t *TypeNode
 	if isJSDocParameterTag(node) {
 		t = (node.typeExpression && node.typeExpression.type_)

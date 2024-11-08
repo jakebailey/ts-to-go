@@ -221,7 +221,7 @@ type CompilerHostLikeWithCache struct {
 	originalDirectoryExists *func(directory string) bool
 	originalCreateDirectory *func(directory string)
 	originalWriteFile       *WriteFileCallback
-	getSourceFileWithCache  *func(fileName string, languageVersionOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: ScriptTarget | CreateSourceFileOptions */ any, onError func(message string), shouldCreateNewSourceFile bool) *SourceFile
+	getSourceFileWithCache  *func(fileName string, languageVersionOrOptions Union[ScriptTarget, CreateSourceFileOptions], onError func(message string), shouldCreateNewSourceFile bool) *SourceFile
 	readFileWithCache       func(fileName string) *string
 }
 
@@ -233,7 +233,7 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 	originalDirectoryExists := host.directoryExists
 	originalCreateDirectory := host.createDirectory
 	originalWriteFile := host.writeFile
-	readFileCache := NewMap[Path /* TODO(TS-TO-GO) TypeNode UnionType: string | false */, any]()
+	readFileCache := NewMap[Path, Union[string /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]]()
 	fileExistsCache := NewMap[Path, bool]()
 	directoryExistsCache := NewMap[Path, bool]()
 	sourceFileCache := NewMap[ResolutionMode, Map[Path, SourceFile]]()
@@ -371,7 +371,7 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 /** @internal */
 /* OVERLOAD: export function getPreEmitDiagnostics(program: BuilderProgram, sourceFile?: SourceFile, cancellationToken?: CancellationToken): readonly Diagnostic[]; */
 // eslint-disable-line @typescript-eslint/unified-signatures
-func getPreEmitDiagnostics(program /* TODO(TS-TO-GO) TypeNode UnionType: Program | BuilderProgram */ any, sourceFile SourceFile, cancellationToken CancellationToken) []Diagnostic {
+func getPreEmitDiagnostics(program Union[Program, BuilderProgram], sourceFile SourceFile, cancellationToken CancellationToken) []Diagnostic {
 	var diagnostics *[]Diagnostic
 	diagnostics = addRange(diagnostics, program.getConfigFileParsingDiagnostics())
 	diagnostics = addRange(diagnostics, program.getOptionsDiagnostics(cancellationToken))
@@ -577,7 +577,7 @@ func formatDiagnosticsWithColorAndContext(diagnostics []Diagnostic, host FormatD
 	return output
 }
 
-func flattenDiagnosticMessageText(diag /* TODO(TS-TO-GO) TypeNode UnionType: string | DiagnosticMessageChain | undefined */ any, newLine string, indent number /*  = 0 */) string {
+func flattenDiagnosticMessageText(diag Union[string, DiagnosticMessageChain /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], newLine string, indent number /*  = 0 */) string {
 	if isString(diag) {
 		return diag
 	} else if diag == nil {
@@ -622,7 +622,7 @@ type SourceFileImportsList struct {
  * provided resolution mode in the reference, unless one is not present, in which case it is the mode of the containing file.
  */
 
-func getModeForFileReference(ref /* TODO(TS-TO-GO) TypeNode UnionType: FileReference | string */ any, containingFileMode ResolutionMode) ResolutionMode {
+func getModeForFileReference(ref Union[FileReference, string], containingFileMode ResolutionMode) ResolutionMode {
 	return (ifElse(isString(ref), containingFileMode, ref.resolutionMode)) || containingFileMode
 }
 
@@ -652,7 +652,7 @@ func getModeForResolutionAtIndex(file SourceFileImportsList, index number, compi
 
 /** @internal */
 
-func isExclusivelyTypeOnlyImportOrExport(decl /* TODO(TS-TO-GO) TypeNode UnionType: ImportDeclaration | ExportDeclaration | JSDocImportTag */ any) bool {
+func isExclusivelyTypeOnlyImportOrExport(decl Union[ImportDeclaration, ExportDeclaration, JSDocImportTag]) bool {
 	if isExportDeclaration(decl) {
 		return decl.isTypeOnly
 	}
@@ -705,7 +705,7 @@ func getModeForUsageLocation(file SourceFile, usage StringLiteralLike, compilerO
 	return getModeForUsageLocationWorker(file, usage, compilerOptions)
 }
 
-func getModeForUsageLocationWorker(file Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], usage StringLiteralLike, compilerOptions CompilerOptions) ResolutionMode {
+func getModeForUsageLocationWorker(file Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], usage StringLiteralLike, compilerOptions CompilerOptions) ResolutionMode {
 	if isImportDeclaration(usage.parent) || isExportDeclaration(usage.parent) || isJSDocImportTag(usage.parent) {
 		isTypeOnly := isExclusivelyTypeOnlyImportOrExport(usage.parent)
 		if isTypeOnly {
@@ -727,7 +727,7 @@ func getModeForUsageLocationWorker(file Pick[SourceFile /* TODO(TS-TO-GO) TypeNo
 	}
 }
 
-func getEmitSyntaxForUsageLocationWorker(file Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], usage StringLiteralLike, compilerOptions CompilerOptions) ResolutionMode {
+func getEmitSyntaxForUsageLocationWorker(file Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], usage StringLiteralLike, compilerOptions CompilerOptions) ResolutionMode {
 	if compilerOptions == nil {
 		// This should always be provided, but we try to fail somewhat
 		// gracefully to allow projects like ts-node time to update.
@@ -794,7 +794,7 @@ func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(n
 	}
 }
 
-var emptyResolution /* TODO(TS-TO-GO) TypeNode IntersectionType: ResolvedModuleWithFailedLookupLocations & ResolvedTypeReferenceDirectiveWithFailedLookupLocations */ any = map[any]any{ /* TODO(TS-TO-GO): was object literal */
+var emptyResolution Intersection[ResolvedModuleWithFailedLookupLocations, ResolvedTypeReferenceDirectiveWithFailedLookupLocations] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	"resolvedModule":                 nil,
 	"resolvedTypeReferenceDirective": nil,
 }
@@ -851,7 +851,7 @@ func getTypeReferenceResolutionName(entry T) string {
 	}
 }
 
-var typeReferenceResolutionNameAndModeGetter ResolutionNameAndModeGetter[ /* TODO(TS-TO-GO) TypeNode UnionType: FileReference | string */ any, *SourceFile] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
+var typeReferenceResolutionNameAndModeGetter ResolutionNameAndModeGetter[Union[FileReference, string], *SourceFile] = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	"getName": getTypeReferenceResolutionName,
 	"getMode": func(entry /* TODO(TS-TO-GO) inferred type string | FileReference */ any, file *SourceFile, compilerOptions CompilerOptions) ResolutionMode {
 		return getModeForFileReference(entry, file && getDefaultResolutionModeForFileWorker(file, compilerOptions))
@@ -1008,13 +1008,13 @@ type SyntheticReferenceFileLocation struct {
 
 /** @internal */
 
-func isReferenceFileLocation(location /* TODO(TS-TO-GO) TypeNode UnionType: ReferenceFileLocation | SyntheticReferenceFileLocation */ any) bool {
+func isReferenceFileLocation(location Union[ReferenceFileLocation, SyntheticReferenceFileLocation]) bool {
 	return (location.(ReferenceFileLocation)).pos != nil
 }
 
 /** @internal */
 
-func getReferencedFileLocation(program Program, ref ReferencedFile) /* TODO(TS-TO-GO) TypeNode UnionType: ReferenceFileLocation | SyntheticReferenceFileLocation */ any {
+func getReferencedFileLocation(program Program, ref ReferencedFile) Union[ReferenceFileLocation, SyntheticReferenceFileLocation] {
 	file := Debug.checkDefined(program.getSourceFileByPath(ref.file))
 	TODO_IDENTIFIER := ref
 	var pos *number
@@ -1191,7 +1191,7 @@ func getImpliedNodeFormatForFile(fileName string, packageJsonInfoCache *PackageJ
 
 /** @internal */
 
-func getImpliedNodeFormatForFileWorker(fileName string, packageJsonInfoCache *PackageJsonInfoCache, host ModuleResolutionHost, options CompilerOptions) /* TODO(TS-TO-GO) TypeNode UnionType: ResolutionMode | Partial<CreateSourceFileOptions> | undefined */ any {
+func getImpliedNodeFormatForFileWorker(fileName string, packageJsonInfoCache *PackageJsonInfoCache, host ModuleResolutionHost, options CompilerOptions) Union[ResolutionMode, Partial[CreateSourceFileOptions] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 	moduleResolution := getEmitModuleResolutionKind(options)
 	shouldLookupFromPackageJson := ModuleResolutionKindNode16 <= moduleResolution && moduleResolution <= ModuleResolutionKindNodeNext || pathContainsNodeModules(fileName)
 	switch {
@@ -1292,7 +1292,7 @@ func createCreateProgramOptions(rootNames []string, options CompilerOptions, hos
  */
 
 /* OVERLOAD: export function createProgram(rootNames: readonly string[], options: CompilerOptions, host?: CompilerHost, oldProgram?: Program, configFileParsingDiagnostics?: readonly Diagnostic[]): Program; */
-func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: readonly string[] | CreateProgramOptions */ any, _options CompilerOptions, _host CompilerHost, _oldProgram Program, _configFileParsingDiagnostics []Diagnostic) Program {
+func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _options CompilerOptions, _host CompilerHost, _oldProgram Program, _configFileParsingDiagnostics []Diagnostic) Program {
 	var createProgramOptions CreateProgramOptions
 	if isArray(rootNamesOrOptions) {
 		createProgramOptions = createCreateProgramOptions(rootNamesOrOptions, _options, _host, _oldProgram, _configFileParsingDiagnostics)
@@ -1324,7 +1324,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	fileReasons := createMultiMap()
 	var filesWithReferencesProcessed *Set[Path]
 	var fileReasonsToChain *Map[Path, FileReasonToChainCache]
-	var reasonToRelatedInfo *Map[FileIncludeReason /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticWithLocation | false */, any]
+	var reasonToRelatedInfo *Map[FileIncludeReason, Union[DiagnosticWithLocation /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]]
 	var cachedBindAndCheckDiagnosticsForFile *Map[Path, []Diagnostic]
 	var cachedDeclarationDiagnosticsForFile *Map[Path, []DiagnosticWithLocation]
 
@@ -1397,8 +1397,8 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	// Map storing if there is emit blocking diagnostics for given input
 	hasEmitBlockingDiagnostics := NewMap[string, bool]()
-	var _compilerOptionsObjectLiteralSyntax /* TODO(TS-TO-GO) TypeNode UnionType: ObjectLiteralExpression | false | undefined */ any
-	var _compilerOptionsPropertySyntax /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAssignment | false | undefined */ any
+	var _compilerOptionsObjectLiteralSyntax Union[ObjectLiteralExpression /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+	var _compilerOptionsPropertySyntax Union[PropertyAssignment /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 
 	var moduleResolutionCache *ModuleResolutionCache
 	var actualResolveModuleNamesWorker func(moduleNames []StringLiteralLike, containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, containingSourceFile SourceFile, reusedNames *[]StringLiteralLike) []ResolvedModuleWithFailedLookupLocations
@@ -1481,7 +1481,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	 * - undefined otherwise
 	 */
 
-	filesByName := NewMap[Path /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | false | undefined */, any]()
+	filesByName := NewMap[Path, Union[SourceFile /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]]()
 	missingFileNames := NewMap[Path, string]()
 	// stores 'filename -> file association' ignoring case
 	// used to track cases when two file names differ only in casing
@@ -1494,7 +1494,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	// A parallel array to projectReferences storing the results of reading in the referenced tsconfig files
 	var resolvedProjectReferences *[]*ResolvedProjectReference
-	var projectReferenceRedirects *Map[Path /* TODO(TS-TO-GO) TypeNode UnionType: ResolvedProjectReference | false */, any]
+	var projectReferenceRedirects *Map[Path, Union[ResolvedProjectReference /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]]
 	var mapFromFileToProjectReferenceRedirects *Map[Path, Path]
 	var mapFromToProjectReferenceRedirectSource *Map[Path, SourceOfProjectReferenceRedirect]
 
@@ -1907,7 +1907,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		return getPackagesMap().get(packageName)
 	}
 
-	addResolutionDiagnostics := func(resolution /* TODO(TS-TO-GO) TypeNode UnionType: ResolvedModuleWithFailedLookupLocations | ResolvedTypeReferenceDirectiveWithFailedLookupLocations */ any) {
+	addResolutionDiagnostics := func(resolution Union[ResolvedModuleWithFailedLookupLocations, ResolvedTypeReferenceDirectiveWithFailedLookupLocations]) {
 		if !resolution.resolutionDiagnostics. /* ? */ length {
 			return
 		}
@@ -1953,7 +1953,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		return result
 	}
 
-	resolveTypeReferenceDirectiveNamesWorker := func(typeDirectiveNames []T, containingFile /* TODO(TS-TO-GO) TypeNode UnionType: string | SourceFile */ any, reusedNames *[]T) []ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
+	resolveTypeReferenceDirectiveNamesWorker := func(typeDirectiveNames []T, containingFile Union[string, SourceFile], reusedNames *[]T) []ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
 		var containingSourceFile *SourceFile
 		if !isString(containingFile) {
 			containingSourceFile = containingFile
@@ -2108,7 +2108,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	/* OVERLOAD: function resolveTypeReferenceDirectiveNamesReusingOldState(typeDirectiveNames: readonly FileReference[], containingFile: SourceFile): readonly ResolvedTypeReferenceDirectiveWithFailedLookupLocations[]; */
 	/* OVERLOAD: function resolveTypeReferenceDirectiveNamesReusingOldState(typeDirectiveNames: readonly string[], containingFile: string): readonly ResolvedTypeReferenceDirectiveWithFailedLookupLocations[]; */
-	resolveTypeReferenceDirectiveNamesReusingOldState := func(typeDirectiveNames []T, containingFile /* TODO(TS-TO-GO) TypeNode UnionType: string | SourceFile */ any) []ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
+	resolveTypeReferenceDirectiveNamesReusingOldState := func(typeDirectiveNames []T, containingFile Union[string, SourceFile]) []ResolvedTypeReferenceDirectiveWithFailedLookupLocations {
 		var containingSourceFile *SourceFile
 		if !isString(containingFile) {
 			containingSourceFile = containingFile
@@ -2613,7 +2613,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		return typeChecker || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: typeChecker = createTypeChecker(program) */ TODO)
 	}
 
-	emit := func(sourceFile SourceFile, writeFileCallback WriteFileCallback, cancellationToken CancellationToken, emitOnly /* TODO(TS-TO-GO) TypeNode UnionType: boolean | EmitOnly */ any, transformers CustomTransformers, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
+	emit := func(sourceFile SourceFile, writeFileCallback WriteFileCallback, cancellationToken CancellationToken, emitOnly Union[bool, EmitOnly], transformers CustomTransformers, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
 		tracing. /* ? */ push(tracing.Phase.Emit, "emit", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"path": sourceFile. /* ? */ path,
 		}, /*separateBeginAndEnd*/ true)
@@ -2628,7 +2628,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		return hasEmitBlockingDiagnostics.has(toPath(emitFileName))
 	}
 
-	emitWorker := func(program Program, sourceFile *SourceFile, writeFileCallback *WriteFileCallback, cancellationToken CancellationToken, emitOnly /* TODO(TS-TO-GO) TypeNode UnionType: boolean | EmitOnly | undefined */ any, customTransformers *CustomTransformers, forceDtsEmit *bool, skipBuildInfo *bool) EmitResult {
+	emitWorker := func(program Program, sourceFile *SourceFile, writeFileCallback *WriteFileCallback, cancellationToken CancellationToken, emitOnly Union[bool, EmitOnly /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], customTransformers *CustomTransformers, forceDtsEmit *bool, skipBuildInfo *bool) EmitResult {
 		if !forceDtsEmit {
 			result := handleNoEmitOptions(program, sourceFile, writeFileCallback, cancellationToken)
 			if result != nil {
@@ -3158,7 +3158,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		return a.fileName == b.fileName
 	}
 
-	moduleNameIsEqualTo := func(a /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteralLike | Identifier */ any, b /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteralLike | Identifier */ any) bool {
+	moduleNameIsEqualTo := func(a Union[StringLiteralLike, Identifier], b Union[StringLiteralLike, Identifier]) bool {
 		if a.kind == SyntaxKindIdentifier {
 			return b.kind == SyntaxKindIdentifier && a.escapedText == b.escapedText
 		} else {
@@ -3189,7 +3189,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 		// file.imports may not be undefined if there exists dynamic import
 		var imports *[]StringLiteralLike
-		var moduleAugmentations *[] /* TODO(TS-TO-GO) TypeNode UnionType: StringLiteral | Identifier */ any
+		var moduleAugmentations *[]Union[StringLiteral, Identifier]
 		var ambientModules *[]string
 
 		// If we are importing helpers, we need to add a synthetic reference to resolve the
@@ -3651,7 +3651,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 		}
 	}
 
-	updateFilesByNameMap := func(fileName string, path Path, file /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | false | undefined */ any) {
+	updateFilesByNameMap := func(fileName string, path Path, file Union[SourceFile /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 		filesByName.set(path, file)
 		if file != nil {
 			missingFileNames.delete(path)
@@ -4760,7 +4760,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 	/* OVERLOAD: function createDiagnosticForOption(onKey: boolean, option1: string, option2: string | undefined, message: DiagnosticMessageChain): void; */
 	/* OVERLOAD: function createDiagnosticForOption(onKey: boolean, option1: string, option2: string | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): void; */
-	createDiagnosticForOption := func(onKey bool, option1 string, option2 *string, message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) {
+	createDiagnosticForOption := func(onKey bool, option1 string, option2 *string, message Union[DiagnosticMessage, DiagnosticMessageChain], args DiagnosticArguments) {
 		compilerOptionsObjectLiteralSyntax := getCompilerOptionsObjectLiteralSyntax()
 		needCompilerDiagnostic := compilerOptionsObjectLiteralSyntax == nil || !createOptionDiagnosticInObjectLiteralSyntax(compilerOptionsObjectLiteralSyntax, onKey, option1, option2, message, args...)
 
@@ -4772,7 +4772,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	/* OVERLOAD: function createCompilerOptionsDiagnostic(message: DiagnosticMessageChain): void; */
 	/* OVERLOAD: function createCompilerOptionsDiagnostic(message: DiagnosticMessage, ...args: DiagnosticArguments): void; */
 	/* OVERLOAD: function createCompilerOptionsDiagnostic(message: DiagnosticMessage | DiagnosticMessageChain, ...args: DiagnosticArguments): void; */
-	createCompilerOptionsDiagnostic := func(message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) {
+	createCompilerOptionsDiagnostic := func(message Union[DiagnosticMessage, DiagnosticMessageChain], args DiagnosticArguments) {
 		compilerOptionsProperty := getCompilerOptionsPropertySyntax()
 		if compilerOptionsProperty != nil {
 			// eslint-disable-next-line local/no-in-operator
@@ -4810,7 +4810,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 	/* OVERLOAD: function createOptionDiagnosticInObjectLiteralSyntax(objectLiteral: ObjectLiteralExpression, onKey: boolean, key1: string, key2: string | undefined, messageChain: DiagnosticMessageChain): boolean; */
 	/* OVERLOAD: function createOptionDiagnosticInObjectLiteralSyntax(objectLiteral: ObjectLiteralExpression, onKey: boolean, key1: string, key2: string | undefined, message: DiagnosticMessage, ...args: DiagnosticArguments): boolean; */
 	/* OVERLOAD: function createOptionDiagnosticInObjectLiteralSyntax(objectLiteral: ObjectLiteralExpression, onKey: boolean, key1: string, key2: string | undefined, message: DiagnosticMessage | DiagnosticMessageChain, ...args: DiagnosticArguments): boolean; */
-	createOptionDiagnosticInObjectLiteralSyntax := func(objectLiteral ObjectLiteralExpression, onKey bool, key1 string, key2 *string, message /* TODO(TS-TO-GO) TypeNode UnionType: DiagnosticMessage | DiagnosticMessageChain */ any, args DiagnosticArguments) bool {
+	createOptionDiagnosticInObjectLiteralSyntax := func(objectLiteral ObjectLiteralExpression, onKey bool, key1 string, key2 *string, message Union[DiagnosticMessage, DiagnosticMessageChain], args DiagnosticArguments) bool {
 		needsCompilerDiagnostic := false
 		forEachPropertyAssignment(objectLiteral, key1, func(prop PropertyAssignment) {
 			// eslint-disable-next-line local/no-in-operator
@@ -4915,7 +4915,7 @@ func createProgram(rootNamesOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: read
 
 }
 
-func shouldTransformImportCallWorker(sourceFile Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], options CompilerOptions) bool {
+func shouldTransformImportCallWorker(sourceFile Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], options CompilerOptions) bool {
 	moduleKind := getEmitModuleKind(options)
 	if ModuleKindNode16 <= moduleKind && moduleKind <= ModuleKindNodeNext || moduleKind == ModuleKindPreserve {
 		return false
@@ -4925,13 +4925,13 @@ func shouldTransformImportCallWorker(sourceFile Pick[SourceFile /* TODO(TS-TO-GO
 
 /** @internal Prefer `program.getEmitModuleFormatOfFile` when possible. */
 
-func getEmitModuleFormatOfFileWorker(sourceFile Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], options CompilerOptions) ModuleKind {
+func getEmitModuleFormatOfFileWorker(sourceFile Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], options CompilerOptions) ModuleKind {
 	return /* TODO(TS-TO-GO) QuestionQuestionToken BinaryExpression: getImpliedNodeFormatForEmitWorker(sourceFile, options) ?? getEmitModuleKind(options) */ TODO
 }
 
 /** @internal Prefer `program.getImpliedNodeFormatForEmit` when possible. */
 
-func getImpliedNodeFormatForEmitWorker(sourceFile Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], options CompilerOptions) ResolutionMode {
+func getImpliedNodeFormatForEmitWorker(sourceFile Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], options CompilerOptions) ResolutionMode {
 	moduleKind := getEmitModuleKind(options)
 	if ModuleKindNode16 <= moduleKind && moduleKind <= ModuleKindNodeNext {
 		return sourceFile.impliedNodeFormat
@@ -4947,7 +4947,7 @@ func getImpliedNodeFormatForEmitWorker(sourceFile Pick[SourceFile /* TODO(TS-TO-
 
 /** @internal Prefer `program.getDefaultResolutionModeForFile` when possible. */
 
-func getDefaultResolutionModeForFileWorker(sourceFile Pick[SourceFile /* TODO(TS-TO-GO) TypeNode UnionType: "fileName" | "impliedNodeFormat" | "packageJsonScope" */, any], options CompilerOptions) ResolutionMode {
+func getDefaultResolutionModeForFileWorker(sourceFile Pick[SourceFile, Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "fileName" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "impliedNodeFormat" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "packageJsonScope" */, any]], options CompilerOptions) ResolutionMode {
 	if importSyntaxAffectsModuleResolution(options) {
 		return getImpliedNodeFormatForEmitWorker(sourceFile, options)
 	} else {
@@ -5145,7 +5145,7 @@ var emitSkippedWithNoDiagnostics EmitResult = map[any]any{ /* TODO(TS-TO-GO): wa
 
 /** @internal */
 
-func handleNoEmitOptions(program /* TODO(TS-TO-GO) TypeNode UnionType: Program | T */ any, sourceFile *SourceFile, writeFile *WriteFileCallback, cancellationToken CancellationToken) *EmitResult {
+func handleNoEmitOptions(program Union[Program, T], sourceFile *SourceFile, writeFile *WriteFileCallback, cancellationToken CancellationToken) *EmitResult {
 	options := program.getCompilerOptions()
 	if options.noEmit {
 		if sourceFile != nil {
@@ -5196,7 +5196,7 @@ func filterSemanticDiagnostics(diagnostic []Diagnostic, option CompilerOptions) 
 
 /** @internal */
 
-func parseConfigHostFromCompilerHostLike(host /* TODO(TS-TO-GO) TypeNode IntersectionType: (CompilerHost | ProgramHost<T>) & { onUnRecoverableConfigFileDiagnostic?: DiagnosticReporter; } */ any, directoryStructureHost DirectoryStructureHost /*  = host */) ParseConfigFileHost {
+func parseConfigHostFromCompilerHostLike(host Intersection[Union[CompilerHost, ProgramHost[T]] /* TODO(TS-TO-GO) TypeNode TypeLiteral: { onUnRecoverableConfigFileDiagnostic?: DiagnosticReporter; } */, any], directoryStructureHost DirectoryStructureHost /*  = host */) ParseConfigFileHost {
 	return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"fileExists": func(f string) bool {
 			return directoryStructureHost.fileExists(f)

@@ -71,7 +71,7 @@ func isBuildInfoFile(file string) bool {
  * @internal
  */
 
-func forEachEmittedFile(host EmitHost, action func(emitFileNames EmitFileNames, sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle | undefined */ any) T, sourceFilesOrTargetSourceFile /* TODO(TS-TO-GO) TypeNode UnionType: readonly SourceFile[] | SourceFile */ any, forceDtsEmit bool /*  = false */, onlyBuildInfo bool, includeBuildInfo bool) *T {
+func forEachEmittedFile(host EmitHost, action func(emitFileNames EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) T, sourceFilesOrTargetSourceFile Union[[]SourceFile, SourceFile], forceDtsEmit bool /*  = false */, onlyBuildInfo bool, includeBuildInfo bool) *T {
 	var sourceFiles [] /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any
 	if isArray(sourceFilesOrTargetSourceFile) {
 		sourceFiles = sourceFilesOrTargetSourceFile
@@ -173,7 +173,7 @@ func getOutputPathsForBundle(options CompilerOptions, forceDtsPaths bool) EmitFi
 
 /** @internal */
 
-func getOutputPathsFor(sourceFile /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle */ any, host EmitHost, forceDtsPaths bool) EmitFileNames {
+func getOutputPathsFor(sourceFile Union[SourceFile, Bundle], host EmitHost, forceDtsPaths bool) EmitFileNames {
 	options := host.getCompilerOptions()
 	if sourceFile.kind == SyntaxKindBundle {
 		return getOutputPathsForBundle(options, forceDtsPaths)
@@ -426,14 +426,14 @@ func getFirstProjectOutput(configFile ParsedCommandLine, ignoreCase bool) string
 
 /** @internal */
 
-func emitResolverSkipsTypeChecking(emitOnly /* TODO(TS-TO-GO) TypeNode UnionType: boolean | EmitOnly | undefined */ any, forceDtsEmit *bool) bool {
+func emitResolverSkipsTypeChecking(emitOnly Union[bool, EmitOnly /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], forceDtsEmit *bool) bool {
 	return forceDtsEmit && emitOnly
 }
 
 /** @internal */
 // targetSourceFile is when users only want one file in entire project to be emitted. This is used in compileOnSave feature
 
-func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFile, TODO_IDENTIFIER EmitTransformers, emitOnly /* TODO(TS-TO-GO) TypeNode UnionType: boolean | EmitOnly | undefined */ any, onlyBuildInfo bool, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
+func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFile, TODO_IDENTIFIER EmitTransformers, emitOnly Union[bool, EmitOnly /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], onlyBuildInfo bool, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
 	// Why var? It avoids TDZ checks in the runtime which can be costly.
 	// See: https://github.com/microsoft/TypeScript/issues/52924
 	/* eslint-disable no-var */
@@ -469,7 +469,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		"sourceMaps":   sourceMapDataList,
 	}
 
-	emitSourceFileOrBundle := func(TODO_IDENTIFIER EmitFileNames, sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle | undefined */ any) {
+	emitSourceFileOrBundle := func(TODO_IDENTIFIER EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 		tracing. /* ? */ push(tracing.Phase.Emit, "emitJsFileOrBundle", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"jsFilePath": jsFilePath,
 		})
@@ -508,7 +508,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		emittedFilesList. /* ? */ push(buildInfoPath)
 	}
 
-	emitJsFileOrBundle := func(sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle | undefined */ any, jsFilePath *string, sourceMapFilePath *string) {
+	emitJsFileOrBundle := func(sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], jsFilePath *string, sourceMapFilePath *string) {
 		if sourceFileOrBundle == nil || emitOnly || !jsFilePath {
 			return
 		}
@@ -565,7 +565,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		}
 	}
 
-	emitDeclarationFileOrBundle := func(sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle | undefined */ any, declarationFilePath *string, declarationMapPath *string) {
+	emitDeclarationFileOrBundle := func(sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], declarationFilePath *string, declarationMapPath *string) {
 		if sourceFileOrBundle == nil || emitOnly == EmitOnlyJs {
 			return
 		}
@@ -687,7 +687,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		})
 	}
 
-	printSourceFileOrBundle := func(jsFilePath string, sourceMapFilePath *string, transform TransformationResult[ /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle */ any], printer Printer, mapOptions SourceMapOptions) bool {
+	printSourceFileOrBundle := func(jsFilePath string, sourceMapFilePath *string, transform TransformationResult[Union[SourceFile, Bundle]], printer Printer, mapOptions SourceMapOptions) bool {
 		sourceFileOrBundle := transform.transformed[0]
 		var bundle * /* TODO(TS-TO-GO) inferred type ts.Bundle */ any
 		if sourceFileOrBundle.kind == SyntaxKindBundle {
@@ -770,7 +770,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		extendedDiagnostics bool
 	}
 
-	shouldEmitSourceMaps := func(mapOptions SourceMapOptions, sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: SourceFile | Bundle */ any) *bool {
+	shouldEmitSourceMaps := func(mapOptions SourceMapOptions, sourceFileOrBundle Union[SourceFile, Bundle]) *bool {
 		return (mapOptions.sourceMap || mapOptions.inlineSourceMap) && (sourceFileOrBundle.kind != SyntaxKindSourceFile || !fileExtensionIs(sourceFileOrBundle.fileName, ExtensionJson))
 	}
 
@@ -1850,7 +1850,7 @@ func (printer *Printer) getSortedEmitHelpers(node *Node) * /* TODO(TS-TO-GO) inf
 
 // SyntaxKind.NumericLiteral
 // SyntaxKind.BigIntLiteral
-func (printer *Printer) emitNumericOrBigIntLiteral(node /* TODO(TS-TO-GO) TypeNode UnionType: NumericLiteral | BigIntLiteral */ any) {
+func (printer *Printer) emitNumericOrBigIntLiteral(node Union[NumericLiteral, BigIntLiteral]) {
 	printer.emitLiteral(node /*jsxAttributeEscape*/, false)
 }
 
@@ -2100,14 +2100,14 @@ func (printer *Printer) emitFunctionType(node FunctionTypeNode) {
 	printer.emitSignatureAndBody(node, printer.emitFunctionTypeHead, printer.emitFunctionTypeBody)
 }
 
-func (printer *Printer) emitFunctionTypeHead(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionTypeNode | ConstructorTypeNode */ any) {
+func (printer *Printer) emitFunctionTypeHead(node Union[FunctionTypeNode, ConstructorTypeNode]) {
 	printer.emitTypeParameters(node, node.typeParameters)
 	printer.emitParametersForArrow(node, node.parameters)
 	printer.writeSpace()
 	printer.writePunctuation("=>")
 }
 
-func (printer *Printer) emitFunctionTypeBody(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionTypeNode | ConstructorTypeNode */ any) {
+func (printer *Printer) emitFunctionTypeBody(node Union[FunctionTypeNode, ConstructorTypeNode]) {
 	printer.writeSpace()
 	printer.emit(node.type_)
 }
@@ -2171,7 +2171,7 @@ func (printer *Printer) emitArrayType(node ArrayTypeNode) {
 	printer.writePunctuation("]")
 }
 
-func (printer *Printer) emitRestOrJSDocVariadicType(node /* TODO(TS-TO-GO) TypeNode UnionType: RestTypeNode | JSDocVariadicType */ any) {
+func (printer *Printer) emitRestOrJSDocVariadicType(node Union[RestTypeNode, JSDocVariadicType]) {
 	printer.writePunctuation("...")
 	printer.emit(node.type_)
 }
@@ -2687,7 +2687,7 @@ func (printer *Printer) createEmitBinaryExpression() /* TODO(TS-TO-GO) inferred 
 		}
 	}
 
-	maybeEmitExpression := func(next Expression, parent BinaryExpression, side /* TODO(TS-TO-GO) TypeNode UnionType: "left" | "right" */ any) * /* TODO(TS-TO-GO) inferred type ts.BinaryExpression */ any {
+	maybeEmitExpression := func(next Expression, parent BinaryExpression, side Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "left" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "right" */, any]) * /* TODO(TS-TO-GO) inferred type ts.BinaryExpression */ any {
 		var parenthesizerRule /* TODO(TS-TO-GO) inferred type (leftSide: Expression) => Expression */ any
 		if side == "left" {
 			parenthesizerRule = printer.parenthesizer.getParenthesizeLeftSideOfBinaryForOperator(parent.operatorToken.kind)
@@ -2865,7 +2865,7 @@ func (printer *Printer) emitIfStatement(node IfStatement) {
 	}
 }
 
-func (printer *Printer) emitWhileClause(node /* TODO(TS-TO-GO) TypeNode UnionType: WhileStatement | DoStatement */ any, startPos number) {
+func (printer *Printer) emitWhileClause(node Union[WhileStatement, DoStatement], startPos number) {
 	openParenPos := printer.emitTokenWithComment(SyntaxKindWhileKeyword, startPos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
@@ -2931,7 +2931,7 @@ func (printer *Printer) emitForOfStatement(node ForOfStatement) {
 	printer.emitEmbeddedStatement(node, node.statement)
 }
 
-func (printer *Printer) emitForBinding(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclarationList | Expression | undefined */ any) {
+func (printer *Printer) emitForBinding(node Union[VariableDeclarationList, Expression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 	if node != nil {
 		if node.kind == SyntaxKindVariableDeclarationList {
 			printer.emit(node)
@@ -3141,7 +3141,7 @@ func (printer *Printer) emitFunctionDeclaration(node FunctionDeclaration) {
 	printer.emitFunctionDeclarationOrExpression(node)
 }
 
-func (printer *Printer) emitFunctionDeclarationOrExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionDeclaration | FunctionExpression */ any) {
+func (printer *Printer) emitFunctionDeclarationOrExpression(node Union[FunctionDeclaration, FunctionExpression]) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
 	printer.writeKeyword("function")
 	printer.emit(node.asteriskToken)
@@ -3266,7 +3266,7 @@ func (printer *Printer) emitClassDeclaration(node ClassDeclaration) {
 	printer.emitClassDeclarationOrExpression(node)
 }
 
-func (printer *Printer) emitClassDeclarationOrExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: ClassDeclaration | ClassExpression */ any) {
+func (printer *Printer) emitClassDeclarationOrExpression(node Union[ClassDeclaration, ClassExpression]) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, true)
 	printer.emitTokenWithComment(SyntaxKindClassKeyword, moveRangePastModifiers(node).pos, printer.writeKeyword, node)
 	if node.name != nil {
@@ -3607,7 +3607,7 @@ func (printer *Printer) emitJsxFragment(node JsxFragment) {
 	printer.emit(node.closingFragment)
 }
 
-func (printer *Printer) emitJsxOpeningElementOrFragment(node /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningElement | JsxOpeningFragment */ any) {
+func (printer *Printer) emitJsxOpeningElementOrFragment(node Union[JsxOpeningElement, JsxOpeningFragment]) {
 	printer.writePunctuation("<")
 
 	if isJsxOpeningElement(node) {
@@ -3629,7 +3629,7 @@ func (printer *Printer) emitJsxText(node JsxText) {
 	printer.writer.writeLiteral(node.text)
 }
 
-func (printer *Printer) emitJsxClosingElementOrFragment(node /* TODO(TS-TO-GO) TypeNode UnionType: JsxClosingElement | JsxClosingFragment */ any) {
+func (printer *Printer) emitJsxClosingElementOrFragment(node Union[JsxClosingElement, JsxClosingFragment]) {
 	printer.writePunctuation("</")
 	if isJsxClosingElement(node) {
 		printer.emitJsxTagName(node.tagName)
@@ -3829,7 +3829,7 @@ func (printer *Printer) emitJSDoc(node JSDoc) {
 	printer.write("*/")
 }
 
-func (printer *Printer) emitJSDocSimpleTypedTag(tag /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeTag | JSDocThisTag | JSDocEnumTag | JSDocReturnTag | JSDocThrowsTag | JSDocSatisfiesTag */ any) {
+func (printer *Printer) emitJSDocSimpleTypedTag(tag Union[JSDocTypeTag, JSDocThisTag, JSDocEnumTag, JSDocReturnTag, JSDocThrowsTag, JSDocSatisfiesTag]) {
 	printer.emitJSDocTagName(tag.tagName)
 	printer.emitJSDocTypeExpression(tag.typeExpression)
 	printer.emitJSDocComment(tag.comment)
@@ -3867,7 +3867,7 @@ func (printer *Printer) emitJSDocNameReference(node JSDocNameReference) {
 	printer.writePunctuation("}")
 }
 
-func (printer *Printer) emitJSDocHeritageTag(tag /* TODO(TS-TO-GO) TypeNode UnionType: JSDocImplementsTag | JSDocAugmentsTag */ any) {
+func (printer *Printer) emitJSDocHeritageTag(tag Union[JSDocImplementsTag, JSDocAugmentsTag]) {
 	printer.emitJSDocTagName(tag.tagName)
 	printer.writeSpace()
 	printer.writePunctuation("{")
@@ -3969,7 +3969,7 @@ func (printer *Printer) emitJSDocTagName(tagName Identifier) {
 	printer.emit(tagName)
 }
 
-func (printer *Printer) emitJSDocComment(comment /* TODO(TS-TO-GO) TypeNode UnionType: string | NodeArray<JSDocComment> | undefined */ any) {
+func (printer *Printer) emitJSDocComment(comment Union[string, NodeArray[JSDocComment] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
 	text := getTextOfJSDocComment(comment)
 	if text {
 		printer.writeSpace()
@@ -4033,7 +4033,7 @@ func (printer *Printer) emitTripleSlashDirectives(hasNoDefaultLib bool, files []
 		}
 	}
 
-	writeDirectives := func(kind /* TODO(TS-TO-GO) TypeNode UnionType: "path" | "types" | "lib" */ any, directives []FileReference) {
+	writeDirectives := func(kind Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "path" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "types" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "lib" */, any], directives []FileReference) {
 		for _, directive := range directives {
 			var resolutionMode string
 			if directive.resolutionMode {
@@ -4123,7 +4123,7 @@ func (printer *Printer) emitPrologueDirectives(statements []*Node, sourceFile So
 	return statements.length
 }
 
-func (printer *Printer) emitPrologueDirectivesIfNeeded(sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: Bundle | SourceFile */ any) {
+func (printer *Printer) emitPrologueDirectivesIfNeeded(sourceFileOrBundle Union[Bundle, SourceFile]) {
 	if isSourceFile(sourceFileOrBundle) {
 		printer.emitPrologueDirectives(sourceFileOrBundle.statements, sourceFileOrBundle)
 	} else {
@@ -4135,7 +4135,7 @@ func (printer *Printer) emitPrologueDirectivesIfNeeded(sourceFileOrBundle /* TOD
 	}
 }
 
-func (printer *Printer) emitShebangIfNeeded(sourceFileOrBundle /* TODO(TS-TO-GO) TypeNode UnionType: Bundle | SourceFile */ any) *true {
+func (printer *Printer) emitShebangIfNeeded(sourceFileOrBundle Union[Bundle, SourceFile]) *true {
 	if isSourceFile(sourceFileOrBundle) {
 		shebang := getShebang(sourceFileOrBundle.text)
 		if shebang {
@@ -4185,8 +4185,8 @@ func (printer *Printer) emitDecoratorsAndModifiers(node *Node, modifiers *NodeAr
 		onBeforeEmitNodeArray(modifiers)
 
 		// partition modifiers into contiguous chunks of `Modifier` or `Decorator`
-		var lastMode /* TODO(TS-TO-GO) TypeNode UnionType: "modifiers" | "decorators" | undefined */ any
-		var mode /* TODO(TS-TO-GO) TypeNode UnionType: "modifiers" | "decorators" | undefined */ any
+		var lastMode Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "modifiers" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "decorators" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+		var mode Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "modifiers" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "decorators" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 		start := 0
 		pos := 0
 		var lastModifier *ModifierLike
@@ -4320,7 +4320,7 @@ func (printer *Printer) emitTypeArguments(parentNode *Node, typeArguments *NodeA
 	printer.emitList(parentNode, typeArguments, ListFormatTypeArguments, printer.typeArgumentParenthesizerRuleSelector)
 }
 
-func (printer *Printer) emitTypeParameters(parentNode /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | InterfaceDeclaration | TypeAliasDeclaration | ClassDeclaration | ClassExpression */ any, typeParameters *NodeArray[TypeParameterDeclaration]) {
+func (printer *Printer) emitTypeParameters(parentNode Union[SignatureDeclaration, InterfaceDeclaration, TypeAliasDeclaration, ClassDeclaration, ClassExpression], typeParameters *NodeArray[TypeParameterDeclaration]) {
 	if isFunctionLike(parentNode) && parentNode.typeArguments != nil {
 		return printer.emitTypeArguments(parentNode, parentNode.typeArguments)
 	}
@@ -4331,13 +4331,13 @@ func (printer *Printer) emitParameters(parentNode *Node, parameters NodeArray[Pa
 	printer.emitList(parentNode, parameters, ListFormatParameters)
 }
 
-func (printer *Printer) canEmitSimpleArrowHead(parentNode /* TODO(TS-TO-GO) TypeNode UnionType: FunctionTypeNode | ConstructorTypeNode | ArrowFunction */ any, parameters NodeArray[ParameterDeclaration]) *bool {
+func (printer *Printer) canEmitSimpleArrowHead(parentNode Union[FunctionTypeNode, ConstructorTypeNode, ArrowFunction], parameters NodeArray[ParameterDeclaration]) *bool {
 	parameter := singleOrUndefined(parameters)
 	return parameter && parameter.pos == parentNode.pos && isArrowFunction(parentNode) && parentNode.type_ == nil && !some(parentNode.modifiers) && !some(parentNode.typeParameters) && !some(parameter.modifiers) && parameter.dotDotDotToken == nil && parameter.questionToken == nil && parameter.type_ == nil && parameter.initializer == nil && isIdentifier(parameter.name)
 	// parameter name must be identifier
 }
 
-func (printer *Printer) emitParametersForArrow(parentNode /* TODO(TS-TO-GO) TypeNode UnionType: FunctionTypeNode | ConstructorTypeNode | ArrowFunction */ any, parameters NodeArray[ParameterDeclaration]) {
+func (printer *Printer) emitParametersForArrow(parentNode Union[FunctionTypeNode, ConstructorTypeNode, ArrowFunction], parameters NodeArray[ParameterDeclaration]) {
 	if printer.canEmitSimpleArrowHead(parentNode, parameters) {
 		printer.emitList(parentNode, parameters, ListFormatParameters & ^ListFormatParenthesis)
 	} else {
@@ -4703,7 +4703,7 @@ func (printer *Printer) writeLinesAndIndent(lineCount number, writeSpaceIfNotInd
 // previous indent values to be considered at a time.  This also allows caller to just
 // call this once, passing in all their appropriate indent values, instead of needing
 // to call this helper function multiple times.
-func (printer *Printer) decreaseIndentIf(value1 /* TODO(TS-TO-GO) TypeNode UnionType: boolean | number | undefined */ any, value2 /* TODO(TS-TO-GO) TypeNode UnionType: boolean | number */ any) {
+func (printer *Printer) decreaseIndentIf(value1 Union[bool, number /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], value2 Union[bool, number]) {
 	if value1 {
 		printer.decreaseIndent()
 	}
@@ -4945,7 +4945,7 @@ func (printer *Printer) skipSynthesizedParentheses(node *Node) /* TODO(TS-TO-GO)
 	return node
 }
 
-func (printer *Printer) getTextOfNode(node /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier | LiteralExpression | JsxNamespacedName */ any, includeTrivia bool) string {
+func (printer *Printer) getTextOfNode(node Union[Identifier, PrivateIdentifier, LiteralExpression, JsxNamespacedName], includeTrivia bool) string {
 	if isGeneratedIdentifier(node) || isGeneratedPrivateIdentifier(node) {
 		return printer.generateName(node)
 	}
@@ -5151,7 +5151,7 @@ func (printer *Printer) generateNameIfNeeded(name *DeclarationName) {
  * Generate the text for a generated identifier.
  */
 
-func (printer *Printer) generateName(name /* TODO(TS-TO-GO) TypeNode UnionType: GeneratedIdentifier | GeneratedPrivateIdentifier */ any) string {
+func (printer *Printer) generateName(name Union[GeneratedIdentifier, GeneratedPrivateIdentifier]) string {
 	autoGenerate := name.emitNode.autoGenerate
 	if (autoGenerate.flags & GeneratedIdentifierFlagsKindMask) == GeneratedIdentifierFlagsNode {
 		// Node names generate unique names based on their original node
@@ -5165,7 +5165,7 @@ func (printer *Printer) generateName(name /* TODO(TS-TO-GO) TypeNode UnionType: 
 	}
 }
 
-func (printer *Printer) generateNameCached(node *Node, privateName bool, flags GeneratedIdentifierFlags, prefix /* TODO(TS-TO-GO) TypeNode UnionType: string | GeneratedNamePart */ any, suffix string) string {
+func (printer *Printer) generateNameCached(node *Node, privateName bool, flags GeneratedIdentifierFlags, prefix Union[string, GeneratedNamePart], suffix string) string {
 	nodeId := getNodeId(node)
 	var cache []string
 	if privateName {
@@ -5385,7 +5385,7 @@ func (printer *Printer) makeFileLevelOptimisticUniqueName(name string) string {
  * Generates a unique name for a ModuleDeclaration or EnumDeclaration.
  */
 
-func (printer *Printer) generateNameForModuleOrEnum(node /* TODO(TS-TO-GO) TypeNode UnionType: ModuleDeclaration | EnumDeclaration */ any) string {
+func (printer *Printer) generateNameForModuleOrEnum(node Union[ModuleDeclaration, EnumDeclaration]) string {
 	name := printer.getTextOfNode(node.name)
 	// Use module/enum name itself if it is unique, otherwise make a unique variation
 	if printer.isUniqueLocalName(name, tryCast(node, canHaveLocals)) {
@@ -5399,7 +5399,7 @@ func (printer *Printer) generateNameForModuleOrEnum(node /* TODO(TS-TO-GO) TypeN
  * Generates a unique name for an ImportDeclaration or ExportDeclaration.
  */
 
-func (printer *Printer) generateNameForImportOrExportDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportDeclaration | ExportDeclaration */ any) string {
+func (printer *Printer) generateNameForImportOrExportDeclaration(node Union[ImportDeclaration, ExportDeclaration]) string {
 	expr := getExternalModuleName(node)
 	// TODO: GH#18217
 	var baseName string
@@ -5427,7 +5427,7 @@ func (printer *Printer) generateNameForClassExpression() string {
 	return printer.makeUniqueName("class", printer.isUniqueName /*optimistic*/, false /*scoped*/, false /*privateName*/, false /*prefix*/, "" /*suffix*/, "")
 }
 
-func (printer *Printer) generateNameForMethodOrAccessor(node /* TODO(TS-TO-GO) TypeNode UnionType: MethodDeclaration | AccessorDeclaration */ any, privateName bool, prefix string, suffix string) string {
+func (printer *Printer) generateNameForMethodOrAccessor(node Union[MethodDeclaration, AccessorDeclaration], privateName bool, prefix string, suffix string) string {
 	if isIdentifier(node.name) {
 		return printer.generateNameCached(node.name, privateName)
 	}
@@ -5480,7 +5480,7 @@ func (printer *Printer) generateNameForNode(node *Node, privateName bool, flags 
  * Generates a unique identifier for a node.
  */
 
-func (printer *Printer) makeName(name /* TODO(TS-TO-GO) TypeNode UnionType: GeneratedIdentifier | GeneratedPrivateIdentifier */ any) string {
+func (printer *Printer) makeName(name Union[GeneratedIdentifier, GeneratedPrivateIdentifier]) string {
 	autoGenerate := name.emitNode.autoGenerate
 	prefix := formatGeneratedNamePart(autoGenerate.prefix, printer.generateName)
 	suffix := formatGeneratedNamePart(autoGenerate.suffix)
@@ -6067,7 +6067,7 @@ type OrdinalParentheizerRuleSelector [T * Node]struct {
 
 type ParenthesizerRule [T * Node]func(node T) T
 
-type ParenthesizerRuleOrSelector [T * Node] /* TODO(TS-TO-GO) TypeNode UnionType: OrdinalParentheizerRuleSelector<T> | ParenthesizerRule<T> */ any
+type ParenthesizerRuleOrSelector [T * Node]Union[OrdinalParentheizerRuleSelector[T], ParenthesizerRule[T]]
 
 type EmitFunction func(node T, parenthesizerRule ParenthesizerRule[T])
 type EmitListItemFunction [T * Node]func(node *Node, emit EmitFunction, parenthesizerRule *ParenthesizerRuleOrSelector[T], index number)

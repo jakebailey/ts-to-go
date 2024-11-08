@@ -304,19 +304,26 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                         writer.write("*");
                     }
                     visitTypeNode(a);
-                }
-                else {
-                    writeTodoNode(type);
-                    writer.write(` any`);
+                    return;
                 }
             }
-            else {
-                writeTodoNode(type);
-                writer.write(` any`);
+            writer.write("Union[");
+            for (const unionType of type.getTypeNodes()) {
+                visitTypeNode(unionType);
+                writer.write(", ");
             }
+            writer.write("]");
         }
         else if (Node.isAnyKeyword(type) || type.getText() === "unknown") {
             writer.write("any");
+        }
+        else if (Node.isIntersectionTypeNode(type)) {
+            writer.write("Intersection[");
+            for (const intersectionType of type.getTypeNodes()) {
+                visitTypeNode(intersectionType);
+                writer.write(", ");
+            }
+            writer.write("]");
         }
         else {
             writeTodoNode(type);

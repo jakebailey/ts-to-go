@@ -555,15 +555,15 @@ var forEachChildTable ForEachChildTable = map[any]any{ /* TODO(TS-TO-GO): was ob
 
 // shared
 
-func forEachChildInCallOrConstructSignature(node /* TODO(TS-TO-GO) TypeNode UnionType: CallSignatureDeclaration | ConstructSignatureDeclaration */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInCallOrConstructSignature(node Union[CallSignatureDeclaration, ConstructSignatureDeclaration], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 }
 
-func forEachChildInUnionOrIntersectionType(node /* TODO(TS-TO-GO) TypeNode UnionType: UnionTypeNode | IntersectionTypeNode */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInUnionOrIntersectionType(node Union[UnionTypeNode, IntersectionTypeNode], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNodes(cbNode, cbNodes, node.types)
 }
 
-func forEachChildInParenthesizedTypeOrTypeOperator(node /* TODO(TS-TO-GO) TypeNode UnionType: ParenthesizedTypeNode | TypeOperatorNode */ any, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInParenthesizedTypeOrTypeOperator(node Union[ParenthesizedTypeNode, TypeOperatorNode], cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.type_)
 }
 
@@ -571,27 +571,27 @@ func forEachChildInObjectOrArrayBindingPattern(node BindingPattern, cbNode func(
 	return visitNodes(cbNode, cbNodes, node.elements)
 }
 
-func forEachChildInCallOrNewExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | NewExpression */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInCallOrNewExpression(node Union[CallExpression, NewExpression], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node.AsCallExpression()).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
 }
 
-func forEachChildInBlock(node /* TODO(TS-TO-GO) TypeNode UnionType: Block | ModuleBlock */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInBlock(node Union[Block, ModuleBlock], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNodes(cbNode, cbNodes, node.statements)
 }
 
-func forEachChildInContinueOrBreakStatement(node /* TODO(TS-TO-GO) TypeNode UnionType: ContinueStatement | BreakStatement */ any, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInContinueOrBreakStatement(node Union[ContinueStatement, BreakStatement], cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.label)
 }
 
-func forEachChildInClassDeclarationOrExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: ClassDeclaration | ClassExpression */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInClassDeclarationOrExpression(node Union[ClassDeclaration, ClassExpression], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.heritageClauses) || visitNodes(cbNode, cbNodes, node.members)
 }
 
-func forEachChildInNamedImportsOrExports(node /* TODO(TS-TO-GO) TypeNode UnionType: NamedImports | NamedExports */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInNamedImportsOrExports(node Union[NamedImports, NamedExports], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNodes(cbNode, cbNodes, node.elements)
 }
 
-func forEachChildInImportOrExportSpecifier(node /* TODO(TS-TO-GO) TypeNode UnionType: ImportSpecifier | ExportSpecifier */ any, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInImportOrExportSpecifier(node Union[ImportSpecifier, ExportSpecifier], cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.propertyName) || visitNode(cbNode, node.name)
 }
 
@@ -599,23 +599,23 @@ func forEachChildInJsxOpeningOrSelfClosingElement(node JsxOpeningLikeElement, cb
 	return visitNode(cbNode, node.tagName) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNode(cbNode, node.attributes)
 }
 
-func forEachChildInOptionalRestOrJSDocParameterModifier(node /* TODO(TS-TO-GO) TypeNode UnionType: OptionalTypeNode | RestTypeNode | JSDocTypeExpression | JSDocNullableType | JSDocNonNullableType | JSDocOptionalType | JSDocVariadicType */ any, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInOptionalRestOrJSDocParameterModifier(node Union[OptionalTypeNode, RestTypeNode, JSDocTypeExpression, JSDocNullableType, JSDocNonNullableType, JSDocOptionalType, JSDocVariadicType], cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.type_)
 }
 
-func forEachChildInJSDocParameterOrPropertyTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocParameterTag | JSDocPropertyTag */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInJSDocParameterOrPropertyTag(node Union[JSDocParameterTag, JSDocPropertyTag], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.tagName) || (ifElse(node.isNameFirst, visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression), visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name))) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
-func forEachChildInJSDocTypeLikeTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocReturnTag | JSDocTypeTag | JSDocThisTag | JSDocEnumTag | JSDocThrowsTag | JSDocOverloadTag | JSDocSatisfiesTag */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInJSDocTypeLikeTag(node Union[JSDocReturnTag, JSDocTypeTag, JSDocThisTag, JSDocEnumTag, JSDocThrowsTag, JSDocOverloadTag, JSDocSatisfiesTag], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
-func forEachChildInJSDocLinkCodeOrPlain(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocLink | JSDocLinkCode | JSDocLinkPlain */ any, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInJSDocLinkCodeOrPlain(node Union[JSDocLink, JSDocLinkCode, JSDocLinkPlain], cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.name)
 }
 
-func forEachChildInJSDocTag(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocUnknownTag | JSDocClassTag | JSDocPublicTag | JSDocPrivateTag | JSDocProtectedTag | JSDocReadonlyTag | JSDocDeprecatedTag | JSDocOverrideTag */ any, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
+func forEachChildInJSDocTag(node Union[JSDocUnknownTag, JSDocClassTag, JSDocPublicTag, JSDocPrivateTag, JSDocProtectedTag, JSDocReadonlyTag, JSDocDeprecatedTag, JSDocOverrideTag], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
 	return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
@@ -669,8 +669,8 @@ func forEachChild(node *Node, cbNode func(node *Node) *T, cbNodes func(nodes Nod
  * @internal
  */
 
-func forEachChildRecursively(rootNode *Node, cbNode func(node *Node, parent *Node) /* TODO(TS-TO-GO) TypeNode UnionType: T | "skip" | undefined */ any, cbNodes func(nodes NodeArray[*Node], parent *Node) /* TODO(TS-TO-GO) TypeNode UnionType: T | "skip" | undefined */ any) *T {
-	var queue [] /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any = gatherPossibleChildren(rootNode)
+func forEachChildRecursively(rootNode *Node, cbNode func(node *Node, parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], cbNodes func(nodes NodeArray[*Node], parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *T {
+	var queue []Union[*Node, NodeArray[*Node]] = gatherPossibleChildren(rootNode)
 	var parents []*Node = []never{}
 	// tracks parent references for elements in queue
 	for parents.length < queue.length {
@@ -713,12 +713,12 @@ func forEachChildRecursively(rootNode *Node, cbNode func(node *Node, parent *Nod
 }
 
 func gatherPossibleChildren(node *Node) [] /* TODO(TS-TO-GO) inferred type (Node | NodeArray<Node>) */ any {
-	var children [] /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any = []never{}
+	var children []Union[*Node, NodeArray[*Node]] = []never{}
 	forEachChild(node, addWorkItem, addWorkItem)
 	// By using a stack above and `unshift` here, we emulate a depth-first preorder traversal
 	return children
 
-	addWorkItem := func(n /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any) {
+	addWorkItem := func(n Union[*Node, NodeArray[*Node]]) {
 		children.unshift(n)
 	}
 
@@ -737,7 +737,7 @@ func setExternalModuleIndicator(sourceFile SourceFile) {
 	sourceFile.externalModuleIndicator = isFileProbablyExternalModule(sourceFile)
 }
 
-func createSourceFile(fileName string, sourceText string, languageVersionOrOptions /* TODO(TS-TO-GO) TypeNode UnionType: ScriptTarget | CreateSourceFileOptions */ any, setParentNodes bool /*  = false */, scriptKind ScriptKind) SourceFile {
+func createSourceFile(fileName string, sourceText string, languageVersionOrOptions Union[ScriptTarget, CreateSourceFileOptions], setParentNodes bool /*  = false */, scriptKind ScriptKind) SourceFile {
 	tracing. /* ? */ push(tracing.Phase.Parse, "createSourceFile", map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"path": fileName,
 	}, /*separateBeginAndEnd*/ true)
@@ -1045,7 +1045,7 @@ func parseJsonText(fileName string, sourceText string, languageVersion ScriptTar
 	} else {
 		// Loop and synthesize an ArrayLiteralExpression if there are more than
 		// one top-level expressions to ensure all input text is consumed.
-		var expressions /* TODO(TS-TO-GO) TypeNode UnionType: Expression[] | Expression | undefined */ any
+		var expressions Union[[]Expression, Expression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 		for token() != SyntaxKindEndOfFileToken {
 			var expression TODO
 			switch token() {
@@ -1622,7 +1622,7 @@ func nextTokenJSDoc() JSDocSyntaxKind {
 	return currentToken
 }
 
-func nextJSDocCommentTextToken(inBackticks bool) /* TODO(TS-TO-GO) TypeNode UnionType: JSDocSyntaxKind | SyntaxKind.JSDocCommentTextToken */ any {
+func nextJSDocCommentTextToken(inBackticks bool) Union[JSDocSyntaxKind /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.JSDocCommentTextToken */, any] {
 	currentToken = scanner.scanJSDocCommentTextToken(inBackticks)
 	return currentToken
 }
@@ -1782,7 +1782,7 @@ var viableKeywordSuggestions = Object.keys(textToKeywordObj).filter(func(keyword
  * @param node Node preceding the expected semicolon location.
  */
 
-func parseErrorForMissingSemicolonAfter(node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | PropertyName */ any) {
+func parseErrorForMissingSemicolonAfter(node Union[Expression, PropertyName]) {
 	// Tagged template literals are sometimes used in places where only simple strings are allowed, i.e.:
 	//   module `M1` {
 	//   ^^^^^^^^^^^ This block is parsed as a template literal like module`M1`.
@@ -3028,7 +3028,7 @@ func createQualifiedName(entity EntityName, name Identifier) QualifiedName {
 	return finishNode(factory.createQualifiedName(entity, name), entity.pos)
 }
 
-func parseRightSideOfDot(allowIdentifierNames bool, allowPrivateIdentifiers bool, allowUnicodeEscapeSequenceInIdentifierName bool) /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PrivateIdentifier */ any {
+func parseRightSideOfDot(allowIdentifierNames bool, allowPrivateIdentifiers bool, allowUnicodeEscapeSequenceInIdentifierName bool) Union[Identifier, PrivateIdentifier] {
 	// Technically a keyword is valid here as all identifiers and keywords are identifier names.
 	// However, often we'll encounter this in error situations when the identifier or keyword
 	// is actually starting another valid construct.
@@ -3144,7 +3144,7 @@ func parseTemplateHead(isTaggedTemplate bool) TemplateHead {
 	return fragment.AsTemplateHead()
 }
 
-func parseTemplateMiddleOrTemplateTail() /* TODO(TS-TO-GO) TypeNode UnionType: TemplateMiddle | TemplateTail */ any {
+func parseTemplateMiddleOrTemplateTail() Union[TemplateMiddle, TemplateTail] {
 	fragment := parseLiteralLikeNode(token())
 	Debug.assert(fragment.kind == SyntaxKindTemplateMiddle || fragment.kind == SyntaxKindTemplateTail, "Template fragment has wrong token kind")
 	return fragment /* as TemplateMiddle | TemplateTail */
@@ -3228,7 +3228,7 @@ func parseThisTypeNode() ThisTypeNode {
 	return finishNode(factory.createThisTypeNode(), pos)
 }
 
-func parseJSDocAllType() /* TODO(TS-TO-GO) TypeNode UnionType: JSDocAllType | JSDocOptionalType */ any {
+func parseJSDocAllType() Union[JSDocAllType, JSDocOptionalType] {
 	pos := getNodePos()
 	nextToken()
 	return finishNode(factory.createJSDocAllType(), pos)
@@ -3240,7 +3240,7 @@ func parseJSDocNonNullableType() TypeNode {
 	return finishNode(factory.createJSDocNonNullableType(parseNonArrayType() /*postfix*/, false), pos)
 }
 
-func parseJSDocUnknownOrNullableType() /* TODO(TS-TO-GO) TypeNode UnionType: JSDocUnknownType | JSDocNullableType */ any {
+func parseJSDocUnknownOrNullableType() Union[JSDocUnknownType, JSDocNullableType] {
 	pos := getNodePos()
 	// skip the ?
 	nextToken()
@@ -3262,7 +3262,7 @@ func parseJSDocUnknownOrNullableType() /* TODO(TS-TO-GO) TypeNode UnionType: JSD
 	}
 }
 
-func parseJSDocFunctionType() /* TODO(TS-TO-GO) TypeNode UnionType: JSDocFunctionType | TypeReferenceNode */ any {
+func parseJSDocFunctionType() Union[JSDocFunctionType, TypeReferenceNode] {
 	pos := getNodePos()
 	hasJSDoc := hasPrecedingJSDocComment()
 	if tryParse(nextTokenIsOpenParen) {
@@ -3459,13 +3459,13 @@ func parseParameterWorker(inOuterAwaitContext bool, allowAmbiguity bool /*  = tr
 
 /* OVERLOAD: function parseReturnType(returnToken: SyntaxKind.EqualsGreaterThanToken, isType: boolean): TypeNode; */
 /* OVERLOAD: function parseReturnType(returnToken: SyntaxKind.ColonToken | SyntaxKind.EqualsGreaterThanToken, isType: boolean): TypeNode | undefined; */
-func parseReturnType(returnToken /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.ColonToken | SyntaxKind.EqualsGreaterThanToken */ any, isType bool) *TypeNode {
+func parseReturnType(returnToken Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.ColonToken */ any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.EqualsGreaterThanToken */, any], isType bool) *TypeNode {
 	if shouldParseReturnType(returnToken, isType) {
 		return allowConditionalTypesAnd(parseTypeOrTypePredicate)
 	}
 }
 
-func shouldParseReturnType(returnToken /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.ColonToken | SyntaxKind.EqualsGreaterThanToken */ any, isType bool) bool {
+func shouldParseReturnType(returnToken Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.ColonToken */ any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.EqualsGreaterThanToken */, any], isType bool) bool {
 	if returnToken == SyntaxKindEqualsGreaterThanToken {
 		parseExpected(returnToken)
 		return true
@@ -3555,7 +3555,7 @@ func parseTypeMemberSemicolon() {
 	parseSemicolon()
 }
 
-func parseSignatureMember(kind /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.CallSignature | SyntaxKind.ConstructSignature */ any) /* TODO(TS-TO-GO) TypeNode UnionType: CallSignatureDeclaration | ConstructSignatureDeclaration */ any {
+func parseSignatureMember(kind Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.CallSignature */ any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.ConstructSignature */, any]) Union[CallSignatureDeclaration, ConstructSignatureDeclaration] {
 	pos := getNodePos()
 	hasJSDoc := hasPrecedingJSDocComment()
 	if kind == SyntaxKindConstructSignature {
@@ -3642,10 +3642,10 @@ func parseIndexSignatureDeclaration(pos number, hasJSDoc bool, modifiers *NodeAr
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
-func parsePropertyOrMethodSignature(pos number, hasJSDoc bool, modifiers *NodeArray[Modifier]) /* TODO(TS-TO-GO) TypeNode UnionType: PropertySignature | MethodSignature */ any {
+func parsePropertyOrMethodSignature(pos number, hasJSDoc bool, modifiers *NodeArray[Modifier]) Union[PropertySignature, MethodSignature] {
 	name := parsePropertyName()
 	questionToken := parseOptionalToken(SyntaxKindQuestionToken)
-	var node /* TODO(TS-TO-GO) TypeNode UnionType: PropertySignature | MethodSignature */ any
+	var node Union[PropertySignature, MethodSignature]
 	if token() == SyntaxKindOpenParenToken || token() == SyntaxKindLessThanToken {
 		// Method signatures don't exist in expression contexts.  So they have neither
 		// [Yield] nor [Await]
@@ -3777,7 +3777,7 @@ func parseMappedTypeParameter() TypeParameterDeclaration {
 func parseMappedType() MappedTypeNode {
 	pos := getNodePos()
 	parseExpected(SyntaxKindOpenBraceToken)
-	var readonlyToken /* TODO(TS-TO-GO) TypeNode UnionType: ReadonlyKeyword | PlusToken | MinusToken | undefined */ any
+	var readonlyToken Union[ReadonlyKeyword, PlusToken, MinusToken /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 	if token() == SyntaxKindReadonlyKeyword || token() == SyntaxKindPlusToken || token() == SyntaxKindMinusToken {
 		readonlyToken = parseTokenNode()
 		if readonlyToken.kind != SyntaxKindReadonlyKeyword {
@@ -3793,7 +3793,7 @@ func parseMappedType() MappedTypeNode {
 		nameType = nil
 	}
 	parseExpected(SyntaxKindCloseBracketToken)
-	var questionToken /* TODO(TS-TO-GO) TypeNode UnionType: QuestionToken | PlusToken | MinusToken | undefined */ any
+	var questionToken Union[QuestionToken, PlusToken, MinusToken /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 	if token() == SyntaxKindQuestionToken || token() == SyntaxKindPlusToken || token() == SyntaxKindMinusToken {
 		questionToken = parseTokenNode()
 		if questionToken.kind != SyntaxKindQuestionToken {
@@ -3904,7 +3904,7 @@ func parseLiteralTypeNode(negative bool) LiteralTypeNode {
 	if negative {
 		nextToken()
 	}
-	var expression /* TODO(TS-TO-GO) TypeNode UnionType: BooleanLiteral | NullLiteral | LiteralExpression | PrefixUnaryExpression */ any
+	var expression Union[BooleanLiteral, NullLiteral, LiteralExpression, PrefixUnaryExpression]
 	if token() == SyntaxKindTrueKeyword || token() == SyntaxKindFalseKeyword || token() == SyntaxKindNullKeyword {
 		expression = parseTokenNode()
 	} else {
@@ -4137,7 +4137,7 @@ func parsePostfixTypeOrHigher() TypeNode {
 	return t
 }
 
-func parseTypeOperator(operator /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.KeyOfKeyword | SyntaxKind.UniqueKeyword | SyntaxKind.ReadonlyKeyword */ any) TypeOperatorNode {
+func parseTypeOperator(operator Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.KeyOfKeyword */ any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.UniqueKeyword */, any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.ReadonlyKeyword */, any]) TypeOperatorNode {
 	pos := getNodePos()
 	parseExpected(operator)
 	return finishNode(factory.createTypeOperatorNode(operator, parseTypeOperatorOrHigher()), pos)
@@ -4205,7 +4205,7 @@ func parseFunctionOrConstructorTypeToError(isInUnionType bool) *TypeNode {
 	return nil
 }
 
-func parseUnionOrIntersectionType(operator /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.BarToken | SyntaxKind.AmpersandToken */ any, parseConstituentType func() TypeNode, createTypeNode func(types NodeArray[TypeNode]) UnionOrIntersectionTypeNode) TypeNode {
+func parseUnionOrIntersectionType(operator Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.BarToken */ any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.AmpersandToken */, any], parseConstituentType func() TypeNode, createTypeNode func(types NodeArray[TypeNode]) UnionOrIntersectionTypeNode) TypeNode {
 	pos := getNodePos()
 	isUnionType := operator == SyntaxKindBarToken
 	hasLeadingOperator := parseOptional(operator)
@@ -4916,7 +4916,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
-func parseArrowFunctionExpressionBody(isAsync bool, allowReturnTypeInArrowFunction bool) /* TODO(TS-TO-GO) TypeNode UnionType: Block | Expression */ any {
+func parseArrowFunctionExpressionBody(isAsync bool, allowReturnTypeInArrowFunction bool) Union[Block, Expression] {
 	if token() == SyntaxKindOpenBraceToken {
 		return parseFunctionBlock(ifElse(isAsync, SignatureFlagsAwait, SignatureFlagsNone))
 	}
@@ -5115,7 +5115,7 @@ func parseAwaitExpression() AwaitExpression {
  *      2) UpdateExpression[?Yield] ** ExponentiationExpression[?Yield]
  */
 
-func parseUnaryExpressionOrHigher() /* TODO(TS-TO-GO) TypeNode UnionType: UnaryExpression | BinaryExpression */ any {
+func parseUnaryExpressionOrHigher() Union[UnaryExpression, BinaryExpression] {
 	/**
 	 * ES7 UpdateExpression:
 	 *      1) LeftHandSideExpression[?Yield]
@@ -5423,10 +5423,10 @@ func parseSuperExpression() MemberExpression {
 	return finishNode(factoryCreatePropertyAccessExpression(expression, parseRightSideOfDot(true /*allowPrivateIdentifiers*/, true /*allowUnicodeEscapeSequenceInIdentifierName*/, true)), pos)
 }
 
-func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, topInvalidNodePosition number, openingTag /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningElement | JsxOpeningFragment */ any, mustBeUnary bool /*  = false */) /* TODO(TS-TO-GO) TypeNode UnionType: JsxElement | JsxSelfClosingElement | JsxFragment */ any {
+func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, topInvalidNodePosition number, openingTag Union[JsxOpeningElement, JsxOpeningFragment], mustBeUnary bool /*  = false */) Union[JsxElement, JsxSelfClosingElement, JsxFragment] {
 	pos := getNodePos()
 	opening := parseJsxOpeningOrSelfClosingElementOrOpeningFragment(inExpressionContext)
-	var result /* TODO(TS-TO-GO) TypeNode UnionType: JsxElement | JsxSelfClosingElement | JsxFragment */ any
+	var result Union[JsxElement, JsxSelfClosingElement, JsxFragment]
 	if opening.kind == SyntaxKindJsxOpeningElement {
 		children := parseJsxChildren(opening)
 		var closingElement JsxClosingElement
@@ -5499,7 +5499,7 @@ func parseJsxText() JsxText {
 	return finishNode(node, pos)
 }
 
-func parseJsxChild(openingTag /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningElement | JsxOpeningFragment */ any, token JsxTokenSyntaxKind) *JsxChild {
+func parseJsxChild(openingTag Union[JsxOpeningElement, JsxOpeningFragment], token JsxTokenSyntaxKind) *JsxChild {
 	switch token {
 	case SyntaxKindEndOfFileToken:
 		// If we hit EOF, issue the error at the tag that lacks the closing element
@@ -5529,7 +5529,7 @@ func parseJsxChild(openingTag /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningEl
 	}
 }
 
-func parseJsxChildren(openingTag /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningElement | JsxOpeningFragment */ any) NodeArray[JsxChild] {
+func parseJsxChildren(openingTag Union[JsxOpeningElement, JsxOpeningFragment]) NodeArray[JsxChild] {
 	list := []never{}
 	listPos := getNodePos()
 	saveParsingContext := parsingContext
@@ -5556,7 +5556,7 @@ func parseJsxAttributes() JsxAttributes {
 	return finishNode(factory.createJsxAttributes(parseList(ParsingContextJsxAttributes, parseJsxAttribute)), pos)
 }
 
-func parseJsxOpeningOrSelfClosingElementOrOpeningFragment(inExpressionContext bool) /* TODO(TS-TO-GO) TypeNode UnionType: JsxOpeningElement | JsxSelfClosingElement | JsxOpeningFragment */ any {
+func parseJsxOpeningOrSelfClosingElementOrOpeningFragment(inExpressionContext bool) Union[JsxOpeningElement, JsxSelfClosingElement, JsxOpeningFragment] {
 	pos := getNodePos()
 
 	parseExpected(SyntaxKindLessThanToken)
@@ -5611,14 +5611,14 @@ func parseJsxElementName() JsxTagNameExpression {
 		return initialExpression
 		// `a:b.c` is invalid syntax, don't even look for the `.` if we parse `a:b`, and let `parseAttribute` report "unexpected :" instead.
 	}
-	var expression /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | Identifier | ThisExpression */ any = initialExpression
+	var expression Union[PropertyAccessExpression, Identifier, ThisExpression] = initialExpression
 	for parseOptional(SyntaxKindDotToken) {
 		expression = finishNode(factoryCreatePropertyAccessExpression(expression, parseRightSideOfDot(true /*allowPrivateIdentifiers*/, false /*allowUnicodeEscapeSequenceInIdentifierName*/, false)), pos)
 	}
 	return expression.AsJsxTagNameExpression()
 }
 
-func parseJsxTagName() /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | JsxNamespacedName | ThisExpression */ any {
+func parseJsxTagName() Union[Identifier, JsxNamespacedName, ThisExpression] {
 	pos := getNodePos()
 	scanJsxIdentifier()
 
@@ -5663,7 +5663,7 @@ func parseJsxExpression(inExpressionContext bool) *JsxExpression {
 	return finishNode(factory.createJsxExpression(dotDotDotToken, expression), pos)
 }
 
-func parseJsxAttribute() /* TODO(TS-TO-GO) TypeNode UnionType: JsxAttribute | JsxSpreadAttribute */ any {
+func parseJsxAttribute() Union[JsxAttribute, JsxSpreadAttribute] {
 	if token() == SyntaxKindOpenBraceToken {
 		return parseJsxSpreadAttribute()
 	}
@@ -6107,7 +6107,7 @@ func parseObjectLiteralElement() ObjectLiteralElementLike {
 	// CoverInitializedName[Yield] :
 	//     IdentifierReference[?Yield] Initializer[In, ?Yield]
 	// this is necessary because ObjectLiteral productions are also used to cover grammar for ObjectAssignmentPattern
-	var node Mutable[ /* TODO(TS-TO-GO) TypeNode UnionType: ShorthandPropertyAssignment | PropertyAssignment */ any]
+	var node Mutable[Union[ShorthandPropertyAssignment, PropertyAssignment]]
 	isShorthandPropertyAssignment := tokenIsIdentifier && (token() != SyntaxKindColonToken)
 	if isShorthandPropertyAssignment {
 		equalsToken := parseOptionalToken(SyntaxKindEqualsToken)
@@ -6204,7 +6204,7 @@ func parseOptionalBindingIdentifier() *Identifier {
 	}
 }
 
-func parseNewExpressionOrNewDotTarget() /* TODO(TS-TO-GO) TypeNode UnionType: NewExpression | MetaProperty */ any {
+func parseNewExpressionOrNewDotTarget() Union[NewExpression, MetaProperty] {
 	pos := getNodePos()
 	parseExpected(SyntaxKindNewKeyword)
 	if parseOptional(SyntaxKindDotToken) {
@@ -6347,7 +6347,7 @@ func parseForOrForInOrForOfStatement() Statement {
 	awaitToken := parseOptionalToken(SyntaxKindAwaitKeyword)
 	parseExpected(SyntaxKindOpenParenToken)
 
-	var initializer /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclarationList | Expression */ any
+	var initializer Union[VariableDeclarationList, Expression]
 	if token() != SyntaxKindSemicolonToken {
 		if token() == SyntaxKindVarKeyword || token() == SyntaxKindLetKeyword || token() == SyntaxKindConstKeyword || token() == SyntaxKindUsingKeyword && lookAhead(nextTokenIsBindingIdentifierOrStartOfDestructuringOnSameLineDisallowOf) || token() == SyntaxKindAwaitKeyword && lookAhead(nextTokenIsUsingKeywordThenBindingIdentifierOrStartOfObjectDestructuringOnSameLine) {
 			initializer = parseVariableDeclarationList(true)
@@ -6561,13 +6561,13 @@ func parseDebuggerStatement() Statement {
 	return withJSDoc(finishNode(factory.createDebuggerStatement(), pos), hasJSDoc)
 }
 
-func parseExpressionOrLabeledStatement() /* TODO(TS-TO-GO) TypeNode UnionType: ExpressionStatement | LabeledStatement */ any {
+func parseExpressionOrLabeledStatement() Union[ExpressionStatement, LabeledStatement] {
 	// Avoiding having to do the lookahead for a labeled statement by just trying to parse
 	// out an expression, seeing if it is identifier and then seeing if it is followed by
 	// a colon.
 	pos := getNodePos()
 	hasJSDoc := hasPrecedingJSDocComment()
-	var node /* TODO(TS-TO-GO) TypeNode UnionType: ExpressionStatement | LabeledStatement */ any
+	var node Union[ExpressionStatement, LabeledStatement]
 	hasParen := token() == SyntaxKindOpenParenToken
 	expression := allowInAnd(parseExpression)
 	if isIdentifierNode(expression) && parseOptional(SyntaxKindColonToken) {
@@ -7042,7 +7042,7 @@ func isBindingIdentifierOrPrivateIdentifierOrPattern() bool {
 	return token() == SyntaxKindOpenBraceToken || token() == SyntaxKindOpenBracketToken || token() == SyntaxKindPrivateIdentifier || isBindingIdentifier()
 }
 
-func parseIdentifierOrPattern(privateIdentifierDiagnosticMessage DiagnosticMessage) /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | BindingPattern */ any {
+func parseIdentifierOrPattern(privateIdentifierDiagnosticMessage DiagnosticMessage) Union[Identifier, BindingPattern] {
 	if token() == SyntaxKindOpenBracketToken {
 		return parseArrayBindingPattern()
 	}
@@ -7239,7 +7239,7 @@ func parsePropertyDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Mo
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
-func parsePropertyOrMethodDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[ModifierLike]) /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | MethodDeclaration */ any {
+func parsePropertyOrMethodDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[ModifierLike]) Union[PropertyDeclaration, MethodDeclaration] {
 	asteriskToken := parseOptionalToken(SyntaxKindAsteriskToken)
 	name := parsePropertyName()
 	// Note: this is not legal as per the grammar.  But we allow it in the parser and
@@ -7801,7 +7801,7 @@ func parseNamespaceExportDeclaration(pos number, hasJSDoc bool, modifiers *NodeA
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
-func parseImportDeclarationOrImportEqualsDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[ModifierLike]) /* TODO(TS-TO-GO) TypeNode UnionType: ImportEqualsDeclaration | ImportDeclaration */ any {
+func parseImportDeclarationOrImportEqualsDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[ModifierLike]) Union[ImportEqualsDeclaration, ImportDeclaration] {
 	parseExpected(SyntaxKindImportKeyword)
 
 	afterImportPos := scanner.getTokenFullStart()
@@ -7867,7 +7867,7 @@ func parseImportAttribute() ImportAttribute {
 	return finishNode(factory.createImportAttribute(name, value), pos)
 }
 
-func parseImportAttributes(token /* TODO(TS-TO-GO) TypeNode UnionType: SyntaxKind.AssertKeyword | SyntaxKind.WithKeyword */ any, skipKeyword /* TODO(TS-TO-GO) TypeNode LiteralType: true */ any) ImportAttributes {
+func parseImportAttributes(token Union[ /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.AssertKeyword */ any /* TODO(TS-TO-GO) Node QualifiedName: SyntaxKind.WithKeyword */, any], skipKeyword /* TODO(TS-TO-GO) TypeNode LiteralType: true */ any) ImportAttributes {
 	pos := getNodePos()
 	if !skipKeyword {
 		parseExpected(token)
@@ -7918,7 +7918,7 @@ func parseImportClause(identifier *Identifier, pos number, isTypeOnly bool, skip
 
 	// If there was no default import or if there is comma token after default import
 	// parse namespace or named imports
-	var namedBindings /* TODO(TS-TO-GO) TypeNode UnionType: NamespaceImport | NamedImports | undefined */ any
+	var namedBindings Union[NamespaceImport, NamedImports /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 	if identifier == nil || parseOptional(SyntaxKindCommaToken) {
 		if skipJsDocLeadingAsterisks {
 			scanner.setSkipJsDocLeadingAsterisks(true)
@@ -8250,7 +8250,7 @@ func parseJSDocNameReference() JSDocNameReference {
 	pos := getNodePos()
 	hasBrace := parseOptional(SyntaxKindOpenBraceToken)
 	p2 := getNodePos()
-	var entityName /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | JSDocMemberName */ any = parseEntityName(false)
+	var entityName Union[EntityName, JSDocMemberName] = parseEntityName(false)
 	for token() == SyntaxKindPrivateIdentifier {
 		reScanHashToken()
 		// rescan #id as # id
@@ -8621,7 +8621,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		return parseTagComments(margin, indentText.slice(margin))
 	}
 
-	parseTagComments := func(indent number, initialMargin string) /* TODO(TS-TO-GO) TypeNode UnionType: string | NodeArray<JSDocComment> | undefined */ any {
+	parseTagComments := func(indent number, initialMargin string) Union[string, NodeArray[JSDocComment] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
 		commentsPos := getNodePos()
 		var comments []string = []never{}
 		var parts []JSDocComment = []never{}
@@ -8756,7 +8756,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		if tokenIsIdentifierOrKeyword(token()) {
 			pos := getNodePos()
 
-			var name /* TODO(TS-TO-GO) TypeNode UnionType: EntityName | JSDocMemberName */ any = parseIdentifierName()
+			var name Union[EntityName, JSDocMemberName] = parseIdentifierName()
 			for parseOptional(SyntaxKindDotToken) {
 				name = finishNode(factory.createQualifiedName(name, ifElse(token() == SyntaxKindPrivateIdentifier, createMissingNode(SyntaxKindIdentifier /*reportAtCurrentPosition*/, false), parseIdentifierName())), pos)
 			}
@@ -8849,7 +8849,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		}
 	}
 
-	parseParameterOrPropertyTag := func(start number, tagName Identifier, target PropertyLikeParse, indent number) /* TODO(TS-TO-GO) TypeNode UnionType: JSDocParameterTag | JSDocPropertyTag */ any {
+	parseParameterOrPropertyTag := func(start number, tagName Identifier, target PropertyLikeParse, indent number) Union[JSDocParameterTag, JSDocPropertyTag] {
 		typeExpression := tryParseTypeExpression()
 		isNameFirst := typeExpression == nil
 		skipWhitespaceOrAsterisk()
@@ -8880,7 +8880,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	parseNestedTypeLiteral := func(typeExpression *JSDocTypeExpression, name EntityName, target PropertyLikeParse, indent number) *JSDocTypeExpression {
 		if typeExpression != nil && isObjectOrObjectArrayTypeReference(typeExpression.type_) {
 			pos := getNodePos()
-			var child /* TODO(TS-TO-GO) TypeNode UnionType: JSDocPropertyLikeTag | JSDocTypeTag | JSDocTemplateTag | JSDocThisTag | false */ any
+			var child Union[JSDocPropertyLikeTag, JSDocTypeTag, JSDocTemplateTag, JSDocThisTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]
 			var children *[]JSDocPropertyLikeTag
 			for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: child = tryParse(() => parseChildParameterOrPropertyTag(target, indent, name)) */ TODO {
 				if child.kind == SyntaxKindJSDocParameterTag || child.kind == SyntaxKindJSDocPropertyTag {
@@ -9025,7 +9025,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		return finishNode(factory.createJSDocImportTag(tagName, importClause, moduleSpecifier, attributes, comments), start)
 	}
 
-	parseExpressionWithTypeArgumentsForAugments := func() /* TODO(TS-TO-GO) TypeNode IntersectionType: ExpressionWithTypeArguments & { expression: Identifier | PropertyAccessEntityNameExpression; } */ any {
+	parseExpressionWithTypeArgumentsForAugments := func() Intersection[ExpressionWithTypeArguments /* TODO(TS-TO-GO) TypeNode TypeLiteral: { expression: Identifier | PropertyAccessEntityNameExpression; } */, any] {
 		usedBrace := parseOptional(SyntaxKindOpenBraceToken)
 		pos := getNodePos()
 		expression := parsePropertyAccessEntityNameExpression()
@@ -9042,7 +9042,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 
 	parsePropertyAccessEntityNameExpression := func() /* TODO(TS-TO-GO) inferred type Identifier | PropertyAccessEntityNameExpression */ any {
 		pos := getNodePos()
-		var node /* TODO(TS-TO-GO) TypeNode UnionType: Identifier | PropertyAccessEntityNameExpression */ any = parseJSDocIdentifierName()
+		var node Union[Identifier, PropertyAccessEntityNameExpression] = parseJSDocIdentifierName()
 		for parseOptional(SyntaxKindDotToken) {
 			name := parseJSDocIdentifierName()
 			node = finishNode(factoryCreatePropertyAccessExpression(node, name), pos).AsPropertyAccessEntityNameExpression()
@@ -9050,7 +9050,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		return node
 	}
 
-	parseSimpleTag := func(start number, createTag func(tagName *Identifier, comment /* TODO(TS-TO-GO) TypeNode UnionType: string | NodeArray<JSDocComment> */ any) JSDocTag, tagName Identifier, margin number, indentText string) JSDocTag {
+	parseSimpleTag := func(start number, createTag func(tagName *Identifier, comment Union[string, NodeArray[JSDocComment]]) JSDocTag, tagName Identifier, margin number, indentText string) JSDocTag {
 		return finishNode(createTag(tagName, parseTrailingTagComments(start, getNodePos(), margin, indentText)), start)
 	}
 
@@ -9067,7 +9067,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	}
 
 	parseTypedefTag := func(start number, tagName Identifier, indent number, indentText string) JSDocTypedefTag {
-		var typeExpression /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeExpression | JSDocTypeLiteral | undefined */ any = tryParseTypeExpression()
+		var typeExpression Union[JSDocTypeExpression, JSDocTypeLiteral /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = tryParseTypeExpression()
 		skipWhitespaceOrAsterisk()
 
 		fullName := parseJSDocTypeNameWithNamespace()
@@ -9076,7 +9076,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 
 		var end *number
 		if typeExpression == nil || isObjectOrObjectArrayTypeReference(typeExpression.type_) {
-			var child /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false */ any
+			var child Union[JSDocTypeTag, JSDocPropertyTag, JSDocTemplateTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]
 			var childTypeTag *JSDocTypeTag
 			var jsDocPropertyTags *[]JSDocPropertyTag
 			hasChildren := false
@@ -9146,7 +9146,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 
 	parseCallbackTagParameters := func(indent number) NodeArray[JSDocParameterTag] {
 		pos := getNodePos()
-		var child /* TODO(TS-TO-GO) TypeNode UnionType: JSDocParameterTag | JSDocTemplateTag | false */ any
+		var child Union[JSDocParameterTag, JSDocTemplateTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]
 		var parameters TODO
 		for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: child = tryParse(() => parseChildParameterOrPropertyTag(PropertyLikeParse.CallbackParameter, indent) as JSDocParameterTag | JSDocTemplateTag) */ TODO {
 			if child.kind == SyntaxKindJSDocTemplateTag {
@@ -9220,7 +9220,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		return parseChildParameterOrPropertyTag(PropertyLikeParseProperty, indent) /* as JSDocTypeTag | JSDocPropertyTag | JSDocTemplateTag | false */
 	}
 
-	parseChildParameterOrPropertyTag := func(target PropertyLikeParse, indent number, name EntityName) /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeTag | JSDocPropertyTag | JSDocParameterTag | JSDocTemplateTag | JSDocThisTag | false */ any {
+	parseChildParameterOrPropertyTag := func(target PropertyLikeParse, indent number, name EntityName) Union[JSDocTypeTag, JSDocPropertyTag, JSDocParameterTag, JSDocTemplateTag, JSDocThisTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any] {
 		canParseTag := true
 		seenAsterisk := false
 		for true {
@@ -9250,7 +9250,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		}
 	}
 
-	tryParseChildTag := func(target PropertyLikeParse, indent number) /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypeTag | JSDocPropertyTag | JSDocParameterTag | JSDocTemplateTag | JSDocThisTag | false */ any {
+	tryParseChildTag := func(target PropertyLikeParse, indent number) Union[JSDocTypeTag, JSDocPropertyTag, JSDocParameterTag, JSDocTemplateTag, JSDocThisTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any] {
 		Debug.assert(token() == SyntaxKindAtToken)
 		start := scanner.getTokenFullStart()
 		nextTokenJSDoc()
@@ -9396,13 +9396,13 @@ func markAsIncrementallyParsed(sourceFile SourceFile) {
 	incrementallyParsedFiles.add(sourceFile)
 }
 
-var intersectingChangeSet = NewWeakSet[ /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any]()
+var intersectingChangeSet = NewWeakSet[Union[*Node, NodeArray[*Node]]]()
 
-func intersectsIncrementalChange(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any) bool {
+func intersectsIncrementalChange(node Union[*Node, NodeArray[*Node]]) bool {
 	return intersectingChangeSet.has(node)
 }
 
-func markAsIntersectingIncrementalChange(node /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any) {
+func markAsIntersectingIncrementalChange(node Union[*Node, NodeArray[*Node]]) {
 	intersectingChangeSet.add(node)
 }
 
@@ -9536,7 +9536,7 @@ func getNewCommentDirectives(oldDirectives *[]CommentDirective, newDirectives *[
 
 /* OVERLOAD: function moveElementEntirelyPastChangeRange(element: Node, origSourceFile: SourceFile, isArray: false, delta: number, oldText: string, newText: string, aggressiveChecks: boolean): void; */
 /* OVERLOAD: function moveElementEntirelyPastChangeRange(element: NodeArray<Node>, origSourceFile: SourceFile, isArray: true, delta: number, oldText: string, newText: string, aggressiveChecks: boolean): void; */
-func moveElementEntirelyPastChangeRange(element /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any, origSourceFile SourceFile, isArray bool, delta number, oldText string, newText string, aggressiveChecks bool) {
+func moveElementEntirelyPastChangeRange(element Union[*Node, NodeArray[*Node]], origSourceFile SourceFile, isArray bool, delta number, oldText string, newText string, aggressiveChecks bool) {
 	if isArray {
 		visitArray(element.(NodeArray[*Node]))
 	} else {
@@ -9590,7 +9590,7 @@ func shouldCheckNode(node *Node) bool {
 	return false
 }
 
-func adjustIntersectingElement(element /* TODO(TS-TO-GO) TypeNode UnionType: Node | NodeArray<Node> */ any, changeStart number, changeRangeOldEnd number, changeRangeNewEnd number, delta number) {
+func adjustIntersectingElement(element Union[*Node, NodeArray[*Node]], changeStart number, changeRangeOldEnd number, changeRangeNewEnd number, delta number) {
 	Debug.assert(element.end >= changeStart, "Adjusting an element that was entirely before the change range")
 	Debug.assert(element.pos <= changeRangeOldEnd, "Adjusting an element that was entirely after the change range")
 	Debug.assert(element.pos <= element.end)
@@ -10236,7 +10236,7 @@ func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text st
 	if range_.kind == SyntaxKindMultiLineCommentTrivia {
 		multiLinePragmaRegEx := /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /@(\S+)(\s+(?:\S.*)?)?$/gm */ TODO
 		// Defined inline since it uses the "g" flag, which keeps a persistent index (for iterating)
-		var multiLineMatch /* TODO(TS-TO-GO) TypeNode UnionType: RegExpExecArray | null */ any
+		var multiLineMatch Union[RegExpExecArray /* TODO(TS-TO-GO) TypeNode LiteralType: null */, any]
 		// eslint-disable-line no-restricted-syntax
 		for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: multiLineMatch = multiLinePragmaRegEx.exec(text) */ TODO != nil {
 			addPragmaForMatch(pragmas, range_, PragmaKindFlagsMultiLine, multiLineMatch)
@@ -10272,7 +10272,7 @@ func addPragmaForMatch(pragmas []PragmaPseudoMapEntry, range_ CommentRange, kind
 	return
 }
 
-func getNamedPragmaArguments(pragma PragmaDefinition, text *string) /* TODO(TS-TO-GO) TypeNode UnionType: { [index: string]: string; } | "fail" */ any {
+func getNamedPragmaArguments(pragma PragmaDefinition, text *string) Union[ /* TODO(TS-TO-GO) TypeNode TypeLiteral: { [index: string]: string; } */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "fail" */, any] {
 	if !text {
 		return map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		}

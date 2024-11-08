@@ -3,15 +3,15 @@
 package output
 
 type Binder struct {
-	file            SourceFile
-	options         CompilerOptions
-	languageVersion ScriptTarget
-	parent          *Node
-	container/* TODO(TS-TO-GO) TypeNode UnionType: IsContainer | EntityNameExpression */ any
-	thisParentContainer/* TODO(TS-TO-GO) TypeNode UnionType: IsContainer | EntityNameExpression */ any
+	file                   SourceFile
+	options                CompilerOptions
+	languageVersion        ScriptTarget
+	parent                 *Node
+	container              Union[IsContainer, EntityNameExpression]
+	thisParentContainer    Union[IsContainer, EntityNameExpression]
 	blockScopeContainer    IsBlockScopedContainer
 	lastContainer          HasLocals
-	delayedTypeAliases     [] /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag */ any
+	delayedTypeAliases     []Union[JSDocTypedefTag, JSDocCallbackTag, JSDocEnumTag]
 	seenThisKeyword        bool
 	jsDocImports           []JSDocImportTag
 	currentFlow            FlowNode
@@ -221,7 +221,7 @@ const (
 
 /** @internal */
 
-func createFlowNode(flags FlowFlags, node any, antecedent /* TODO(TS-TO-GO) TypeNode UnionType: FlowNode | FlowNode[] | undefined */ any) FlowNode {
+func createFlowNode(flags FlowFlags, node any, antecedent Union[FlowNode, []FlowNode /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) FlowNode {
 	return Debug.attachFlowNodeDebugInfo(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"flags":      flags,
 		"id":         0,
@@ -1088,7 +1088,7 @@ func (b *Binder) addAntecedent(label FlowLabel, antecedent FlowNode) {
 	}
 }
 
-func (b *Binder) createFlowCondition(flags /* TODO(TS-TO-GO) TypeNode UnionType: FlowFlags.TrueCondition | FlowFlags.FalseCondition */ any, antecedent FlowNode, expression Expression) FlowNode {
+func (b *Binder) createFlowCondition(flags Union[ /* TODO(TS-TO-GO) Node QualifiedName: FlowFlags.TrueCondition */ any /* TODO(TS-TO-GO) Node QualifiedName: FlowFlags.FalseCondition */, any], antecedent FlowNode, expression Expression) FlowNode {
 	if antecedent.flags&FlowFlagsUnreachable != 0 {
 		return antecedent
 	}
@@ -1118,7 +1118,7 @@ func (b *Binder) createFlowSwitchClause(antecedent FlowNode, switchStatement Swi
 	}, antecedent).(FlowSwitchClause)
 }
 
-func (b *Binder) createFlowMutation(flags /* TODO(TS-TO-GO) TypeNode UnionType: FlowFlags.Assignment | FlowFlags.ArrayMutation */ any, antecedent FlowNode, node /* TODO(TS-TO-GO) TypeNode UnionType: Expression | VariableDeclaration | ArrayBindingElement */ any) /* TODO(TS-TO-GO) inferred type FlowAssignment | FlowArrayMutation */ any {
+func (b *Binder) createFlowMutation(flags Union[ /* TODO(TS-TO-GO) Node QualifiedName: FlowFlags.Assignment */ any /* TODO(TS-TO-GO) Node QualifiedName: FlowFlags.ArrayMutation */, any], antecedent FlowNode, node Union[Expression, VariableDeclaration, ArrayBindingElement]) /* TODO(TS-TO-GO) inferred type FlowAssignment | FlowArrayMutation */ any {
 	b.setFlowNodeReferenced(antecedent)
 	b.hasFlowEffects = true
 	result := createFlowNode(flags, node, antecedent) /* as FlowAssignment | FlowArrayMutation */
@@ -1294,7 +1294,7 @@ func (b *Binder) bindIfStatement(node IfStatement) {
 	b.currentFlow = b.finishFlowLabel(postIfLabel)
 }
 
-func (b *Binder) bindReturnOrThrow(node /* TODO(TS-TO-GO) TypeNode UnionType: ReturnStatement | ThrowStatement */ any) {
+func (b *Binder) bindReturnOrThrow(node Union[ReturnStatement, ThrowStatement]) {
 	b.bind(node.expression)
 	if node.kind == SyntaxKindReturnStatement {
 		b.hasExplicitReturn = true
@@ -1756,7 +1756,7 @@ func (b *Binder) bindConditionalExpressionFlow(node ConditionalExpression) {
 	b.hasFlowEffects = b.hasFlowEffects || saveHasFlowEffects
 }
 
-func (b *Binder) bindInitializedVariableFlow(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | ArrayBindingElement */ any) {
+func (b *Binder) bindInitializedVariableFlow(node Union[VariableDeclaration, ArrayBindingElement]) {
 	var name *BindingName
 	if !isOmittedExpression(node) {
 		name = node.name
@@ -1816,7 +1816,7 @@ func (b *Binder) bindInitializer(node Expression) {
 	b.currentFlow = b.finishFlowLabel(exitFlow)
 }
 
-func (b *Binder) bindJSDocTypeAlias(node /* TODO(TS-TO-GO) TypeNode UnionType: JSDocTypedefTag | JSDocCallbackTag | JSDocEnumTag */ any) {
+func (b *Binder) bindJSDocTypeAlias(node Union[JSDocTypedefTag, JSDocCallbackTag, JSDocEnumTag]) {
 	b.bind(node.tagName)
 	if node.kind != SyntaxKindJSDocEnumTag && node.fullName != nil {
 		// don't bind the type name yet; that's delayed until delayedBindJSDocTypedefTag
@@ -1916,7 +1916,7 @@ func (b *Binder) bindOptionalChainFlow(node OptionalChain) {
 	}
 }
 
-func (b *Binder) bindNonNullExpressionFlow(node /* TODO(TS-TO-GO) TypeNode UnionType: NonNullExpression | NonNullChain */ any) {
+func (b *Binder) bindNonNullExpressionFlow(node Union[NonNullExpression, NonNullChain]) {
 	if isOptionalChain(node) {
 		b.bindOptionalChainFlow(node)
 	} else {
@@ -1924,7 +1924,7 @@ func (b *Binder) bindNonNullExpressionFlow(node /* TODO(TS-TO-GO) TypeNode Union
 	}
 }
 
-func (b *Binder) bindAccessExpressionFlow(node /* TODO(TS-TO-GO) TypeNode UnionType: AccessExpression | PropertyAccessChain | ElementAccessChain */ any) {
+func (b *Binder) bindAccessExpressionFlow(node Union[AccessExpression, PropertyAccessChain, ElementAccessChain]) {
 	if isOptionalChain(node) {
 		b.bindOptionalChainFlow(node)
 	} else {
@@ -1932,7 +1932,7 @@ func (b *Binder) bindAccessExpressionFlow(node /* TODO(TS-TO-GO) TypeNode UnionT
 	}
 }
 
-func (b *Binder) bindCallExpressionFlow(node /* TODO(TS-TO-GO) TypeNode UnionType: CallExpression | CallChain */ any) {
+func (b *Binder) bindCallExpressionFlow(node Union[CallExpression, CallChain]) {
 	if isOptionalChain(node) {
 		b.bindOptionalChainFlow(node)
 	} else {
@@ -2036,7 +2036,7 @@ func (b *Binder) declareSourceFileMember(node Declaration, symbolFlags SymbolFla
 	}
 }
 
-func (b *Binder) hasExportDeclarations(node /* TODO(TS-TO-GO) TypeNode UnionType: ModuleDeclaration | SourceFile */ any) bool {
+func (b *Binder) hasExportDeclarations(node Union[ModuleDeclaration, SourceFile]) bool {
 	var body * /* TODO(TS-TO-GO) inferred type SourceFile | ModuleBlock */ any
 	if isSourceFile(node) {
 		body = node
@@ -2048,7 +2048,7 @@ func (b *Binder) hasExportDeclarations(node /* TODO(TS-TO-GO) TypeNode UnionType
 	})
 }
 
-func (b *Binder) setExportContextFlag(node Mutable[ /* TODO(TS-TO-GO) TypeNode UnionType: ModuleDeclaration | SourceFile */ any]) {
+func (b *Binder) setExportContextFlag(node Mutable[Union[ModuleDeclaration, SourceFile]]) {
 	// A declaration source file or ambient module declaration that contains no export declarations (but possibly regular
 	// declarations with export modifiers) is an export context in which declarations are implicitly exported.
 	if node.flags&NodeFlagsAmbient != 0 && !b.hasExportDeclarations(node) {
@@ -2067,7 +2067,7 @@ func (b *Binder) bindModuleDeclaration(node ModuleDeclaration) {
 		if isModuleAugmentationExternal(node) {
 			b.declareModuleSymbol(node)
 		} else {
-			var pattern /* TODO(TS-TO-GO) TypeNode UnionType: string | Pattern | undefined */ any
+			var pattern Union[string, Pattern /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
 			if node.name.kind == SyntaxKindStringLiteral {
 				TODO_IDENTIFIER := node.name
 				pattern = tryParsePattern(text)
@@ -2099,7 +2099,7 @@ func (b *Binder) declareModuleSymbol(node ModuleDeclaration) ModuleInstanceState
 	return state
 }
 
-func (b *Binder) bindFunctionOrConstructorType(node /* TODO(TS-TO-GO) TypeNode UnionType: SignatureDeclaration | JSDocSignature */ any) {
+func (b *Binder) bindFunctionOrConstructorType(node Union[SignatureDeclaration, JSDocSignature]) {
 	// For a given function symbol "<...>(...) => T" we want to generate a symbol identical
 	// to the one we would get for: { <...>(...): T }
 	//
@@ -2792,7 +2792,7 @@ func (b *Binder) bindWorker(node *Node) /* TODO(TS-TO-GO) inferred type number |
 	}
 }
 
-func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyDeclaration | PropertySignature */ any) *Symbol {
+func (b *Binder) bindPropertyWorker(node Union[PropertyDeclaration, PropertySignature]) *Symbol {
 	isAutoAccessor := isAutoAccessorPropertyDeclaration(node)
 	var includes /* TODO(TS-TO-GO) inferred type SymbolFlags.Property | SymbolFlags.Accessor */ any
 	if isAutoAccessor {
@@ -2809,7 +2809,7 @@ func (b *Binder) bindPropertyWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: P
 	return b.bindPropertyOrMethodOrAccessor(node, includes|(ifElse(node.questionToken != nil, SymbolFlagsOptional, SymbolFlagsNone)), excludes)
 }
 
-func (b *Binder) bindAnonymousTypeWorker(node /* TODO(TS-TO-GO) TypeNode UnionType: TypeLiteralNode | MappedTypeNode | JSDocTypeLiteral */ any) *Symbol {
+func (b *Binder) bindAnonymousTypeWorker(node Union[TypeLiteralNode, MappedTypeNode, JSDocTypeLiteral]) *Symbol {
 	return b.bindAnonymousDeclaration(node.AsDeclaration(), SymbolFlagsTypeLiteral, InternalSymbolNameType)
 }
 
@@ -2983,7 +2983,7 @@ func (b *Binder) bindExportAssignedObjectMemberAlias(node ShorthandPropertyAssig
 	b.declareSymbol(b.file.symbol.exports, b.file.symbol, node, SymbolFlagsAlias|SymbolFlagsAssignment, SymbolFlagsNone)
 }
 
-func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode UnionType: BindablePropertyAssignmentExpression | PropertyAccessExpression | LiteralLikeElementAccessExpression */ any) {
+func (b *Binder) bindThisPropertyAssignment(node Union[BindablePropertyAssignmentExpression, PropertyAccessExpression, LiteralLikeElementAccessExpression]) {
 	Debug.assert(isInJSFile(node))
 	// private identifiers *must* be declared (even in JS files)
 	hasPrivateIdentifier := (isBinaryExpression(node) && isPropertyAccessExpression(node.left) && isPrivateIdentifier(node.left.name)) || (isPropertyAccessExpression(node) && isPrivateIdentifier(node.name))
@@ -3050,18 +3050,18 @@ func (b *Binder) bindThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode Unio
 	}
 }
 
-func (b *Binder) bindDynamicallyNamedThisPropertyAssignment(node /* TODO(TS-TO-GO) TypeNode UnionType: BinaryExpression | DynamicNamedDeclaration */ any, symbol *Symbol, symbolTable SymbolTable) {
+func (b *Binder) bindDynamicallyNamedThisPropertyAssignment(node Union[BinaryExpression, DynamicNamedDeclaration], symbol *Symbol, symbolTable SymbolTable) {
 	b.declareSymbol(symbolTable, symbol, node, SymbolFlagsProperty, SymbolFlagsNone /*isReplaceableByMethod*/, true /*isComputedName*/, true)
 	b.addLateBoundAssignmentDeclarationToSymbol(node, symbol)
 }
 
-func (b *Binder) addLateBoundAssignmentDeclarationToSymbol(node /* TODO(TS-TO-GO) TypeNode UnionType: BinaryExpression | DynamicNamedDeclaration */ any, symbol *Symbol) {
+func (b *Binder) addLateBoundAssignmentDeclarationToSymbol(node Union[BinaryExpression, DynamicNamedDeclaration], symbol *Symbol) {
 	if symbol != nil {
 		(symbol.assignmentDeclarationMembers || ( /* TODO(TS-TO-GO) EqualsToken BinaryExpression: symbol.assignmentDeclarationMembers = new Map() */ TODO)).set(getNodeId(node), node)
 	}
 }
 
-func (b *Binder) bindSpecialPropertyDeclaration(node /* TODO(TS-TO-GO) TypeNode UnionType: PropertyAccessExpression | LiteralLikeElementAccessExpression */ any) {
+func (b *Binder) bindSpecialPropertyDeclaration(node Union[PropertyAccessExpression, LiteralLikeElementAccessExpression]) {
 	if node.expression.kind == SyntaxKindThisKeyword {
 		b.bindThisPropertyAssignment(node)
 	} else if isBindableStaticAccessExpression(node) && node.parent.parent.kind == SyntaxKindSourceFile {
@@ -3183,7 +3183,7 @@ func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol *Symbol, entit
 	return namespaceSymbol
 }
 
-func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration /* TODO(TS-TO-GO) TypeNode UnionType: BindableStaticAccessExpression | CallExpression */ any, namespaceSymbol *Symbol, isPrototypeProperty bool) {
+func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration Union[BindableStaticAccessExpression, CallExpression], namespaceSymbol *Symbol, isPrototypeProperty bool) {
 	if namespaceSymbol == nil || !b.isExpandoSymbol(namespaceSymbol) {
 		return
 	}
@@ -3291,7 +3291,7 @@ func (b *Binder) getParentOfBinaryExpression(expr *Node) *Node {
 	return expr.parent
 }
 
-func (b *Binder) lookupSymbolForPropertyAccess(node BindableStaticNameExpression, lookupContainer /* TODO(TS-TO-GO) TypeNode UnionType: IsContainer | IsBlockScopedContainer | EntityNameExpression */ any /*  = container */) *Symbol {
+func (b *Binder) lookupSymbolForPropertyAccess(node BindableStaticNameExpression, lookupContainer Union[IsContainer, IsBlockScopedContainer, EntityNameExpression] /*  = container */) *Symbol {
 	if isIdentifier(node) {
 		return lookupSymbolForName(lookupContainer, node.escapedText)
 	} else {
@@ -3372,7 +3372,7 @@ func (b *Binder) bindEnumDeclaration(node EnumDeclaration) {
 	}
 }
 
-func (b *Binder) bindVariableDeclarationOrBindingElement(node /* TODO(TS-TO-GO) TypeNode UnionType: VariableDeclaration | BindingElement */ any) {
+func (b *Binder) bindVariableDeclarationOrBindingElement(node Union[VariableDeclaration, BindingElement]) {
 	if b.inStrictMode {
 		b.checkStrictModeEvalOrArguments(node, node.name)
 	}
@@ -3405,7 +3405,7 @@ func (b *Binder) bindVariableDeclarationOrBindingElement(node /* TODO(TS-TO-GO) 
 	}
 }
 
-func (b *Binder) bindParameter(node /* TODO(TS-TO-GO) TypeNode UnionType: ParameterDeclaration | JSDocParameterTag */ any) {
+func (b *Binder) bindParameter(node Union[ParameterDeclaration, JSDocParameterTag]) {
 	if node.kind == SyntaxKindJSDocParameterTag && b.container.kind != SyntaxKindJSDocSignature {
 		return
 	}
@@ -3445,7 +3445,7 @@ func (b *Binder) bindFunctionDeclaration(node FunctionDeclaration) {
 	}
 }
 
-func (b *Binder) bindFunctionExpression(node /* TODO(TS-TO-GO) TypeNode UnionType: FunctionExpression | ArrowFunction */ any) *Symbol {
+func (b *Binder) bindFunctionExpression(node Union[FunctionExpression, ArrowFunction]) *Symbol {
 	if !b.file.isDeclarationFile && (node.flags&NodeFlagsAmbient != 0) {
 		if isAsyncFunction(node) {
 			b.emitFlags |= NodeFlagsHasAsyncFunctions
