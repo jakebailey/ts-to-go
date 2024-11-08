@@ -279,7 +279,7 @@ func changeCompilerHostLikeToUseCache(host CompilerHostLikeForCache, toPath func
 		getSourceFileWithCache = func(fileName string, languageVersionOrOptions /* TODO(TS-TO-GO) inferred type ScriptTarget | CreateSourceFileOptions */ any, onError * /* TODO(TS-TO-GO) inferred type ((message: string) => void) */ any, shouldCreateNewSourceFile *bool) *SourceFile {
 			key := toPath(fileName)
 			var impliedNodeFormat ResolutionMode
-			if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof languageVersionOrOptions */ TODO == "object" {
+			if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof languageVersionOrOptions */ TODO == "object" {
 				impliedNodeFormat = languageVersionOrOptions.impliedNodeFormat
 			} else {
 				impliedNodeFormat = nil
@@ -484,7 +484,7 @@ func formatCodeSpan(file SourceFile, start number, length number, indent string,
 		lineContent := file.text.slice(lineStart, lineEnd)
 		lineContent = lineContent.trimEnd()
 		// trim from end
-		lineContent = lineContent.replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\t/g */ TODO, " ")
+		lineContent = lineContent.replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\t/g */ TODO, " ")
 
 		// Output the gutter and the actual contents of the line.
 		context += indent + formatColorAndReset((i+1+"").padStart(gutterWidth), gutterStyleSequence) + gutterSeparator
@@ -503,13 +503,13 @@ func formatCodeSpan(file SourceFile, start number, length number, indent string,
 				lastCharForLine = nil
 			}
 
-			context += lineContent.slice(0, firstLineChar).replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\S/g */ TODO, " ")
-			context += lineContent.slice(firstLineChar, lastCharForLine).replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /./g */ TODO, "~")
+			context += lineContent.slice(0, firstLineChar).replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\S/g */ TODO, " ")
+			context += lineContent.slice(firstLineChar, lastCharForLine).replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /./g */ TODO, "~")
 		} else if i == lastLine {
-			context += lineContent.slice(0, lastLineChar).replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /./g */ TODO, "~")
+			context += lineContent.slice(0, lastLineChar).replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /./g */ TODO, "~")
 		} else {
 			// Squiggle the entire line.
-			context += lineContent.replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /./g */ TODO, "~")
+			context += lineContent.replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /./g */ TODO, "~")
 		}
 		context += resetEscapeSequence
 	}
@@ -577,7 +577,7 @@ func formatDiagnosticsWithColorAndContext(diagnostics []Diagnostic, host FormatD
 	return output
 }
 
-func flattenDiagnosticMessageText(diag Union[string, DiagnosticMessageChain /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], newLine string, indent number /*  = 0 */) string {
+func flattenDiagnosticMessageText(diag Union[string, DiagnosticMessageChain, undefined], newLine string, indent number /*  = 0 */) string {
 	if isString(diag) {
 		return diag
 	} else if diag == nil {
@@ -1163,7 +1163,7 @@ func isProgramUptoDate(program *Program, rootFileNames []string, newOptions Comp
 
 func getConfigFileParsingDiagnostics(configFileParseResult ParsedCommandLine) []Diagnostic {
 	if configFileParseResult.options.configFile != nil {
-		return []Diagnostic{ /* TODO(TS-TO-GO) Node SpreadElement: ...configFileParseResult.options.configFile.parseDiagnostics */ /* TODO(TS-TO-GO) Node SpreadElement: ...configFileParseResult.errors */ }
+		return []Diagnostic{ /* TODO(TS-TO-GO) Expression SpreadElement: ...configFileParseResult.options.configFile.parseDiagnostics */ /* TODO(TS-TO-GO) Expression SpreadElement: ...configFileParseResult.errors */ }
 	} else {
 		return configFileParseResult.errors
 	}
@@ -1182,7 +1182,7 @@ func getConfigFileParsingDiagnostics(configFileParseResult ParsedCommandLine) []
 
 func getImpliedNodeFormatForFile(fileName string, packageJsonInfoCache *PackageJsonInfoCache, host ModuleResolutionHost, options CompilerOptions) ResolutionMode {
 	result := getImpliedNodeFormatForFileWorker(fileName, packageJsonInfoCache, host, options)
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof result */ TODO == "object" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof result */ TODO == "object" {
 		return result.impliedNodeFormat
 	} else {
 		return result
@@ -1191,7 +1191,7 @@ func getImpliedNodeFormatForFile(fileName string, packageJsonInfoCache *PackageJ
 
 /** @internal */
 
-func getImpliedNodeFormatForFileWorker(fileName string, packageJsonInfoCache *PackageJsonInfoCache, host ModuleResolutionHost, options CompilerOptions) Union[ResolutionMode, Partial[CreateSourceFileOptions] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getImpliedNodeFormatForFileWorker(fileName string, packageJsonInfoCache *PackageJsonInfoCache, host ModuleResolutionHost, options CompilerOptions) Union[ResolutionMode, Partial[CreateSourceFileOptions], undefined] {
 	moduleResolution := getEmitModuleResolutionKind(options)
 	shouldLookupFromPackageJson := ModuleResolutionKindNode16 <= moduleResolution && moduleResolution <= ModuleResolutionKindNodeNext || pathContainsNodeModules(fileName)
 	switch {
@@ -1304,7 +1304,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	TODO_IDENTIFIER := createProgramOptions
 	for _, option := range commandLineOptionOfCustomType {
 		if hasProperty(options, option.name) {
-			if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof options[option.name] */ TODO == "string" {
+			if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof options[option.name] */ TODO == "string" {
 				/* TODO(TS-TO-GO) Node ThrowStatement: throw new Error(`${option.name} is a string value; tsconfig JSON must be parsed with parseJsonSourceFileConfigFileContent or getParsedCommandLineOfConfigFile before passing to createProgram`); */
 			}
 		}
@@ -1350,7 +1350,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	// As all these operations happen - and are nested - within the createProgram call, they close over the below variables.
 	// The current resolution depth is tracked by incrementing/decrementing as the depth first search progresses.
 	var maxNodeModuleJsDepth number
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof options.maxNodeModuleJsDepth */ TODO == "number" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof options.maxNodeModuleJsDepth */ TODO == "number" {
 		maxNodeModuleJsDepth = options.maxNodeModuleJsDepth
 	} else {
 		maxNodeModuleJsDepth = 0
@@ -1397,8 +1397,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 	// Map storing if there is emit blocking diagnostics for given input
 	hasEmitBlockingDiagnostics := NewMap[string, bool]()
-	var _compilerOptionsObjectLiteralSyntax Union[ObjectLiteralExpression /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
-	var _compilerOptionsPropertySyntax Union[PropertyAssignment /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+	var _compilerOptionsObjectLiteralSyntax Union[ObjectLiteralExpression /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any, undefined]
+	var _compilerOptionsPropertySyntax Union[PropertyAssignment /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any, undefined]
 
 	var moduleResolutionCache *ModuleResolutionCache
 	var actualResolveModuleNamesWorker func(moduleNames []StringLiteralLike, containingFile string, redirectedReference *ResolvedProjectReference, options CompilerOptions, containingSourceFile SourceFile, reusedNames *[]StringLiteralLike) []ResolvedModuleWithFailedLookupLocations
@@ -1481,7 +1481,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	 * - undefined otherwise
 	 */
 
-	filesByName := NewMap[Path, Union[SourceFile /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]]()
+	filesByName := NewMap[Path, Union[SourceFile /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any, undefined]]()
 	missingFileNames := NewMap[Path, string]()
 	// stores 'filename -> file association' ignoring case
 	// used to track cases when two file names differ only in casing
@@ -2626,7 +2626,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		return hasEmitBlockingDiagnostics.has(toPath(emitFileName))
 	}
 
-	emitWorker := func(program Program, sourceFile *SourceFile, writeFileCallback *WriteFileCallback, cancellationToken CancellationToken, emitOnly Union[bool, EmitOnly /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], customTransformers *CustomTransformers, forceDtsEmit *bool, skipBuildInfo *bool) EmitResult {
+	emitWorker := func(program Program, sourceFile *SourceFile, writeFileCallback *WriteFileCallback, cancellationToken CancellationToken, emitOnly Union[bool, EmitOnly, undefined], customTransformers *CustomTransformers, forceDtsEmit *bool, skipBuildInfo *bool) EmitResult {
 		if !forceDtsEmit {
 			result := handleNoEmitOptions(program, sourceFile, writeFileCallback, cancellationToken)
 			if result != nil {
@@ -3275,8 +3275,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 
 		collectDynamicImportOrRequireOrJsDocImportCalls := func(file SourceFile) {
-			r := /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /import|require/g */ TODO
-			for r.exec(file.text) != /* TODO(TS-TO-GO) Node NullKeyword: null */ TODO {
+			r := /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /import|require/g */ TODO
+			for r.exec(file.text) != /* TODO(TS-TO-GO) Expression NullKeyword: null */ TODO {
 				node := getNodeAtPosition(file, r.lastIndex)
 				if isJavaScriptFile && isRequireCall(node /*requireStringLiteralLikeArgument*/, true) {
 					setParentRecursive(node /*incremental*/, false)
@@ -3449,7 +3449,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		result := getImpliedNodeFormatForFileWorker(getNormalizedAbsolutePath(fileName, currentDirectory), moduleResolutionCache. /* ? */ getPackageJsonInfoCache(), host, options)
 		languageVersion := getEmitScriptTarget(options)
 		setExternalModuleIndicator := getSetExternalModuleIndicator(options)
-		if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof result */ TODO == "object" {
+		if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof result */ TODO == "object" {
 			return CreateSourceFileOptions{
 				/* TODO(TS-TO-GO) Node SpreadAssignment: ...result */
 				languageVersion:            languageVersion,
@@ -3649,7 +3649,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 	}
 
-	updateFilesByNameMap := func(fileName string, path Path, file Union[SourceFile /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
+	updateFilesByNameMap := func(fileName string, path Path, file Union[SourceFile /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any, undefined]) {
 		filesByName.set(path, file)
 		if file != nil {
 			missingFileNames.delete(path)
@@ -4127,7 +4127,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			}
 		} else if firstNonAmbientExternalModuleSourceFile != nil && languageVersion < ScriptTargetES2015 && options.module == ModuleKindNone {
 			// We cannot use createDiagnosticFromNode because nodes do not have parents yet
-			span := getErrorSpanForNode(firstNonAmbientExternalModuleSourceFile, ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof firstNonAmbientExternalModuleSourceFile.externalModuleIndicator */ TODO == "boolean", firstNonAmbientExternalModuleSourceFile, firstNonAmbientExternalModuleSourceFile.externalModuleIndicator))
+			span := getErrorSpanForNode(firstNonAmbientExternalModuleSourceFile, ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof firstNonAmbientExternalModuleSourceFile.externalModuleIndicator */ TODO == "boolean", firstNonAmbientExternalModuleSourceFile, firstNonAmbientExternalModuleSourceFile.externalModuleIndicator))
 			programDiagnostics.add(createFileDiagnostic(firstNonAmbientExternalModuleSourceFile, span.start, span.length, Diagnostics.Cannot_use_imports_exports_or_module_augmentations_when_module_is_none))
 		}
 
@@ -4136,7 +4136,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			if options.module && !(options.module == ModuleKindAMD || options.module == ModuleKindSystem) {
 				createDiagnosticForOptionName(Diagnostics.Only_amd_and_system_modules_are_supported_alongside_0, "outFile", "module")
 			} else if options.module == nil && firstNonAmbientExternalModuleSourceFile != nil {
-				span := getErrorSpanForNode(firstNonAmbientExternalModuleSourceFile, ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof firstNonAmbientExternalModuleSourceFile.externalModuleIndicator */ TODO == "boolean", firstNonAmbientExternalModuleSourceFile, firstNonAmbientExternalModuleSourceFile.externalModuleIndicator))
+				span := getErrorSpanForNode(firstNonAmbientExternalModuleSourceFile, ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof firstNonAmbientExternalModuleSourceFile.externalModuleIndicator */ TODO == "boolean", firstNonAmbientExternalModuleSourceFile, firstNonAmbientExternalModuleSourceFile.externalModuleIndicator))
 				programDiagnostics.add(createFileDiagnostic(firstNonAmbientExternalModuleSourceFile, span.start, span.length, Diagnostics.Cannot_compile_modules_using_option_0_unless_the_module_flag_is_amd_or_system, "outFile"))
 			}
 		}
@@ -4443,7 +4443,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					}
 				} else {
 					if !cachedFileIncludeDetailsHasProcessedExtraReason() {
-						fileIncludeReasons = []DiagnosticMessageChain{ /* TODO(TS-TO-GO) Node SpreadElement: ...cachedChain.fileIncludeReasonDetails.next! */ fileIncludeReasons[0]}
+						fileIncludeReasons = []DiagnosticMessageChain{ /* TODO(TS-TO-GO) Expression SpreadElement: ...cachedChain.fileIncludeReasonDetails.next! */ fileIncludeReasons[0]}
 					} else {
 						fileIncludeReasons = append(cachedChain.fileIncludeReasonDetails.next.slice(0, reasons.length), fileIncludeReasons[0])
 					}
@@ -4455,7 +4455,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			if fileIncludeReasonDetails == nil {
 				fileIncludeReasonDetails = seenReasons && chainDiagnosticMessages(fileIncludeReasons, Diagnostics.The_file_is_in_the_program_because_Colon)
 			}
-			chain = chainDiagnosticMessages(ifElse(redirectInfo != nil, ifElse(fileIncludeReasonDetails != nil, []DiagnosticMessageChain{fileIncludeReasonDetails /* TODO(TS-TO-GO) Node SpreadElement: ...redirectInfo */}, redirectInfo), fileIncludeReasonDetails), diagnostic, args || emptyArray...)
+			chain = chainDiagnosticMessages(ifElse(redirectInfo != nil, ifElse(fileIncludeReasonDetails != nil, []DiagnosticMessageChain{fileIncludeReasonDetails /* TODO(TS-TO-GO) Expression SpreadElement: ...redirectInfo */}, redirectInfo), fileIncludeReasonDetails), diagnostic, args || emptyArray...)
 		}
 
 		// This is chain's next contains:
@@ -5159,7 +5159,7 @@ func handleNoEmitOptions(program Union[Program, T], sourceFile *SourceFile, writ
 	if !options.noEmitOnError {
 		return nil
 	}
-	var diagnostics []Diagnostic = []Diagnostic{ /* TODO(TS-TO-GO) Node SpreadElement: ...program.getOptionsDiagnostics(cancellationToken) */ /* TODO(TS-TO-GO) Node SpreadElement: ...program.getSyntacticDiagnostics(sourceFile, cancellationToken) */ /* TODO(TS-TO-GO) Node SpreadElement: ...program.getGlobalDiagnostics(cancellationToken) */ /* TODO(TS-TO-GO) Node SpreadElement: ...program.getSemanticDiagnostics(sourceFile, cancellationToken) */ }
+	var diagnostics []Diagnostic = []Diagnostic{ /* TODO(TS-TO-GO) Expression SpreadElement: ...program.getOptionsDiagnostics(cancellationToken) */ /* TODO(TS-TO-GO) Expression SpreadElement: ...program.getSyntacticDiagnostics(sourceFile, cancellationToken) */ /* TODO(TS-TO-GO) Expression SpreadElement: ...program.getGlobalDiagnostics(cancellationToken) */ /* TODO(TS-TO-GO) Expression SpreadElement: ...program.getSemanticDiagnostics(sourceFile, cancellationToken) */ }
 
 	if diagnostics.length == 0 && getEmitDeclarations(program.getCompilerOptions()) {
 		diagnostics = program.getDeclarationDiagnostics(nil, cancellationToken)
@@ -5172,7 +5172,7 @@ func handleNoEmitOptions(program Union[Program, T], sourceFile *SourceFile, writ
 	if sourceFile == nil {
 		emitResult := program.emitBuildInfo(writeFile, cancellationToken)
 		if emitResult.diagnostics {
-			diagnostics = []Diagnostic{ /* TODO(TS-TO-GO) Node SpreadElement: ...diagnostics */ /* TODO(TS-TO-GO) Node SpreadElement: ...emitResult.diagnostics */ }
+			diagnostics = []Diagnostic{ /* TODO(TS-TO-GO) Expression SpreadElement: ...diagnostics */ /* TODO(TS-TO-GO) Expression SpreadElement: ...emitResult.diagnostics */ }
 		}
 		emittedFiles = emitResult.emittedFiles
 	}

@@ -110,6 +110,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         else if (Node.isTypeNode(node)) {
             nodeKind = "TypeNode";
         }
+        else if (ts.isExpression(node.compilerNode)) {
+            nodeKind = "Expression";
+        }
         const kindName = node.getKindName();
         const todoName = `${nodeKind} ${kindName}`;
         const count = todoCounts.get(todoName) || 0;
@@ -261,6 +264,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
         else if (Node.isObjectKeyword(type)) {
             writer.write("any");
+        }
+        else if (Node.isUndefinedKeyword(type)) {
+            writer.write("undefined");
         }
         else if (type.getText() === "void") {
             const parent = type.getParentIfKind(ts.SyntaxKind.FunctionType);

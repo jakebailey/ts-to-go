@@ -618,7 +618,7 @@ func symbolName(symbol *Symbol) string {
  * will be merged with)
  */
 
-func nameForNamelessJSDocTypedef(declaration Union[JSDocTypedefTag, JSDocEnumTag]) Union[Identifier, PrivateIdentifier /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func nameForNamelessJSDocTypedef(declaration Union[JSDocTypedefTag, JSDocEnumTag]) Union[Identifier, PrivateIdentifier, undefined] {
 	hostNode := declaration.parent.parent
 	if !hostNode {
 		return nil
@@ -679,7 +679,7 @@ func nodeHasName(statement *Node, name Identifier) bool {
 	return false
 }
 
-func getNameOfJSDocTypedef(declaration JSDocTypedefTag) Union[Identifier, PrivateIdentifier /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getNameOfJSDocTypedef(declaration JSDocTypedefTag) Union[Identifier, PrivateIdentifier, undefined] {
 	return declaration.name || nameForNamelessJSDocTypedef(declaration)
 }
 
@@ -739,7 +739,7 @@ func getNonAssignedNameOfDeclaration(declaration Union[Declaration, Expression])
 	return (declaration.AsNamedDeclaration()).name
 }
 
-func getNameOfDeclaration(declaration Union[Declaration, Expression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *DeclarationName {
+func getNameOfDeclaration(declaration Union[Declaration, Expression, undefined]) *DeclarationName {
 	if declaration == nil {
 		return nil
 	}
@@ -994,7 +994,7 @@ func getJSDocTypeTag(node *Node) *JSDocTypeTag {
  */
 
 func getJSDocType(node *Node) *TypeNode {
-	var tag Union[JSDocTypeTag, JSDocParameterTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = getFirstJSDocTag(node, isJSDocTypeTag)
+	var tag Union[JSDocTypeTag, JSDocParameterTag, undefined] = getFirstJSDocTag(node, isJSDocTypeTag)
 	if tag == nil && isParameter(node) {
 		tag = find(getJSDocParameterTags(node), func(tag JSDocParameterTag) bool {
 			return tag.typeExpression != nil
@@ -1084,7 +1084,7 @@ func getAllJSDocTagsOfKind(node *Node, kind SyntaxKind) []JSDocTag {
 /** Gets the text of a jsdoc comment, flattening links to their text. */
 
 func getTextOfJSDocComment(comment Union[string, NodeArray[JSDocComment]]) *string {
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof comment */ TODO == "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof comment */ TODO == "string" {
 		return comment
 	} else {
 		return comment. /* ? */ map_(func(c JSDocComment) string {

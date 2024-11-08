@@ -71,7 +71,7 @@ func isBuildInfoFile(file string) bool {
  * @internal
  */
 
-func forEachEmittedFile(host EmitHost, action func(emitFileNames EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) T, sourceFilesOrTargetSourceFile Union[[]SourceFile, SourceFile], forceDtsEmit bool /*  = false */, onlyBuildInfo bool, includeBuildInfo bool) *T {
+func forEachEmittedFile(host EmitHost, action func(emitFileNames EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle, undefined]) T, sourceFilesOrTargetSourceFile Union[[]SourceFile, SourceFile], forceDtsEmit bool /*  = false */, onlyBuildInfo bool, includeBuildInfo bool) *T {
 	var sourceFiles [] /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any
 	if isArray(sourceFilesOrTargetSourceFile) {
 		sourceFiles = sourceFilesOrTargetSourceFile
@@ -426,14 +426,14 @@ func getFirstProjectOutput(configFile ParsedCommandLine, ignoreCase bool) string
 
 /** @internal */
 
-func emitResolverSkipsTypeChecking(emitOnly Union[bool, EmitOnly /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], forceDtsEmit *bool) bool {
+func emitResolverSkipsTypeChecking(emitOnly Union[bool, EmitOnly, undefined], forceDtsEmit *bool) bool {
 	return forceDtsEmit && emitOnly
 }
 
 /** @internal */
 // targetSourceFile is when users only want one file in entire project to be emitted. This is used in compileOnSave feature
 
-func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFile, TODO_IDENTIFIER EmitTransformers, emitOnly Union[bool, EmitOnly /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], onlyBuildInfo bool, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
+func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFile, TODO_IDENTIFIER EmitTransformers, emitOnly Union[bool, EmitOnly, undefined], onlyBuildInfo bool, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
 	// Why var? It avoids TDZ checks in the runtime which can be costly.
 	// See: https://github.com/microsoft/TypeScript/issues/52924
 	/* eslint-disable no-var */
@@ -469,7 +469,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		sourceMaps:   sourceMapDataList,
 	}
 
-	emitSourceFileOrBundle := func(TODO_IDENTIFIER EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
+	emitSourceFileOrBundle := func(TODO_IDENTIFIER EmitFileNames, sourceFileOrBundle Union[SourceFile, Bundle, undefined]) {
 		tracing. /* ? */ push(tracing.Phase.Emit, "emitJsFileOrBundle", &Args{
 			jsFilePath: jsFilePath,
 		})
@@ -508,7 +508,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		emittedFilesList. /* ? */ push(buildInfoPath)
 	}
 
-	emitJsFileOrBundle := func(sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], jsFilePath *string, sourceMapFilePath *string) {
+	emitJsFileOrBundle := func(sourceFileOrBundle Union[SourceFile, Bundle, undefined], jsFilePath *string, sourceMapFilePath *string) {
 		if sourceFileOrBundle == nil || emitOnly || !jsFilePath {
 			return
 		}
@@ -565,7 +565,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		}
 	}
 
-	emitDeclarationFileOrBundle := func(sourceFileOrBundle Union[SourceFile, Bundle /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], declarationFilePath *string, declarationMapPath *string) {
+	emitDeclarationFileOrBundle := func(sourceFileOrBundle Union[SourceFile, Bundle, undefined], declarationFilePath *string, declarationMapPath *string) {
 		if sourceFileOrBundle == nil || emitOnly == EmitOnlyJs {
 			return
 		}
@@ -1825,7 +1825,7 @@ func (printer *Printer) emitHelpers(node *Node) *bool {
 					// Skip the helper if it is scoped and we are emitting bundled helpers
 					continue
 				}
-				if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof helper.text */ TODO == "string" {
+				if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof helper.text */ TODO == "string" {
 					printer.writeLines(helper.text)
 				} else {
 					printer.writeLines(helper.text(printer.makeFileLevelOptimisticUniqueName))
@@ -2448,7 +2448,7 @@ func (printer *Printer) mayNeedDotDotForPropertyAccess(expression Expression) *b
 		// check if constant enum value is a non-negative integer
 		constantValue := getConstantValue(expression)
 		// isFinite handles cases when constantValue is undefined
-		return /* TODO(TS-TO-GO) Node TypeOfExpression: typeof constantValue */ TODO == "number" && isFinite(constantValue) && constantValue >= 0 && Math.floor(constantValue) == constantValue
+		return /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof constantValue */ TODO == "number" && isFinite(constantValue) && constantValue >= 0 && Math.floor(constantValue) == constantValue
 	}
 }
 
@@ -2930,7 +2930,7 @@ func (printer *Printer) emitForOfStatement(node ForOfStatement) {
 	printer.emitEmbeddedStatement(node, node.statement)
 }
 
-func (printer *Printer) emitForBinding(node Union[VariableDeclarationList, Expression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
+func (printer *Printer) emitForBinding(node Union[VariableDeclarationList, Expression, undefined]) {
 	if node != nil {
 		if node.kind == SyntaxKindVariableDeclarationList {
 			printer.emit(node)
@@ -3968,7 +3968,7 @@ func (printer *Printer) emitJSDocTagName(tagName Identifier) {
 	printer.emit(tagName)
 }
 
-func (printer *Printer) emitJSDocComment(comment Union[string, NodeArray[JSDocComment] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
+func (printer *Printer) emitJSDocComment(comment Union[string, NodeArray[JSDocComment], undefined]) {
 	text := getTextOfJSDocComment(comment)
 	if text {
 		printer.writeSpace()
@@ -4184,8 +4184,8 @@ func (printer *Printer) emitDecoratorsAndModifiers(node *Node, modifiers *NodeAr
 		onBeforeEmitNodeArray(modifiers)
 
 		// partition modifiers into contiguous chunks of `Modifier` or `Decorator`
-		var lastMode Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "modifiers" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "decorators" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
-		var mode Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "modifiers" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "decorators" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+		var lastMode Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "modifiers" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "decorators" */, any, undefined]
+		var mode Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "modifiers" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "decorators" */, any, undefined]
 		start := 0
 		pos := 0
 		var lastModifier *ModifierLike
@@ -4702,7 +4702,7 @@ func (printer *Printer) writeLinesAndIndent(lineCount number, writeSpaceIfNotInd
 // previous indent values to be considered at a time.  This also allows caller to just
 // call this once, passing in all their appropriate indent values, instead of needing
 // to call this helper function multiple times.
-func (printer *Printer) decreaseIndentIf(value1 Union[bool, number /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], value2 Union[bool, number]) {
+func (printer *Printer) decreaseIndentIf(value1 Union[bool, number, undefined], value2 Union[bool, number]) {
 	if value1 {
 		printer.decreaseIndent()
 	}
@@ -6087,7 +6087,7 @@ func getEmitListItem(emit EmitFunction, parenthesizerRule *ParenthesizerRuleOrSe
 	switch {
 	case emit.length == 1:
 		return emitListItemNoParenthesizer.(EmitListItemFunction[T])
-	case /* TODO(TS-TO-GO) Node TypeOfExpression: typeof parenthesizerRule */ TODO == "object":
+	case /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof parenthesizerRule */ TODO == "object":
 		return emitListItemWithParenthesizerRuleSelector.(EmitListItemFunction[T])
 	default:
 		return emitListItemWithParenthesizerRule.(EmitListItemFunction[T])

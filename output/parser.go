@@ -36,19 +36,19 @@ var SourceFileConstructor /* TODO(TS-TO-GO) TypeNode ConstructorType: new (kind:
 
 var parseBaseNodeFactory BaseNodeFactory = BaseNodeFactory{
 	createBaseSourceFileNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.SourceFile */ any) *Node {
-		return /* TODO(TS-TO-GO) Node NewExpression: new (SourceFileConstructor || (SourceFileConstructor = objectAllocator.getSourceFileConstructor()))(kind, -1, -1) */ TODO
+		return /* TODO(TS-TO-GO) Expression NewExpression: new (SourceFileConstructor || (SourceFileConstructor = objectAllocator.getSourceFileConstructor()))(kind, -1, -1) */ TODO
 	},
 	createBaseIdentifierNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.Identifier */ any) *Node {
-		return /* TODO(TS-TO-GO) Node NewExpression: new (IdentifierConstructor || (IdentifierConstructor = objectAllocator.getIdentifierConstructor()))(kind, -1, -1) */ TODO
+		return /* TODO(TS-TO-GO) Expression NewExpression: new (IdentifierConstructor || (IdentifierConstructor = objectAllocator.getIdentifierConstructor()))(kind, -1, -1) */ TODO
 	},
 	createBasePrivateIdentifierNode: func(kind /* TODO(TS-TO-GO) inferred type SyntaxKind.PrivateIdentifier */ any) *Node {
-		return /* TODO(TS-TO-GO) Node NewExpression: new (PrivateIdentifierConstructor || (PrivateIdentifierConstructor = objectAllocator.getPrivateIdentifierConstructor()))(kind, -1, -1) */ TODO
+		return /* TODO(TS-TO-GO) Expression NewExpression: new (PrivateIdentifierConstructor || (PrivateIdentifierConstructor = objectAllocator.getPrivateIdentifierConstructor()))(kind, -1, -1) */ TODO
 	},
 	createBaseTokenNode: func(kind SyntaxKind) *Node {
-		return /* TODO(TS-TO-GO) Node NewExpression: new (TokenConstructor || (TokenConstructor = objectAllocator.getTokenConstructor()))(kind, -1, -1) */ TODO
+		return /* TODO(TS-TO-GO) Expression NewExpression: new (TokenConstructor || (TokenConstructor = objectAllocator.getTokenConstructor()))(kind, -1, -1) */ TODO
 	},
 	createBaseNode: func(kind SyntaxKind) *Node {
-		return /* TODO(TS-TO-GO) Node NewExpression: new (NodeConstructor || (NodeConstructor = objectAllocator.getNodeConstructor()))(kind, -1, -1) */ TODO
+		return /* TODO(TS-TO-GO) Expression NewExpression: new (NodeConstructor || (NodeConstructor = objectAllocator.getNodeConstructor()))(kind, -1, -1) */ TODO
 	},
 }
 
@@ -494,10 +494,10 @@ var forEachChildTable ForEachChildTable = ForEachChildTable{
 		return visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDoc */ (node JSDoc, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))) || visitNodes(cbNode, cbNodes, node.tags)
+		return (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))) || visitNodes(cbNode, cbNodes, node.tags)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocSeeTag */ (node JSDocSeeTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.name) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.name) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocNameReference */ (node JSDocNameReference, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
 		return visitNode(cbNode, node.name)
@@ -508,22 +508,22 @@ var forEachChildTable ForEachChildTable = ForEachChildTable{
 	TODO_IDENTIFIER: forEachChildInJSDocParameterOrPropertyTag,
 	TODO_IDENTIFIER: forEachChildInJSDocParameterOrPropertyTag,
 	TODO_IDENTIFIER: func /* forEachChildInJSDocAuthorTag */ (node JSDocAuthorTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocImplementsTag */ (node JSDocImplementsTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocAugmentsTag */ (node JSDocAugmentsTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocTemplateTag */ (node JSDocTemplateTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.constraint) || visitNodes(cbNode, cbNodes, node.typeParameters) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.constraint) || visitNodes(cbNode, cbNodes, node.typeParameters) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocTypedefTag */ (node JSDocTypedefTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || (ifElse(node.typeExpression != nil && node.typeExpression.kind == SyntaxKindJSDocTypeExpression, visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.fullName) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))), visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))))
+		return visitNode(cbNode, node.tagName) || (ifElse(node.typeExpression != nil && node.typeExpression.kind == SyntaxKindJSDocTypeExpression, visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.fullName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))), visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocCallbackTag */ (node JSDocCallbackTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 	},
 	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
 	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
@@ -604,11 +604,11 @@ func forEachChildInOptionalRestOrJSDocParameterModifier(node Union[OptionalTypeN
 }
 
 func forEachChildInJSDocParameterOrPropertyTag(node Union[JSDocParameterTag, JSDocPropertyTag], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || (ifElse(node.isNameFirst, visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression), visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name))) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || (ifElse(node.isNameFirst, visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression), visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name))) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInJSDocTypeLikeTag(node Union[JSDocReturnTag, JSDocTypeTag, JSDocThisTag, JSDocEnumTag, JSDocThrowsTag, JSDocOverloadTag, JSDocSatisfiesTag], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInJSDocLinkCodeOrPlain(node Union[JSDocLink, JSDocLinkCode, JSDocLinkPlain], cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
@@ -616,11 +616,11 @@ func forEachChildInJSDocLinkCodeOrPlain(node Union[JSDocLink, JSDocLinkCode, JSD
 }
 
 func forEachChildInJSDocTag(node Union[JSDocUnknownTag, JSDocClassTag, JSDocPublicTag, JSDocPrivateTag, JSDocProtectedTag, JSDocReadonlyTag, JSDocDeprecatedTag, JSDocOverrideTag], cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInJSDocImportTag(node JSDocImportTag, cbNode func(node *Node) *T, cbNodes func(nodes NodeArray[*Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes) || (ifElse( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
 }
 
 func forEachChildInPartiallyEmittedExpression(node PartiallyEmittedExpression, cbNode func(node *Node) *T, _cbNodes func(nodes NodeArray[*Node]) *T) *T {
@@ -669,7 +669,7 @@ func forEachChild(node *Node, cbNode func(node *Node) *T, cbNodes func(nodes Nod
  * @internal
  */
 
-func forEachChildRecursively(rootNode *Node, cbNode func(node *Node, parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], cbNodes func(nodes NodeArray[*Node], parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) *T {
+func forEachChildRecursively(rootNode *Node, cbNode func(node *Node, parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any, undefined], cbNodes func(nodes NodeArray[*Node], parent *Node) Union[T /* TODO(TS-TO-GO) TypeNode LiteralType: "skip" */, any, undefined]) *T {
 	var queue []Union[*Node, NodeArray[*Node]] = gatherPossibleChildren(rootNode)
 	var parents []*Node = []never{}
 	// tracks parent references for elements in queue
@@ -745,7 +745,7 @@ func createSourceFile(fileName string, sourceText string, languageVersionOrOptio
 	var result SourceFile
 
 	var TODO_IDENTIFIER any
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof languageVersionOrOptions */ TODO == "object" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof languageVersionOrOptions */ TODO == "object" {
 		TODO_IDENTIFIER = languageVersionOrOptions
 	} else {
 		TODO_IDENTIFIER = (CreateSourceFileOptions{
@@ -1045,7 +1045,7 @@ func parseJsonText(fileName string, sourceText string, languageVersion ScriptTar
 	} else {
 		// Loop and synthesize an ArrayLiteralExpression if there are more than
 		// one top-level expressions to ensure all input text is consumed.
-		var expressions Union[[]Expression, Expression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+		var expressions Union[[]Expression, Expression, undefined]
 		for token() != SyntaxKindEndOfFileToken {
 			var expression TODO
 			switch token() {
@@ -3777,7 +3777,7 @@ func parseMappedTypeParameter() TypeParameterDeclaration {
 func parseMappedType() MappedTypeNode {
 	pos := getNodePos()
 	parseExpected(SyntaxKindOpenBraceToken)
-	var readonlyToken Union[ReadonlyKeyword, PlusToken, MinusToken /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+	var readonlyToken Union[ReadonlyKeyword, PlusToken, MinusToken, undefined]
 	if token() == SyntaxKindReadonlyKeyword || token() == SyntaxKindPlusToken || token() == SyntaxKindMinusToken {
 		readonlyToken = parseTokenNode()
 		if readonlyToken.kind != SyntaxKindReadonlyKeyword {
@@ -3793,7 +3793,7 @@ func parseMappedType() MappedTypeNode {
 		nameType = nil
 	}
 	parseExpected(SyntaxKindCloseBracketToken)
-	var questionToken Union[QuestionToken, PlusToken, MinusToken /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+	var questionToken Union[QuestionToken, PlusToken, MinusToken, undefined]
 	if token() == SyntaxKindQuestionToken || token() == SyntaxKindPlusToken || token() == SyntaxKindMinusToken {
 		questionToken = parseTokenNode()
 		if questionToken.kind != SyntaxKindQuestionToken {
@@ -5439,7 +5439,7 @@ func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, top
 			end := lastChild.children.end
 			newLast := finishNode(factory.createJsxElement(lastChild.openingElement, lastChild.children, finishNode(factory.createJsxClosingElement(finishNode(factoryCreateIdentifier(""), end, end)), end, end)), lastChild.openingElement.pos, end)
 
-			children = createNodeArray([]JsxChild{ /* TODO(TS-TO-GO) Node SpreadElement: ...children.slice(0, children.length - 1) */ newLast}, children.pos, end)
+			children = createNodeArray([]JsxChild{ /* TODO(TS-TO-GO) Expression SpreadElement: ...children.slice(0, children.length - 1) */ newLast}, children.pos, end)
 			closingElement = lastChild.closingElement
 		} else {
 			closingElement = parseJsxClosingElement(opening, inExpressionContext)
@@ -5473,7 +5473,7 @@ func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, top
 	// a valid UnaryExpression and will cause problems later.
 	if !mustBeUnary && inExpressionContext && token() == SyntaxKindLessThanToken {
 		var topBadPos number
-		if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof topInvalidNodePosition */ TODO == "undefined" {
+		if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof topInvalidNodePosition */ TODO == "undefined" {
 			topBadPos = result.pos
 		} else {
 			topBadPos = topInvalidNodePosition
@@ -7918,7 +7918,7 @@ func parseImportClause(identifier *Identifier, pos number, isTypeOnly bool, skip
 
 	// If there was no default import or if there is comma token after default import
 	// parse namespace or named imports
-	var namedBindings Union[NamespaceImport, NamedImports /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+	var namedBindings Union[NamespaceImport, NamedImports, undefined]
 	if identifier == nil || parseOptional(SyntaxKindCommaToken) {
 		if skipJsDocLeadingAsterisks {
 			scanner.setSkipJsDocLeadingAsterisks(true)
@@ -8621,7 +8621,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		return parseTagComments(margin, indentText.slice(margin))
 	}
 
-	parseTagComments := func(indent number, initialMargin string) Union[string, NodeArray[JSDocComment] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+	parseTagComments := func(indent number, initialMargin string) Union[string, NodeArray[JSDocComment], undefined] {
 		commentsPos := getNodePos()
 		var comments []string = []never{}
 		var parts []JSDocComment = []never{}
@@ -8954,7 +8954,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 			commentEnd = scanner.getTokenFullStart()
 		}
 		var allParts /* TODO(TS-TO-GO) inferred type string | NodeArray<JSDocComment> */ any
-		if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof comments */ TODO != "string" {
+		if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof comments */ TODO != "string" {
 			allParts = createNodeArray(concatenate([]JSDocText{finishNode(textOnly, commentStart, commentEnd)}, comments) /* as JSDocComment[] */, commentStart)
 		} else {
 			allParts = textOnly.text + comments
@@ -9067,7 +9067,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	}
 
 	parseTypedefTag := func(start number, tagName Identifier, indent number, indentText string) JSDocTypedefTag {
-		var typeExpression Union[JSDocTypeExpression, JSDocTypeLiteral /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = tryParseTypeExpression()
+		var typeExpression Union[JSDocTypeExpression, JSDocTypeLiteral, undefined] = tryParseTypeExpression()
 		skipWhitespaceOrAsterisk()
 
 		fullName := parseJSDocTypeNameWithNamespace()
@@ -10173,8 +10173,8 @@ func getNamedArgRegEx(name string) RegExp {
 	return result
 }
 
-var tripleSlashXMLCommentStartRegEx = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /^\/\/\/\s*<(\S+)\s.*?\/>/m */ TODO
-var singleLinePragmaRegEx = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /^\/\/\/?\s*@([^\s:]+)((?:[^\S\r\n]|:).*)?$/m */ TODO
+var tripleSlashXMLCommentStartRegEx = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /^\/\/\/\s*<(\S+)\s.*?\/>/m */ TODO
+var singleLinePragmaRegEx = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /^\/\/\/?\s*@([^\s:]+)((?:[^\S\r\n]|:).*)?$/m */ TODO
 
 func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text string) {
 	tripleSlash := range_.kind == SyntaxKindSingleLineCommentTrivia && tripleSlashXMLCommentStartRegEx.exec(text)
@@ -10234,7 +10234,7 @@ func extractPragmas(pragmas []PragmaPseudoMapEntry, range_ CommentRange, text st
 	}
 
 	if range_.kind == SyntaxKindMultiLineCommentTrivia {
-		multiLinePragmaRegEx := /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /@(\S+)(\s+(?:\S.*)?)?$/gm */ TODO
+		multiLinePragmaRegEx := /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /@(\S+)(\s+(?:\S.*)?)?$/gm */ TODO
 		// Defined inline since it uses the "g" flag, which keeps a persistent index (for iterating)
 		var multiLineMatch Union[RegExpExecArray /* TODO(TS-TO-GO) TypeNode LiteralType: null */, any]
 		// eslint-disable-line no-restricted-syntax

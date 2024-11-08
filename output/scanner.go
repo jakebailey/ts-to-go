@@ -404,7 +404,7 @@ func computePositionOfLineAndCharacter(lineStarts []number, line number, charact
 		switch {
 		case res > lineStarts[line+1]:
 			return lineStarts[line+1]
-		case /* TODO(TS-TO-GO) Node TypeOfExpression: typeof debugText */ TODO == "string" && res > debugText.length:
+		case /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof debugText */ TODO == "string" && res > debugText.length:
 			return debugText.length
 		default:
 			return res
@@ -2381,7 +2381,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				scanner.scanIdentifier(charAfterHash, languageVersion)
 			} else {
 				scanner.tokenValue = "#"
-				scanner.error(Diagnostics.Invalid_character /* TODO(TS-TO-GO) Node PostfixUnaryExpression: pos++ */, TODO, charSize(ch))
+				scanner.error(Diagnostics.Invalid_character /* TODO(TS-TO-GO) Expression PostfixUnaryExpression: pos++ */, TODO, charSize(ch))
 			}
 			scanner.token = SyntaxKindPrivateIdentifier
 			return scanner.token
@@ -3485,7 +3485,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 						}
 					} else if !valuesOfNonBinaryUnicodeProperties.General_Category.has(propertyNameOrValue) && !binaryUnicodeProperties.has(propertyNameOrValue) {
 						scanner.error(Diagnostics.Unknown_Unicode_property_name_or_value, propertyNameOrValueStart, scanner.pos-propertyNameOrValueStart)
-						suggestion := getSpellingSuggestion(propertyNameOrValue, []string{ /* TODO(TS-TO-GO) Node SpreadElement: ...valuesOfNonBinaryUnicodeProperties.General_Category */ /* TODO(TS-TO-GO) Node SpreadElement: ...binaryUnicodeProperties */ /* TODO(TS-TO-GO) Node SpreadElement: ...binaryUnicodePropertiesOfStrings */ }, identity)
+						suggestion := getSpellingSuggestion(propertyNameOrValue, []string{ /* TODO(TS-TO-GO) Expression SpreadElement: ...valuesOfNonBinaryUnicodeProperties.General_Category */ /* TODO(TS-TO-GO) Expression SpreadElement: ...binaryUnicodeProperties */ /* TODO(TS-TO-GO) Expression SpreadElement: ...binaryUnicodePropertiesOfStrings */ }, identity)
 						if suggestion {
 							scanner.error(Diagnostics.Did_you_mean_0, propertyNameOrValueStart, scanner.pos-propertyNameOrValueStart, suggestion)
 						}
@@ -3788,7 +3788,7 @@ func (scanner *Scanner) scanJSDocCommentTextToken(inBackticks bool) Union[JSDocS
 		scanner.token = SyntaxKindEndOfFileToken
 		return scanner.token
 	}
-	for ch := scanner.charCodeUnchecked(scanner.pos); scanner.pos < scanner.end && (!isLineBreak(ch) && ch != CharacterCodesbacktick); ch = scanner.codePointUnchecked( /* TODO(TS-TO-GO) Node PrefixUnaryExpression: ++pos */ TODO) {
+	for ch := scanner.charCodeUnchecked(scanner.pos); scanner.pos < scanner.end && (!isLineBreak(ch) && ch != CharacterCodesbacktick); ch = scanner.codePointUnchecked( /* TODO(TS-TO-GO) Expression PrefixUnaryExpression: ++pos */ TODO) {
 		if !inBackticks {
 			if ch == CharacterCodesopenBrace {
 				break

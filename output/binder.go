@@ -221,7 +221,7 @@ const (
 
 /** @internal */
 
-func createFlowNode(flags FlowFlags, node any, antecedent Union[FlowNode, []FlowNode /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) FlowNode {
+func createFlowNode(flags FlowFlags, node any, antecedent Union[FlowNode, []FlowNode, undefined]) FlowNode {
 	return Debug.attachFlowNodeDebugInfo(FlowNode{
 		flags:      flags,
 		id:         0,
@@ -1827,7 +1827,7 @@ func (b *Binder) bindJSDocTypeAlias(node Union[JSDocTypedefTag, JSDocCallbackTag
 		setParent(node.fullName, node)
 		setParentRecursive(node.fullName /*incremental*/, false)
 	}
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO != "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO != "string" {
 		b.bindEach(node.comment)
 	}
 }
@@ -1846,7 +1846,7 @@ func (b *Binder) bindJSDocImportTag(node JSDocImportTag) {
 	b.bind(node.moduleSpecifier)
 	b.bind(node.attributes)
 
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof node.comment */ TODO != "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO != "string" {
 		b.bindEach(node.comment)
 	}
 }
@@ -2071,7 +2071,7 @@ func (b *Binder) bindModuleDeclaration(node ModuleDeclaration) {
 		if isModuleAugmentationExternal(node) {
 			b.declareModuleSymbol(node)
 		} else {
-			var pattern Union[string, Pattern /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+			var pattern Union[string, Pattern, undefined]
 			if node.name.kind == SyntaxKindStringLiteral {
 				TODO_IDENTIFIER := node.name
 				pattern = tryParsePattern(text)

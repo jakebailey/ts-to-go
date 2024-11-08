@@ -159,7 +159,7 @@ func optionsHaveChanges(oldOptions CompilerOptions, newOptions CompilerOptions, 
 
 /** @internal */
 
-func forEachAncestor(node *Node, callback func(n *Node) Union[T /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "quit" */, any]) *T {
+func forEachAncestor(node *Node, callback func(n *Node) Union[T, undefined /* TODO(TS-TO-GO) TypeNode LiteralType: "quit" */, any]) *T {
 	for true {
 		res := callback(node)
 		if res == "quit" {
@@ -1163,7 +1163,7 @@ func getTextOfConstantValue(value Union[string, number]) string {
 // all non-alphanumeric characters with underscores
 
 func makeIdentifierFromModuleName(moduleName string) string {
-	return getBaseFileName(moduleName).replace(regexp.MustParse(`^(\d)`), "_$1").replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\W/g */ TODO, "_")
+	return getBaseFileName(moduleName).replace(regexp.MustParse(`^(\d)`), "_$1").replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\W/g */ TODO, "_")
 }
 
 /** @internal */
@@ -1477,7 +1477,7 @@ func forEachEnclosingBlockScopeContainer(node *Node, cb func(container *Node)) {
 // Computed property names will just be emitted as "[<expr>]", where <expr> is the source
 // text of the expression in the computed property.
 
-func declarationNameToString(name Union[DeclarationName, QualifiedName /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) string {
+func declarationNameToString(name Union[DeclarationName, QualifiedName, undefined]) string {
 	if name == nil || getFullWidth(name) == 0 {
 		return "(Missing)"
 	} else {
@@ -1641,7 +1641,7 @@ func createDiagnosticForFileFromMessageChain(sourceFile SourceFile, messageChain
 /** @internal */
 
 func createDiagnosticMessageChainFromDiagnostic(diagnostic DiagnosticRelatedInformation) DiagnosticMessageChain {
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof diagnostic.messageText */ TODO == "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof diagnostic.messageText */ TODO == "string" {
 		return DiagnosticMessageChain{
 			code:        diagnostic.code,
 			category:    diagnostic.category,
@@ -2366,7 +2366,7 @@ func getContainingClassStaticBlock(node *Node) *Node {
 
 /** @internal */
 
-func getContainingFunctionOrClassStaticBlock(node *Node) Union[SignatureDeclaration, ClassStaticBlockDeclaration /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getContainingFunctionOrClassStaticBlock(node *Node) Union[SignatureDeclaration, ClassStaticBlockDeclaration, undefined] {
 	return findAncestor(node.parent, isFunctionLikeOrClassStaticBlockDeclaration)
 }
 
@@ -2506,7 +2506,7 @@ func isInTopLevelContext(node *Node) bool {
 
 /** @internal */
 
-func getNewTargetContainer(node *Node) Union[FunctionDeclaration, ConstructorDeclaration, FunctionExpression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getNewTargetContainer(node *Node) Union[FunctionDeclaration, ConstructorDeclaration, FunctionExpression, undefined] {
 	container := getThisContainer(node /*includeArrowFunctions*/, false /*includeClassComputedPropertyName*/, false)
 	if container {
 		switch container.kind {
@@ -3434,7 +3434,7 @@ func isVoidZero(node *Node) bool {
  * @internal
  */
 
-func getElementOrPropertyAccessArgumentExpressionOrName(node AccessExpression) Union[Identifier, PrivateIdentifier, StringLiteralLike, NumericLiteral, ElementAccessExpression /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getElementOrPropertyAccessArgumentExpressionOrName(node AccessExpression) Union[Identifier, PrivateIdentifier, StringLiteralLike, NumericLiteral, ElementAccessExpression, undefined] {
 	if isPropertyAccessExpression(node) {
 		return node.name
 	}
@@ -3667,7 +3667,7 @@ func getExternalModuleName(node Union[AnyImportOrReExport, ImportTypeNode, Impor
 
 /** @internal */
 
-func getNamespaceDeclarationNode(node Union[ImportDeclaration, ImportEqualsDeclaration, ExportDeclaration]) Union[ImportEqualsDeclaration, NamespaceImport, NamespaceExport /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getNamespaceDeclarationNode(node Union[ImportDeclaration, ImportEqualsDeclaration, ExportDeclaration]) Union[ImportEqualsDeclaration, NamespaceImport, NamespaceExport, undefined] {
 	switch node.kind {
 	case SyntaxKindImportDeclaration:
 		return node.importClause && tryCast(node.importClause.namedBindings, isNamespaceImport)
@@ -4015,7 +4015,7 @@ func getParameterSymbolFromJSDoc(node JSDocParameterTag) *Symbol {
 
 /** @internal */
 
-func getEffectiveContainerForJSDocTemplateTag(node JSDocTemplateTag) Union[SignatureDeclaration, JSDocTypedefTag, JSDocCallbackTag, JSDocEnumTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func getEffectiveContainerForJSDocTemplateTag(node JSDocTemplateTag) Union[SignatureDeclaration, JSDocTypedefTag, JSDocCallbackTag, JSDocEnumTag, undefined] {
 	if isJSDoc(node.parent) && node.parent.tags != nil {
 		// A @template tag belongs to any @typedef, @callback, or @enum tags in the same comment block, if they exist.
 		typeAlias := find(node.parent.tags, isJSDocTypeAlias)
@@ -4853,7 +4853,7 @@ func isAnonymousFunctionDefinition(node Expression, cb func(node AnonymousFuncti
 	default:
 		return false
 	}
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof cb */ TODO == "function" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof cb */ TODO == "function" {
 		return cb(node.AsAnonymousFunctionDefinition())
 	} else {
 		return true
@@ -5461,7 +5461,7 @@ func createDiagnosticCollection() DiagnosticCollection {
 
 }
 
-var templateSubstitutionRegExp = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\$\{/g */ TODO
+var templateSubstitutionRegExp = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\$\{/g */ TODO
 
 /** @internal */
 
@@ -5486,11 +5486,11 @@ func hasInvalidEscape(template TemplateLiteral) bool {
 // the language service. These characters should be escaped when printing, and if any characters are added,
 // the map below must be updated. Note that this regexp *does not* include the 'delete' character.
 // There is no reason for this other than that JSON.stringify does not handle it either.
-var doubleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /[\\"\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
-var singleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /[\\'\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
+var doubleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /[\\"\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
+var singleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /[\\'\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
 
 // Template strings preserve simple LF newlines, still encode CRLF (or CR)
-var backtickQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\r\n|[\\`\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
+var backtickQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\r\n|[\\`\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
 var escapedCharsMap = NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	"TODO_IDENTIFIER": "\\t",
 	"TODO_IDENTIFIER": "\\v",
@@ -5548,7 +5548,7 @@ func escapeString(s string, quoteChar Union[ /* TODO(TS-TO-GO) Node QualifiedNam
 	return s.replace(escapedCharsRegExp, getReplacement)
 }
 
-var nonAsciiCharacters = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /[^\u0000-\u007F]/g */ TODO
+var nonAsciiCharacters = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /[^\u0000-\u007F]/g */ TODO
 
 /** @internal */
 
@@ -5569,8 +5569,8 @@ func escapeNonAsciiString(s string, quoteChar Union[ /* TODO(TS-TO-GO) Node Qual
 // paragraphSeparator, and nextLine. The latter three are just desirable to suppress new lines in
 // the language service. These characters should be escaped when printing, and if any characters are added,
 // the map below must be updated.
-var jsxDoubleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /["\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
-var jsxSingleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /['\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
+var jsxDoubleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /["\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
+var jsxSingleQuoteEscapedCharsRegExp = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /['\u0000-\u001f\u2028\u2029\u0085]/g */ TODO
 var jsxEscapedCharsMap = NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	"TODO_IDENTIFIER": "&quot;",
 	"TODO_IDENTIFIER": "&apos;",
@@ -7518,7 +7518,7 @@ func getLinesBetweenPositionAndNextNonWhitespaceCharacter(pos number, stopPos nu
 }
 
 func getPreviousNonWhitespacePosition(pos number, stopPos number /*  = 0 */, sourceFile SourceFile) *number {
-	for /* TODO(TS-TO-GO) Node PostfixUnaryExpression: pos-- */ TODO > stopPos {
+	for /* TODO(TS-TO-GO) Expression PostfixUnaryExpression: pos-- */ TODO > stopPos {
 		if !isWhiteSpaceLike(sourceFile.text.charCodeAt(pos)) {
 			return pos
 		}
@@ -7783,7 +7783,7 @@ type MutateMapSkippingNewValuesOptions[K any, T any, U any] struct {
 /** @internal */
 
 /* OVERLOAD: export function mutateMapSkippingNewValues<K, T, U>( map: Map<K, T>, newMap: ReadonlyMap<K, U> | undefined, options: MutateMapSkippingNewValuesOptions<K, T, U>, ): void; */
-func mutateMapSkippingNewValues(map_ Map[K, T], newMap Union[ReadonlyMap[K, U], ReadonlySet[K] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], options MutateMapSkippingNewValuesOptions[K, T, U]) {
+func mutateMapSkippingNewValues(map_ Map[K, T], newMap Union[ReadonlyMap[K, U], ReadonlySet[K], undefined], options MutateMapSkippingNewValuesOptions[K, T, U]) {
 	TODO_IDENTIFIER := options
 	// Needs update
 	map_.forEach(func(existingValue T, key K) {
@@ -7823,7 +7823,7 @@ type MutateMapOptions[K any, T any, U any] struct {
 /** @internal */
 
 /* OVERLOAD: export function mutateMap<K, T, U>(map: Map<K, T>, newMap: ReadonlyMap<K, U> | undefined, options: MutateMapOptions<K, T, U>): void; */
-func mutateMap(map_ Map[K, T], newMap Union[ReadonlyMap[K, U], ReadonlySet[K] /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], options MutateMapOptions[K, T, U]) {
+func mutateMap(map_ Map[K, T], newMap Union[ReadonlyMap[K, U], ReadonlySet[K], undefined], options MutateMapOptions[K, T, U]) {
 	// Needs update
 	mutateMapSkippingNewValues(map_, newMap.(ReadonlyMap[K, U]), options)
 
@@ -8182,7 +8182,7 @@ func setObjectAllocator(alloc ObjectAllocator) {
 /** @internal */
 
 func formatStringFromArgs(text string, args DiagnosticArguments) string {
-	return text.replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\{(\d+)\}/g */ TODO, func(_match string, index string) string {
+	return text.replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\{(\d+)\}/g */ TODO, func(_match string, index string) string {
 		return "" + Debug.checkDefined(args[+index])
 	})
 }
@@ -8237,7 +8237,7 @@ func createDetachedDiagnostic(fileName string, sourceText string, start number, 
 }
 
 func isDiagnosticWithDetachedLocation(diagnostic Union[DiagnosticRelatedInformation, DiagnosticWithDetachedLocation]) bool {
-	return diagnostic.file == nil && diagnostic.start != nil && diagnostic.length != nil && /* TODO(TS-TO-GO) Node TypeOfExpression: typeof (diagnostic as DiagnosticWithDetachedLocation).fileName */ TODO == "string"
+	return diagnostic.file == nil && diagnostic.start != nil && diagnostic.length != nil && /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof (diagnostic as DiagnosticWithDetachedLocation).fileName */ TODO == "string"
 }
 
 func attachFileToDiagnostic(diagnostic DiagnosticWithDetachedLocation, file SourceFile) DiagnosticWithLocation {
@@ -8352,7 +8352,7 @@ func createCompilerDiagnosticFromMessageChain(chain DiagnosticMessageChain, rela
 
 /** @internal */
 
-func chainDiagnosticMessages(details Union[DiagnosticMessageChain, []DiagnosticMessageChain /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], message DiagnosticMessage, args DiagnosticArguments) DiagnosticMessageChain {
+func chainDiagnosticMessages(details Union[DiagnosticMessageChain, []DiagnosticMessageChain, undefined], message DiagnosticMessage, args DiagnosticArguments) DiagnosticMessageChain {
 	text := getLocaleSpecificMessage(message)
 
 	if some(args) {
@@ -8422,20 +8422,20 @@ func compareRelatedInformation(d1 Diagnostic, d2 Diagnostic) Comparison {
 func compareMessageText(d1 Diagnostic, d2 Diagnostic) Comparison {
 	headMsg1 := getDiagnosticMessage(d1)
 	headMsg2 := getDiagnosticMessage(d2)
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof headMsg1 */ TODO != "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof headMsg1 */ TODO != "string" {
 		headMsg1 = headMsg1.messageText
 	}
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof headMsg2 */ TODO != "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof headMsg2 */ TODO != "string" {
 		headMsg2 = headMsg2.messageText
 	}
 	var chain1 *[]DiagnosticMessageChain
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof d1.messageText */ TODO != "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof d1.messageText */ TODO != "string" {
 		chain1 = d1.messageText.next
 	} else {
 		chain1 = nil
 	}
 	var chain2 *[]DiagnosticMessageChain
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof d2.messageText */ TODO != "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof d2.messageText */ TODO != "string" {
 		chain2 = d2.messageText.next
 	} else {
 		chain2 = nil
@@ -8542,13 +8542,13 @@ func getDiagnosticMessage(d Diagnostic) Union[string, DiagnosticMessageChain] {
 
 func messageTextEqualityComparer(m1 Union[string, DiagnosticMessageChain], m2 Union[string, DiagnosticMessageChain]) bool {
 	var t1 string
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof m1 */ TODO == "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof m1 */ TODO == "string" {
 		t1 = m1
 	} else {
 		t1 = m1.messageText
 	}
 	var t2 string
-	if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof m2 */ TODO == "string" {
+	if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof m2 */ TODO == "string" {
 		t2 = m2
 	} else {
 		t2 = m2.messageText
@@ -8629,7 +8629,7 @@ func getSetExternalModuleIndicator(options CompilerOptions) func(file SourceFile
 		// If module is nodenext or node16, all esm format files are modules
 		// If jsx is react-jsx or react-jsxdev then jsx tags force module-ness
 		// otherwise, the presence of import or export statments (or import.meta) implies module-ness
-		var checks []func(file SourceFile, options CompilerOptions) Union[*Node /* TODO(TS-TO-GO) TypeNode LiteralType: true */, any /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] = [] /* TODO(TS-TO-GO) inferred type typeof isFileProbablyExternalModule */ any{isFileProbablyExternalModule}
+		var checks []func(file SourceFile, options CompilerOptions) Union[*Node /* TODO(TS-TO-GO) TypeNode LiteralType: true */, any, undefined] = [] /* TODO(TS-TO-GO) inferred type typeof isFileProbablyExternalModule */ any{isFileProbablyExternalModule}
 		if options.jsx == JsxEmitReactJSX || options.jsx == JsxEmitReactJSXDev {
 			checks.push(isFileModuleFromUsingJSXTag)
 		}
@@ -8676,7 +8676,7 @@ var _computedOptions = createComputedCompilerOptions(map[any]any{ /* TODO(TS-TO-
 		"dependencies": [] /* TODO(TS-TO-GO) inferred type "target" */ any{"target"},
 		"computeValue": func(compilerOptions /* TODO(TS-TO-GO) inferred type Pick<CompilerOptions, "module" | "target"> */ any) ModuleKind {
 			switch {
-			case /* TODO(TS-TO-GO) Node TypeOfExpression: typeof compilerOptions.module */ TODO == "number":
+			case /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof compilerOptions.module */ TODO == "number":
 				return compilerOptions.module
 			case _computedOptions.target.computeValue(compilerOptions) >= ScriptTargetES2015:
 				return ModuleKindES2015
@@ -9191,7 +9191,7 @@ func createSymlinkCache(cwd string, getCanonicalFileName GetCanonicalFileName) S
 		}))
 	}
 
-	processResolution := func(cache SymlinkCache, resolution Union[ResolvedModuleFull, ResolvedTypeReferenceDirective /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) {
+	processResolution := func(cache SymlinkCache, resolution Union[ResolvedModuleFull, ResolvedTypeReferenceDirective, undefined]) {
 		if resolution == nil || !resolution.originalPath || !resolution.resolvedFileName {
 			return
 		}
@@ -9252,7 +9252,7 @@ func tryRemoveDirectoryPrefix(path string, dirPath string, getCanonicalFileName 
 // Reserved characters, forces escaping of any non-word (or digit), non-whitespace character.
 // It may be inefficient (we could just match (/[-[\]{}()*+?.,\\^$|#\s]/g), but this is future
 // proof.
-var reservedCharacterPattern = /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /[^\w\s/]/g */ TODO
+var reservedCharacterPattern = /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /[^\w\s/]/g */ TODO
 
 /** @internal */
 
@@ -9686,7 +9686,7 @@ var supportedTSExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (
 /** @internal */
 
 var supportedTSExtensionsFlat []Extension = flatten(supportedTSExtensions)
-var supportedTSExtensionsWithJson [][]Extension = [][]Extension{ /* TODO(TS-TO-GO) Node SpreadElement: ...supportedTSExtensions */ [] /* TODO(TS-TO-GO) inferred type Extension.Json */ any{ExtensionJson}}
+var supportedTSExtensionsWithJson [][]Extension = [][]Extension{ /* TODO(TS-TO-GO) Expression SpreadElement: ...supportedTSExtensions */ [] /* TODO(TS-TO-GO) inferred type Extension.Json */ any{ExtensionJson}}
 
 /** Must have ".d.ts" first because if ".ts" goes first, that will be detected as the extension instead of ".d.ts". */
 
@@ -9697,7 +9697,7 @@ var supportedJSExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (
 
 var supportedJSExtensionsFlat []Extension = flatten(supportedJSExtensions)
 var allSupportedExtensions [][]Extension = [][] /* TODO(TS-TO-GO) inferred type (Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Js | Extension.Jsx)[] | (Extension.Cjs | Extension.Cts | Extension.Dcts)[] | (Extension.Mjs | Extension.Mts | Extension.Dmts) */ any{ /* TODO(TS-TO-GO) inferred type Extension.Ts | Extension.Tsx | Extension.Dts | Extension.Js | Extension.Jsx */ {ExtensionTs, ExtensionTsx, ExtensionDts, ExtensionJs, ExtensionJsx} /* TODO(TS-TO-GO) inferred type Extension.Cjs | Extension.Cts | Extension.Dcts */, {ExtensionCts, ExtensionDcts, ExtensionCjs} /* TODO(TS-TO-GO) inferred type Extension.Mjs | Extension.Mts | Extension.Dmts */, {ExtensionMts, ExtensionDmts, ExtensionMjs}}
-var allSupportedExtensionsWithJson [][]Extension = [][]Extension{ /* TODO(TS-TO-GO) Node SpreadElement: ...allSupportedExtensions */ [] /* TODO(TS-TO-GO) inferred type Extension.Json */ any{ExtensionJson}}
+var allSupportedExtensionsWithJson [][]Extension = [][]Extension{ /* TODO(TS-TO-GO) Expression SpreadElement: ...allSupportedExtensions */ [] /* TODO(TS-TO-GO) inferred type Extension.Json */ any{ExtensionJson}}
 
 /** @internal */
 
@@ -9737,7 +9737,7 @@ func getSupportedExtensions(options CompilerOptions, extraFileExtensions []FileE
 		builtins = supportedTSExtensions
 	}
 	flatBuiltins := flatten(builtins)
-	extensions := [][]string{ /* TODO(TS-TO-GO) Node SpreadElement: ...builtins */ /* TODO(TS-TO-GO) Node SpreadElement: ...mapDefined(extraFileExtensions, x => x.scriptKind === ScriptKind.Deferred || needJsExtensions && isJSLike(x.scriptKind) && !flatBuiltins.includes(x.extension as Extension) ? [x.extension] : undefined) */ }
+	extensions := [][]string{ /* TODO(TS-TO-GO) Expression SpreadElement: ...builtins */ /* TODO(TS-TO-GO) Expression SpreadElement: ...mapDefined(extraFileExtensions, x => x.scriptKind === ScriptKind.Deferred || needJsExtensions && isJSLike(x.scriptKind) && !flatBuiltins.includes(x.extension as Extension) ? [x.extension] : undefined) */ }
 
 	return extensions
 }
@@ -9760,7 +9760,7 @@ func getSupportedExtensionsWithJsonIfResolveJsonModule(options *CompilerOptions,
 	if supportedExtensions == supportedTSExtensions {
 		return supportedTSExtensionsWithJson
 	}
-	return [][]string{ /* TODO(TS-TO-GO) Node SpreadElement: ...supportedExtensions */ []Extension{ExtensionJson}}
+	return [][]string{ /* TODO(TS-TO-GO) Expression SpreadElement: ...supportedExtensions */ []Extension{ExtensionJson}}
 }
 
 func isJSLike(scriptKind *ScriptKind) bool {
@@ -9932,7 +9932,7 @@ func isSupportedSourceFileName(fileName string, compilerOptions CompilerOptions,
 }
 
 func numberOfDirectorySeparators(str string) number {
-	match := str.match( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\//g */ TODO)
+	match := str.match( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\//g */ TODO)
 	if match != nil {
 		return match.length
 	} else {
@@ -9989,7 +9989,7 @@ func changeExtension(path T, newExtension string) T {
  * @internal
  */
 
-func tryParsePattern(pattern string) Union[string, Pattern /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func tryParsePattern(pattern string) Union[string, Pattern, undefined] {
 	indexOfStar := pattern.indexOf("*")
 	if indexOfStar == -1 {
 		return pattern
@@ -10034,7 +10034,7 @@ func tryParsePatterns(paths MapLike[[]string]) ParsedPatterns {
 		patternOrStr := tryParsePattern(path)
 		if patternOrStr == nil {
 			continue
-		} else if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof patternOrStr */ TODO == "string" {
+		} else if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof patternOrStr */ TODO == "string" {
 			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: matchableStringSet ??= new Set() */ TODO).add(patternOrStr)
 		} else {
 			( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: patterns ??= [] */ TODO).push(patternOrStr)
@@ -10125,7 +10125,7 @@ var emptyFileSystemEntries FileSystemEntries = FileSystemEntries{
  * @internal
  */
 
-func matchPatternOrExact(parsedPatterns ParsedPatterns, candidate string) Union[string, Pattern /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any] {
+func matchPatternOrExact(parsedPatterns ParsedPatterns, candidate string) Union[string, Pattern, undefined] {
 	TODO_IDENTIFIER := parsedPatterns
 
 	if matchableStringSet. /* ? */ has(candidate) {
@@ -10258,7 +10258,7 @@ func canIncludeBindAndCheckDiagnostics(sourceFile SourceFile, options CompilerOp
 
 func isJsonEqual(a any, b any) bool {
 	// eslint-disable-next-line no-restricted-syntax
-	return a == b || /* TODO(TS-TO-GO) Node TypeOfExpression: typeof a */ TODO == "object" && a != /* TODO(TS-TO-GO) Node NullKeyword: null */ TODO && /* TODO(TS-TO-GO) Node TypeOfExpression: typeof b */ TODO == "object" && b != /* TODO(TS-TO-GO) Node NullKeyword: null */ TODO && equalOwnProperties(a.(MapLike[any]), b.(MapLike[any]), isJsonEqual)
+	return a == b || /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof a */ TODO == "object" && a != /* TODO(TS-TO-GO) Expression NullKeyword: null */ TODO && /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof b */ TODO == "object" && b != /* TODO(TS-TO-GO) Expression NullKeyword: null */ TODO && equalOwnProperties(a.(MapLike[any]), b.(MapLike[any]), isJsonEqual)
 }
 
 /**
@@ -10811,7 +10811,7 @@ func isFunctionExpressionOrArrowFunction(node *Node) bool {
 /** @internal */
 
 func escapeSnippetText(text string) string {
-	return text.replace( /* TODO(TS-TO-GO) Node RegularExpressionLiteral: /\$/g */ TODO, func() string {
+	return text.replace( /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /\$/g */ TODO, func() string {
 		return "\\$"
 	})
 }
@@ -11126,7 +11126,7 @@ func isExpandoPropertyDeclaration(declaration Declaration) bool {
 
 /** @internal */
 
-func hasResolutionModeOverride(node Union[ImportTypeNode, ImportDeclaration, ExportDeclaration, JSDocImportTag /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]) bool {
+func hasResolutionModeOverride(node Union[ImportTypeNode, ImportDeclaration, ExportDeclaration, JSDocImportTag, undefined]) bool {
 	if node == nil {
 		return false
 	}
@@ -11295,7 +11295,7 @@ func createEvaluator(TODO_IDENTIFIER EvaluationResolver) /* TODO(TS-TO-GO) TypeN
 			result := evaluate((expr.AsPrefixUnaryExpression()).operand, location)
 			resolvedOtherFiles = result.resolvedOtherFiles
 			hasExternalReferences = result.hasExternalReferences
-			if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof result.value */ TODO == "number" {
+			if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof result.value */ TODO == "number" {
 				switch (expr.AsPrefixUnaryExpression()).operator {
 				case SyntaxKindPlusToken:
 					return evaluatorResult(result.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
@@ -11311,7 +11311,7 @@ func createEvaluator(TODO_IDENTIFIER EvaluationResolver) /* TODO(TS-TO-GO) TypeN
 			isSyntacticallyString = (left.isSyntacticallyString || right.isSyntacticallyString) && (expr.AsBinaryExpression()).operatorToken.kind == SyntaxKindPlusToken
 			resolvedOtherFiles = left.resolvedOtherFiles || right.resolvedOtherFiles
 			hasExternalReferences = left.hasExternalReferences || right.hasExternalReferences
-			if /* TODO(TS-TO-GO) Node TypeOfExpression: typeof left.value */ TODO == "number" && /* TODO(TS-TO-GO) Node TypeOfExpression: typeof right.value */ TODO == "number" {
+			if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof left.value */ TODO == "number" && /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof right.value */ TODO == "number" {
 				switch (expr.AsBinaryExpression()).operatorToken.kind {
 				case SyntaxKindBarToken:
 					return evaluatorResult(left.value|right.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
@@ -11338,7 +11338,7 @@ func createEvaluator(TODO_IDENTIFIER EvaluationResolver) /* TODO(TS-TO-GO) TypeN
 				case SyntaxKindAsteriskAsteriskToken:
 					return evaluatorResult(left.value**right.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
 				}
-			} else if ( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof left.value */ TODO == "string" || /* TODO(TS-TO-GO) Node TypeOfExpression: typeof left.value */ TODO == "number") && ( /* TODO(TS-TO-GO) Node TypeOfExpression: typeof right.value */ TODO == "string" || /* TODO(TS-TO-GO) Node TypeOfExpression: typeof right.value */ TODO == "number") && (expr.AsBinaryExpression()).operatorToken.kind == SyntaxKindPlusToken {
+			} else if ( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof left.value */ TODO == "string" || /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof left.value */ TODO == "number") && ( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof right.value */ TODO == "string" || /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof right.value */ TODO == "number") && (expr.AsBinaryExpression()).operatorToken.kind == SyntaxKindPlusToken {
 				return evaluatorResult(""+left.value+right.value, isSyntacticallyString, resolvedOtherFiles, hasExternalReferences)
 			}
 		case SyntaxKindStringLiteral,
@@ -11411,7 +11411,7 @@ type NameResolverOptions struct {
 	getRequiresScopeChangeCache      *func(node FunctionLikeDeclaration) *bool
 	onPropertyWithInvalidInitializer func(location *Node, name string, declaration PropertyDeclaration, result *Symbol) bool
 	onFailedToResolveSymbol          func(location *Node, name Union[string, Identifier], meaning SymbolFlags, nameNotFoundMessage DiagnosticMessage)
-	onSuccessfullyResolvedSymbol     func(location *Node, result *Symbol, meaning SymbolFlags, lastLocation *Node, associatedDeclarationForContainingInitializerOrBindingName Union[ParameterDeclaration, BindingElement /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any], withinDeferredContext bool)
+	onSuccessfullyResolvedSymbol     func(location *Node, result *Symbol, meaning SymbolFlags, lastLocation *Node, associatedDeclarationForContainingInitializerOrBindingName Union[ParameterDeclaration, BindingElement, undefined], withinDeferredContext bool)
 }
 
 /** @internal */
@@ -11439,7 +11439,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 		var lastLocation *Node
 		var lastSelfReferenceLocation Declaration
 		var propertyWithInvalidInitializer *PropertyDeclaration
-		var associatedDeclarationForContainingInitializerOrBindingName Union[ParameterDeclaration, BindingElement /* TODO(TS-TO-GO) Node UndefinedKeyword: undefined */, any]
+		var associatedDeclarationForContainingInitializerOrBindingName Union[ParameterDeclaration, BindingElement, undefined]
 		withinDeferredContext := false
 		var grandparent *Node
 		var name /* TODO(TS-TO-GO) inferred type (string & { __escapedIdentifier: void; }) | (void & { __escapedIdentifier: void; }) | InternalSymbolName */ any
@@ -11976,4 +11976,4 @@ var exclusivelyPrefixedNodeCoreModules Set[string] = NewSet([]string{"node:sea",
 
 /** @internal */
 
-var nodeCoreModules Set[string] = NewSet([]string{ /* TODO(TS-TO-GO) Node SpreadElement: ...unprefixedNodeCoreModulesList */ /* TODO(TS-TO-GO) Node SpreadElement: ...unprefixedNodeCoreModulesList.map(name => `node:${name}`) */ /* TODO(TS-TO-GO) Node SpreadElement: ...exclusivelyPrefixedNodeCoreModules */ })
+var nodeCoreModules Set[string] = NewSet([]string{ /* TODO(TS-TO-GO) Expression SpreadElement: ...unprefixedNodeCoreModulesList */ /* TODO(TS-TO-GO) Expression SpreadElement: ...unprefixedNodeCoreModulesList.map(name => `node:${name}`) */ /* TODO(TS-TO-GO) Expression SpreadElement: ...exclusivelyPrefixedNodeCoreModules */ })
