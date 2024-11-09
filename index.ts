@@ -416,7 +416,6 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         node: Expression,
         inStatement?: boolean,
         needBool?: boolean,
-        needBoolInvert?: boolean,
     ): void {
         const text = node.getText();
 
@@ -595,25 +594,26 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
             if (token === "!") {
                 let operand: Expression = node.getOperand();
-                let invert = true;
+                let addParens = false;
                 if (
                     Node.isPrefixUnaryExpression(operand) &&
                     operand.getOperatorToken() === ts.SyntaxKind.ExclamationToken
                 ) {
                     // Remove !!
                     operand = operand.getOperand();
-                    invert = false;
                     if (Node.isParenthesizedExpression(operand)) {
                         operand = operand.getExpression();
                     }
                 }
-
-                if (invert && !isConvertibleToBool(operand.getType())) {
+                else {
                     writer.write("!");
-                    invert = false;
+                    if (isConvertibleToBool(operand.getType())) {
+                        addParens = true;
+                    }
                 }
-
-                visitExpression(operand, undefined, true, invert);
+                if (addParens) writer.write("(");
+                visitExpression(operand, undefined, true);
+                if (addParens) writer.write(")");
                 return;
             }
             else if (inStatement && (token === "++" || token === "--")) {
@@ -916,36 +916,16 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                     || t.isEnum() || t.isEnumLiteral()
                 )
             ) {
-                if (needBoolInvert) {
-                    writer.write(" == nil");
-                }
-                else {
-                    writer.write(" != nil");
-                }
+                writer.write(" != nil");
             }
             else if (type.isString() || type.isStringLiteral()) {
-                if (needBoolInvert) {
-                    writer.write(' == ""');
-                }
-                else {
-                    writer.write(' != ""');
-                }
+                writer.write(' != ""');
             }
             else if (type.isNumber() || type.isNumberLiteral()) {
-                if (needBoolInvert) {
-                    writer.write(" == 0");
-                }
-                else {
-                    writer.write(" != 0");
-                }
+                writer.write(" != 0");
             }
             else if (type.isEnum() || type.isEnumLiteral()) {
-                if (needBoolInvert) {
-                    writer.write(" == 0");
-                }
-                else {
-                    writer.write(" != 0");
-                }
+                writer.write(" != 0");
             }
         }
     }

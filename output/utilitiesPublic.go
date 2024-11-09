@@ -414,7 +414,7 @@ func validateLocaleAndSetLanguage(locale string, sys /* TODO(TS-TO-GO) TypeNode 
 	lowerCaseLocale := locale.toLowerCase()
 	matchResult := regexp.MustParse(`^([a-z]+)(?:[_-]([a-z]+))?$`).exec(lowerCaseLocale)
 
-	if matchResult == nil {
+	if !(matchResult != nil) {
 		if errors != nil {
 			errors.push(createCompilerDiagnostic(Diagnostics.Locale_must_be_of_the_form_language_or_language_territory_For_example_0_or_1, "en", "ja-jp"))
 		}
@@ -487,7 +487,7 @@ func getOriginalNode(node *Node, nodeTest func(node *Node) /* TODO(TS-TO-GO) Typ
 		}
 	}
 
-	if node == nil || nodeTest == nil {
+	if !(node != nil) || !(nodeTest != nil) {
 		return node /* as T | undefined */
 	}
 
@@ -555,7 +555,7 @@ func getParseTreeNode(node *Node, nodeTest func(node *Node) bool) *Node {
 	node = node.original
 	for node != nil {
 		if isParseTreeNode(node) {
-			if nodeTest == nil || nodeTest(node) {
+			if !(nodeTest != nil) || nodeTest(node) {
 				return node
 			} else {
 				return nil
@@ -995,7 +995,7 @@ func getJSDocTypeTag(node *Node) *JSDocTypeTag {
 
 func getJSDocType(node *Node) *TypeNode {
 	var tag Union[JSDocTypeTag, JSDocParameterTag, undefined] = getFirstJSDocTag(node, isJSDocTypeTag)
-	if tag == nil && isParameter(node) {
+	if !(tag != nil) && isParameter(node) {
 		tag = find(getJSDocParameterTags(node), func(tag JSDocParameterTag) bool {
 			return tag.typeExpression != nil
 		})
@@ -1258,7 +1258,7 @@ func isNullishCoalesce(node *Node) bool {
 }
 
 func isConstTypeReference(node *Node) bool {
-	return isTypeReferenceNode(node) && isIdentifier(node.typeName) && node.typeName.escapedText == "const" && node.typeArguments == nil
+	return isTypeReferenceNode(node) && isIdentifier(node.typeName) && node.typeName.escapedText == "const" && !(node.typeArguments != nil)
 }
 
 /* OVERLOAD: export function skipPartiallyEmittedExpressions(node: Expression): Expression; */
@@ -1382,7 +1382,7 @@ func isTypeOnlyExportDeclaration(node *Node) bool {
 	case SyntaxKindExportSpecifier:
 		return (node.AsExportSpecifier()).isTypeOnly || (node.AsExportSpecifier()).parent.parent.isTypeOnly
 	case SyntaxKindExportDeclaration:
-		return (node.AsExportDeclaration()).isTypeOnly && (node.AsExportDeclaration()).moduleSpecifier != nil && (node.AsExportDeclaration()).exportClause == nil
+		return (node.AsExportDeclaration()).isTypeOnly && (node.AsExportDeclaration()).moduleSpecifier != nil && !((node.AsExportDeclaration()).exportClause != nil)
 	case SyntaxKindNamespaceExport:
 		return (node.AsNamespaceExport()).parent.isTypeOnly
 	}
@@ -2314,7 +2314,7 @@ var MAX_SMI_X86 = 0x3fff_ffff
 func guessIndentation(lines []string) *number {
 	indentation := MAX_SMI_X86
 	for _, line := range lines {
-		if line.length == 0 {
+		if !(line.length != 0) {
 			continue
 		}
 		i := 0
