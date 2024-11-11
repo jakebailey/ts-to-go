@@ -711,7 +711,7 @@ func getTokenPosOfNode(node *Node, sourceFile SourceFileLike, includeJsDoc bool)
 
 	if isJSDocNode(node) || node.kind == SyntaxKindJsxText {
 		// JsxText cannot actually contain comments, even though the scanner will think it sees comments
-		return skipTrivia((ifNotNilElse(sourceFile, getSourceFileOfNode(node))).text, node.pos /*stopAfterLineBreak*/, false /*stopAtComments*/, true)
+		return skipTrivia((ifNotNilElse(sourceFile, getSourceFileOfNode(node))).text, node.pos, false /*stopAfterLineBreak*/, true /*stopAtComments*/)
 	}
 
 	if includeJsDoc && hasJSDocNodes(node) {
@@ -1678,7 +1678,7 @@ func getCanonicalDiagnostic(message DiagnosticMessage, args []string) CanonicalD
 /** @internal */
 
 func getSpanOfTokenAtPosition(sourceFile SourceFile, pos number) TextSpan {
-	scanner := createScanner(sourceFile.languageVersion /*skipTrivia*/, true, sourceFile.languageVariant, sourceFile.text /*onError*/, nil, pos)
+	scanner := createScanner(sourceFile.languageVersion, true /*skipTrivia*/, sourceFile.languageVariant, sourceFile.text, nil /*onError*/, pos)
 	scanner.scan()
 	start := scanner.getTokenStart()
 	return createTextSpanFromBounds(start, scanner.getTokenEnd())
@@ -1687,7 +1687,7 @@ func getSpanOfTokenAtPosition(sourceFile SourceFile, pos number) TextSpan {
 /** @internal */
 
 func scanTokenAtPosition(sourceFile SourceFile, pos number) SyntaxKind {
-	scanner := createScanner(sourceFile.languageVersion /*skipTrivia*/, true, sourceFile.languageVariant, sourceFile.text /*onError*/, nil, pos)
+	scanner := createScanner(sourceFile.languageVersion, true /*skipTrivia*/, sourceFile.languageVariant, sourceFile.text, nil /*onError*/, pos)
 	scanner.scan()
 	return scanner.getToken()
 }
@@ -1712,7 +1712,7 @@ func getErrorSpanForNode(sourceFile SourceFile, node *Node) TextSpan {
 	var errorNode *Node = node
 	switch node.kind {
 	case SyntaxKindSourceFile:
-		pos := skipTrivia(sourceFile.text, 0 /*stopAfterLineBreak*/, false)
+		pos := skipTrivia(sourceFile.text, 0, false /*stopAfterLineBreak*/)
 		if pos == sourceFile.text.length {
 			// file is empty - return span for the beginning of the file
 			return createTextSpan(0, 0)
@@ -1764,7 +1764,7 @@ func getErrorSpanForNode(sourceFile SourceFile, node *Node) TextSpan {
 	case SyntaxKindConstructor:
 		constructorDeclaration := node.AsConstructorDeclaration()
 		start := skipTrivia(sourceFile.text, constructorDeclaration.pos)
-		scanner := createScanner(sourceFile.languageVersion /*skipTrivia*/, true, sourceFile.languageVariant, sourceFile.text /*onError*/, nil, start)
+		scanner := createScanner(sourceFile.languageVersion, true /*skipTrivia*/, sourceFile.languageVariant, sourceFile.text, nil /*onError*/, start)
 		token := scanner.scan()
 		for token != SyntaxKindConstructorKeyword && token != SyntaxKindEndOfFileToken {
 			token = scanner.scan()
@@ -2500,14 +2500,14 @@ func isInTopLevelContext(node *Node) bool {
 	if isIdentifier(node) && (isClassDeclaration(node.parent) || isFunctionDeclaration(node.parent)) && node.parent.name == node {
 		node = node.parent
 	}
-	container := getThisContainer(node /*includeArrowFunctions*/, true /*includeClassComputedPropertyName*/, false)
+	container := getThisContainer(node, true /*includeArrowFunctions*/, false /*includeClassComputedPropertyName*/)
 	return isSourceFile(container)
 }
 
 /** @internal */
 
 func getNewTargetContainer(node *Node) Union[FunctionDeclaration, ConstructorDeclaration, FunctionExpression, undefined] {
-	container := getThisContainer(node /*includeArrowFunctions*/, false /*includeClassComputedPropertyName*/, false)
+	container := getThisContainer(node, false /*includeArrowFunctions*/, false /*includeClassComputedPropertyName*/)
 	if container {
 		switch container.kind {
 		case SyntaxKindConstructor,
@@ -3096,7 +3096,7 @@ func isRequireCall(callExpression *Node, requireStringLiteralLikeArgument bool) 
  */
 
 func isVariableDeclarationInitializedToRequire(node *Node) bool {
-	return isVariableDeclarationInitializedWithRequireHelper(node /*allowAccessedRequire*/, false)
+	return isVariableDeclarationInitializedWithRequireHelper(node, false /*allowAccessedRequire*/)
 }
 
 /**
@@ -3106,7 +3106,7 @@ func isVariableDeclarationInitializedToRequire(node *Node) bool {
  */
 
 func isVariableDeclarationInitializedToBareOrAccessedRequire(node *Node) bool {
-	return isVariableDeclarationInitializedWithRequireHelper(node /*allowAccessedRequire*/, true)
+	return isVariableDeclarationInitializedWithRequireHelper(node, true /*allowAccessedRequire*/)
 }
 
 /** @internal */
@@ -3116,7 +3116,7 @@ func isBindingElementOfBareOrAccessedRequire(node *Node) bool {
 }
 
 func isVariableDeclarationInitializedWithRequireHelper(node *Node, allowAccessedRequire bool) bool {
-	return isVariableDeclaration(node) && node.initializer != nil && isRequireCall(ifElse(allowAccessedRequire, getLeftmostAccessExpression(node.initializer), node.initializer) /*requireStringLiteralLikeArgument*/, true)
+	return isVariableDeclaration(node) && node.initializer != nil && isRequireCall(ifElse(allowAccessedRequire, getLeftmostAccessExpression(node.initializer), node.initializer), true /*requireStringLiteralLikeArgument*/)
 }
 
 /** @internal */
@@ -3306,7 +3306,7 @@ func isSameEntityName(name Expression, initializer Expression) bool {
 /** @internal */
 
 func getRightMostAssignedExpression(node Expression) Expression {
-	for isAssignmentExpression(node /*excludeCompoundAssignment*/, true) {
+	for isAssignmentExpression(node, true /*excludeCompoundAssignment*/) {
 		node = node.right
 	}
 	return node
@@ -3345,7 +3345,7 @@ func getAssignmentDeclarationKind(expr Union[BinaryExpression, CallExpression]) 
 /** @internal */
 
 func isBindableObjectDefinePropertyCall(expr CallExpression) bool {
-	return length(expr.arguments) == 3 && isPropertyAccessExpression(expr.expression) && isIdentifier(expr.expression.expression) && idText(expr.expression.expression) == "Object" && idText(expr.expression.name) == "defineProperty" && isStringOrNumericLiteralLike(expr.arguments[1]) && isBindableStaticNameExpression(expr.arguments[0] /*excludeThisKeyword*/, true)
+	return length(expr.arguments) == 3 && isPropertyAccessExpression(expr.expression) && isIdentifier(expr.expression.expression) && idText(expr.expression.expression) == "Object" && idText(expr.expression.name) == "defineProperty" && isStringOrNumericLiteralLike(expr.arguments[1]) && isBindableStaticNameExpression(expr.arguments[0], true /*excludeThisKeyword*/)
 }
 
 /**
@@ -3371,7 +3371,7 @@ func isLiteralLikeElementAccess(node *Node) bool {
  */
 
 func isBindableStaticAccessExpression(node *Node, excludeThisKeyword bool) bool {
-	return isPropertyAccessExpression(node) && (!excludeThisKeyword && node.expression.kind == SyntaxKindThisKeyword || isIdentifier(node.name) && isBindableStaticNameExpression(node.expression /*excludeThisKeyword*/, true)) || isBindableStaticElementAccessExpression(node, excludeThisKeyword)
+	return isPropertyAccessExpression(node) && (!excludeThisKeyword && node.expression.kind == SyntaxKindThisKeyword || isIdentifier(node.name) && isBindableStaticNameExpression(node.expression, true /*excludeThisKeyword*/)) || isBindableStaticElementAccessExpression(node, excludeThisKeyword)
 }
 
 /**
@@ -3381,7 +3381,7 @@ func isBindableStaticAccessExpression(node *Node, excludeThisKeyword bool) bool 
  */
 
 func isBindableStaticElementAccessExpression(node *Node, excludeThisKeyword bool) bool {
-	return isLiteralLikeElementAccess(node) && ((!excludeThisKeyword && node.expression.kind == SyntaxKindThisKeyword) || isEntityNameExpression(node.expression) || isBindableStaticAccessExpression(node.expression /*excludeThisKeyword*/, true))
+	return isLiteralLikeElementAccess(node) && ((!excludeThisKeyword && node.expression.kind == SyntaxKindThisKeyword) || isEntityNameExpression(node.expression) || isBindableStaticAccessExpression(node.expression, true /*excludeThisKeyword*/))
 }
 
 /** @internal */
@@ -3416,7 +3416,7 @@ func getAssignmentDeclarationKindWorker(expr Union[BinaryExpression, CallExpress
 	if expr.operatorToken.kind != SyntaxKindEqualsToken || !isAccessExpression(expr.left) || isVoidZero(getRightMostAssignedExpression(expr)) {
 		return AssignmentDeclarationKindNone
 	}
-	if isBindableStaticNameExpression(expr.left.expression /*excludeThisKeyword*/, true) && getElementOrPropertyAccessName(expr.left) == "prototype" && isObjectLiteralExpression(getInitializerOfBinaryExpression(expr)) {
+	if isBindableStaticNameExpression(expr.left.expression, true /*excludeThisKeyword*/) && getElementOrPropertyAccessName(expr.left) == "prototype" && isObjectLiteralExpression(getInitializerOfBinaryExpression(expr)) {
 		// F.prototype = { ... }
 		return AssignmentDeclarationKindPrototype
 	}
@@ -3474,7 +3474,7 @@ func getAssignmentDeclarationPropertyAccessKind(lhs AccessExpression) Assignment
 	} else if isModuleExportsAccessExpression(lhs) {
 		// module.exports = expr
 		return AssignmentDeclarationKindModuleExports
-	} else if isBindableStaticNameExpression(lhs.expression /*excludeThisKeyword*/, true) {
+	} else if isBindableStaticNameExpression(lhs.expression, true /*excludeThisKeyword*/) {
 		if isPrototypeAccess(lhs.expression) {
 			// F.G....prototype.x = expr
 			return AssignmentDeclarationKindPrototypeProperty
@@ -3489,7 +3489,7 @@ func getAssignmentDeclarationPropertyAccessKind(lhs AccessExpression) Assignment
 			// exports.name = expr OR module.exports.name = expr OR exports["name"] = expr ...
 			return AssignmentDeclarationKindExportsProperty
 		}
-		if isBindableStaticNameExpression(lhs /*excludeThisKeyword*/, true) || (isElementAccessExpression(lhs) && isDynamicName(lhs)) {
+		if isBindableStaticNameExpression(lhs, true /*excludeThisKeyword*/) || (isElementAccessExpression(lhs) && isDynamicName(lhs)) {
 			// F.G...x = expr
 			return AssignmentDeclarationKindProperty
 		}
@@ -3573,7 +3573,7 @@ func tryGetModuleSpecifierFromDeclaration(node Union[CanHaveModuleSpecifier, JSD
 	case SyntaxKindVariableDeclaration,
 		SyntaxKindBindingElement:
 		return findAncestor(node.initializer, func(node *Node) bool {
-			return isRequireCall(node /*requireStringLiteralLikeArgument*/, true)
+			return isRequireCall(node, true /*requireStringLiteralLikeArgument*/)
 		}). /* ? */ arguments[0]
 	case SyntaxKindImportDeclaration,
 		SyntaxKindExportDeclaration,
@@ -3617,7 +3617,7 @@ func tryGetImportFromModuleSpecifier(node StringLiteralLike) *AnyValidImportOrRe
 	case SyntaxKindExternalModuleReference:
 		return (node.parent.AsExternalModuleReference()).parent.AsAnyValidImportOrReExport()
 	case SyntaxKindCallExpression:
-		if isImportCall(node.parent) || isRequireCall(node.parent /*requireStringLiteralLikeArgument*/, false) {
+		if isImportCall(node.parent) || isRequireCall(node.parent, false /*requireStringLiteralLikeArgument*/) {
 			return node.parent.AsRequireOrImportCall()
 		} else {
 			return nil
@@ -4206,7 +4206,7 @@ func isCompoundLikeAssignment(assignment AssignmentExpression[EqualsToken]) bool
 
 func isInCompoundLikeAssignment(node *Node) bool {
 	target := getAssignmentTarget(node)
-	return target != nil && isAssignmentExpression(target /*excludeCompoundAssignment*/, true) && isCompoundLikeAssignment(target)
+	return target != nil && isAssignmentExpression(target, true /*excludeCompoundAssignment*/) && isCompoundLikeAssignment(target)
 }
 
 /** @internal */
@@ -5915,7 +5915,7 @@ func getExternalModuleNameFromPath(host ResolveModuleNameResolutionHost, fileNam
 	}
 	dir := toPath(ifElse(referencePath, getDirectoryPath(referencePath), host.getCommonSourceDirectory()), host.getCurrentDirectory(), getCanonicalFileName)
 	filePath := getNormalizedAbsolutePath(fileName, host.getCurrentDirectory())
-	relativePath := getRelativePathToDirectoryOrUrl(dir, filePath, dir, getCanonicalFileName /*isAbsolutePathAnUrl*/, false)
+	relativePath := getRelativePathToDirectoryOrUrl(dir, filePath, dir, getCanonicalFileName, false /*isAbsolutePathAnUrl*/)
 	extensionless := removeFileExtension(relativePath)
 	if referencePath {
 		return ensurePathIsNonModuleName(extensionless)
@@ -6495,7 +6495,7 @@ func emitDetachedComments(text string, lineMap []number, writer EmitTextWriter, 
 			if nodeLine >= lastCommentLine+2 {
 				// Valid detachedComments
 				emitNewLineBeforeLeadingComments(lineMap, writer, node, leadingComments)
-				emitComments(text, lineMap, writer, detachedComments /*leadingSeparator*/, false /*trailingSeparator*/, true, newLine, writeComment)
+				emitComments(text, lineMap, writer, detachedComments, false /*leadingSeparator*/, true /*trailingSeparator*/, newLine, writeComment)
 				currentDetachedCommentInfo = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"nodePos":               node.pos,
 					"detachedCommentEndPos": last(detachedComments).end,
@@ -6723,13 +6723,13 @@ func getModifierFlagsWorker(node *Node, includeJSDoc bool, alwaysIncludeJSDoc bo
  */
 
 func getEffectiveModifierFlags(node *Node) ModifierFlags {
-	return getModifierFlagsWorker(node /*includeJSDoc*/, true)
+	return getModifierFlagsWorker(node, true /*includeJSDoc*/)
 }
 
 /** @internal */
 
 func getEffectiveModifierFlagsAlwaysIncludeJSDoc(node *Node) ModifierFlags {
-	return getModifierFlagsWorker(node /*includeJSDoc*/, true /*alwaysIncludeJSDoc*/, true)
+	return getModifierFlagsWorker(node, true /*includeJSDoc*/, true /*alwaysIncludeJSDoc*/)
 }
 
 /**
@@ -6741,7 +6741,7 @@ func getEffectiveModifierFlagsAlwaysIncludeJSDoc(node *Node) ModifierFlags {
  */
 
 func getSyntacticModifierFlags(node *Node) ModifierFlags {
-	return getModifierFlagsWorker(node /*includeJSDoc*/, false)
+	return getModifierFlagsWorker(node, false /*includeJSDoc*/)
 }
 
 func getRawJSDocModifierFlagsNoCache(node *Node) ModifierFlags {
@@ -6973,7 +6973,7 @@ func isAssignmentExpression(node *Node, excludeCompoundAssignment bool) bool {
 /** @internal */
 
 func isDestructuringAssignment(node *Node) bool {
-	if isAssignmentExpression(node /*excludeCompoundAssignment*/, true) {
+	if isAssignmentExpression(node, true /*excludeCompoundAssignment*/) {
 		kind := node.left.kind
 		return kind == SyntaxKindObjectLiteralExpression || kind == SyntaxKindArrayLiteralExpression
 	}
@@ -7446,7 +7446,7 @@ func rangeIsOnSingleLine(range_ TextRange, sourceFile SourceFile) bool {
 /** @internal */
 
 func rangeStartPositionsAreOnSameLine(range1 TextRange, range2 TextRange, sourceFile SourceFile) bool {
-	return positionsAreOnSameLine(getStartPositionOfRange(range1, sourceFile /*includeComments*/, false), getStartPositionOfRange(range2, sourceFile /*includeComments*/, false), sourceFile)
+	return positionsAreOnSameLine(getStartPositionOfRange(range1, sourceFile, false /*includeComments*/), getStartPositionOfRange(range2, sourceFile, false /*includeComments*/), sourceFile)
 }
 
 /** @internal */
@@ -7458,13 +7458,13 @@ func rangeEndPositionsAreOnSameLine(range1 TextRange, range2 TextRange, sourceFi
 /** @internal @knipignore */
 
 func rangeStartIsOnSameLineAsRangeEnd(range1 TextRange, range2 TextRange, sourceFile SourceFile) bool {
-	return positionsAreOnSameLine(getStartPositionOfRange(range1, sourceFile /*includeComments*/, false), range2.end, sourceFile)
+	return positionsAreOnSameLine(getStartPositionOfRange(range1, sourceFile, false /*includeComments*/), range2.end, sourceFile)
 }
 
 /** @internal */
 
 func rangeEndIsOnSameLineAsRangeStart(range1 TextRange, range2 TextRange, sourceFile SourceFile) bool {
-	return positionsAreOnSameLine(range1.end, getStartPositionOfRange(range2, sourceFile /*includeComments*/, false), sourceFile)
+	return positionsAreOnSameLine(range1.end, getStartPositionOfRange(range2, sourceFile, false /*includeComments*/), sourceFile)
 }
 
 /** @internal */
@@ -7498,14 +7498,14 @@ func getStartPositionOfRange(range_ TextRange, sourceFile SourceFile, includeCom
 	if positionIsSynthesized(range_.pos) {
 		return -1
 	} else {
-		return skipTrivia(sourceFile.text, range_.pos /*stopAfterLineBreak*/, false, includeComments)
+		return skipTrivia(sourceFile.text, range_.pos, false /*stopAfterLineBreak*/, includeComments)
 	}
 }
 
 /** @internal */
 
 func getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(pos number, stopPos number, sourceFile SourceFile, includeComments bool) number {
-	startPos := skipTrivia(sourceFile.text, pos /*stopAfterLineBreak*/, false, includeComments)
+	startPos := skipTrivia(sourceFile.text, pos, false /*stopAfterLineBreak*/, includeComments)
 	prevPos := getPreviousNonWhitespacePosition(startPos, stopPos, sourceFile)
 	return getLinesBetweenPositions(sourceFile, ifNotNilElse(prevPos, stopPos), startPos)
 }
@@ -7513,7 +7513,7 @@ func getLinesBetweenPositionAndPrecedingNonWhitespaceCharacter(pos number, stopP
 /** @internal */
 
 func getLinesBetweenPositionAndNextNonWhitespaceCharacter(pos number, stopPos number, sourceFile SourceFile, includeComments bool) number {
-	nextPos := skipTrivia(sourceFile.text, pos /*stopAfterLineBreak*/, false, includeComments)
+	nextPos := skipTrivia(sourceFile.text, pos, false /*stopAfterLineBreak*/, includeComments)
 	return getLinesBetweenPositions(sourceFile, pos, min(stopPos, nextPos))
 }
 
@@ -9906,7 +9906,7 @@ func getRequiresAtTopOfFile(sourceFile SourceFile) []RequireOrImportCall {
 			requires = concatenate(requires, statement.declarationList.declarations.map_(func(d /* TODO(TS-TO-GO) inferred type VariableDeclarationInitializedTo<RequireOrImportCall> */ any) RequireOrImportCall {
 				return d.initializer
 			}))
-		} else if isExpressionStatement(statement) && isRequireCall(statement.expression /*requireStringLiteralLikeArgument*/, true) {
+		} else if isExpressionStatement(statement) && isRequireCall(statement.expression, true /*requireStringLiteralLikeArgument*/) {
 			requires = append(requires, statement.expression)
 		} else {
 			nonRequireStatementCount++
@@ -9979,7 +9979,7 @@ func removeExtension(path string, extension string) string {
 /** @internal */
 
 func changeExtension(path T, newExtension string) T {
-	return changeAnyExtension(path, newExtension, extensionsToRemove /*ignoreCase*/, false).(T)
+	return changeAnyExtension(path, newExtension, extensionsToRemove, false /*ignoreCase*/).(T)
 }
 
 /**
@@ -10217,13 +10217,13 @@ type HostWithIsSourceOfProjectReferenceRedirect struct {
 /** @internal */
 
 func skipTypeChecking(sourceFile SourceFile, options CompilerOptions, host HostWithIsSourceOfProjectReferenceRedirect) bool {
-	return skipTypeCheckingWorker(sourceFile, options, host /*ignoreNoCheck*/, false)
+	return skipTypeCheckingWorker(sourceFile, options, host, false /*ignoreNoCheck*/)
 }
 
 /** @internal */
 
 func skipTypeCheckingIgnoringNoCheck(sourceFile SourceFile, options CompilerOptions, host HostWithIsSourceOfProjectReferenceRedirect) bool {
-	return skipTypeCheckingWorker(sourceFile, options, host /*ignoreNoCheck*/, true)
+	return skipTypeCheckingWorker(sourceFile, options, host, true /*ignoreNoCheck*/)
 }
 
 func skipTypeCheckingWorker(sourceFile SourceFile, options CompilerOptions, host HostWithIsSourceOfProjectReferenceRedirect, ignoreNoCheck bool) bool {
@@ -10348,7 +10348,7 @@ func pseudoBigIntToString(TODO_IDENTIFIER PseudoBigInt) string {
 /** @internal */
 
 func parseBigInt(text string) *PseudoBigInt {
-	if !isValidBigIntString(text /*roundTripOnly*/, false) {
+	if !isValidBigIntString(text, false /*roundTripOnly*/) {
 		return nil
 	}
 	return parseValidBigInt(text)
@@ -10379,7 +10379,7 @@ func isValidBigIntString(s string, roundTripOnly bool) bool {
 	if s == "" {
 		return false
 	}
-	scanner := createScanner(ScriptTargetESNext /*skipTrivia*/, false)
+	scanner := createScanner(ScriptTargetESNext, false /*skipTrivia*/)
 	success := true
 	scanner.setOnError(func() bool {
 		return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: success = false */ TODO
@@ -11343,7 +11343,7 @@ func createEvaluator(TODO_IDENTIFIER EvaluationResolver) /* TODO(TS-TO-GO) TypeN
 			}
 		case SyntaxKindStringLiteral,
 			SyntaxKindNoSubstitutionTemplateLiteral:
-			return evaluatorResult((expr.AsStringLiteralLike()).text /*isSyntacticallyString*/, true)
+			return evaluatorResult((expr.AsStringLiteralLike()).text, true /*isSyntacticallyString*/)
 		case SyntaxKindTemplateExpression:
 			return evaluateTemplateExpression(expr.AsTemplateExpression(), location)
 		case SyntaxKindNumericLiteral:
@@ -11367,7 +11367,7 @@ func createEvaluator(TODO_IDENTIFIER EvaluationResolver) /* TODO(TS-TO-GO) TypeN
 		for _, span := range expr.templateSpans {
 			spanResult := evaluate(span.expression, location)
 			if spanResult.value == nil {
-				return evaluatorResult(nil /*isSyntacticallyString*/, true)
+				return evaluatorResult(nil, true /*isSyntacticallyString*/)
 			}
 			result += spanResult.value
 			result += span.literal.text
@@ -11760,7 +11760,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 		}
 		if !(result != nil) {
 			if originalLocation != nil && isInJSFile(originalLocation) && originalLocation.parent {
-				if isRequireCall(originalLocation.parent /*requireStringLiteralLikeArgument*/, false) {
+				if isRequireCall(originalLocation.parent, false /*requireStringLiteralLikeArgument*/) {
 					return requireSymbol
 				}
 			}

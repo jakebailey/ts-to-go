@@ -102,7 +102,7 @@ func forEachEmittedFile(host EmitHost, action func(emitFileNames EmitFileNames, 
 		if buildInfoPath {
 			return action( /* TODO(TS-TO-GO) inferred type ts.EmitFileNames */ any{
 				buildInfoPath: buildInfoPath,
-			}, /*sourceFileOrBundle*/ nil)
+			}, nil /*sourceFileOrBundle*/)
 		}
 	}
 }
@@ -127,7 +127,7 @@ func getTsBuildInfoEmitOutputFilePath(options CompilerOptions) *string {
 		switch {
 		case options.outDir:
 			if options.rootDir {
-				buildInfoExtensionLess = resolvePath(options.outDir, getRelativePathFromDirectory(options.rootDir, configFileExtensionLess /*ignoreCase*/, true))
+				buildInfoExtensionLess = resolvePath(options.outDir, getRelativePathFromDirectory(options.rootDir, configFileExtensionLess, true /*ignoreCase*/))
 			} else {
 				buildInfoExtensionLess = combinePaths(options.outDir, getBaseFileName(configFileExtensionLess))
 			}
@@ -298,7 +298,7 @@ func createAddOutput() /* TODO(TS-TO-GO) inferred type { addOutput: (path: strin
 }
 
 func getSingleOutputFileNames(configFile ParsedCommandLine, addOutput /* TODO(TS-TO-GO) TypeNode IndexedAccessType: ReturnType<typeof createAddOutput>["addOutput"] */ any) {
-	TODO_IDENTIFIER := getOutputPathsForBundle(configFile.options /*forceDtsPaths*/, false)
+	TODO_IDENTIFIER := getOutputPathsForBundle(configFile.options, false /*forceDtsPaths*/)
 	addOutput(jsFilePath)
 	addOutput(sourceMapFilePath)
 	addOutput(declarationFilePath)
@@ -395,7 +395,7 @@ func getOutputFileNames(commandLine ParsedCommandLine, inputFileName string, ign
 
 func getFirstProjectOutput(configFile ParsedCommandLine, ignoreCase bool) string {
 	if configFile.options.outFile {
-		TODO_IDENTIFIER := getOutputPathsForBundle(configFile.options /*forceDtsPaths*/, false)
+		TODO_IDENTIFIER := getOutputPathsForBundle(configFile.options, false /*forceDtsPaths*/)
 		return Debug.checkDefined(jsFilePath || declarationFilePath, __TEMPLATE__("project ", configFile.options.configFilePath, " expected to have at least one output"))
 	}
 
@@ -502,7 +502,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 			version: version,
 		}
 		// Pass buildinfo as additional data to avoid having to reparse
-		writeFile(host, emitterDiagnostics, buildInfoPath, getBuildInfoText(buildInfo) /*writeByteOrderMark*/, false /*sourceFiles*/, nil, & /* TODO(TS-TO-GO) inferred type ts.WriteFileCallbackData */ any{
+		writeFile(host, emitterDiagnostics, buildInfoPath, getBuildInfoText(buildInfo), false /*writeByteOrderMark*/, nil /*sourceFiles*/, & /* TODO(TS-TO-GO) inferred type ts.WriteFileCallbackData */ any{
 			buildInfo: buildInfo,
 		})
 		emittedFilesList. /* ? */ push(buildInfoPath)
@@ -526,7 +526,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		})
 
 		// Transform the source files
-		transform := transformNodes(resolver, host, factory, compilerOptions, [] /* TODO(TS-TO-GO) inferred type ts.SourceFile | ts.Bundle */ any{sourceFileOrBundle}, scriptTransformers /*allowDtsFiles*/, false)
+		transform := transformNodes(resolver, host, factory, compilerOptions, [] /* TODO(TS-TO-GO) inferred type ts.SourceFile | ts.Bundle */ any{sourceFileOrBundle}, scriptTransformers, false /*allowDtsFiles*/)
 
 		var printerOptions PrinterOptions = /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
 			removeComments:      compilerOptions.removeComments,
@@ -602,7 +602,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 			}
 		})
 
-		declarationTransform := transformNodes(resolver, host, factory, compilerOptions, inputListOrBundle, declarationTransformers /*allowDtsFiles*/, false)
+		declarationTransform := transformNodes(resolver, host, factory, compilerOptions, inputListOrBundle, declarationTransformers, false /*allowDtsFiles*/)
 		if length(declarationTransform.diagnostics) != 0 {
 			for _, diagnostic := range declarationTransform.diagnostics {
 				emitterDiagnostics.add(diagnostic)
@@ -656,11 +656,11 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 	collectLinkedAliases := func(node *Node) {
 		if isExportAssignment(node) {
 			if node.expression.kind == SyntaxKindIdentifier {
-				resolver.collectLinkedAliases(node.expression.AsIdentifier() /*setVisibility*/, true)
+				resolver.collectLinkedAliases(node.expression.AsIdentifier(), true /*setVisibility*/)
 			}
 			return
 		} else if isExportSpecifier(node) {
-			resolver.collectLinkedAliases(node.propertyName || node.name /*setVisibility*/, true)
+			resolver.collectLinkedAliases(node.propertyName || node.name, true /*setVisibility*/)
 			return
 		}
 		forEachChild(node, collectLinkedAliases)
@@ -742,7 +742,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 			// Write the source map
 			if sourceMapFilePath {
 				sourceMap := sourceMapGenerator.toString()
-				writeFile(host, emitterDiagnostics, sourceMapFilePath, sourceMap /*writeByteOrderMark*/, false, sourceFiles)
+				writeFile(host, emitterDiagnostics, sourceMapFilePath, sourceMap, false /*writeByteOrderMark*/, sourceFiles)
 			}
 		} else {
 			writer.writeLine()
@@ -1031,12 +1031,12 @@ func (printer *Printer) printList(format ListFormat, nodes NodeArray[T], sourceF
 }
 
 func (printer *Printer) printBundle(bundle Bundle) string {
-	printer.writeBundle(bundle, printer.beginPrint() /*sourceMapGenerator*/, nil)
+	printer.writeBundle(bundle, printer.beginPrint(), nil /*sourceMapGenerator*/)
 	return printer.endPrint()
 }
 
 func (printer *Printer) printFile(sourceFile SourceFile) string {
-	printer.writeFile(sourceFile, printer.beginPrint() /*sourceMapGenerator*/, nil)
+	printer.writeFile(sourceFile, printer.beginPrint(), nil /*sourceMapGenerator*/)
 	return printer.endPrint()
 }
 
@@ -1048,7 +1048,7 @@ func (printer *Printer) printFile(sourceFile SourceFile) string {
 /* OVERLOAD: function writeNode(hint: EmitHint, node: Node, sourceFile: SourceFile, output: EmitTextWriter): void; */
 func (printer *Printer) writeNode(hint EmitHint, node *Node, sourceFile *SourceFile, output EmitTextWriter) {
 	previousWriter := printer.writer
-	printer.setWriter(output /*_sourceMapGenerator*/, nil)
+	printer.setWriter(output, nil /*_sourceMapGenerator*/)
 	printer.print(hint, node, sourceFile)
 	printer.reset()
 	printer.writer = previousWriter
@@ -1056,7 +1056,7 @@ func (printer *Printer) writeNode(hint EmitHint, node *Node, sourceFile *SourceF
 
 func (printer *Printer) writeList(format ListFormat, nodes NodeArray[T], sourceFile *SourceFile, output EmitTextWriter) {
 	previousWriter := printer.writer
-	printer.setWriter(output /*_sourceMapGenerator*/, nil)
+	printer.setWriter(output, nil /*_sourceMapGenerator*/)
 	if sourceFile != nil {
 		printer.setSourceFile(sourceFile)
 	}
@@ -1106,7 +1106,7 @@ func (printer *Printer) print(hint EmitHint, node *Node, sourceFile *SourceFile)
 		printer.setSourceFile(sourceFile)
 	}
 
-	printer.pipelineEmit(hint, node /*parenthesizerRule*/, nil)
+	printer.pipelineEmit(hint, node, nil /*parenthesizerRule*/)
 }
 
 func (printer *Printer) setSourceFile(sourceFile *SourceFile) {
@@ -1147,7 +1147,7 @@ func (printer *Printer) reset() {
 	printer.currentSourceFile = nil
 	printer.currentLineMap = nil
 	printer.detachedCommentsInfo = nil
-	printer.setWriter(nil /*_sourceMapGenerator*/, nil)
+	printer.setWriter(nil, nil /*_sourceMapGenerator*/)
 }
 
 func (printer *Printer) getCurrentLineMap() []number {
@@ -1169,7 +1169,7 @@ func (printer *Printer) emitIdentifierName(node *Identifier) {
 	if node == nil {
 		return
 	}
-	printer.pipelineEmit(EmitHintIdentifierName, node /*parenthesizerRule*/, nil)
+	printer.pipelineEmit(EmitHintIdentifierName, node, nil /*parenthesizerRule*/)
 }
 
 /* OVERLOAD: function emitExpression<T extends Expression>(node: T, parenthesizerRule?: (node: T) => T): void; */
@@ -1280,7 +1280,7 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 		return printer.emitIdentifier(cast(node, isIdentifier))
 	}
 	if hint == EmitHintJsxAttributeValue {
-		return printer.emitLiteral(cast(node, isStringLiteral) /*jsxAttributeEscape*/, true)
+		return printer.emitLiteral(cast(node, isStringLiteral), true /*jsxAttributeEscape*/)
 	}
 	if hint == EmitHintMappedTypeParameter {
 		return printer.emitMappedTypeParameter(cast(node, isTypeParameterDeclaration))
@@ -1297,7 +1297,7 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 		case SyntaxKindTemplateHead,
 			SyntaxKindTemplateMiddle,
 			SyntaxKindTemplateTail:
-			return printer.emitLiteral(node.AsLiteralExpression() /*jsxAttributeEscape*/, false)
+			return printer.emitLiteral(node.AsLiteralExpression(), false /*jsxAttributeEscape*/)
 
 			// Identifiers
 		case SyntaxKindIdentifier:
@@ -1649,7 +1649,7 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 		case SyntaxKindStringLiteral,
 			SyntaxKindRegularExpressionLiteral,
 			SyntaxKindNoSubstitutionTemplateLiteral:
-			return printer.emitLiteral(node.AsLiteralExpression() /*jsxAttributeEscape*/, false)
+			return printer.emitLiteral(node.AsLiteralExpression(), false /*jsxAttributeEscape*/)
 
 			// Identifiers
 		case SyntaxKindIdentifier:
@@ -1850,7 +1850,7 @@ func (printer *Printer) getSortedEmitHelpers(node *Node) * /* TODO(TS-TO-GO) inf
 // SyntaxKind.NumericLiteral
 // SyntaxKind.BigIntLiteral
 func (printer *Printer) emitNumericOrBigIntLiteral(node Union[NumericLiteral, BigIntLiteral]) {
-	printer.emitLiteral(node /*jsxAttributeEscape*/, false)
+	printer.emitLiteral(node, false /*jsxAttributeEscape*/)
 }
 
 // SyntaxKind.StringLiteral
@@ -1860,7 +1860,7 @@ func (printer *Printer) emitNumericOrBigIntLiteral(node Union[NumericLiteral, Bi
 // SyntaxKind.TemplateMiddle
 // SyntaxKind.TemplateTail
 func (printer *Printer) emitLiteral(node LiteralLikeNode, jsxAttributeEscape bool) {
-	text := printer.getLiteralTextOfNode(node /*sourceFile*/, nil, printerOptions.neverAsciiEscape, jsxAttributeEscape)
+	text := printer.getLiteralTextOfNode(node, nil /*sourceFile*/, printerOptions.neverAsciiEscape, jsxAttributeEscape)
 	if (printerOptions.sourceMap || printerOptions.inlineSourceMap) && (node.kind == SyntaxKindStringLiteral || isTemplateLiteralKind(node.kind)) {
 		printer.writeLiteral(text)
 	} else {
@@ -1885,7 +1885,7 @@ func (printer *Printer) emitSnippetNode(hint EmitHint, node *Node, snippet Snipp
 func (printer *Printer) emitPlaceholder(hint EmitHint, node *Node, snippet Placeholder) {
 	printer.nonEscapingWrite(__TEMPLATE__("${", snippet.order, ":"))
 	// `${2:`
-	printer.pipelineEmitWithHintWorker(hint, node /*allowSnippets*/, false)
+	printer.pipelineEmitWithHintWorker(hint, node, false /*allowSnippets*/)
 	// `...`
 	printer.nonEscapingWrite(`}`)
 	// `${2:...}`
@@ -1909,7 +1909,7 @@ func (printer *Printer) emitIdentifier(node Identifier) {
 	} else {
 		writeText = printer.write
 	}
-	writeText(printer.getTextOfNode(node /*includeTrivia*/, false), node.symbol)
+	writeText(printer.getTextOfNode(node, false /*includeTrivia*/), node.symbol)
 	printer.emitList(node, getIdentifierTypeArguments(node), ListFormatTypeParameters)
 	// Call emitList directly since it could be an array of TypeParameterDeclarations _or_ type arguments
 }
@@ -1919,7 +1919,7 @@ func (printer *Printer) emitIdentifier(node Identifier) {
 //
 
 func (printer *Printer) emitPrivateIdentifier(node PrivateIdentifier) {
-	printer.write(printer.getTextOfNode(node /*includeTrivia*/, false))
+	printer.write(printer.getTextOfNode(node, false /*includeTrivia*/))
 }
 
 func (printer *Printer) emitQualifiedName(node QualifiedName) {
@@ -1964,7 +1964,7 @@ func (printer *Printer) emitTypeParameter(node TypeParameterDeclaration) {
 }
 
 func (printer *Printer) emitParameter(node ParameterDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, true)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
 	printer.emit(node.dotDotDotToken)
 	printer.emitNodeWithWriter(node.name, printer.writeParameter)
 	printer.emit(node.questionToken)
@@ -1995,7 +1995,7 @@ func (printer *Printer) emitPropertySignature(node PropertySignature) {
 }
 
 func (printer *Printer) emitPropertyDeclaration(node PropertyDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, true)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
 	printer.emit(node.name)
 	printer.emit(node.questionToken)
 	printer.emit(node.exclamationToken)
@@ -2012,7 +2012,7 @@ func (printer *Printer) emitMethodSignature(node MethodSignature) {
 }
 
 func (printer *Printer) emitMethodDeclaration(node MethodDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, true)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
 	printer.emit(node.asteriskToken)
 	printer.emit(node.name)
 	printer.emit(node.questionToken)
@@ -2027,13 +2027,13 @@ func (printer *Printer) emitClassStaticBlockDeclaration(node ClassStaticBlockDec
 }
 
 func (printer *Printer) emitConstructor(node ConstructorDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.writeKeyword("constructor")
 	printer.emitSignatureAndBody(node, printer.emitSignatureHead, printer.emitFunctionBody)
 }
 
 func (printer *Printer) emitAccessorDeclaration(node AccessorDeclaration) {
-	pos := printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, true)
+	pos := printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
 	var token /* TODO(TS-TO-GO) inferred type ts.SyntaxKind.GetKeyword | ts.SyntaxKind.SetKeyword */ any
 	if node.kind == SyntaxKindGetAccessor {
 		token = SyntaxKindGetKeyword
@@ -2057,7 +2057,7 @@ func (printer *Printer) emitConstructSignature(node ConstructSignatureDeclaratio
 }
 
 func (printer *Printer) emitIndexSignature(node IndexSignatureDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.emitParametersForIndexSignature(node, node.parameters)
 	printer.emitTypeAnnotation(node.type_)
 	printer.writeTrailingSemicolon()
@@ -2416,7 +2416,7 @@ func (printer *Printer) emitPropertyAccessExpression(node PropertyAccessExpressi
 	linesBeforeDot := printer.getLinesBetweenNodes(node, node.expression, token)
 	linesAfterDot := printer.getLinesBetweenNodes(node, token, node.name)
 
-	printer.writeLinesAndIndent(linesBeforeDot /*writeSpaceIfNotIndenting*/, false)
+	printer.writeLinesAndIndent(linesBeforeDot, false /*writeSpaceIfNotIndenting*/)
 
 	shouldEmitDotDot := token.kind != SyntaxKindQuestionDotToken && printer.mayNeedDotDotForPropertyAccess(node.expression) && !printer.writer.hasTrailingComment() && !printer.writer.hasTrailingWhitespace()
 
@@ -2429,7 +2429,7 @@ func (printer *Printer) emitPropertyAccessExpression(node PropertyAccessExpressi
 	} else {
 		printer.emitTokenWithComment(token.kind, node.expression.end, printer.writePunctuation, node)
 	}
-	printer.writeLinesAndIndent(linesAfterDot /*writeSpaceIfNotIndenting*/, false)
+	printer.writeLinesAndIndent(linesAfterDot, false /*writeSpaceIfNotIndenting*/)
 	printer.emit(node.name)
 	printer.decreaseIndentIf(linesBeforeDot, linesAfterDot)
 }
@@ -2440,7 +2440,7 @@ func (printer *Printer) mayNeedDotDotForPropertyAccess(expression Expression) *b
 	expression = skipPartiallyEmittedExpressions(expression)
 	if isNumericLiteral(expression) {
 		// check if numeric literal is a decimal literal that was originally written with a dot
-		text := printer.getLiteralTextOfNode(expression.AsLiteralExpression() /*sourceFile*/, nil /*neverAsciiEscape*/, true /*jsxAttributeEscape*/, false)
+		text := printer.getLiteralTextOfNode(expression.AsLiteralExpression(), nil /*sourceFile*/, true /*neverAsciiEscape*/, false /*jsxAttributeEscape*/)
 		// If the number will be printed verbatim and it doesn't already contain a dot or an exponent indicator, add one
 		// if the expression doesn't have any comments that will be emitted.
 		return !(expression.numericLiteralFlags&TokenFlagsWithSpecifier != 0) && !text.includes(tokenToString(SyntaxKindDotToken)) && !text.includes(String.fromCharCode(CharacterCodesE)) && !text.includes(String.fromCharCode(CharacterCodese))
@@ -2512,7 +2512,7 @@ func (printer *Printer) emitTypeAssertionExpression(node TypeAssertion) {
 func (printer *Printer) emitParenthesizedExpression(node ParenthesizedExpression) {
 	openParenPos := printer.emitTokenWithComment(SyntaxKindOpenParenToken, node.pos, printer.writePunctuation, node)
 	indented := printer.writeLineSeparatorsAndIndentBefore(node.expression, node)
-	printer.emitExpression(node.expression /*parenthesizerRule*/, nil)
+	printer.emitExpression(node.expression, nil /*parenthesizerRule*/)
 	printer.writeLineSeparatorsAfter(node.expression, node)
 	printer.decreaseIndentIf(indented)
 	printer.emitTokenWithComment(SyntaxKindCloseParenToken, ifElse(node.expression, node.expression.end, openParenPos), printer.writePunctuation, node)
@@ -2610,7 +2610,7 @@ func (printer *Printer) createEmitBinaryExpression() /* TODO(TS-TO-GO) inferred 
 		shouldEmitSourceMapsStack        []bool
 	}
 
-	return createBinaryExpressionTrampoline(onEnter, onLeft, onOperator, onRight, onExit /*foldState*/, nil)
+	return createBinaryExpressionTrampoline(onEnter, onLeft, onOperator, onRight, onExit, nil /*foldState*/)
 
 	onEnter := func(node BinaryExpression, state *WorkArea) WorkArea {
 		if state != nil {
@@ -2654,9 +2654,9 @@ func (printer *Printer) createEmitBinaryExpression() /* TODO(TS-TO-GO) inferred 
 		printer.writeLinesAndIndent(linesBeforeOperator, isCommaOperator)
 		printer.emitLeadingCommentsOfPosition(operatorToken.pos)
 		printer.writeTokenNode(operatorToken, ifElse(operatorToken.kind == SyntaxKindInKeyword, printer.writeKeyword, printer.writeOperator))
-		printer.emitTrailingCommentsOfPosition(operatorToken.end /*prefixSpace*/, true)
+		printer.emitTrailingCommentsOfPosition(operatorToken.end, true /*prefixSpace*/)
 		// Binary operators should have a space before the comment starts
-		printer.writeLinesAndIndent(linesAfterOperator /*writeSpaceIfNotIndenting*/, true)
+		printer.writeLinesAndIndent(linesAfterOperator, true /*writeSpaceIfNotIndenting*/)
 	}
 
 	onRight := func(next Expression, _workArea WorkArea, parent BinaryExpression) * /* TODO(TS-TO-GO) inferred type ts.BinaryExpression */ any {
@@ -2721,15 +2721,15 @@ func (printer *Printer) emitConditionalExpression(node ConditionalExpression) {
 	linesAfterColon := printer.getLinesBetweenNodes(node, node.colonToken, node.whenFalse)
 
 	printer.emitExpression(node.condition, printer.parenthesizer.parenthesizeConditionOfConditionalExpression)
-	printer.writeLinesAndIndent(linesBeforeQuestion /*writeSpaceIfNotIndenting*/, true)
+	printer.writeLinesAndIndent(linesBeforeQuestion, true /*writeSpaceIfNotIndenting*/)
 	printer.emit(node.questionToken)
-	printer.writeLinesAndIndent(linesAfterQuestion /*writeSpaceIfNotIndenting*/, true)
+	printer.writeLinesAndIndent(linesAfterQuestion, true /*writeSpaceIfNotIndenting*/)
 	printer.emitExpression(node.whenTrue, printer.parenthesizer.parenthesizeBranchOfConditionalExpression)
 	printer.decreaseIndentIf(linesBeforeQuestion, linesAfterQuestion)
 
-	printer.writeLinesAndIndent(linesBeforeColon /*writeSpaceIfNotIndenting*/, true)
+	printer.writeLinesAndIndent(linesBeforeColon, true /*writeSpaceIfNotIndenting*/)
 	printer.emit(node.colonToken)
-	printer.writeLinesAndIndent(linesAfterColon /*writeSpaceIfNotIndenting*/, true)
+	printer.writeLinesAndIndent(linesAfterColon, true /*writeSpaceIfNotIndenting*/)
 	printer.emitExpression(node.whenFalse, printer.parenthesizer.parenthesizeBranchOfConditionalExpression)
 	printer.decreaseIndentIf(linesBeforeColon, linesAfterColon)
 }
@@ -2761,7 +2761,7 @@ func (printer *Printer) emitExpressionWithTypeArguments(node ExpressionWithTypeA
 }
 
 func (printer *Printer) emitAsExpression(node AsExpression) {
-	printer.emitExpression(node.expression /*parenthesizerRule*/, nil)
+	printer.emitExpression(node.expression, nil /*parenthesizerRule*/)
 	if node.type_ {
 		printer.writeSpace()
 		printer.writeKeyword("as")
@@ -2776,7 +2776,7 @@ func (printer *Printer) emitNonNullExpression(node NonNullExpression) {
 }
 
 func (printer *Printer) emitSatisfiesExpression(node SatisfiesExpression) {
-	printer.emitExpression(node.expression /*parenthesizerRule*/, nil)
+	printer.emitExpression(node.expression, nil /*parenthesizerRule*/)
 	if node.type_ {
 		printer.writeSpace()
 		printer.writeKeyword("satisfies")
@@ -2805,11 +2805,11 @@ func (printer *Printer) emitTemplateSpan(node TemplateSpan) {
 //
 
 func (printer *Printer) emitBlock(node Block) {
-	printer.emitBlockStatements(node /*forceSingleLine*/, !node.multiLine && printer.isEmptyBlock(node))
+	printer.emitBlockStatements(node, !node.multiLine && printer.isEmptyBlock(node) /*forceSingleLine*/)
 }
 
 func (printer *Printer) emitBlockStatements(node BlockLike, forceSingleLine bool) {
-	printer.emitTokenWithComment(SyntaxKindOpenBraceToken, node.pos, printer.writePunctuation /*contextNode*/, node)
+	printer.emitTokenWithComment(SyntaxKindOpenBraceToken, node.pos, printer.writePunctuation, node /*contextNode*/)
 	var format /* TODO(TS-TO-GO) inferred type ts.ListFormat.SingleLineTypeLiteralMembers | ts.ListFormat.MultiLineBlockStatements */ any
 	if forceSingleLine || getEmitFlags(node)&EmitFlagsSingleLine != 0 {
 		format = ListFormatSingleLineBlockStatements
@@ -2817,11 +2817,11 @@ func (printer *Printer) emitBlockStatements(node BlockLike, forceSingleLine bool
 		format = ListFormatMultiLineBlockStatements
 	}
 	printer.emitList(node, node.statements, format)
-	printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.statements.end, printer.writePunctuation /*contextNode*/, node /*indentLeading*/, format&ListFormatMultiLine != 0)
+	printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.statements.end, printer.writePunctuation, node /*contextNode*/, format&ListFormatMultiLine != 0 /*indentLeading*/)
 }
 
 func (printer *Printer) emitVariableStatement(node VariableStatement) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.emit(node.declarationList)
 	printer.writeTrailingSemicolon()
 }
@@ -2893,7 +2893,7 @@ func (printer *Printer) emitWhileStatement(node WhileStatement) {
 func (printer *Printer) emitForStatement(node ForStatement) {
 	openParenPos := printer.emitTokenWithComment(SyntaxKindForKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	pos := printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation /*contextNode*/, node)
+	pos := printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node /*contextNode*/)
 	printer.emitForBinding(node.initializer)
 	pos = printer.emitTokenWithComment(SyntaxKindSemicolonToken, ifElse(node.initializer != nil, node.initializer.end, pos), printer.writePunctuation, node)
 	printer.emitExpressionWithLeadingSpace(node.condition)
@@ -2982,7 +2982,7 @@ func (printer *Printer) emitTokenWithComment(token SyntaxKind, pos number, write
 
 	if isSimilarNode && contextNode.end != pos {
 		isJsxExprContext := contextNode.kind == SyntaxKindJsxExpression
-		printer.emitTrailingCommentsOfPosition(pos /*prefixSpace*/, !isJsxExprContext /*forceNoNewline*/, isJsxExprContext)
+		printer.emitTrailingCommentsOfPosition(pos, !isJsxExprContext /*prefixSpace*/, isJsxExprContext /*forceNoNewline*/)
 	}
 	return pos
 }
@@ -3044,7 +3044,7 @@ func (printer *Printer) parenthesizeExpressionForNoAsiAndDisallowedComma(node Ex
 }
 
 func (printer *Printer) emitReturnStatement(node ReturnStatement) {
-	printer.emitTokenWithComment(SyntaxKindReturnKeyword, node.pos, printer.writeKeyword /*contextNode*/, node)
+	printer.emitTokenWithComment(SyntaxKindReturnKeyword, node.pos, printer.writeKeyword, node /*contextNode*/)
 	printer.emitExpressionWithLeadingSpace(node.expression && printer.parenthesizeExpressionForNoAsi(node.expression), printer.parenthesizeExpressionForNoAsi)
 	printer.writeTrailingSemicolon()
 }
@@ -3141,7 +3141,7 @@ func (printer *Printer) emitFunctionDeclaration(node FunctionDeclaration) {
 }
 
 func (printer *Printer) emitFunctionDeclarationOrExpression(node Union[FunctionDeclaration, FunctionExpression]) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.writeKeyword("function")
 	printer.emit(node.asteriskToken)
 	printer.writeSpace()
@@ -3244,7 +3244,7 @@ func (printer *Printer) emitBlockFunctionBody(body Block) {
 }
 
 func (printer *Printer) emitBlockFunctionBodyOnSingleLine(body Block) {
-	printer.emitBlockFunctionBodyWorker(body /*emitBlockFunctionBodyOnSingleLine*/, true)
+	printer.emitBlockFunctionBodyWorker(body, true /*emitBlockFunctionBodyOnSingleLine*/)
 }
 
 func (printer *Printer) emitBlockFunctionBodyWorker(body Block, emitBlockFunctionBodyOnSingleLine bool) {
@@ -3257,7 +3257,7 @@ func (printer *Printer) emitBlockFunctionBodyWorker(body Block, emitBlockFunctio
 		printer.emitList(body, body.statements, ListFormatSingleLineFunctionBodyStatements)
 		printer.increaseIndent()
 	} else {
-		printer.emitList(body, body.statements, ListFormatMultiLineFunctionBodyStatements /*parenthesizerRule*/, nil, statementOffset)
+		printer.emitList(body, body.statements, ListFormatMultiLineFunctionBodyStatements, nil /*parenthesizerRule*/, statementOffset)
 	}
 }
 
@@ -3266,7 +3266,7 @@ func (printer *Printer) emitClassDeclaration(node ClassDeclaration) {
 }
 
 func (printer *Printer) emitClassDeclarationOrExpression(node Union[ClassDeclaration, ClassExpression]) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, true)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
 	printer.emitTokenWithComment(SyntaxKindClassKeyword, moveRangePastModifiers(node).pos, printer.writeKeyword, node)
 	if node.name != nil {
 		printer.writeSpace()
@@ -3296,7 +3296,7 @@ func (printer *Printer) emitClassDeclarationOrExpression(node Union[ClassDeclara
 }
 
 func (printer *Printer) emitInterfaceDeclaration(node InterfaceDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.writeKeyword("interface")
 	printer.writeSpace()
 	printer.emit(node.name)
@@ -3314,7 +3314,7 @@ func (printer *Printer) emitInterfaceDeclaration(node InterfaceDeclaration) {
 }
 
 func (printer *Printer) emitTypeAliasDeclaration(node TypeAliasDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.writeKeyword("type")
 	printer.writeSpace()
 	printer.emit(node.name)
@@ -3327,7 +3327,7 @@ func (printer *Printer) emitTypeAliasDeclaration(node TypeAliasDeclaration) {
 }
 
 func (printer *Printer) emitEnumDeclaration(node EnumDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.writeKeyword("enum")
 	printer.writeSpace()
 	printer.emit(node.name)
@@ -3339,7 +3339,7 @@ func (printer *Printer) emitEnumDeclaration(node EnumDeclaration) {
 }
 
 func (printer *Printer) emitModuleDeclaration(node ModuleDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	if ^node.flags&NodeFlagsGlobalAugmentation != 0 {
 		printer.writeKeyword(ifElse(node.flags&NodeFlagsNamespace != 0, "namespace", "module"))
 		printer.writeSpace()
@@ -3363,18 +3363,18 @@ func (printer *Printer) emitModuleDeclaration(node ModuleDeclaration) {
 func (printer *Printer) emitModuleBlock(node ModuleBlock) {
 	printer.pushNameGenerationScope(node)
 	forEach(node.statements, printer.generateNames)
-	printer.emitBlockStatements(node /*forceSingleLine*/, printer.isEmptyBlock(node))
+	printer.emitBlockStatements(node, printer.isEmptyBlock(node) /*forceSingleLine*/)
 	printer.popNameGenerationScope(node)
 }
 
 func (printer *Printer) emitCaseBlock(node CaseBlock) {
 	printer.emitTokenWithComment(SyntaxKindOpenBraceToken, node.pos, printer.writePunctuation, node)
 	printer.emitList(node, node.clauses, ListFormatCaseBlockClauses)
-	printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.clauses.end, printer.writePunctuation, node /*indentLeading*/, true)
+	printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.clauses.end, printer.writePunctuation, node, true /*indentLeading*/)
 }
 
 func (printer *Printer) emitImportEqualsDeclaration(node ImportEqualsDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.emitTokenWithComment(SyntaxKindImportKeyword, ifElse(node.modifiers != nil, node.modifiers.end, node.pos), printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.isTypeOnly {
@@ -3398,7 +3398,7 @@ func (printer *Printer) emitModuleReference(node ModuleReference) {
 }
 
 func (printer *Printer) emitImportDeclaration(node ImportDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	printer.emitTokenWithComment(SyntaxKindImportKeyword, ifElse(node.modifiers != nil, node.modifiers.end, node.pos), printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.importClause != nil {
@@ -3457,7 +3457,7 @@ func (printer *Printer) emitExportAssignment(node ExportAssignment) {
 }
 
 func (printer *Printer) emitExportDeclaration(node ExportDeclaration) {
-	printer.emitDecoratorsAndModifiers(node, node.modifiers /*allowDecorators*/, false)
+	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
 	nextPos := printer.emitTokenWithComment(SyntaxKindExportKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.isTypeOnly {
@@ -4065,7 +4065,7 @@ func (printer *Printer) emitSourceFileWorker(node SourceFile) {
 		return !isPrologueDirective(statement)
 	})
 	printer.emitTripleSlashDirectivesIfNeeded(node)
-	printer.emitList(node, statements, ListFormatMultiLine /*parenthesizerRule*/, nil, ifElse(index == -1, statements.length, index))
+	printer.emitList(node, statements, ListFormatMultiLine, nil /*parenthesizerRule*/, ifElse(index == -1, statements.length, index))
 	printer.popNameGenerationScope(node)
 }
 
@@ -4083,7 +4083,7 @@ func (printer *Printer) emitPartiallyEmittedExpression(node PartiallyEmittedExpr
 }
 
 func (printer *Printer) emitCommaList(node CommaListExpression) {
-	printer.emitExpressionList(node, node.elements, ListFormatCommaListElements /*parenthesizerRule*/, nil)
+	printer.emitExpressionList(node, node.elements, ListFormatCommaListElements, nil /*parenthesizerRule*/)
 }
 
 /**
@@ -4390,7 +4390,7 @@ func (printer *Printer) emitNodeList(emit EmitFunction, parentNode *Node, childr
 	if format&ListFormatBracketsMask != 0 {
 		printer.writePunctuation(getOpeningBracket(format))
 		if isEmpty && children != nil {
-			printer.emitTrailingCommentsOfPosition(children.pos /*prefixSpace*/, true)
+			printer.emitTrailingCommentsOfPosition(children.pos, true /*prefixSpace*/)
 			// Emit comments within empty bracketed lists
 		}
 	}
@@ -4484,7 +4484,7 @@ func (printer *Printer) emitNodeListItems(emit EmitFunction, parentNode *Node, c
 
 				if shouldEmitInterveningComments && format&ListFormatDelimitersMask != 0 && !positionIsSynthesized(child.pos) {
 					commentRange := getCommentRange(child)
-					printer.emitTrailingCommentsOfPosition(commentRange.pos /*prefixSpace*/, format&ListFormatSpaceBetweenSiblings != 0 /*forceNoNewline*/, true)
+					printer.emitTrailingCommentsOfPosition(commentRange.pos, format&ListFormatSpaceBetweenSiblings != 0 /*prefixSpace*/, true /*forceNoNewline*/)
 				}
 
 				printer.writeLine(separatingLineTerminatorCount)
@@ -4877,13 +4877,13 @@ func (printer *Printer) getEffectiveLines(getLineDifference func(includeComments
 func (printer *Printer) writeLineSeparatorsAndIndentBefore(node *Node, parent *Node) bool {
 	leadingNewlines := printer.preserveSourceNewlines && printer.getLeadingLineTerminatorCount(parent, node, ListFormatNone)
 	if leadingNewlines {
-		printer.writeLinesAndIndent(leadingNewlines /*writeSpaceIfNotIndenting*/, false)
+		printer.writeLinesAndIndent(leadingNewlines, false /*writeSpaceIfNotIndenting*/)
 	}
 	return leadingNewlines
 }
 
 func (printer *Printer) writeLineSeparatorsAfter(node *Node, parent *Node) {
-	trailingNewlines := printer.preserveSourceNewlines && printer.getClosingLineTerminatorCount(parent, node, ListFormatNone /*childrenTextRange*/, nil)
+	trailingNewlines := printer.preserveSourceNewlines && printer.getClosingLineTerminatorCount(parent, node, ListFormatNone, nil /*childrenTextRange*/)
 	if trailingNewlines {
 		printer.writeLine(trailingNewlines)
 	}
@@ -5377,7 +5377,7 @@ func (printer *Printer) makeUniqueName(baseName string, checkFn func(name string
 }
 
 func (printer *Printer) makeFileLevelOptimisticUniqueName(name string) string {
-	return printer.makeUniqueName(name, printer.isFileLevelUniqueNameInCurrentFile /*optimistic*/, true /*scoped*/, false /*privateName*/, false /*prefix*/, "" /*suffix*/, "")
+	return printer.makeUniqueName(name, printer.isFileLevelUniqueNameInCurrentFile, true /*optimistic*/, false /*scoped*/, false /*privateName*/, "" /*prefix*/, "" /*suffix*/)
 }
 
 /**
@@ -5390,7 +5390,7 @@ func (printer *Printer) generateNameForModuleOrEnum(node Union[ModuleDeclaration
 	if printer.isUniqueLocalName(name, tryCast(node, canHaveLocals)) {
 		return name
 	} else {
-		return printer.makeUniqueName(name, printer.isUniqueName /*optimistic*/, false /*scoped*/, false /*privateName*/, false /*prefix*/, "" /*suffix*/, "")
+		return printer.makeUniqueName(name, printer.isUniqueName, false /*optimistic*/, false /*scoped*/, false /*privateName*/, "" /*prefix*/, "" /*suffix*/)
 	}
 }
 
@@ -5407,7 +5407,7 @@ func (printer *Printer) generateNameForImportOrExportDeclaration(node Union[Impo
 	} else {
 		baseName = "module"
 	}
-	return printer.makeUniqueName(baseName, printer.isUniqueName /*optimistic*/, false /*scoped*/, false /*privateName*/, false /*prefix*/, "" /*suffix*/, "")
+	return printer.makeUniqueName(baseName, printer.isUniqueName, false /*optimistic*/, false /*scoped*/, false /*privateName*/, "" /*prefix*/, "" /*suffix*/)
 }
 
 /**
@@ -5415,7 +5415,7 @@ func (printer *Printer) generateNameForImportOrExportDeclaration(node Union[Impo
  */
 
 func (printer *Printer) generateNameForExportDefault() string {
-	return printer.makeUniqueName("default", printer.isUniqueName /*optimistic*/, false /*scoped*/, false /*privateName*/, false /*prefix*/, "" /*suffix*/, "")
+	return printer.makeUniqueName("default", printer.isUniqueName, false /*optimistic*/, false /*scoped*/, false /*privateName*/, "" /*prefix*/, "" /*suffix*/)
 }
 
 /**
@@ -5423,14 +5423,14 @@ func (printer *Printer) generateNameForExportDefault() string {
  */
 
 func (printer *Printer) generateNameForClassExpression() string {
-	return printer.makeUniqueName("class", printer.isUniqueName /*optimistic*/, false /*scoped*/, false /*privateName*/, false /*prefix*/, "" /*suffix*/, "")
+	return printer.makeUniqueName("class", printer.isUniqueName, false /*optimistic*/, false /*scoped*/, false /*privateName*/, "" /*prefix*/, "" /*suffix*/)
 }
 
 func (printer *Printer) generateNameForMethodOrAccessor(node Union[MethodDeclaration, AccessorDeclaration], privateName bool, prefix string, suffix string) string {
 	if isIdentifier(node.name) {
 		return printer.generateNameCached(node.name, privateName)
 	}
-	return printer.makeTempVariableName(TempFlagsAuto /*reservedInNestedScopes*/, false, privateName, prefix, suffix)
+	return printer.makeTempVariableName(TempFlagsAuto, false /*reservedInNestedScopes*/, privateName, prefix, suffix)
 }
 
 /**
@@ -5455,7 +5455,7 @@ func (printer *Printer) generateNameForNode(node *Node, privateName bool, flags 
 		Debug.assert(!(prefix != "") && !(suffix != "") && !privateName)
 		name := (node /* as ClassDeclaration | FunctionDeclaration */).name
 		if name != nil && !isGeneratedIdentifier(name) {
-			return printer.generateNameForNode(name /*privateName*/, false, flags, prefix, suffix)
+			return printer.generateNameForNode(name, false /*privateName*/, flags, prefix, suffix)
 		}
 		return printer.generateNameForExportDefault()
 	case SyntaxKindExportAssignment:
@@ -5469,9 +5469,9 @@ func (printer *Printer) generateNameForNode(node *Node, privateName bool, flags 
 		SyntaxKindSetAccessor:
 		return printer.generateNameForMethodOrAccessor(node /* as MethodDeclaration | AccessorDeclaration */, privateName, prefix, suffix)
 	case SyntaxKindComputedPropertyName:
-		return printer.makeTempVariableName(TempFlagsAuto /*reservedInNestedScopes*/, true, privateName, prefix, suffix)
+		return printer.makeTempVariableName(TempFlagsAuto, true /*reservedInNestedScopes*/, privateName, prefix, suffix)
 	default:
-		return printer.makeTempVariableName(TempFlagsAuto /*reservedInNestedScopes*/, false, privateName, prefix, suffix)
+		return printer.makeTempVariableName(TempFlagsAuto, false /*reservedInNestedScopes*/, privateName, prefix, suffix)
 	}
 }
 
@@ -5488,12 +5488,12 @@ func (printer *Printer) makeName(name Union[GeneratedIdentifier, GeneratedPrivat
 		return printer.makeTempVariableName(TempFlagsAuto, autoGenerate.flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0, isPrivateIdentifier(name), prefix, suffix)
 	case GeneratedIdentifierFlagsLoop:
 		Debug.assertNode(name, isIdentifier)
-		return printer.makeTempVariableName(TempFlags_i, autoGenerate.flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0 /*privateName*/, false, prefix, suffix)
+		return printer.makeTempVariableName(TempFlags_i, autoGenerate.flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0, false /*privateName*/, prefix, suffix)
 	case GeneratedIdentifierFlagsUnique:
 		return printer.makeUniqueName(idText(name), ifElse((autoGenerate.flags&GeneratedIdentifierFlagsFileLevel != 0), printer.isFileLevelUniqueNameInCurrentFile, printer.isUniqueName), autoGenerate.flags&GeneratedIdentifierFlagsOptimistic != 0, autoGenerate.flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0, isPrivateIdentifier(name), prefix, suffix)
 	}
 
-	return Debug.fail(__TEMPLATE__("Unsupported GeneratedIdentifierKind: ", Debug.formatEnum(autoGenerate.flags&GeneratedIdentifierFlagsKindMask, (ts /* as any */).GeneratedIdentifierFlags /*isFlags*/, true), "."))
+	return Debug.fail(__TEMPLATE__("Unsupported GeneratedIdentifierKind: ", Debug.formatEnum(autoGenerate.flags&GeneratedIdentifierFlagsKindMask, (ts /* as any */).GeneratedIdentifierFlags, true /*isFlags*/), "."))
 }
 
 // Comments
@@ -5548,7 +5548,7 @@ func (printer *Printer) emitLeadingCommentsOfNode(node *Node, emitFlags EmitFlag
 		// Emit leading comments if the position is not synthesized and the node
 		// has not opted out from emitting leading comments.
 		if !skipLeadingComments {
-			printer.emitLeadingComments(pos /*isEmittedNode*/, node.kind != SyntaxKindNotEmittedStatement)
+			printer.emitLeadingComments(pos, node.kind != SyntaxKindNotEmittedStatement /*isEmittedNode*/)
 		}
 
 		if !skipLeadingComments || (pos >= 0 && (emitFlags&EmitFlagsNoLeadingComments) != 0) {
@@ -5652,7 +5652,7 @@ func (printer *Printer) emitBodyWithDetachedComments(node T, detachedRange TextR
 
 	enterComment()
 	if !skipTrailingComments {
-		printer.emitLeadingComments(detachedRange.end /*isEmittedNode*/, true)
+		printer.emitLeadingComments(detachedRange.end, true /*isEmittedNode*/)
 		if printer.hasWrittenComment && !printer.writer.isAtStartOfLine() {
 			printer.writer.writeLine()
 		}
@@ -5751,7 +5751,7 @@ func (printer *Printer) emitLeadingCommentsOfPosition(pos number) {
 		return
 	}
 
-	printer.emitLeadingComments(pos /*isEmittedNode*/, true)
+	printer.emitLeadingComments(pos, true /*isEmittedNode*/)
 }
 
 func (printer *Printer) emitTrailingComments(pos number) {
@@ -5824,7 +5824,7 @@ func (printer *Printer) forEachLeadingCommentToEmit(pos number, cb func(commentP
 		if printer.hasDetachedComments(pos) {
 			printer.forEachLeadingCommentWithoutDetachedComments(cb)
 		} else {
-			forEachLeadingCommentRange(printer.currentSourceFile.text, pos, cb /*state*/, pos)
+			forEachLeadingCommentRange(printer.currentSourceFile.text, pos, cb, pos /*state*/)
 		}
 	}
 }
@@ -5852,7 +5852,7 @@ func (printer *Printer) forEachLeadingCommentWithoutDetachedComments(cb func(com
 		printer.detachedCommentsInfo = nil
 	}
 
-	forEachLeadingCommentRange(printer.currentSourceFile.text, pos, cb /*state*/, pos)
+	forEachLeadingCommentRange(printer.currentSourceFile.text, pos, cb, pos /*state*/)
 }
 
 func (printer *Printer) emitDetachedCommentsAndUpdateCommentsInfo(range_ TextRange) {

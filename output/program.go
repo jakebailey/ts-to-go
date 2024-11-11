@@ -734,7 +734,7 @@ func getEmitSyntaxForUsageLocationWorker(file Pick[SourceFile, Union[ /* TODO(TS
 		return nil
 	}
 	exprParentParent := walkUpParenthesizedExpressions(usage.parent). /* ? */ parent
-	if exprParentParent && isImportEqualsDeclaration(exprParentParent) || isRequireCall(usage.parent /*requireStringLiteralLikeArgument*/, false) {
+	if exprParentParent && isImportEqualsDeclaration(exprParentParent) || isRequireCall(usage.parent, false /*requireStringLiteralLikeArgument*/) {
 		return ModuleKindCommonJS
 	}
 	if isImportCall(walkUpParenthesizedExpressions(usage.parent)) {
@@ -901,7 +901,7 @@ func forEachResolvedProjectReference(resolvedProjectReferences *[]*ResolvedProje
 
 func forEachProjectReference(projectReferences *[]ProjectReference, resolvedProjectReferences *[]*ResolvedProjectReference, cbResolvedRef func(resolvedRef *ResolvedProjectReference, parent *ResolvedProjectReference, index number) *T, cbRef func(projectReferences *[]ProjectReference, parent *ResolvedProjectReference) *T) *T {
 	var seenResolvedRefs *Set[Path]
-	return worker(projectReferences, resolvedProjectReferences /*parent*/, nil)
+	return worker(projectReferences, resolvedProjectReferences, nil /*parent*/)
 
 	worker := func(projectReferences *[]ProjectReference, resolvedProjectReferences *[]*ResolvedProjectReference, parent *ResolvedProjectReference) *T {
 		// Visit project references first
@@ -1367,7 +1367,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	tracing. /* ? */ push(tracing.Phase.Program, "createProgram", &Args{
 		configFilePath: options.configFilePath,
 		rootDir:        options.rootDir,
-	}, /*separateBeginAndEnd*/ true)
+	}, true /*separateBeginAndEnd*/)
 	performance.mark("beforeProgram")
 
 	host := createProgramOptions.host || createCompilerHost(options)
@@ -1572,7 +1572,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			count: rootNames.length,
 		})
 		forEach(rootNames, func(name string, index number) {
-			return processRootFile(name /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, false, FileIncludeReason{
+			return processRootFile(name, false /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, FileIncludeReason{
 				kind:  FileIncludeKindRootFile,
 				index: index,
 			})
@@ -1599,7 +1599,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			resolutions := resolveTypeReferenceDirectiveNamesReusingOldState(automaticTypeDirectiveNames, containingFilename)
 			for i := 0; i < automaticTypeDirectiveNames.length; i++ {
 				// under node16/nodenext module resolution, load `types`/ata include names as cjs resolution results by passing an `undefined` mode
-				automaticTypeDirectiveResolutions.set(automaticTypeDirectiveNames[i] /*mode*/, nil, resolutions[i])
+				automaticTypeDirectiveResolutions.set(automaticTypeDirectiveNames[i], nil /*mode*/, resolutions[i])
 				processTypeReferenceDirective(automaticTypeDirectiveNames[i], nil, resolutions[i], FileIncludeReason{
 					kind:          FileIncludeKindAutomaticTypeDirectiveFile,
 					typeReference: automaticTypeDirectiveNames[i],
@@ -1618,12 +1618,12 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			// otherwise, using options specified in '--lib' instead of '--target' default library file
 			defaultLibraryFileName := getDefaultLibraryFileName()
 			if !(options.lib != nil) && defaultLibraryFileName != "" {
-				processRootFile(defaultLibraryFileName /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, FileIncludeReason{
+				processRootFile(defaultLibraryFileName, true /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, FileIncludeReason{
 					kind: FileIncludeKindLibFile,
 				})
 			} else {
 				forEach(options.lib, func(libFileName string, index number) {
-					processRootFile(pathForLibFile(libFileName) /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, false, FileIncludeReason{
+					processRootFile(pathForLibFile(libFileName), true /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, FileIncludeReason{
 						kind:  FileIncludeKindLibFile,
 						index: index,
 					})
@@ -1650,7 +1650,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		if !(host.getParsedCommandLine != nil) {
 			oldProgram.forEachResolvedProjectReference(func(resolvedProjectReference ResolvedProjectReference) {
 				if !(getResolvedProjectReferenceByPath(resolvedProjectReference.sourceFile.path) != nil) {
-					host.onReleaseOldSourceFile(resolvedProjectReference.sourceFile, oldProgram.getCompilerOptions() /*hasSourceFileByPath*/, false /*newSourceFileByResolvedPath*/, nil)
+					host.onReleaseOldSourceFile(resolvedProjectReference.sourceFile, oldProgram.getCompilerOptions(), false /*hasSourceFileByPath*/, nil /*newSourceFileByResolvedPath*/)
 				}
 			})
 		}
@@ -1821,7 +1821,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				}
 			})
 			lazyProgramDiagnosticExplainingFile.forEach(func(TODO_IDENTIFIER LazyProgramDiagnosticExplainingFile) {
-				return programDiagnostics.add(createDiagnosticExplainingFile(file /*fileProcessingReason*/, nil, diagnostic, args))
+				return programDiagnostics.add(createDiagnosticExplainingFile(file, nil /*fileProcessingReason*/, diagnostic, args))
 			})
 			lazyProgramDiagnosticExplainingFile = nil
 			fileReasonsToChain = nil
@@ -2032,7 +2032,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	getDefaultLibFilePriority := func(a SourceFile) number {
-		if containsPath(defaultLibraryPath, a.fileName /*ignoreCase*/, false) {
+		if containsPath(defaultLibraryPath, a.fileName, false /*ignoreCase*/) {
 			basename := getBaseFileName(a.fileName)
 			if basename == "lib.d.ts" || basename == "lib.es6.d.ts" {
 				return 0
@@ -2290,9 +2290,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			sourceFileOptions := getCreateSourceFileOptions(oldSourceFile.fileName, moduleResolutionCache, host, options)
 			var newSourceFile *SourceFile
 			if host.getSourceFileByPath != nil {
-				newSourceFile = host.getSourceFileByPath(oldSourceFile.fileName, oldSourceFile.resolvedPath, sourceFileOptions /*onError*/, nil, shouldCreateNewSourceFile)
+				newSourceFile = host.getSourceFileByPath(oldSourceFile.fileName, oldSourceFile.resolvedPath, sourceFileOptions, nil /*onError*/, shouldCreateNewSourceFile)
 			} else {
-				newSourceFile = host.getSourceFile(oldSourceFile.fileName, sourceFileOptions /*onError*/, nil, shouldCreateNewSourceFile)
+				newSourceFile = host.getSourceFile(oldSourceFile.fileName, sourceFileOptions, nil /*onError*/, shouldCreateNewSourceFile)
 			}
 			// TODO: GH#18217
 
@@ -2553,7 +2553,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	emitBuildInfo := func(writeFileCallback WriteFileCallback) EmitResult {
-		tracing. /* ? */ push(tracing.Phase.Emit, "emitBuildInfo", &Args{}, /*separateBeginAndEnd*/ true)
+		tracing. /* ? */ push(tracing.Phase.Emit, "emitBuildInfo", &Args{}, true /*separateBeginAndEnd*/)
 		performance.mark("beforeEmit")
 		emitResult := emitFiles(notImplementedResolver, getEmitHost(writeFileCallback), nil, noTransformers, false, true)
 
@@ -2614,7 +2614,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	emit := func(sourceFile SourceFile, writeFileCallback WriteFileCallback, cancellationToken CancellationToken, emitOnly Union[bool, EmitOnly], transformers CustomTransformers, forceDtsEmit bool, skipBuildInfo bool) EmitResult {
 		tracing. /* ? */ push(tracing.Phase.Emit, "emit", &Args{
 			path: sourceFile. /* ? */ path,
-		}, /*separateBeginAndEnd*/ true)
+		}, true /*separateBeginAndEnd*/)
 		result := runWithCancellationToken(func() EmitResult {
 			return emitWorker(program, sourceFile, writeFileCallback, cancellationToken, emitOnly, transformers, forceDtsEmit, skipBuildInfo)
 		})
@@ -2691,7 +2691,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	getBindAndCheckDiagnostics := func(sourceFile SourceFile, cancellationToken CancellationToken) []Diagnostic {
-		return getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken /*nodesToCheck*/, nil)
+		return getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken, nil /*nodesToCheck*/)
 	}
 
 	getProgramDiagnostics := func(sourceFile SourceFile) []Diagnostic {
@@ -3149,7 +3149,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	processRootFile := func(fileName string, isDefaultLib bool, ignoreNoDefaultLib bool, reason FileIncludeReason) {
-		processSourceFile(normalizePath(fileName), isDefaultLib, ignoreNoDefaultLib /*packageId*/, nil, reason)
+		processSourceFile(normalizePath(fileName), isDefaultLib, ignoreNoDefaultLib, nil /*packageId*/, reason)
 	}
 
 	fileReferenceIsEqualTo := func(a FileReference, b FileReference) bool {
@@ -3166,7 +3166,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 	createSyntheticImport := func(text string, file SourceFile) StringLiteral {
 		externalHelpersModuleReference := factory.createStringLiteral(text)
-		importDecl := factory.createImportDeclaration(nil /*importClause*/, nil, externalHelpersModuleReference)
+		importDecl := factory.createImportDeclaration(nil, nil /*importClause*/, externalHelpersModuleReference)
 		addInternalEmitFlags(importDecl, InternalEmitFlagsNeverApplyImportHelper)
 		setParent(externalHelpersModuleReference, importDecl)
 		setParent(importDecl, file)
@@ -3208,7 +3208,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 
 		for _, node := range file.statements {
-			collectModuleReferences(node /*inAmbientModule*/, false)
+			collectModuleReferences(node, false /*inAmbientModule*/)
 		}
 
 		if (file.flags&NodeFlagsPossiblyContainsDynamicImport != 0) || isJavaScriptFile {
@@ -3228,7 +3228,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				// An ExternalImportDeclaration in an AmbientExternalModuleDeclaration may reference other external modules
 				// only through top - level external module names. Relative external module names are not permitted.
 				if moduleNameExpr != nil && isStringLiteral(moduleNameExpr) && moduleNameExpr.text != "" && (!inAmbientModule || !isExternalModuleNameRelative(moduleNameExpr.text)) {
-					setParentRecursive(node /*incremental*/, false)
+					setParentRecursive(node, false /*incremental*/)
 					// we need parent data on imports before the program is fully bound, so we ensure it's set here
 					imports = append(imports, moduleNameExpr)
 					if !usesUriStyleNodeCoreModules && currentNodeModulesDepth == 0 && !file.isDeclarationFile {
@@ -3266,7 +3266,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 						body := (node.AsModuleDeclaration()).body.AsModuleBlock()
 						if body {
 							for _, statement := range body.statements {
-								collectModuleReferences(statement /*inAmbientModule*/, true)
+								collectModuleReferences(statement, true /*inAmbientModule*/)
 							}
 						}
 					}
@@ -3278,22 +3278,22 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			r := /* TODO(TS-TO-GO) Expression RegularExpressionLiteral: /import|require/g */ TODO
 			for r.exec(file.text) != /* TODO(TS-TO-GO) Expression NullKeyword: null */ TODO {
 				node := getNodeAtPosition(file, r.lastIndex)
-				if isJavaScriptFile && isRequireCall(node /*requireStringLiteralLikeArgument*/, true) {
-					setParentRecursive(node /*incremental*/, false)
+				if isJavaScriptFile && isRequireCall(node, true /*requireStringLiteralLikeArgument*/) {
+					setParentRecursive(node, false /*incremental*/)
 					// we need parent data on imports before the program is fully bound, so we ensure it's set here
 					imports = append(imports, node.arguments[0])
 				} else if isImportCall(node) && node.arguments.length >= 1 && isStringLiteralLike(node.arguments[0]) {
-					setParentRecursive(node /*incremental*/, false)
+					setParentRecursive(node, false /*incremental*/)
 					// we need parent data on imports before the program is fully bound, so we ensure it's set here
 					imports = append(imports, node.arguments[0])
 				} else if isLiteralImportTypeNode(node) {
-					setParentRecursive(node /*incremental*/, false)
+					setParentRecursive(node, false /*incremental*/)
 					// we need parent data on imports before the program is fully bound, so we ensure it's set here
 					imports = append(imports, node.argument.literal)
 				} else if isJavaScriptFile && isJSDocImportTag(node) {
 					moduleNameExpr := getExternalModuleName(node)
 					if moduleNameExpr != nil && isStringLiteral(moduleNameExpr) && moduleNameExpr.text != "" {
-						setParentRecursive(node /*incremental*/, false)
+						setParentRecursive(node, false /*incremental*/)
 						imports = append(imports, moduleNameExpr)
 					}
 				}
@@ -3399,7 +3399,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	processProjectReferenceFile := func(fileName string, reason ProjectReferenceFile) {
-		return processSourceFile(fileName /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, false /*packageId*/, nil, reason)
+		return processSourceFile(fileName, false /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, nil /*packageId*/, reason)
 	}
 
 	reportFileNamesDifferOnlyInCasingError := func(fileName string, existingFile SourceFile, reason FileIncludeReason) {
@@ -3488,7 +3488,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					file = nil
 				}
 				if file != nil {
-					addFileToFilesByName(file, path, fileName /*redirectedPath*/, nil)
+					addFileToFilesByName(file, path, fileName, nil /*redirectedPath*/)
 				}
 				return file
 			}
@@ -3496,7 +3496,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		originalFileName := fileName
 		if filesByName.has(path) {
 			file := filesByName.get(path)
-			addedReason := addFileIncludeReason(file || nil, reason /*checkExisting*/, true)
+			addedReason := addFileIncludeReason(file || nil, reason, true /*checkExisting*/)
 			// try to check if we've already seen this file but with a different casing in path
 			// NOTE: this only makes sense for case-insensitive file systems, and only on files which are not redirected
 			if file && addedReason && !(options.forceConsistentCasingInFileNames == false) {
@@ -3571,7 +3571,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				dupFile := createRedirectedSourceFile(fileFromPackageId, file, fileName, path, toPath(fileName), originalFileName, sourceFileOptions)
 				redirectTargetsMap.add(fileFromPackageId.path, fileName)
 				addFileToFilesByName(dupFile, path, fileName, redirectedPath)
-				addFileIncludeReason(dupFile, reason /*checkExisting*/, false)
+				addFileIncludeReason(dupFile, reason, false /*checkExisting*/)
 				sourceFileToPackageName.set(path, packageIdToPackageName(packageId))
 				processingOtherFiles.push(dupFile)
 				return dupFile
@@ -3596,7 +3596,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				file.packageJsonLocations = nil
 			}
 			file.packageJsonScope = sourceFileOptions.packageJsonScope
-			addFileIncludeReason(file, reason /*checkExisting*/, false)
+			addFileIncludeReason(file, reason, false /*checkExisting*/)
 
 			if host.useCaseSensitiveFileNames() {
 				pathLowerCase := toFileNameLowerCase(path)
@@ -3806,7 +3806,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			}
 
 			// resolved from the primary path
-			processSourceFile(resolvedTypeReferenceDirective.resolvedFileName /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, false, resolvedTypeReferenceDirective.packageId, reason)
+			processSourceFile(resolvedTypeReferenceDirective.resolvedFileName, false /*isDefaultLib*/, false /*ignoreNoDefaultLib*/, resolvedTypeReferenceDirective.packageId, reason)
 			// TODO: GH#18217
 
 			if resolvedTypeReferenceDirective.isExternalLibraryImport {
@@ -3869,7 +3869,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			libFileName := getLibFileNameFromLibReference(libReference)
 			if libFileName {
 				// we ignore any 'no-default-lib' reference set on this file.
-				processRootFile(pathForLibFile(libFileName) /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, true, FileIncludeReason{
+				processRootFile(pathForLibFile(libFileName), true /*isDefaultLib*/, true /*ignoreNoDefaultLib*/, FileIncludeReason{
 					kind:  FileIncludeKindLibReferenceDirective,
 					file:  file.path,
 					index: index,
@@ -3983,23 +3983,23 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		if host.getParsedCommandLine != nil {
 			commandLine = host.getParsedCommandLine(refPath)
 			if !(commandLine != nil) {
-				addFileToFilesByName(nil, sourceFilePath, refPath /*redirectedPath*/, nil)
+				addFileToFilesByName(nil, sourceFilePath, refPath, nil /*redirectedPath*/)
 				projectReferenceRedirects.set(sourceFilePath, false)
 				return nil
 			}
 			sourceFile = Debug.checkDefined(commandLine.options.configFile)
 			Debug.assert(!sourceFile.path || sourceFile.path == sourceFilePath)
-			addFileToFilesByName(sourceFile, sourceFilePath, refPath /*redirectedPath*/, nil)
+			addFileToFilesByName(sourceFile, sourceFilePath, refPath, nil /*redirectedPath*/)
 		} else {
 			// An absolute path pointing to the containing directory of the config file
 			basePath := getNormalizedAbsolutePath(getDirectoryPath(refPath), currentDirectory)
 			sourceFile = host.getSourceFile(refPath, ScriptTargetJSON) /* as JsonSourceFile | undefined */
-			addFileToFilesByName(sourceFile, sourceFilePath, refPath /*redirectedPath*/, nil)
+			addFileToFilesByName(sourceFile, sourceFilePath, refPath, nil /*redirectedPath*/)
 			if sourceFile == nil {
 				projectReferenceRedirects.set(sourceFilePath, false)
 				return nil
 			}
-			commandLine = parseJsonSourceFileConfigFileContent(sourceFile, configParsingHost, basePath /*existingOptions*/, nil, refPath)
+			commandLine = parseJsonSourceFileConfigFileContent(sourceFile, configParsingHost, basePath, nil /*existingOptions*/, refPath)
 		}
 		sourceFile.fileName = refPath
 		sourceFile.path = sourceFilePath
@@ -4341,9 +4341,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			if useInstead {
 				details := chainDiagnosticMessages(nil, Diagnostics.Use_0_instead, useInstead)
 				chain := chainDiagnosticMessages(details, message, args...)
-				createDiagnosticForOption(!value, name /*option2*/, nil, chain)
+				createDiagnosticForOption(!value, name, nil /*option2*/, chain)
 			} else {
-				createDiagnosticForOption(!value, name /*option2*/, nil, message, args...)
+				createDiagnosticForOption(!value, name, nil /*option2*/, message, args...)
 			}
 		}
 
@@ -4370,13 +4370,13 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				createDeprecatedDiagnostic("charset")
 			}
 			if options.out {
-				createDeprecatedDiagnostic("out" /*value*/, nil, "outFile")
+				createDeprecatedDiagnostic("out", nil /*value*/, "outFile")
 			}
 			if options.importsNotUsedAsValues {
-				createDeprecatedDiagnostic("importsNotUsedAsValues" /*value*/, nil, "verbatimModuleSyntax")
+				createDeprecatedDiagnostic("importsNotUsedAsValues", nil /*value*/, "verbatimModuleSyntax")
 			}
 			if options.preserveValueImports {
-				createDeprecatedDiagnostic("preserveValueImports" /*value*/, nil, "verbatimModuleSyntax")
+				createDeprecatedDiagnostic("preserveValueImports", nil /*value*/, "verbatimModuleSyntax")
 			}
 		})
 	}
@@ -4738,7 +4738,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	createOptionValueDiagnostic := func(option1 string, message DiagnosticMessage, args DiagnosticArguments) {
-		createDiagnosticForOption(false, option1 /*option2*/, nil, message, args...)
+		createDiagnosticForOption(false, option1, nil /*option2*/, message, args...)
 	}
 
 	createDiagnosticForReference := func(sourceFile *JsonSourceFile, index number, message DiagnosticMessage, args DiagnosticArguments) {
@@ -5031,7 +5031,7 @@ func updateHostForUseSourceOfProjectReferenceRedirect(host HostForUseSourceOfPro
 		}
 
 		// Project references go to source file instead of .d.ts file
-		return fileOrDirectoryExistsUsingSource(file /*isFile*/, true)
+		return fileOrDirectoryExistsUsingSource(file, true /*isFile*/)
 	}
 
 	fileExistsIfProjectReferenceDts := func(file string) *bool {

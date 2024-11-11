@@ -845,21 +845,21 @@ scan:
 /* OVERLOAD: export function forEachLeadingCommentRange<U>(text: string, pos: number, cb: (pos: number, end: number, kind: CommentKind, hasTrailingNewLine: boolean) => U): U | undefined; */
 /* OVERLOAD: export function forEachLeadingCommentRange<T, U>(text: string, pos: number, cb: (pos: number, end: number, kind: CommentKind, hasTrailingNewLine: boolean, state: T) => U, state: T): U | undefined; */
 func forEachLeadingCommentRange(text string, pos number, cb func(pos number, end number, kind CommentKind, hasTrailingNewLine bool, state T) U, state T) *U {
-	return iterateCommentRanges(false, text, pos /*trailing*/, false, cb, state)
+	return iterateCommentRanges(false, text, pos, false /*trailing*/, cb, state)
 }
 
 /* OVERLOAD: export function forEachTrailingCommentRange<U>(text: string, pos: number, cb: (pos: number, end: number, kind: CommentKind, hasTrailingNewLine: boolean) => U): U | undefined; */
 /* OVERLOAD: export function forEachTrailingCommentRange<T, U>(text: string, pos: number, cb: (pos: number, end: number, kind: CommentKind, hasTrailingNewLine: boolean, state: T) => U, state: T): U | undefined; */
 func forEachTrailingCommentRange(text string, pos number, cb func(pos number, end number, kind CommentKind, hasTrailingNewLine bool, state T) U, state T) *U {
-	return iterateCommentRanges(false, text, pos /*trailing*/, true, cb, state)
+	return iterateCommentRanges(false, text, pos, true /*trailing*/, cb, state)
 }
 
 func reduceEachLeadingCommentRange(text string, pos number, cb func(pos number, end number, kind CommentKind, hasTrailingNewLine bool, state T) U, state T, initial U) *U {
-	return iterateCommentRanges(true, text, pos /*trailing*/, false, cb, state, initial)
+	return iterateCommentRanges(true, text, pos, false /*trailing*/, cb, state, initial)
 }
 
 func reduceEachTrailingCommentRange(text string, pos number, cb func(pos number, end number, kind CommentKind, hasTrailingNewLine bool, state T) U, state T, initial U) *U {
-	return iterateCommentRanges(true, text, pos /*trailing*/, true, cb, state, initial)
+	return iterateCommentRanges(true, text, pos, true /*trailing*/, cb, state, initial)
 }
 
 func appendCommentRange(pos number, end number, kind CommentKind, hasTrailingNewLine bool, _state any, comments []CommentRange /*  = [] */) []CommentRange {
@@ -873,11 +873,11 @@ func appendCommentRange(pos number, end number, kind CommentKind, hasTrailingNew
 }
 
 func getLeadingCommentRanges(text string, pos number) *[]CommentRange {
-	return reduceEachLeadingCommentRange(text, pos, appendCommentRange /*state*/, nil /*initial*/, nil)
+	return reduceEachLeadingCommentRange(text, pos, appendCommentRange, nil /*state*/, nil /*initial*/)
 }
 
 func getTrailingCommentRanges(text string, pos number) *[]CommentRange {
-	return reduceEachTrailingCommentRange(text, pos, appendCommentRange /*state*/, nil /*initial*/, nil)
+	return reduceEachTrailingCommentRange(text, pos, appendCommentRange, nil /*state*/, nil /*initial*/)
 }
 
 /** Optionally, get the shebang */
@@ -1320,7 +1320,7 @@ func (scanner *Scanner) scanDigits() bool {
  */
 
 func (scanner *Scanner) scanExactNumberOfHexDigits(count number, canHaveSeparators bool) number {
-	valueString := scanner.scanHexDigits(count /*scanAsManyAsPossible*/, false, canHaveSeparators)
+	valueString := scanner.scanHexDigits(count, false /*scanAsManyAsPossible*/, canHaveSeparators)
 	if valueString != "" {
 		return parseInt(valueString, 16)
 	} else {
@@ -1334,7 +1334,7 @@ func (scanner *Scanner) scanExactNumberOfHexDigits(count number, canHaveSeparato
  */
 
 func (scanner *Scanner) scanMinimumNumberOfHexDigits(count number, canHaveSeparators bool) string {
-	return scanner.scanHexDigits(count /*scanAsManyAsPossible*/, true, canHaveSeparators)
+	return scanner.scanHexDigits(count, true /*scanAsManyAsPossible*/, canHaveSeparators)
 }
 
 func (scanner *Scanner) scanHexDigits(minCount number, scanAsManyAsPossible bool, canHaveSeparators bool) string {
@@ -1672,7 +1672,7 @@ func (scanner *Scanner) scanExtendedUnicodeEscape(shouldEmitInvalidEscapeError b
 	start := scanner.pos
 	scanner.pos += 3
 	escapedStart := scanner.pos
-	escapedValueString := scanner.scanMinimumNumberOfHexDigits(1 /*canHaveSeparators*/, false)
+	escapedValueString := scanner.scanMinimumNumberOfHexDigits(1, false /*canHaveSeparators*/)
 	var escapedValue number
 	if escapedValueString != "" {
 		escapedValue = parseInt(escapedValueString, 16)
@@ -1724,7 +1724,7 @@ func (scanner *Scanner) peekUnicodeEscape() number {
 	if scanner.pos+5 < scanner.end && scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesu {
 		start := scanner.pos
 		scanner.pos += 2
-		value := scanner.scanExactNumberOfHexDigits(4 /*canHaveSeparators*/, false)
+		value := scanner.scanExactNumberOfHexDigits(4, false /*canHaveSeparators*/)
 		scanner.pos = start
 		return value
 	}
@@ -1735,7 +1735,7 @@ func (scanner *Scanner) peekExtendedUnicodeEscape() number {
 	if scanner.codePointUnchecked(scanner.pos+1) == CharacterCodesu && scanner.codePointUnchecked(scanner.pos+2) == CharacterCodesopenBrace {
 		start := scanner.pos
 		scanner.pos += 3
-		escapedValueString := scanner.scanMinimumNumberOfHexDigits(1 /*canHaveSeparators*/, false)
+		escapedValueString := scanner.scanMinimumNumberOfHexDigits(1, false /*canHaveSeparators*/)
 		var escapedValue number
 		if escapedValueString != "" {
 			escapedValue = parseInt(escapedValueString, 16)
@@ -2125,7 +2125,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 		case CharacterCodes_0:
 			if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesX || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesx) {
 				scanner.pos += 2
-				scanner.tokenValue = scanner.scanMinimumNumberOfHexDigits(1 /*canHaveSeparators*/, true)
+				scanner.tokenValue = scanner.scanMinimumNumberOfHexDigits(1, true /*canHaveSeparators*/)
 				if !(scanner.tokenValue != "") {
 					scanner.error(Diagnostics.Hexadecimal_digit_expected)
 					scanner.tokenValue = "0"
@@ -2613,7 +2613,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 			}
 			if reportErrors {
 				scanner.scanRange(startOfRegExpBody, endOfRegExpBody-startOfRegExpBody, func() {
-					scanner.scanRegularExpressionWorker(regExpFlags /*annexB*/, true, namedCaptureGroups)
+					scanner.scanRegularExpressionWorker(regExpFlags, true /*annexB*/, namedCaptureGroups)
 				})
 			}
 		}
@@ -3967,11 +3967,11 @@ func (scanner *Scanner) scanRange(start number, length number, callback func() T
 }
 
 func (scanner *Scanner) lookAhead(callback func() T) T {
-	return scanner.speculationHelper(callback /*isLookahead*/, true)
+	return scanner.speculationHelper(callback, true /*isLookahead*/)
 }
 
 func (scanner *Scanner) tryScan(callback func() T) T {
-	return scanner.speculationHelper(callback /*isLookahead*/, false)
+	return scanner.speculationHelper(callback, false /*isLookahead*/)
 }
 
 func (scanner *Scanner) getText() string {

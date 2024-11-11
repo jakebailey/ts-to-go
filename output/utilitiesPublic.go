@@ -314,7 +314,7 @@ func collapseTextChangeRangesAcrossMultipleVersions(changes []TextChangeRange) T
 		newEndN = max(newEnd2, newEnd2+(newEnd1-oldEnd2))
 	}
 
-	return createTextChangeRange(createTextSpanFromBounds(oldStartN, oldEndN) /*newLength*/, newEndN-oldStartN)
+	return createTextChangeRange(createTextSpanFromBounds(oldStartN, oldEndN), newEndN-oldStartN /*newLength*/)
 }
 
 func getTypeParameterOwner(d Declaration) Declaration {
@@ -427,7 +427,7 @@ func validateLocaleAndSetLanguage(locale string, sys /* TODO(TS-TO-GO) TypeNode 
 	// First try the entire locale, then fall back to just language if that's all we have.
 	// Either ways do not fail, and fallback to the English diagnostic strings.
 	if contains(supportedLocaleDirectories, lowerCaseLocale) && !trySetLanguageAndTerritory(language, territory, errors) {
-		trySetLanguageAndTerritory(language /*territory*/, nil, errors)
+		trySetLanguageAndTerritory(language, nil /*territory*/, errors)
 	}
 
 	// Set the UI locale for string collation
@@ -810,13 +810,13 @@ func getJSDocParameterTagsWorker(param ParameterDeclaration, noCache bool) []JSD
  */
 
 func getJSDocParameterTags(param ParameterDeclaration) []JSDocParameterTag {
-	return getJSDocParameterTagsWorker(param /*noCache*/, false)
+	return getJSDocParameterTagsWorker(param, false /*noCache*/)
 }
 
 /** @internal */
 
 func getJSDocParameterTagsNoCache(param ParameterDeclaration) []JSDocParameterTag {
-	return getJSDocParameterTagsWorker(param /*noCache*/, true)
+	return getJSDocParameterTagsWorker(param, true /*noCache*/)
 }
 
 func getJSDocTypeParameterTagsWorker(param TypeParameterDeclaration, noCache bool) []JSDocTemplateTag {
@@ -840,13 +840,13 @@ func getJSDocTypeParameterTagsWorker(param TypeParameterDeclaration, noCache boo
  */
 
 func getJSDocTypeParameterTags(param TypeParameterDeclaration) []JSDocTemplateTag {
-	return getJSDocTypeParameterTagsWorker(param /*noCache*/, false)
+	return getJSDocTypeParameterTagsWorker(param, false /*noCache*/)
 }
 
 /** @internal */
 
 func getJSDocTypeParameterTagsNoCache(param TypeParameterDeclaration) []JSDocTemplateTag {
-	return getJSDocTypeParameterTagsWorker(param /*noCache*/, true)
+	return getJSDocTypeParameterTagsWorker(param, true /*noCache*/)
 }
 
 /**
@@ -887,7 +887,7 @@ func getJSDocPublicTag(node *Node) *JSDocPublicTag {
 /** @internal */
 
 func getJSDocPublicTagNoCache(node *Node) *JSDocPublicTag {
-	return getFirstJSDocTag(node, isJSDocPublicTag /*noCache*/, true)
+	return getFirstJSDocTag(node, isJSDocPublicTag, true /*noCache*/)
 }
 
 /** Gets the JSDoc private tag for the node if present */
@@ -899,7 +899,7 @@ func getJSDocPrivateTag(node *Node) *JSDocPrivateTag {
 /** @internal */
 
 func getJSDocPrivateTagNoCache(node *Node) *JSDocPrivateTag {
-	return getFirstJSDocTag(node, isJSDocPrivateTag /*noCache*/, true)
+	return getFirstJSDocTag(node, isJSDocPrivateTag, true /*noCache*/)
 }
 
 /** Gets the JSDoc protected tag for the node if present */
@@ -911,7 +911,7 @@ func getJSDocProtectedTag(node *Node) *JSDocProtectedTag {
 /** @internal */
 
 func getJSDocProtectedTagNoCache(node *Node) *JSDocProtectedTag {
-	return getFirstJSDocTag(node, isJSDocProtectedTag /*noCache*/, true)
+	return getFirstJSDocTag(node, isJSDocProtectedTag, true /*noCache*/)
 }
 
 /** Gets the JSDoc protected tag for the node if present */
@@ -923,11 +923,11 @@ func getJSDocReadonlyTag(node *Node) *JSDocReadonlyTag {
 /** @internal */
 
 func getJSDocReadonlyTagNoCache(node *Node) *JSDocReadonlyTag {
-	return getFirstJSDocTag(node, isJSDocReadonlyTag /*noCache*/, true)
+	return getFirstJSDocTag(node, isJSDocReadonlyTag, true /*noCache*/)
 }
 
 func getJSDocOverrideTagNoCache(node *Node) *JSDocOverrideTag {
-	return getFirstJSDocTag(node, isJSDocOverrideTag /*noCache*/, true)
+	return getFirstJSDocTag(node, isJSDocOverrideTag, true /*noCache*/)
 }
 
 /** Gets the JSDoc deprecated tag for the node if present */
@@ -939,7 +939,7 @@ func getJSDocDeprecatedTag(node *Node) *JSDocDeprecatedTag {
 /** @internal */
 
 func getJSDocDeprecatedTagNoCache(node *Node) *JSDocDeprecatedTag {
-	return getFirstJSDocTag(node, isJSDocDeprecatedTag /*noCache*/, true)
+	return getFirstJSDocTag(node, isJSDocDeprecatedTag, true /*noCache*/)
 }
 
 /** Gets the JSDoc enum tag for the node if present */
@@ -1058,7 +1058,7 @@ func getJSDocTagsWorker(node *Node, noCache bool) []JSDocTag {
 /** Get all JSDoc tags related to a node, including those on parent nodes. */
 
 func getJSDocTags(node *Node) []JSDocTag {
-	return getJSDocTagsWorker(node /*noCache*/, false)
+	return getJSDocTagsWorker(node, false /*noCache*/)
 }
 
 /** Get the first JSDoc tag of a specified kind, or undefined if not present. */
@@ -1572,7 +1572,7 @@ func isAutoAccessorPropertyDeclaration(node *Node) bool {
 
 func isClassInstanceProperty(node Declaration) bool {
 	if isInJSFile(node) && isExpandoPropertyDeclaration(node) {
-		return (!isBindableStaticAccessExpression(node) || !isPrototypeAccess(node.expression)) && !isBindableStaticNameExpression(node /*excludeThisKeyword*/, true)
+		return (!isBindableStaticAccessExpression(node) || !isPrototypeAccess(node.expression)) && !isBindableStaticNameExpression(node, true /*excludeThisKeyword*/)
 	}
 	return node.parent && isClassLike(node.parent) && isPropertyDeclaration(node) && !hasAccessorModifier(node)
 }
@@ -1741,7 +1741,7 @@ func isArrayBindingOrAssignmentElement(node *Node) bool {
 		SyntaxKindElementAccessExpression:
 		return true
 	}
-	return isAssignmentExpression(node /*excludeCompoundAssignment*/, true)
+	return isAssignmentExpression(node, true /*excludeCompoundAssignment*/)
 	// AssignmentElement
 }
 
@@ -2381,9 +2381,9 @@ func isInternalDeclaration(node *Node, sourceFile SourceFile) bool {
 		text := sourceFile.text
 		var commentRanges *[]CommentRange
 		if previousSibling != nil {
-			commentRanges = concatenate(getTrailingCommentRanges(text, skipTrivia(text, previousSibling.end+1 /*stopAfterLineBreak*/, false /*stopAtComments*/, true)), getLeadingCommentRanges(text, node.pos))
+			commentRanges = concatenate(getTrailingCommentRanges(text, skipTrivia(text, previousSibling.end+1, false /*stopAfterLineBreak*/, true /*stopAtComments*/)), getLeadingCommentRanges(text, node.pos))
 		} else {
-			commentRanges = getTrailingCommentRanges(text, skipTrivia(text, node.pos /*stopAfterLineBreak*/, false /*stopAtComments*/, true))
+			commentRanges = getTrailingCommentRanges(text, skipTrivia(text, node.pos, false /*stopAfterLineBreak*/, true /*stopAtComments*/))
 		}
 		return some(commentRanges) && hasInternalAnnotation(last(commentRanges), sourceFile)
 	}

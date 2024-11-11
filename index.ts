@@ -576,12 +576,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             const args = node.getArguments();
             for (let i = 0; i < args.length; i++) {
                 const expr = args[i];
+                assert(Node.isExpression(expr));
+                visitExpression(expr);
                 const comment = expr.getPreviousSibling()?.getTrailingCommentRanges().at(0)?.getText();
                 if (comment?.startsWith("/*")) {
                     writer.write(comment);
                 }
-                assert(Node.isExpression(expr));
-                visitExpression(expr);
                 writer.conditionalWrite(i < args.length - 1, ", ");
             }
             writer.write(")");
