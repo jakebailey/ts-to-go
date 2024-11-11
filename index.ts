@@ -1101,27 +1101,20 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     }
 
     function canRename(node: Node, name: string) {
-        // return false; // uncomment to go fast
-
-        if (checker.getSymbolsInScope(node, ts.SymbolFlags.Value).some(sym => sym.getName() === name)) {
-            return false;
-        }
-
-        // This is really slow
         const symbol = node.getSymbol();
-        if (symbol) {
-            const declarations = symbol!.getDeclarations();
-            for (const decl of declarations) {
-                for (const ref of findReferencesAsNodes(decl)) {
-                    if (checker.getSymbolsInScope(ref, ts.SymbolFlags.Value).some(sym => sym.getName() === name)) {
-                        return false;
-                    }
+        if (!symbol) return false;
+
+        const declarations = symbol.getDeclarations();
+        for (const decl of declarations) {
+            for (const ref of findReferencesAsNodes(decl)) {
+                const other = checker.resolveName(name, ref, ts.SymbolFlags.Value, true);
+                if (other && other !== symbol) {
+                    return false;
                 }
             }
-            return true;
         }
-
-        return false;
+        
+        return true;
     }
 
     function sanitizeName(name: string | undefined) {
