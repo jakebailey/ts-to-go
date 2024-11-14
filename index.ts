@@ -2081,6 +2081,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
     try {
         cp.execFileSync(which.sync("gofmt"), ["-w", "-s", output]);
+        
+        cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A != $B)", "-r", "$A == $B", output]);
+        cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A == $B)", "-r", "$A != $B", output]);
+
+        cp.execFileSync(which.sync("gofmt"), ["-w", "-s", output]);
+
         console.log("    All good!");
     }
     catch (e) {

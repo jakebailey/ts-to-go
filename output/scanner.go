@@ -1206,7 +1206,7 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 			// Separators in decimal and exponent parts are still allowed according to the spec
 			scanner.tokenFlags |= TokenFlagsContainsLeadingZero
 			mainFragment = "" + +scanner.tokenValue
-		} else if !(scanner.tokenValue != "") {
+		} else if scanner.tokenValue == "" {
 			// a single zero
 			mainFragment = "0"
 		} else {
@@ -1239,7 +1239,7 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		}
 		preNumericPart := scanner.pos
 		finalFragment := scanner.scanNumberFragment()
-		if !(finalFragment != "") {
+		if finalFragment == "" {
 			scanner.error(Diagnostics.Digit_expected)
 		} else {
 			scientificFragment = scanner.text.substring(end, preNumericPart) + finalFragment
@@ -1553,7 +1553,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
 		if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
 			code := parseInt(scanner.text.substring(start+1, scanner.pos), 8)
-			if flags&EscapeSequenceScanningFlagsRegularExpression != 0 && !(flags&EscapeSequenceScanningFlagsAtomEscape != 0) && ch != CharacterCodes_0 {
+			if flags&EscapeSequenceScanningFlagsRegularExpression != 0 && flags&EscapeSequenceScanningFlagsAtomEscape == 0 && ch != CharacterCodes_0 {
 				scanner.error(Diagnostics.Octal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class_If_this_was_intended_as_an_escape_sequence_use_the_syntax_0_instead, start, scanner.pos-start, "\\x"+code.toString(16).padStart(2, "0"))
 			} else {
 				scanner.error(Diagnostics.Octal_escape_sequences_are_not_allowed_Use_the_syntax_0, start, scanner.pos-start, "\\x"+code.toString(16).padStart(2, "0"))
@@ -1566,7 +1566,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		// the invalid '\8' and '\9'
 		scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
 		if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
-			if flags&EscapeSequenceScanningFlagsRegularExpression != 0 && !(flags&EscapeSequenceScanningFlagsAtomEscape != 0) {
+			if flags&EscapeSequenceScanningFlagsRegularExpression != 0 && flags&EscapeSequenceScanningFlagsAtomEscape == 0 {
 				scanner.error(Diagnostics.Decimal_escape_sequences_and_backreferences_are_not_allowed_in_a_character_class, start, scanner.pos-start)
 			} else {
 				scanner.error(Diagnostics.Escape_sequence_0_is_not_allowed, start, scanner.pos-start, scanner.text.substring(start, scanner.pos))
@@ -1595,7 +1595,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 			// '\u{DDDDDD}'
 			scanner.pos -= 2
 			result := scanner.scanExtendedUnicodeEscape(flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0)
-			if !(flags&EscapeSequenceScanningFlagsAllowExtendedUnicodeEscape != 0) {
+			if flags&EscapeSequenceScanningFlagsAllowExtendedUnicodeEscape == 0 {
 				scanner.tokenFlags |= TokenFlagsContainsInvalidEscape
 				if flags&EscapeSequenceScanningFlagsReportInvalidEscapeErrors != 0 {
 					scanner.error(Diagnostics.Unicode_escape_sequences_are_only_available_when_the_Unicode_u_flag_or_the_Unicode_Sets_v_flag_is_set, start, scanner.pos-start)
@@ -1661,7 +1661,7 @@ func (scanner *Scanner) scanEscapeSequence(flags EscapeSequenceScanningFlags) st
 		CharacterCodesparagraphSeparator:
 		return ""
 	default:
-		if flags&EscapeSequenceScanningFlagsAnyUnicodeMode != 0 || flags&EscapeSequenceScanningFlagsRegularExpression != 0 && !(flags&EscapeSequenceScanningFlagsAnnexB != 0) && isIdentifierPart(ch, languageVersion) {
+		if flags&EscapeSequenceScanningFlagsAnyUnicodeMode != 0 || flags&EscapeSequenceScanningFlagsRegularExpression != 0 && flags&EscapeSequenceScanningFlagsAnnexB == 0 && isIdentifierPart(ch, languageVersion) {
 			scanner.error(Diagnostics.This_character_cannot_be_escaped_in_a_regular_expression, scanner.pos-2, 2)
 		}
 		return String.fromCharCode(ch)
@@ -2126,7 +2126,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesX || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesx) {
 				scanner.pos += 2
 				scanner.tokenValue = scanner.scanMinimumNumberOfHexDigits(1, true /*canHaveSeparators*/)
-				if !(scanner.tokenValue != "") {
+				if scanner.tokenValue == "" {
 					scanner.error(Diagnostics.Hexadecimal_digit_expected)
 					scanner.tokenValue = "0"
 				}
@@ -2137,7 +2137,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			} else if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesB || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesb) {
 				scanner.pos += 2
 				scanner.tokenValue = scanner.scanBinaryOrOctalDigits(2)
-				if !(scanner.tokenValue != "") {
+				if scanner.tokenValue == "" {
 					scanner.error(Diagnostics.Binary_digit_expected)
 					scanner.tokenValue = "0"
 				}
@@ -2148,7 +2148,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			} else if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesO || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodeso) {
 				scanner.pos += 2
 				scanner.tokenValue = scanner.scanBinaryOrOctalDigits(8)
-				if !(scanner.tokenValue != "") {
+				if scanner.tokenValue == "" {
 					scanner.error(Diagnostics.Octal_digit_expected)
 					scanner.tokenValue = "0"
 				}
@@ -2563,7 +2563,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 					characterClassDepth++
 				} else if ch == CharacterCodescloseBracket && characterClassDepth != 0 {
 					characterClassDepth--
-				} else if !(characterClassDepth != 0) {
+				} else if characterClassDepth == 0 {
 					if ch == CharacterCodesopenBrace {
 						inDecimalQuantifier = true
 					} else if ch == CharacterCodescloseBrace && inDecimalQuantifier {
@@ -2773,7 +2773,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 				digitsStart := scanner.pos
 				scanner.scanDigits()
 				min := scanner.tokenValue
-				if !anyUnicodeModeOrNonAnnexB && !(min != "") {
+				if !anyUnicodeModeOrNonAnnexB && min == "" {
 					isPreviousTermQuantifiable = true
 					break
 				}
@@ -2781,7 +2781,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 					scanner.pos++
 					scanner.scanDigits()
 					max := scanner.tokenValue
-					if !(min != "") {
+					if min == "" {
 						if max != "" || scanner.charCodeChecked(scanner.pos) == CharacterCodescloseBrace {
 							scanner.error(Diagnostics.Incomplete_quantifier_Digit_expected, digitsStart, 0)
 						} else {
@@ -2792,7 +2792,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 					} else if max != "" && Number.parseInt(min) > Number.parseInt(max) && (anyUnicodeModeOrNonAnnexB || scanner.charCodeChecked(scanner.pos) == CharacterCodescloseBrace) {
 						scanner.error(Diagnostics.Numbers_out_of_order_in_quantifier, digitsStart, scanner.pos-digitsStart)
 					}
-				} else if !(min != "") {
+				} else if min == "" {
 					if anyUnicodeModeOrNonAnnexB {
 						scanner.error(Diagnostics.Unexpected_0_Did_you_mean_to_escape_it_with_backslash, start, 1, String.fromCharCode(ch))
 					}
@@ -2867,7 +2867,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 				scanner.error(Diagnostics.Unknown_regular_expression_flag, scanner.pos, size)
 			} else if currFlags&flag != 0 {
 				scanner.error(Diagnostics.Duplicate_regular_expression_flag, scanner.pos, size)
-			} else if !(flag&RegularExpressionFlagsModifiers != 0) {
+			} else if flag&RegularExpressionFlagsModifiers == 0 {
 				scanner.error(Diagnostics.This_regular_expression_flag_cannot_be_toggled_within_a_subpattern, scanner.pos, size)
 			} else {
 				currFlags |= flag
@@ -3034,16 +3034,16 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 				if isClassContentExit(ch) {
 					return
 				}
-				if !(minCharacter != "") && anyUnicodeModeOrNonAnnexB {
+				if minCharacter == "" && anyUnicodeModeOrNonAnnexB {
 					scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, minStart, scanner.pos-1-minStart)
 				}
 				maxStart := scanner.pos
 				maxCharacter := scanClassAtom()
-				if !(maxCharacter != "") && anyUnicodeModeOrNonAnnexB {
+				if maxCharacter == "" && anyUnicodeModeOrNonAnnexB {
 					scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, maxStart, scanner.pos-maxStart)
 					continue
 				}
-				if !(minCharacter != "") {
+				if minCharacter == "" {
 					continue
 				}
 				minCharacterValue := codePointAt(minCharacter, 0)
@@ -3141,7 +3141,7 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 					operand = scanner.text.slice(start, scanner.pos)
 					continue
 				} else {
-					if !(operand != "") {
+					if operand == "" {
 						scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, start, scanner.pos-1-start)
 					}
 					secondStart := scanner.pos
@@ -3150,11 +3150,11 @@ func (scanner *Scanner) scanRegularExpressionWorker(regExpFlags RegularExpressio
 						scanner.error(Diagnostics.Anything_that_would_possibly_match_more_than_a_single_character_is_invalid_inside_a_negated_character_class, secondStart, scanner.pos-secondStart)
 					}
 					expressionMayContainStrings = expressionMayContainStrings || mayContainStrings
-					if !(secondOperand != "") {
+					if secondOperand == "" {
 						scanner.error(Diagnostics.A_character_class_range_must_not_be_bounded_by_another_character_class, secondStart, scanner.pos-secondStart)
 						break
 					}
-					if !(operand != "") {
+					if operand == "" {
 						break
 					}
 					minCharacterValue := codePointAt(operand, 0)
@@ -3593,7 +3593,7 @@ func (scanner *Scanner) appendIfCommentDirective(commentDirectives *[]CommentDir
 
 func (scanner *Scanner) getDirectiveFromComment(text string, commentDirectiveRegEx RegExp) *CommentDirectiveType {
 	match := commentDirectiveRegEx.exec(scanner.text)
-	if !(match != nil) {
+	if match == nil {
 		return nil
 	}
 

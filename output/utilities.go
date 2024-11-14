@@ -383,7 +383,7 @@ func containsParseError(node *Node) bool {
 }
 
 func aggregateChildData(node *Node) {
-	if !(node.flags&NodeFlagsHasAggregatedChildData != 0) {
+	if node.flags&NodeFlagsHasAggregatedChildData == 0 {
 		// A node is considered to contain a parse error if:
 		//  a) the parser explicitly marked that it had an error
 		//  b) any of it's children reported that it had an error.
@@ -425,7 +425,7 @@ func getSourceFileOfModule(module *Symbol) *SourceFile {
 /** @internal */
 
 func isPlainJsFile(file *SourceFile, checkJs *bool) bool {
-	return file != nil && (file.scriptKind == ScriptKindJS || file.scriptKind == ScriptKindJSX) && !(file.checkJsDirective != nil) && checkJs == nil
+	return file != nil && (file.scriptKind == ScriptKindJS || file.scriptKind == ScriptKindJSX) && file.checkJsDirective == nil && checkJs == nil
 }
 
 /** @internal */
@@ -566,7 +566,7 @@ func isGrammarError(parent *Node, child Union[*Node, NodeArray[*Node]]) bool {
 }
 
 func isGrammarErrorElement(nodeArray *NodeArray[T], child Union[*Node, NodeArray[*Node]], isElement func(node *Node) /* TODO(TS-TO-GO) TypeNode TypePredicate: node is T */ any) bool {
-	if !(nodeArray != nil) || isArray(child) || !isElement(child) {
+	if nodeArray == nil || isArray(child) || !isElement(child) {
 		return false
 	}
 	return contains(nodeArray, child)
@@ -744,7 +744,7 @@ func getNonDecoratorTokenPosOfNode(node *Node, sourceFile SourceFileLike) number
 	} else {
 		lastDecorator = nil
 	}
-	if !(lastDecorator != nil) {
+	if lastDecorator == nil {
 		return getTokenPosOfNode(node, sourceFile)
 	}
 
@@ -760,7 +760,7 @@ func getNonModifierTokenPosOfNode(node *Node, sourceFile SourceFileLike) number 
 	} else {
 		lastModifier = nil
 	}
-	if !(lastModifier != nil) {
+	if lastModifier == nil {
 		return getTokenPosOfNode(node, sourceFile)
 	}
 
@@ -1220,7 +1220,7 @@ func isShorthandAmbientModuleSymbol(moduleSymbol *Symbol) bool {
 
 func isShorthandAmbientModule(node *Node) bool {
 	// The only kind of module that can be missing a body is a shorthand ambient module.
-	return node != nil && node.kind == SyntaxKindModuleDeclaration && (!((node.AsModuleDeclaration()).body != nil))
+	return node != nil && node.kind == SyntaxKindModuleDeclaration && ((node.AsModuleDeclaration()).body == nil)
 }
 
 /** @internal */
@@ -1478,7 +1478,7 @@ func forEachEnclosingBlockScopeContainer(node *Node, cb func(container *Node)) {
 // text of the expression in the computed property.
 
 func declarationNameToString(name Union[DeclarationName, QualifiedName, undefined]) string {
-	if !(name != nil) || getFullWidth(name) == 0 {
+	if name == nil || getFullWidth(name) == 0 {
 		return "(Missing)"
 	} else {
 		return getTextOfNode(name)
@@ -1920,7 +1920,7 @@ func isHoistedFunction(node Statement) bool {
 }
 
 func isHoistedVariable(node VariableDeclaration) bool {
-	return isIdentifier(node.name) && !(node.initializer != nil)
+	return isIdentifier(node.name) && node.initializer == nil
 }
 
 /** @internal */
@@ -2802,7 +2802,7 @@ func classElementOrClassElementParameterIsDecorated(useLegacyDecorators bool, no
 		default:
 			firstAccessorWithDecorators = nil
 		}
-		if !(firstAccessorWithDecorators != nil) || node != firstAccessorWithDecorators {
+		if firstAccessorWithDecorators == nil || node != firstAccessorWithDecorators {
 			return false
 		}
 		parameters = setAccessor. /* ? */ parameters
@@ -3530,7 +3530,7 @@ func isSpecialPropertyDeclaration(expr Union[PropertyAccessExpression, ElementAc
 
 func setValueDeclaration(symbol *Symbol, node Declaration) {
 	TODO_IDENTIFIER := symbol
-	if !(valueDeclaration != nil) || !(node.flags&NodeFlagsAmbient != 0 && !isInJSFile(node) && !(valueDeclaration.flags&NodeFlagsAmbient != 0)) && (isAssignmentDeclaration(valueDeclaration) && !isAssignmentDeclaration(node)) || (valueDeclaration.kind != node.kind && isEffectiveModuleDeclaration(valueDeclaration)) {
+	if valueDeclaration == nil || !(node.flags&NodeFlagsAmbient != 0 && !isInJSFile(node) && valueDeclaration.flags&NodeFlagsAmbient == 0) && (isAssignmentDeclaration(valueDeclaration) && !isAssignmentDeclaration(node)) || (valueDeclaration.kind != node.kind && isEffectiveModuleDeclaration(valueDeclaration)) {
 		// other kinds of value declarations take precedence over modules and assignment declarations
 		symbol.valueDeclaration = node
 	}
@@ -3539,7 +3539,7 @@ func setValueDeclaration(symbol *Symbol, node Declaration) {
 /** @internal */
 
 func isFunctionSymbol(symbol *Symbol) *bool {
-	if !(symbol != nil) || !(symbol.valueDeclaration != nil) {
+	if symbol == nil || symbol.valueDeclaration == nil {
 		return false
 	}
 	decl := symbol.valueDeclaration
@@ -4004,7 +4004,7 @@ func getParameterSymbolFromJSDoc(node JSDocParameterTag) *Symbol {
 	}
 	name := node.name.escapedText
 	decl := getHostSignatureFromJSDoc(node)
-	if !(decl != nil) {
+	if decl == nil {
 		return nil
 	}
 	parameter := find(decl.parameters, func(p ParameterDeclaration) bool {
@@ -4067,7 +4067,7 @@ func getEffectiveJSDocHost(node *Node) *Node {
 
 func getJSDocHost(node *Node) *HasJSDoc {
 	jsDoc := getJSDocRoot(node)
-	if !(jsDoc != nil) {
+	if jsDoc == nil {
 		return nil
 	}
 
@@ -4168,7 +4168,7 @@ func getAssignmentTarget(node *Node) *AssignmentTarget {
 
 func getAssignmentTargetKind(node *Node) AssignmentKind {
 	target := getAssignmentTarget(node)
-	if !(target != nil) {
+	if target == nil {
 		return AssignmentKindNone
 	}
 	switch target.kind {
@@ -4643,7 +4643,7 @@ const (
 /** @internal */
 
 func getFunctionFlags(node *SignatureDeclaration) FunctionFlags {
-	if !(node != nil) {
+	if node == nil {
 		return FunctionFlagsInvalid
 	}
 
@@ -4662,7 +4662,7 @@ func getFunctionFlags(node *SignatureDeclaration) FunctionFlags {
 		}
 	}
 
-	if !((node.AsFunctionLikeDeclaration()).body != nil) {
+	if (node.AsFunctionLikeDeclaration()).body == nil {
 		flags |= FunctionFlagsInvalid
 	}
 
@@ -4879,9 +4879,9 @@ func isNamedEvaluationSource(node *Node) bool {
 	case SyntaxKindVariableDeclaration:
 		return isIdentifier((node.AsVariableDeclaration()).name) && (node.AsVariableDeclaration()).initializer != nil
 	case SyntaxKindParameter:
-		return isIdentifier((node.AsParameterDeclaration()).name) && (node.AsVariableDeclaration()).initializer != nil && !((node.AsBindingElement()).dotDotDotToken != nil)
+		return isIdentifier((node.AsParameterDeclaration()).name) && (node.AsVariableDeclaration()).initializer != nil && (node.AsBindingElement()).dotDotDotToken == nil
 	case SyntaxKindBindingElement:
-		return isIdentifier((node.AsBindingElement()).name) && (node.AsVariableDeclaration()).initializer != nil && !((node.AsBindingElement()).dotDotDotToken != nil)
+		return isIdentifier((node.AsBindingElement()).name) && (node.AsVariableDeclaration()).initializer != nil && (node.AsBindingElement()).dotDotDotToken == nil
 	case SyntaxKindPropertyDeclaration:
 		return (node.AsPropertyDeclaration()).initializer != nil
 	case SyntaxKindBinaryExpression:
@@ -5401,7 +5401,7 @@ func createDiagnosticCollection() DiagnosticCollection {
 		} else {
 			diagnostics = nonFileDiagnostics
 		}
-		if !(diagnostics != nil) {
+		if diagnostics == nil {
 			return nil
 		}
 		result := binarySearch(diagnostics, diagnostic, identity, compareDiagnosticsSkipRelatedInformation)
@@ -5418,7 +5418,7 @@ func createDiagnosticCollection() DiagnosticCollection {
 		var diagnostics *SortedArray[Diagnostic]
 		if diagnostic.file != nil {
 			diagnostics = fileDiagnostics.get(diagnostic.file.fileName)
-			if !(diagnostics != nil) {
+			if diagnostics == nil {
 				diagnostics = []never{}. /* as Diagnostic[] */ (SortedArray[DiagnosticWithLocation])
 				// See GH#19873
 				fileDiagnostics.set(diagnostic.file.fileName, diagnostics.(SortedArray[DiagnosticWithLocation]))
@@ -5452,7 +5452,7 @@ func createDiagnosticCollection() DiagnosticCollection {
 		var fileDiags []Diagnostic = flatMapToMutable(filesWithDiagnostics, func(f string) * /* TODO(TS-TO-GO) inferred type SortedArray<DiagnosticWithLocation> */ any {
 			return fileDiagnostics.get(f)
 		})
-		if !(nonFileDiagnostics.length != 0) {
+		if nonFileDiagnostics.length == 0 {
 			return fileDiags
 		}
 		fileDiags.unshift(nonFileDiagnostics...)
@@ -5892,7 +5892,7 @@ func getCanonicalAbsolutePath(host ResolveModuleNameResolutionHost, path string)
 
 func getExternalModuleNameFromDeclaration(host ResolveModuleNameResolutionHost, resolver EmitResolver, declaration Union[ImportEqualsDeclaration, ImportDeclaration, ExportDeclaration, ModuleDeclaration, ImportTypeNode]) *string {
 	file := resolver.getExternalModuleFileFromDeclaration(declaration)
-	if !(file != nil) || file.isDeclarationFile {
+	if file == nil || file.isDeclarationFile {
 		return nil
 	}
 	// If the declaration already uses a non-relative name, and is outside the common source directory, continue to use it
@@ -6003,7 +6003,7 @@ func getPossibleOriginalInputExtensionForExtension(path string) []Extension {
  */
 
 func getPathsBasePath(options CompilerOptions, host /* TODO(TS-TO-GO) TypeNode TypeLiteral: { getCurrentDirectory?(): string; } */ any) *string {
-	if !(options.paths != nil) {
+	if options.paths == nil {
 		return nil
 	}
 	return ifNotNilElse(options.baseUrl, Debug.checkDefined(options.pathsBasePath || host.getCurrentDirectory(), "Encountered 'paths' without a 'baseUrl', config file, or host 'getCurrentDirectory'."))
@@ -6700,12 +6700,12 @@ func getModifierFlagsWorker(node *Node, includeJSDoc bool, alwaysIncludeJSDoc bo
 		return ModifierFlagsNone
 	}
 
-	if !(node.modifierFlagsCache&ModifierFlagsHasComputedFlags != 0) {
+	if node.modifierFlagsCache&ModifierFlagsHasComputedFlags == 0 {
 		node.modifierFlagsCache = getSyntacticModifierFlagsNoCache(node) | ModifierFlagsHasComputedFlags
 	}
 
 	if alwaysIncludeJSDoc || includeJSDoc && isInJSFile(node) {
-		if !(node.modifierFlagsCache&ModifierFlagsHasComputedJSDocModifiers != 0) && node.parent {
+		if node.modifierFlagsCache&ModifierFlagsHasComputedJSDocModifiers == 0 && node.parent {
 			node.modifierFlagsCache |= getRawJSDocModifierFlagsNoCache(node) | ModifierFlagsHasComputedJSDocModifiers
 		}
 		return selectEffectiveModifierFlags(node.modifierFlagsCache)
@@ -7096,7 +7096,7 @@ func isEmptyArrayLiteral(expression *Node) bool {
 /** @internal */
 
 func getLocalSymbolForExportDefault(symbol *Symbol) *Symbol {
-	if !isExportDefaultSymbol(symbol) || !(symbol.declarations != nil) {
+	if !isExportDefaultSymbol(symbol) || symbol.declarations == nil {
 		return nil
 	}
 	for _, decl := range symbol.declarations {
@@ -7291,7 +7291,7 @@ func readJsonOrUndefined(path string, hostOrText Union[ /* TODO(TS-TO-GO) TypeNo
 	}
 	// gracefully handle if readFile fails or returns not JSON
 	result := parseConfigFileTextToJson(path, jsonText)
-	if !(result.error != nil) {
+	if result.error == nil {
 		return result.config
 	} else {
 		return nil
@@ -7319,7 +7319,7 @@ func tryParseJson(text string) any {
 
 func directoryProbablyExists(directoryName string, host /* TODO(TS-TO-GO) TypeNode TypeLiteral: { directoryExists?: (directoryName: string) => boolean; } */ any) bool {
 	// if host does not support 'directoryExists' assume that directory will exist
-	return !(host.directoryExists != nil) || host.directoryExists(directoryName)
+	return host.directoryExists == nil || host.directoryExists(directoryName)
 }
 
 var carriageReturnLineFeed = "\r\n"
@@ -8199,7 +8199,7 @@ func setLocalizedDiagnosticMessages(messages *MapLike[string]) {
 // If the localized messages json is unset, and if given function use it to set the json
 
 func maybeSetLocalizedDiagnosticMessages(getMessages *func() *MapLike[string]) {
-	if !(localizedDiagnosticMessages != nil) && getMessages != nil {
+	if localizedDiagnosticMessages == nil && getMessages != nil {
 		localizedDiagnosticMessages = getMessages()
 	}
 }
@@ -8400,7 +8400,7 @@ func compareDiagnosticsSkipRelatedInformation(d1 Diagnostic, d2 Diagnostic) Comp
 // A diagnostic with more elaboration should be considered *less than* a diagnostic
 // with less elaboration that is otherwise similar.
 func compareRelatedInformation(d1 Diagnostic, d2 Diagnostic) Comparison {
-	if !(d1.relatedInformation != nil) && !(d2.relatedInformation != nil) {
+	if d1.relatedInformation == nil && d2.relatedInformation == nil {
 		return ComparisonEqualTo
 	}
 	if d1.relatedInformation != nil && d2.relatedInformation != nil {
@@ -8451,10 +8451,10 @@ func compareMessageText(d1 Diagnostic, d2 Diagnostic) Comparison {
 		return res
 	}
 
-	if d1.canonicalHead != nil && !(d2.canonicalHead != nil) {
+	if d1.canonicalHead != nil && d2.canonicalHead == nil {
 		return ComparisonLessThan
 	}
-	if d2.canonicalHead != nil && !(d1.canonicalHead != nil) {
+	if d2.canonicalHead != nil && d1.canonicalHead == nil {
 		return ComparisonGreaterThan
 	}
 
@@ -8574,7 +8574,7 @@ func getLanguageVariant(scriptKind ScriptKind) LanguageVariant {
  */
 
 func walkTreeForJSXTags(node *Node) *Node {
-	if !(node.transformFlags&TransformFlagsContainsJsx != 0) {
+	if node.transformFlags&TransformFlagsContainsJsx == 0 {
 		return nil
 	}
 	if isJsxOpeningLikeElement(node) || isJsxFragment(node) {
@@ -9192,7 +9192,7 @@ func createSymlinkCache(cwd string, getCanonicalFileName GetCanonicalFileName) S
 	}
 
 	processResolution := func(cache SymlinkCache, resolution Union[ResolvedModuleFull, ResolvedTypeReferenceDirective, undefined]) {
-		if !(resolution != nil) || !resolution.originalPath || !resolution.resolvedFileName {
+		if resolution == nil || !resolution.originalPath || !resolution.resolvedFileName {
 			return
 		}
 		TODO_IDENTIFIER := resolution
@@ -9326,7 +9326,7 @@ var wildcardMatchers = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 
 func getRegularExpressionForWildcard(specs *[]string, basePath string, usage Union[ /* TODO(TS-TO-GO) TypeNode LiteralType: "files" */ any /* TODO(TS-TO-GO) TypeNode LiteralType: "directories" */, any /* TODO(TS-TO-GO) TypeNode LiteralType: "exclude" */, any]) *string {
 	patterns := getRegularExpressionsForWildcards(specs, basePath, usage)
-	if !(patterns != nil) || !(patterns.length != 0) {
+	if patterns == nil || patterns.length == 0 {
 		return nil
 	}
 
@@ -9557,7 +9557,7 @@ func matchFiles(path string, extensions *[]string, excludes *[]string, includes 
 			if excludeRegex && excludeRegex.test(absoluteName) {
 				continue
 			}
-			if !(includeFileRegexes != nil) {
+			if includeFileRegexes == nil {
 				results[0].push(name)
 			} else {
 				includeIndex := findIndex(includeFileRegexes, func(re RegExp) bool {
@@ -9722,7 +9722,7 @@ var extensionsNotSupportingExtensionlessResolution []Extension = [] /* TODO(TS-T
 func getSupportedExtensions(options CompilerOptions, extraFileExtensions []FileExtensionInfo) [][]string {
 	needJsExtensions := options && getAllowJSCompilerOption(options)
 
-	if !(extraFileExtensions != nil) || extraFileExtensions.length == 0 {
+	if extraFileExtensions == nil || extraFileExtensions.length == 0 {
 		if needJsExtensions {
 			return allSupportedExtensions
 		} else {
@@ -9751,7 +9751,7 @@ func getSupportedExtensions(options CompilerOptions, extraFileExtensions []FileE
 /** @internal */
 
 func getSupportedExtensionsWithJsonIfResolveJsonModule(options *CompilerOptions, supportedExtensions [][]string) [][]string {
-	if !(options != nil) || !getResolveJsonModule(options) {
+	if options == nil || !getResolveJsonModule(options) {
 		return supportedExtensions
 	}
 	if supportedExtensions == allSupportedExtensions {
@@ -9918,7 +9918,7 @@ func getRequiresAtTopOfFile(sourceFile SourceFile) []RequireOrImportCall {
 /** @internal */
 
 func isSupportedSourceFileName(fileName string, compilerOptions CompilerOptions, extraFileExtensions []FileExtensionInfo) bool {
-	if !(fileName != "") {
+	if fileName == "" {
 		return false
 	}
 
@@ -10156,10 +10156,10 @@ func sliceAfter(arr []T, value T) []T {
 /** @internal */
 
 func addRelatedInfo(diagnostic T, relatedInformation []DiagnosticRelatedInformation) T {
-	if !(relatedInformation.length != 0) {
+	if relatedInformation.length == 0 {
 		return diagnostic
 	}
-	if !(diagnostic.relatedInformation != nil) {
+	if diagnostic.relatedInformation == nil {
 		diagnostic.relatedInformation = []never{}
 	}
 	Debug.assert(diagnostic.relatedInformation != emptyArray, "Diagnostic had empty array singleton for related info, but is still being constructed!")
@@ -10396,7 +10396,7 @@ func isValidBigIntString(s string, roundTripOnly bool) bool {
 	// * a bigint can be scanned, and that when it is scanned, it is
 	// * the full length of the input string (so the scanner is one character beyond the augmented input length)
 	// * it does not contain a numeric seperator (the `BigInt` constructor does not accept a numeric seperator in its input)
-	return success && result == SyntaxKindBigIntLiteral && scanner.getTokenEnd() == (s.length+1) && !(flags&TokenFlagsContainsSeparator != 0) && (!roundTripOnly || s == pseudoBigIntToString(PseudoBigInt{
+	return success && result == SyntaxKindBigIntLiteral && scanner.getTokenEnd() == (s.length+1) && flags&TokenFlagsContainsSeparator == 0 && (!roundTripOnly || s == pseudoBigIntToString(PseudoBigInt{
 		negative:    negative,
 		base10Value: parsePseudoBigInt(scanner.getTokenValue()),
 	}))
@@ -10565,7 +10565,7 @@ func setParent(child *T, parent * /* TODO(TS-TO-GO) TypeNode IndexedAccessType: 
 /** @internal */
 
 func setParentRecursive(rootNode *T, incremental bool) *T {
-	if !(rootNode != nil) {
+	if rootNode == nil {
 		return rootNode
 	}
 	forEachChildRecursively(rootNode, ifElse(isJSDocNode(rootNode), bindParentToChildIgnoringJSDoc, bindParentToChild))
@@ -10771,10 +10771,10 @@ func getContainingNodeArray(node *Node) *NodeArray[*Node] {
 
 func hasContextSensitiveParameters(node FunctionLikeDeclaration) bool {
 	// Functions with type parameters are not context sensitive.
-	if !(node.typeParameters != nil) {
+	if node.typeParameters == nil {
 		// Functions with any parameters that lack type annotations are context sensitive.
 		if some(node.parameters, func(p ParameterDeclaration) bool {
-			return !(getEffectiveTypeAnnotationNode(p) != nil)
+			return getEffectiveTypeAnnotationNode(p) == nil
 		}) {
 			return true
 		}
@@ -11551,7 +11551,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 				}
 			case SyntaxKindEnumDeclaration:
 				if /* TODO(TS-TO-GO) EqualsToken BinaryExpression: result = lookup(getSymbolOfDeclaration(location as EnumDeclaration)?.exports || emptySymbols, name, meaning & SymbolFlags.EnumMember) */ TODO != nil {
-					if nameNotFoundMessage != nil && getIsolatedModules(compilerOptions) && !(location.flags&NodeFlagsAmbient != 0) && getSourceFileOfNode(location) != getSourceFileOfNode(result.valueDeclaration) {
+					if nameNotFoundMessage != nil && getIsolatedModules(compilerOptions) && location.flags&NodeFlagsAmbient == 0 && getSourceFileOfNode(location) != getSourceFileOfNode(result.valueDeclaration) {
 						error(originalLocation, Diagnostics.Cannot_access_0_from_another_file_without_qualification_when_1_is_enabled_Use_2_instead, unescapeLeadingUnderscores(name), isolatedModulesLikeFlagName, __TEMPLATE__(unescapeLeadingUnderscores(getSymbolOfDeclaration(location.AsEnumDeclaration()).escapedName), ".", unescapeLeadingUnderscores(name)))
 					}
 					break loop
@@ -11701,13 +11701,13 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 				}
 			case SyntaxKindParameter:
 				if lastLocation != nil && (lastLocation == (location.AsParameterDeclaration()).initializer || lastLocation == (location.AsParameterDeclaration()).name && isBindingPattern(lastLocation)) {
-					if !(associatedDeclarationForContainingInitializerOrBindingName != nil) {
+					if associatedDeclarationForContainingInitializerOrBindingName == nil {
 						associatedDeclarationForContainingInitializerOrBindingName = location.AsParameterDeclaration()
 					}
 				}
 			case SyntaxKindBindingElement:
 				if lastLocation != nil && (lastLocation == (location.AsBindingElement()).initializer || lastLocation == (location.AsBindingElement()).name && isBindingPattern(lastLocation)) {
-					if isPartOfParameterDeclaration(location.AsBindingElement()) && !(associatedDeclarationForContainingInitializerOrBindingName != nil) {
+					if isPartOfParameterDeclaration(location.AsBindingElement()) && associatedDeclarationForContainingInitializerOrBindingName == nil {
 						associatedDeclarationForContainingInitializerOrBindingName = location.AsBindingElement()
 					}
 				}
@@ -11742,11 +11742,11 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 		// We just climbed up parents looking for the name, meaning that we started in a descendant node of `lastLocation`.
 		// If `result === lastSelfReferenceLocation.symbol`, that means that we are somewhere inside `lastSelfReferenceLocation` looking up a name, and resolving to `lastLocation` itself.
 		// That means that this is a self-reference of `lastLocation`, and shouldn't count this when considering whether `lastLocation` is used.
-		if isUse && result != nil && (!(lastSelfReferenceLocation != nil) || result != lastSelfReferenceLocation.symbol) {
+		if isUse && result != nil && (lastSelfReferenceLocation == nil || result != lastSelfReferenceLocation.symbol) {
 			result.isReferenced |= meaning
 		}
 
-		if !(result != nil) {
+		if result == nil {
 			if lastLocation != nil {
 				Debug.assertNode(lastLocation, isSourceFile)
 				if lastLocation.commonJsModuleIndicator != nil && name == "exports" && meaning&lastLocation.symbol.flags != 0 {
@@ -11758,7 +11758,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 				result = lookup(globals, name, meaning)
 			}
 		}
-		if !(result != nil) {
+		if result == nil {
 			if originalLocation != nil && isInJSFile(originalLocation) && originalLocation.parent {
 				if isRequireCall(originalLocation.parent, false /*requireStringLiteralLikeArgument*/) {
 					return requireSymbol
@@ -11770,7 +11770,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 			if propertyWithInvalidInitializer != nil && onPropertyWithInvalidInitializer(originalLocation, name, propertyWithInvalidInitializer, result) {
 				return nil
 			}
-			if !(result != nil) {
+			if result == nil {
 				onFailedToResolveSymbol(originalLocation, nameArg, meaning, nameNotFoundMessage)
 			} else {
 				onSuccessfullyResolvedSymbol(originalLocation, result, meaning, lastLocation, associatedDeclarationForContainingInitializerOrBindingName, withinDeferredContext)
@@ -11843,7 +11843,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 	getIsDeferredContext := func(location *Node, lastLocation *Node) bool {
 		if location.kind != SyntaxKindArrowFunction && location.kind != SyntaxKindFunctionExpression {
 			// initializers in instance property declaration of class like entities are executed in constructor and thus deferred
-			return isTypeQueryNode(location) || ((isFunctionLikeDeclaration(location) || (location.kind == SyntaxKindPropertyDeclaration && !isStatic(location))) && (!(lastLocation != nil) || lastLocation != (location /* as SignatureDeclaration | PropertyDeclaration */).name))
+			return isTypeQueryNode(location) || ((isFunctionLikeDeclaration(location) || (location.kind == SyntaxKindPropertyDeclaration && !isStatic(location))) && (lastLocation == nil || lastLocation != (location /* as SignatureDeclaration | PropertyDeclaration */).name))
 			// A name is evaluated within the enclosing scope - so it shouldn't count as deferred
 		}
 		if lastLocation != nil && lastLocation == (location /* as FunctionExpression | ArrowFunction */).name {
@@ -11853,7 +11853,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 		if (location /* as FunctionExpression | ArrowFunction */).asteriskToken != nil || hasSyntacticModifier(location, ModifierFlagsAsync) {
 			return true
 		}
-		return !(getImmediatelyInvokedFunctionExpression(location) != nil)
+		return getImmediatelyInvokedFunctionExpression(location) == nil
 	}
 
 	type SelfReferenceLocation Union[ParameterDeclaration, FunctionDeclaration, ClassDeclaration, InterfaceDeclaration, EnumDeclaration, TypeAliasDeclaration, ModuleDeclaration]
@@ -11958,7 +11958,7 @@ func hasInferredType(node *Node) bool {
 
 func isSideEffectImport(node *Node) bool {
 	ancestor := findAncestor(node, isImportDeclaration)
-	return ancestor != nil && !(ancestor.importClause != nil)
+	return ancestor != nil && ancestor.importClause == nil
 }
 
 // require('module').builtinModules.filter(x => !x.startsWith('_'))
