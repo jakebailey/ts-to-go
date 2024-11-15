@@ -163,9 +163,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case "unknown":
                 return "any";
             case "Symbol":
-                return "*Symbol";
+                return "*ast.Symbol";
             case "Node":
-                return "*Node";
+                return "*ast.Node";
             case "Type":
                 return "*Type";
         }

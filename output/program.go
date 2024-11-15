@@ -764,7 +764,7 @@ func getEmitSyntaxForUsageLocationWorker(file Pick[SourceFile, Union[ /* TODO(TS
 
 /** @internal */
 
-func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(node *Node, diagnostic DiagnosticMessage)) *ResolutionMode {
+func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(node *ast.Node, diagnostic DiagnosticMessage)) *ResolutionMode {
 	if node == nil {
 		return nil
 	}
@@ -2680,7 +2680,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		return getDiagnosticsHelper(sourceFile, getSyntacticDiagnosticsForFile, cancellationToken)
 	}
 
-	getSemanticDiagnostics := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck []*Node) []Diagnostic {
+	getSemanticDiagnostics := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck []*ast.Node) []Diagnostic {
 		return getDiagnosticsHelper(sourceFile, func(sourceFile SourceFile, cancellationToken CancellationToken) []Diagnostic {
 			return getSemanticDiagnosticsForFile(sourceFile, cancellationToken, nodesToCheck)
 		}, cancellationToken)
@@ -2738,11 +2738,11 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 	}
 
-	getSemanticDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*Node) []Diagnostic {
+	getSemanticDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*ast.Node) []Diagnostic {
 		return concatenate(filterSemanticDiagnostics(getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken, nodesToCheck), options), getProgramDiagnostics(sourceFile))
 	}
 
-	getBindAndCheckDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*Node) []Diagnostic {
+	getBindAndCheckDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*ast.Node) []Diagnostic {
 		if nodesToCheck != nil {
 			return getBindAndCheckDiagnosticsForFileNoCache(sourceFile, cancellationToken, nodesToCheck)
 		}
@@ -2753,7 +2753,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		return result
 	}
 
-	getBindAndCheckDiagnosticsForFileNoCache := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck []*Node) []Diagnostic {
+	getBindAndCheckDiagnosticsForFileNoCache := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck []*ast.Node) []Diagnostic {
 		return runWithCancellationToken(func() []Diagnostic {
 			if skipTypeChecking(sourceFile, options, program) {
 				return emptyArray
@@ -2867,7 +2867,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 			return diagnostics
 
-			walk := func(node *Node, parent *Node) * /* TODO(TS-TO-GO) inferred type "skip" */ any {
+			walk := func(node *ast.Node, parent *ast.Node) * /* TODO(TS-TO-GO) inferred type "skip" */ any {
 				// Return directly from the case if the given node doesnt want to visit each child
 				// Otherwise break to visit each child
 
@@ -2971,7 +2971,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				}
 			}
 
-			walkArray := func(nodes NodeArray[*Node], parent *Node) * /* TODO(TS-TO-GO) inferred type "skip" */ any {
+			walkArray := func(nodes NodeArray[*ast.Node], parent *ast.Node) * /* TODO(TS-TO-GO) inferred type "skip" */ any {
 				if canHaveIllegalDecorators(parent) {
 					decorator := find(parent.modifiers, isDecorator)
 					if decorator != nil {
@@ -3083,14 +3083,14 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				}
 			}
 
-			createDiagnosticForNodeArray := func(nodes NodeArray[*Node], message DiagnosticMessage, args DiagnosticArguments) DiagnosticWithLocation {
+			createDiagnosticForNodeArray := func(nodes NodeArray[*ast.Node], message DiagnosticMessage, args DiagnosticArguments) DiagnosticWithLocation {
 				start := nodes.pos
 				return createFileDiagnostic(sourceFile, start, nodes.end-start, message, args...)
 			}
 
 			// Since these are syntactic diagnostics, parent might not have been set
 			// this means the sourceFile cannot be infered from the node
-			createDiagnosticForNode := func(node *Node, message DiagnosticMessage, args DiagnosticArguments) DiagnosticWithLocation {
+			createDiagnosticForNode := func(node *ast.Node, message DiagnosticMessage, args DiagnosticArguments) DiagnosticWithLocation {
 				return createDiagnosticForNodeInSourceFile(sourceFile, node, message, args...)
 			}
 
@@ -3172,8 +3172,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		setParent(importDecl, file)
 		// explicitly unset the synthesized flag on these declarations so the checker API will answer questions about them
 		// (which is required to build the dependency graph for incremental emit)
-		(externalHelpersModuleReference.(Mutable[*Node])).flags &^= ast.NodeFlagsSynthesized
-		(importDecl.(Mutable[*Node])).flags &^= ast.NodeFlagsSynthesized
+		(externalHelpersModuleReference.(Mutable[*ast.Node])).flags &^= ast.NodeFlagsSynthesized
+		(importDecl.(Mutable[*ast.Node])).flags &^= ast.NodeFlagsSynthesized
 		return externalHelpersModuleReference
 	}
 
@@ -3243,7 +3243,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				}
 			} else if isModuleDeclaration(node) {
 				if isAmbientModule(node) && (inAmbientModule || hasSyntacticModifier(node, ast.ModifierFlagsAmbient) || file.isDeclarationFile) {
-					(node.name.(Mutable[*Node])).parent = node
+					(node.name.(Mutable[*ast.Node])).parent = node
 					nameText := getTextOfIdentifierOrLiteral(node.name)
 					// Ambient module declarations can be interpreted as augmentations for some existing external modules.
 					// This will happen in two cases:
@@ -3302,9 +3302,9 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 		/** Returns a token if position is in [start-of-leading-trivia, end), includes JSDoc only in JS files */
 
-		getNodeAtPosition := func(sourceFile SourceFile, position number) *Node {
-			var current *Node = sourceFile
-			getContainingChild := func(child *Node) *Node {
+		getNodeAtPosition := func(sourceFile SourceFile, position number) *ast.Node {
+			var current *ast.Node = sourceFile
+			getContainingChild := func(child *ast.Node) **ast.Node {
 				if child.pos <= position && (position < child.end || (position == child.end && (child.kind == ast.KindEndOfFileToken))) {
 					return child
 				}
@@ -4564,7 +4564,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		if options.configFile == nil {
 			return nil
 		}
-		var configFileNode *Node
+		var configFileNode *ast.Node
 		var message DiagnosticMessage
 		switch reason.kind {
 		case FileIncludeKindRootFile:
