@@ -572,7 +572,7 @@ func forEachChildInObjectOrArrayBindingPattern(node BindingPattern, cbNode func(
 }
 
 func forEachChildInCallOrNewExpression(node Union[CallExpression, NewExpression], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.expression) || visitNode(cbNode, node.AsCallExpression().questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
+	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node.AsCallExpression()).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
 }
 
 func forEachChildInBlock(node Union[Block, ModuleBlock], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
@@ -3205,13 +3205,13 @@ func parseTypeReference() TypeReferenceNode {
 func typeHasArrowFunctionBlockingParseError(node TypeNode) bool {
 	switch node.kind {
 	case ast.KindTypeReference:
-		return nodeIsMissing(node.AsTypeReferenceNode().typeName)
+		return nodeIsMissing((node.AsTypeReferenceNode()).typeName)
 	case ast.KindFunctionType,
 		ast.KindConstructorType:
 		TODO_IDENTIFIER := node.AsFunctionOrConstructorTypeNode()
 		return isMissingList(parameters) || typeHasArrowFunctionBlockingParseError(t)
 	case ast.KindParenthesizedType:
-		return typeHasArrowFunctionBlockingParseError(node.AsParenthesizedTypeNode().type_)
+		return typeHasArrowFunctionBlockingParseError((node.AsParenthesizedTypeNode()).type_)
 	default:
 		return false
 	}
@@ -4865,7 +4865,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 
 	unwrappedType := t
 	for unwrappedType. /* ? */ kind == ast.KindParenthesizedType {
-		unwrappedType = unwrappedType.AsParenthesizedTypeNode().type_
+		unwrappedType = (unwrappedType.AsParenthesizedTypeNode()).type_
 		// Skip parens if need be
 	}
 
@@ -5847,7 +5847,7 @@ func parseMemberExpressionRest(pos number, expression LeftHandSideExpression, al
 		if isTemplateStartOfTaggedTemplate() {
 			// Absorb type arguments into TemplateExpression when preceding expression is ExpressionWithTypeArguments
 			if questionDotToken == nil && expression.kind == ast.KindExpressionWithTypeArguments {
-				expression = parseTaggedTemplateRest(pos, expression.AsExpressionWithTypeArguments().expression, questionDotToken, expression.AsExpressionWithTypeArguments().typeArguments)
+				expression = parseTaggedTemplateRest(pos, (expression.AsExpressionWithTypeArguments()).expression, questionDotToken, (expression.AsExpressionWithTypeArguments()).typeArguments)
 			} else {
 				expression = parseTaggedTemplateRest(pos, expression, questionDotToken, nil /*typeArguments*/)
 			}
@@ -5899,8 +5899,8 @@ func parseCallExpressionRest(pos number, expression LeftHandSideExpression) Left
 		if typeArguments != nil || token() == ast.KindOpenParenToken {
 			// Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments
 			if !questionDotToken && expression.kind == ast.KindExpressionWithTypeArguments {
-				typeArguments = expression.AsExpressionWithTypeArguments().typeArguments
-				expression = expression.AsExpressionWithTypeArguments().expression
+				typeArguments = (expression.AsExpressionWithTypeArguments()).typeArguments
+				expression = (expression.AsExpressionWithTypeArguments()).expression
 			}
 			argumentList := parseArgumentList()
 			var callExpr CallExpression
@@ -6216,8 +6216,8 @@ func parseNewExpressionOrNewDotTarget() Union[NewExpression, MetaProperty] {
 	var typeArguments *NodeArray[TypeNode]
 	// Absorb type arguments into NewExpression when preceding expression is ExpressionWithTypeArguments
 	if expression.kind == ast.KindExpressionWithTypeArguments {
-		typeArguments = expression.AsExpressionWithTypeArguments().typeArguments
-		expression = expression.AsExpressionWithTypeArguments().expression
+		typeArguments = (expression.AsExpressionWithTypeArguments()).typeArguments
+		expression = (expression.AsExpressionWithTypeArguments()).expression
 	}
 	if token() == ast.KindQuestionDotToken {
 		parseErrorAtCurrentToken(Diagnostics.Invalid_optional_chain_from_new_expression_Did_you_mean_to_call_0, getTextOfNodeFromSourceText(sourceText, expression))
@@ -8843,7 +8843,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		case ast.KindObjectKeyword:
 			return true
 		case ast.KindArrayType:
-			return isObjectOrObjectArrayTypeReference(node.AsArrayTypeNode().elementType)
+			return isObjectOrObjectArrayTypeReference((node.AsArrayTypeNode()).elementType)
 		default:
 			return isTypeReferenceNode(node) && isIdentifierNode(node.typeName) && node.typeName.escapedText == "Object" && node.typeArguments == nil
 		}
@@ -10305,7 +10305,7 @@ func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) b
 	}
 
 	if lhs.kind == ast.KindIdentifier {
-		return lhs.escapedText == rhs.AsIdentifier().escapedText
+		return lhs.escapedText == (rhs.AsIdentifier()).escapedText
 	}
 
 	if lhs.kind == ast.KindThisKeyword {
@@ -10313,11 +10313,11 @@ func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) b
 	}
 
 	if lhs.kind == ast.KindJsxNamespacedName {
-		return lhs.namespace.escapedText == rhs.AsJsxNamespacedName().namespace.escapedText && lhs.name.escapedText == rhs.AsJsxNamespacedName().name.escapedText
+		return lhs.namespace.escapedText == (rhs.AsJsxNamespacedName()).namespace.escapedText && lhs.name.escapedText == (rhs.AsJsxNamespacedName()).name.escapedText
 	}
 
 	// If we are at this statement then we must have PropertyAccessExpression and because tag name in Jsx element can only
 	// take forms of JsxTagNameExpression which includes an identifier, "this" expression, or another propertyAccessExpression
 	// it is safe to case the expression property as such. See parseJsxElementName for how we parse tag name in Jsx element
-	return lhs.AsPropertyAccessExpression().name.escapedText == rhs.AsPropertyAccessExpression().name.escapedText && tagNamesAreEquivalent(lhs.AsPropertyAccessExpression().expression.AsJsxTagNameExpression(), rhs.AsPropertyAccessExpression().expression.AsJsxTagNameExpression())
+	return (lhs.AsPropertyAccessExpression()).name.escapedText == (rhs.AsPropertyAccessExpression()).name.escapedText && tagNamesAreEquivalent((lhs.AsPropertyAccessExpression()).expression.AsJsxTagNameExpression(), (rhs.AsPropertyAccessExpression()).expression.AsJsxTagNameExpression())
 }

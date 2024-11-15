@@ -2103,8 +2103,6 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         
         cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A != $B)", "-r", "$A == $B", output]);
         cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A == $B)", "-r", "$A != $B", output]);
-        
-        cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "($A.$B())", "-r", "$A.$B()", output]);
 
         cp.execFileSync(which.sync("gofmt"), ["-w", "-s", output]);
 

@@ -2897,18 +2897,18 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 				switch node.kind {
 				case ast.KindImportClause:
-					if node.AsImportClause().isTypeOnly {
+					if (node.AsImportClause()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(parent, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, "import type"))
 						return "skip"
 					}
 				case ast.KindExportDeclaration:
-					if node.AsExportDeclaration().isTypeOnly {
+					if (node.AsExportDeclaration()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, "export type"))
 						return "skip"
 					}
 				case ast.KindImportSpecifier,
 					ast.KindExportSpecifier:
-					if node.AsImportOrExportSpecifier().isTypeOnly {
+					if (node.AsImportOrExportSpecifier()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, ifElse(isImportSpecifier(node), "import...type", "export...type")))
 						return "skip"
 					}
@@ -2916,7 +2916,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.import_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case ast.KindExportAssignment:
-					if node.AsExportAssignment().isExportEquals {
+					if (node.AsExportAssignment()).isExportEquals {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.export_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -2947,7 +2947,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				case ast.KindConstructor,
 					ast.KindMethodDeclaration,
 					ast.KindFunctionDeclaration:
-					if node.AsFunctionLikeDeclaration().body == nil {
+					if (node.AsFunctionLikeDeclaration()).body == nil {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.Signature_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -2960,10 +2960,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.Non_null_assertions_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case ast.KindAsExpression:
-					diagnostics.push(createDiagnosticForNode(node.AsAsExpression().type_, Diagnostics.Type_assertion_expressions_can_only_be_used_in_TypeScript_files))
+					diagnostics.push(createDiagnosticForNode((node.AsAsExpression()).type_, Diagnostics.Type_assertion_expressions_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case ast.KindSatisfiesExpression:
-					diagnostics.push(createDiagnosticForNode(node.AsSatisfiesExpression().type_, Diagnostics.Type_satisfaction_expressions_can_only_be_used_in_TypeScript_files))
+					diagnostics.push(createDiagnosticForNode((node.AsSatisfiesExpression()).type_, Diagnostics.Type_satisfaction_expressions_can_only_be_used_in_TypeScript_files))
 					return "skip"
 				case ast.KindTypeAssertionExpression:
 					Debug.fail()
@@ -3013,20 +3013,20 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					ast.KindFunctionDeclaration,
 					ast.KindArrowFunction:
 					// Check type parameters
-					if nodes == parent.AsDeclarationWithTypeParameterChildren().typeParameters {
+					if nodes == (parent.AsDeclarationWithTypeParameterChildren()).typeParameters {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_parameter_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
 					fallthrough
 				case ast.KindVariableStatement:
 					// Check modifiers
-					if nodes == parent.AsVariableStatement().modifiers {
-						checkModifiers(parent.AsVariableStatement().modifiers, parent.kind == ast.KindVariableStatement)
+					if nodes == (parent.AsVariableStatement()).modifiers {
+						checkModifiers((parent.AsVariableStatement()).modifiers, parent.kind == ast.KindVariableStatement)
 						return "skip"
 					}
 				case ast.KindPropertyDeclaration:
 					// Check modifiers of property declaration
-					if nodes == parent.AsPropertyDeclaration().modifiers {
+					if nodes == (parent.AsPropertyDeclaration()).modifiers {
 						for _, modifier := range nodes.(NodeArray[ModifierLike]) {
 							if isModifier(modifier) && modifier.kind != ast.KindStaticKeyword && modifier.kind != ast.KindAccessorKeyword {
 								diagnostics.push(createDiagnosticForNode(modifier, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, tokenToString(modifier.kind)))
@@ -3036,7 +3036,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					}
 				case ast.KindParameter:
 					// Check modifiers of parameter declaration
-					if nodes == parent.AsParameterDeclaration().modifiers && some(nodes, isModifier) {
+					if nodes == (parent.AsParameterDeclaration()).modifiers && some(nodes, isModifier) {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Parameter_modifiers_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -3047,7 +3047,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					ast.KindJsxOpeningElement,
 					ast.KindTaggedTemplateExpression:
 					// Check type arguments
-					if nodes == parent.AsNodeWithTypeArguments().typeArguments {
+					if nodes == (parent.AsNodeWithTypeArguments()).typeArguments {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_arguments_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -3263,7 +3263,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 						// Relative external module names are not permitted
 
 						// NOTE: body of ambient module is always a module block, if it exists
-						body := node.AsModuleDeclaration().body.AsModuleBlock()
+						body := (node.AsModuleDeclaration()).body.AsModuleBlock()
 						if body {
 							for _, statement := range body.statements {
 								collectModuleReferences(statement, true /*inAmbientModule*/)
