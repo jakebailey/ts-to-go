@@ -415,6 +415,18 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         return block?.getParentIfKind(ts.SyntaxKind.FunctionDeclaration)?.getName() === createFunction;
     }
 
+    function isNode(type: Type) {
+        return type.getProperty("kind") && type.getProperty("parent");
+    }
+
+    function isType(type: Type) {
+        return type.getProperty("flags") && type.getProperty("symbol") && type.getProperty("checker");
+    }
+
+    function isSymbol(type: Type) {
+        return type.getProperty("flags") && type.getProperty("escapedName") && type.getProperty("valueDeclaration");
+    }
+
     function isElidedAsExpression(node: AsExpression) {
         const type = node.getTypeNodeOrThrow();
         switch (type.getText()) {
@@ -476,11 +488,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 if (Node.isIdentifier(entity) && !isTypeVar) {
                     const type = entity.getType();
 
-                    const isNode = type.getProperty("kind") && type.getProperty("parent");
-                    const isType = type.getProperty("flags") && type.getProperty("symbol") &&
-                        type.getProperty("checker");
-
-                    if (isNode || isType) {
+                    if (isNode(type) || isType(type)) {
                         const sym = entity.getSymbolOrThrow();
                         const nodeName = sym.getName();
                         visitExpression(node.getExpression());
@@ -713,7 +721,15 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             if (node.hasQuestionDotToken()) {
                 writer.write("/* ? */");
             }
-            writer.write(`.${sanitizeName(name.getText())}`);
+
+            let rightName = sanitizeName(name.getText());
+
+            const leftType = expr.getType();
+            if (isNode(leftType) || isSymbol(leftType)) {
+                rightName = rightName[0].toUpperCase() + rightName.slice(1);
+            }
+
+            writer.write(`.${rightName}`);
         }
         else if (Node.isElementAccessExpression(node)) {
             visitExpression(node.getExpression());
@@ -2134,6 +2150,8 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
         cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A != $B)", "-r", "$A == $B", output]);
         cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A == $B)", "-r", "$A != $B", output]);
+
+        cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "($A.$B())", "-r", "$A.$B()", output]);
 
         cp.execFileSync(which.sync("gofmt"), ["-w", "-s", output]);
 

@@ -85,11 +85,11 @@ func isJSDocLikeText(text string, start number) bool {
 func isFileProbablyExternalModule(sourceFile SourceFile) *ast.Node {
 	// Try to use the first top-level import/export when available, then
 	// fall back to looking for an 'import.meta' somewhere in the tree if necessary.
-	return forEach(sourceFile.statements, isAnExternalModuleIndicatorNode) || getImportMetaIfNecessary(sourceFile)
+	return forEach(sourceFile.Statements, isAnExternalModuleIndicatorNode) || getImportMetaIfNecessary(sourceFile)
 }
 
 func isAnExternalModuleIndicatorNode(node *ast.Node) *HasModifiers {
-	if canHaveModifiers(node) && hasModifierOfKind(node, ast.KindExportKeyword) || isImportEqualsDeclaration(node) && isExternalModuleReference(node.moduleReference) || isImportDeclaration(node) || isExportAssignment(node) || isExportDeclaration(node) {
+	if canHaveModifiers(node) && hasModifierOfKind(node, ast.KindExportKeyword) || isImportEqualsDeclaration(node) && isExternalModuleReference(node.ModuleReference) || isImportDeclaration(node) || isExportAssignment(node) || isExportDeclaration(node) {
 		return node
 	} else {
 		return nil
@@ -97,7 +97,7 @@ func isAnExternalModuleIndicatorNode(node *ast.Node) *HasModifiers {
 }
 
 func getImportMetaIfNecessary(sourceFile SourceFile) *ast.Node {
-	if sourceFile.flags&ast.NodeFlagsPossiblyContainsImportMeta != 0 {
+	if sourceFile.Flags&ast.NodeFlagsPossiblyContainsImportMeta != 0 {
 		return walkTreeForImportMeta(sourceFile)
 	} else {
 		return nil
@@ -115,13 +115,13 @@ func walkTreeForImportMeta(node *ast.Node) *ast.Node {
 /** Do not use hasModifier inside the parser; it relies on parent pointers. Use this instead. */
 
 func hasModifierOfKind(node HasModifiers, kind SyntaxKind) bool {
-	return some(node.modifiers, func(m /* TODO(TS-TO-GO) inferred type Decorator | AbstractKeyword | AccessorKeyword | AsyncKeyword | ConstKeyword | DeclareKeyword | DefaultKeyword | ExportKeyword | InKeyword | PrivateKeyword | ProtectedKeyword | PublicKeyword | OutKeyword | OverrideKeyword | ReadonlyKeyword | StaticKeyword */ any) bool {
-		return m.kind == kind
+	return some(node.Modifiers, func(m /* TODO(TS-TO-GO) inferred type Decorator | AbstractKeyword | AccessorKeyword | AsyncKeyword | ConstKeyword | DeclareKeyword | DefaultKeyword | ExportKeyword | InKeyword | PrivateKeyword | ProtectedKeyword | PublicKeyword | OutKeyword | OverrideKeyword | ReadonlyKeyword | StaticKeyword */ any) bool {
+		return m.Kind == kind
 	})
 }
 
 func isImportMeta(node *ast.Node) bool {
-	return isMetaProperty(node) && node.keywordToken == ast.KindImportKeyword && node.name.escapedText == "meta"
+	return isMetaProperty(node) && node.KeywordToken == ast.KindImportKeyword && node.Name.EscapedText == "meta"
 }
 
 type ForEachChildFunction[TNode any] func(node TNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T
@@ -129,359 +129,359 @@ type ForEachChildTable /* TODO(TS-TO-GO) TypeNode MappedType: { [TNode in ForEac
 
 var forEachChildTable ForEachChildTable = ForEachChildTable{
 	TODO_IDENTIFIER: func /* forEachChildInQualifiedName */ (node QualifiedName, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.left) || visitNode(cbNode, node.right)
+		return visitNode(cbNode, node.Left) || visitNode(cbNode, node.Right)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeParameter */ (node TypeParameterDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.constraint) || visitNode(cbNode, node.default_) || visitNode(cbNode, node.expression)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.Constraint) || visitNode(cbNode, node.Default_) || visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInShorthandPropertyAssignment */ (node ShorthandPropertyAssignment, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.equalsToken) || visitNode(cbNode, node.objectAssignmentInitializer)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.ExclamationToken) || visitNode(cbNode, node.EqualsToken) || visitNode(cbNode, node.ObjectAssignmentInitializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInSpreadAssignment */ (node SpreadAssignment, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInParameter */ (node ParameterDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.DotDotDotToken) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInPropertyDeclaration */ (node PropertyDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.ExclamationToken) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInPropertySignature */ (node PropertySignature, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInPropertyAssignment */ (node PropertyAssignment, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.initializer)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.ExclamationToken) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInVariableDeclaration */ (node VariableDeclaration, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name) || visitNode(cbNode, node.exclamationToken) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.initializer)
+		return visitNode(cbNode, node.Name) || visitNode(cbNode, node.ExclamationToken) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInBindingElement */ (node BindingElement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.propertyName) || visitNode(cbNode, node.name) || visitNode(cbNode, node.initializer)
+		return visitNode(cbNode, node.DotDotDotToken) || visitNode(cbNode, node.PropertyName) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInIndexSignature */ (node IndexSignatureDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInConstructorType */ (node ConstructorTypeNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInFunctionType */ (node FunctionTypeNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: forEachChildInCallOrConstructSignature,
 	TODO_IDENTIFIER: forEachChildInCallOrConstructSignature,
 	TODO_IDENTIFIER: func /* forEachChildInMethodDeclaration */ (node MethodDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.exclamationToken) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.AsteriskToken) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.ExclamationToken) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInMethodSignature */ (node MethodSignature, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInConstructor */ (node ConstructorDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInGetAccessor */ (node GetAccessorDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInSetAccessor */ (node SetAccessorDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInFunctionDeclaration */ (node FunctionDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.AsteriskToken) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInFunctionExpression */ (node FunctionExpression, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.AsteriskToken) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInArrowFunction */ (node ArrowFunction, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_) || visitNode(cbNode, node.equalsGreaterThanToken) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_) || visitNode(cbNode, node.EqualsGreaterThanToken) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInClassStaticBlockDeclaration */ (node ClassStaticBlockDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeReference */ (node TypeReferenceNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.typeName) || visitNodes(cbNode, cbNodes, node.typeArguments)
+		return visitNode(cbNode, node.TypeName) || visitNodes(cbNode, cbNodes, node.TypeArguments)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypePredicate */ (node TypePredicateNode, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.assertsModifier) || visitNode(cbNode, node.parameterName) || visitNode(cbNode, node.type_)
+		return visitNode(cbNode, node.AssertsModifier) || visitNode(cbNode, node.ParameterName) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeQuery */ (node TypeQueryNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.exprName) || visitNodes(cbNode, cbNodes, node.typeArguments)
+		return visitNode(cbNode, node.ExprName) || visitNodes(cbNode, cbNodes, node.TypeArguments)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeLiteral */ (node TypeLiteralNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.members)
+		return visitNodes(cbNode, cbNodes, node.Members)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInArrayType */ (node ArrayTypeNode, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.elementType)
+		return visitNode(cbNode, node.ElementType)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTupleType */ (node TupleTypeNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.elements)
+		return visitNodes(cbNode, cbNodes, node.Elements)
 	},
 	TODO_IDENTIFIER: forEachChildInUnionOrIntersectionType,
 	TODO_IDENTIFIER: forEachChildInUnionOrIntersectionType,
 	TODO_IDENTIFIER: func /* forEachChildInConditionalType */ (node ConditionalTypeNode, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.checkType) || visitNode(cbNode, node.extendsType) || visitNode(cbNode, node.trueType) || visitNode(cbNode, node.falseType)
+		return visitNode(cbNode, node.CheckType) || visitNode(cbNode, node.ExtendsType) || visitNode(cbNode, node.TrueType) || visitNode(cbNode, node.FalseType)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInInferType */ (node InferTypeNode, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.typeParameter)
+		return visitNode(cbNode, node.TypeParameter)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportType */ (node ImportTypeNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.argument) || visitNode(cbNode, node.attributes) || visitNode(cbNode, node.qualifier) || visitNodes(cbNode, cbNodes, node.typeArguments)
+		return visitNode(cbNode, node.Argument) || visitNode(cbNode, node.Attributes) || visitNode(cbNode, node.Qualifier) || visitNodes(cbNode, cbNodes, node.TypeArguments)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportTypeAssertionContainer */ (node ImportTypeAssertionContainer, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.assertClause)
+		return visitNode(cbNode, node.AssertClause)
 	},
 	TODO_IDENTIFIER: forEachChildInParenthesizedTypeOrTypeOperator,
 	TODO_IDENTIFIER: forEachChildInParenthesizedTypeOrTypeOperator,
 	TODO_IDENTIFIER: func /* forEachChildInIndexedAccessType */ (node IndexedAccessTypeNode, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.objectType) || visitNode(cbNode, node.indexType)
+		return visitNode(cbNode, node.ObjectType) || visitNode(cbNode, node.IndexType)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInMappedType */ (node MappedTypeNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.readonlyToken) || visitNode(cbNode, node.typeParameter) || visitNode(cbNode, node.nameType) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_) || visitNodes(cbNode, cbNodes, node.members)
+		return visitNode(cbNode, node.ReadonlyToken) || visitNode(cbNode, node.TypeParameter) || visitNode(cbNode, node.NameType) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.Type_) || visitNodes(cbNode, cbNodes, node.Members)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInLiteralType */ (node LiteralTypeNode, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.literal)
+		return visitNode(cbNode, node.Literal)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInNamedTupleMember */ (node NamedTupleMember, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.name) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.type_)
+		return visitNode(cbNode, node.DotDotDotToken) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: forEachChildInObjectOrArrayBindingPattern,
 	TODO_IDENTIFIER: forEachChildInObjectOrArrayBindingPattern,
 	TODO_IDENTIFIER: func /* forEachChildInArrayLiteralExpression */ (node ArrayLiteralExpression, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.elements)
+		return visitNodes(cbNode, cbNodes, node.Elements)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInObjectLiteralExpression */ (node ObjectLiteralExpression, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.properties)
+		return visitNodes(cbNode, cbNodes, node.Properties)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInPropertyAccessExpression */ (node PropertyAccessExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.questionDotToken) || visitNode(cbNode, node.name)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.QuestionDotToken) || visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInElementAccessExpression */ (node ElementAccessExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.questionDotToken) || visitNode(cbNode, node.argumentExpression)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.QuestionDotToken) || visitNode(cbNode, node.ArgumentExpression)
 	},
 	TODO_IDENTIFIER: forEachChildInCallOrNewExpression,
 	TODO_IDENTIFIER: forEachChildInCallOrNewExpression,
 	TODO_IDENTIFIER: func /* forEachChildInTaggedTemplateExpression */ (node TaggedTemplateExpression, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tag) || visitNode(cbNode, node.questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNode(cbNode, node.template)
+		return visitNode(cbNode, node.Tag) || visitNode(cbNode, node.QuestionDotToken) || visitNodes(cbNode, cbNodes, node.TypeArguments) || visitNode(cbNode, node.Template)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeAssertionExpression */ (node TypeAssertion, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.type_) || visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInParenthesizedExpression */ (node ParenthesizedExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInDeleteExpression */ (node DeleteExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeOfExpression */ (node TypeOfExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInVoidExpression */ (node VoidExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInPrefixUnaryExpression */ (node PrefixUnaryExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.operand)
+		return visitNode(cbNode, node.Operand)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInYieldExpression */ (node YieldExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.asteriskToken) || visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.AsteriskToken) || visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInAwaitExpression */ (node AwaitExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInPostfixUnaryExpression */ (node PostfixUnaryExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.operand)
+		return visitNode(cbNode, node.Operand)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInBinaryExpression */ (node BinaryExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.left) || visitNode(cbNode, node.operatorToken) || visitNode(cbNode, node.right)
+		return visitNode(cbNode, node.Left) || visitNode(cbNode, node.OperatorToken) || visitNode(cbNode, node.Right)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInAsExpression */ (node AsExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.type_)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInNonNullExpression */ (node NonNullExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInSatisfiesExpression */ (node SatisfiesExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.type_)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInMetaProperty */ (node MetaProperty, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name)
+		return visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInConditionalExpression */ (node ConditionalExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.condition) || visitNode(cbNode, node.questionToken) || visitNode(cbNode, node.whenTrue) || visitNode(cbNode, node.colonToken) || visitNode(cbNode, node.whenFalse)
+		return visitNode(cbNode, node.Condition) || visitNode(cbNode, node.QuestionToken) || visitNode(cbNode, node.WhenTrue) || visitNode(cbNode, node.ColonToken) || visitNode(cbNode, node.WhenFalse)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInSpreadElement */ (node SpreadElement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: forEachChildInBlock,
 	TODO_IDENTIFIER: forEachChildInBlock,
 	TODO_IDENTIFIER: func /* forEachChildInSourceFile */ (node SourceFile, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.statements) || visitNode(cbNode, node.endOfFileToken)
+		return visitNodes(cbNode, cbNodes, node.Statements) || visitNode(cbNode, node.EndOfFileToken)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInVariableStatement */ (node VariableStatement, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.declarationList)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.DeclarationList)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInVariableDeclarationList */ (node VariableDeclarationList, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.declarations)
+		return visitNodes(cbNode, cbNodes, node.Declarations)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInExpressionStatement */ (node ExpressionStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInIfStatement */ (node IfStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.thenStatement) || visitNode(cbNode, node.elseStatement)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.ThenStatement) || visitNode(cbNode, node.ElseStatement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInDoStatement */ (node DoStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.statement) || visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Statement) || visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInWhileStatement */ (node WhileStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Statement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInForStatement */ (node ForStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.initializer) || visitNode(cbNode, node.condition) || visitNode(cbNode, node.incrementor) || visitNode(cbNode, node.statement)
+		return visitNode(cbNode, node.Initializer) || visitNode(cbNode, node.Condition) || visitNode(cbNode, node.Incrementor) || visitNode(cbNode, node.Statement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInForInStatement */ (node ForInStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.initializer) || visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
+		return visitNode(cbNode, node.Initializer) || visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Statement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInForOfStatement */ (node ForOfStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.awaitModifier) || visitNode(cbNode, node.initializer) || visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
+		return visitNode(cbNode, node.AwaitModifier) || visitNode(cbNode, node.Initializer) || visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Statement)
 	},
 	TODO_IDENTIFIER: forEachChildInContinueOrBreakStatement,
 	TODO_IDENTIFIER: forEachChildInContinueOrBreakStatement,
 	TODO_IDENTIFIER: func /* forEachChildInReturnStatement */ (node ReturnStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInWithStatement */ (node WithStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.statement)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Statement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInSwitchStatement */ (node SwitchStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.caseBlock)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.CaseBlock)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInCaseBlock */ (node CaseBlock, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.clauses)
+		return visitNodes(cbNode, cbNodes, node.Clauses)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInCaseClause */ (node CaseClause, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNodes(cbNode, cbNodes, node.statements)
+		return visitNode(cbNode, node.Expression) || visitNodes(cbNode, cbNodes, node.Statements)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInDefaultClause */ (node DefaultClause, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.statements)
+		return visitNodes(cbNode, cbNodes, node.Statements)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInLabeledStatement */ (node LabeledStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.label) || visitNode(cbNode, node.statement)
+		return visitNode(cbNode, node.Label) || visitNode(cbNode, node.Statement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInThrowStatement */ (node ThrowStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTryStatement */ (node TryStatement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tryBlock) || visitNode(cbNode, node.catchClause) || visitNode(cbNode, node.finallyBlock)
+		return visitNode(cbNode, node.TryBlock) || visitNode(cbNode, node.CatchClause) || visitNode(cbNode, node.FinallyBlock)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInCatchClause */ (node CatchClause, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.variableDeclaration) || visitNode(cbNode, node.block)
+		return visitNode(cbNode, node.VariableDeclaration) || visitNode(cbNode, node.Block)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInDecorator */ (node Decorator, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: forEachChildInClassDeclarationOrExpression,
 	TODO_IDENTIFIER: forEachChildInClassDeclarationOrExpression,
 	TODO_IDENTIFIER: func /* forEachChildInInterfaceDeclaration */ (node InterfaceDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.heritageClauses) || visitNodes(cbNode, cbNodes, node.members)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.HeritageClauses) || visitNodes(cbNode, cbNodes, node.Members)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTypeAliasDeclaration */ (node TypeAliasDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNode(cbNode, node.type_)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInEnumDeclaration */ (node EnumDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.members)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.Members)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInEnumMember */ (node EnumMember, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name) || visitNode(cbNode, node.initializer)
+		return visitNode(cbNode, node.Name) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInModuleDeclaration */ (node ModuleDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.body)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.Body)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportEqualsDeclaration */ (node ImportEqualsDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNode(cbNode, node.moduleReference)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNode(cbNode, node.ModuleReference)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportDeclaration */ (node ImportDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.ImportClause) || visitNode(cbNode, node.ModuleSpecifier) || visitNode(cbNode, node.Attributes)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportClause */ (node ImportClause, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name) || visitNode(cbNode, node.namedBindings)
+		return visitNode(cbNode, node.Name) || visitNode(cbNode, node.NamedBindings)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportAttributes */ (node ImportAttributes, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.elements)
+		return visitNodes(cbNode, cbNodes, node.Elements)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInImportAttribute */ (node ImportAttribute, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name) || visitNode(cbNode, node.value)
+		return visitNode(cbNode, node.Name) || visitNode(cbNode, node.Value)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInNamespaceExportDeclaration */ (node NamespaceExportDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInNamespaceImport */ (node NamespaceImport, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name)
+		return visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInNamespaceExport */ (node NamespaceExport, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name)
+		return visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: forEachChildInNamedImportsOrExports,
 	TODO_IDENTIFIER: forEachChildInNamedImportsOrExports,
 	TODO_IDENTIFIER: func /* forEachChildInExportDeclaration */ (node ExportDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.exportClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.ExportClause) || visitNode(cbNode, node.ModuleSpecifier) || visitNode(cbNode, node.Attributes)
 	},
 	TODO_IDENTIFIER: forEachChildInImportOrExportSpecifier,
 	TODO_IDENTIFIER: forEachChildInImportOrExportSpecifier,
 	TODO_IDENTIFIER: func /* forEachChildInExportAssignment */ (node ExportAssignment, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.expression)
+		return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTemplateExpression */ (node TemplateExpression, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.head) || visitNodes(cbNode, cbNodes, node.templateSpans)
+		return visitNode(cbNode, node.Head) || visitNodes(cbNode, cbNodes, node.TemplateSpans)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTemplateSpan */ (node TemplateSpan, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNode(cbNode, node.literal)
+		return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.Literal)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTemplateLiteralType */ (node TemplateLiteralTypeNode, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.head) || visitNodes(cbNode, cbNodes, node.templateSpans)
+		return visitNode(cbNode, node.Head) || visitNodes(cbNode, cbNodes, node.TemplateSpans)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInTemplateLiteralTypeSpan */ (node TemplateLiteralTypeSpan, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.type_) || visitNode(cbNode, node.literal)
+		return visitNode(cbNode, node.Type_) || visitNode(cbNode, node.Literal)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInComputedPropertyName */ (node ComputedPropertyName, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInHeritageClause */ (node HeritageClause, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.types)
+		return visitNodes(cbNode, cbNodes, node.Types)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInExpressionWithTypeArguments */ (node ExpressionWithTypeArguments, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression) || visitNodes(cbNode, cbNodes, node.typeArguments)
+		return visitNode(cbNode, node.Expression) || visitNodes(cbNode, cbNodes, node.TypeArguments)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInExternalModuleReference */ (node ExternalModuleReference, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInMissingDeclaration */ (node MissingDeclaration, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.modifiers)
+		return visitNodes(cbNode, cbNodes, node.Modifiers)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInCommaListExpression */ (node CommaListExpression, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.elements)
+		return visitNodes(cbNode, cbNodes, node.Elements)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxElement */ (node JsxElement, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.openingElement) || visitNodes(cbNode, cbNodes, node.children) || visitNode(cbNode, node.closingElement)
+		return visitNode(cbNode, node.OpeningElement) || visitNodes(cbNode, cbNodes, node.Children) || visitNode(cbNode, node.ClosingElement)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxFragment */ (node JsxFragment, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.openingFragment) || visitNodes(cbNode, cbNodes, node.children) || visitNode(cbNode, node.closingFragment)
+		return visitNode(cbNode, node.OpeningFragment) || visitNodes(cbNode, cbNodes, node.Children) || visitNode(cbNode, node.ClosingFragment)
 	},
 	TODO_IDENTIFIER: forEachChildInJsxOpeningOrSelfClosingElement,
 	TODO_IDENTIFIER: forEachChildInJsxOpeningOrSelfClosingElement,
 	TODO_IDENTIFIER: func /* forEachChildInJsxAttributes */ (node JsxAttributes, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.properties)
+		return visitNodes(cbNode, cbNodes, node.Properties)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxAttribute */ (node JsxAttribute, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name) || visitNode(cbNode, node.initializer)
+		return visitNode(cbNode, node.Name) || visitNode(cbNode, node.Initializer)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxSpreadAttribute */ (node JsxSpreadAttribute, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxExpression */ (node JsxExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.dotDotDotToken) || visitNode(cbNode, node.expression)
+		return visitNode(cbNode, node.DotDotDotToken) || visitNode(cbNode, node.Expression)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxClosingElement */ (node JsxClosingElement, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName)
+		return visitNode(cbNode, node.TagName)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJsxNamespacedName */ (node JsxNamespacedName, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.namespace) || visitNode(cbNode, node.name)
+		return visitNode(cbNode, node.Namespace) || visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
 	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
@@ -491,39 +491,39 @@ var forEachChildTable ForEachChildTable = ForEachChildTable{
 	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
 	TODO_IDENTIFIER: forEachChildInOptionalRestOrJSDocParameterModifier,
 	TODO_IDENTIFIER: func /* forEachChildInJSDocFunctionType */ (node JSDocFunctionType, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
+		return visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDoc */ (node JSDoc, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))) || visitNodes(cbNode, cbNodes, node.tags)
+		return (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment))) || visitNodes(cbNode, cbNodes, node.Tags)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocSeeTag */ (node JSDocSeeTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.name) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.Name) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocNameReference */ (node JSDocNameReference, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.name)
+		return visitNode(cbNode, node.Name)
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocMemberName */ (node JSDocMemberName, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.left) || visitNode(cbNode, node.right)
+		return visitNode(cbNode, node.Left) || visitNode(cbNode, node.Right)
 	},
 	TODO_IDENTIFIER: forEachChildInJSDocParameterOrPropertyTag,
 	TODO_IDENTIFIER: forEachChildInJSDocParameterOrPropertyTag,
 	TODO_IDENTIFIER: func /* forEachChildInJSDocAuthorTag */ (node JSDocAuthorTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.TagName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocImplementsTag */ (node JSDocImplementsTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.Class) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocAugmentsTag */ (node JSDocAugmentsTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.class) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.Class) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocTemplateTag */ (node JSDocTemplateTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.constraint) || visitNodes(cbNode, cbNodes, node.typeParameters) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.Constraint) || visitNodes(cbNode, cbNodes, node.TypeParameters) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocTypedefTag */ (node JSDocTypedefTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || (ifElse(node.typeExpression != nil && node.typeExpression.kind == ast.KindJSDocTypeExpression, visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.fullName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment))), visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))))
+		return visitNode(cbNode, node.TagName) || (ifElse(node.TypeExpression != nil && node.TypeExpression.Kind == ast.KindJSDocTypeExpression, visitNode(cbNode, node.TypeExpression) || visitNode(cbNode, node.FullName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment))), visitNode(cbNode, node.FullName) || visitNode(cbNode, node.TypeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))))
 	},
 	TODO_IDENTIFIER: func /* forEachChildInJSDocCallbackTag */ (node JSDocCallbackTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.fullName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+		return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.FullName) || visitNode(cbNode, node.TypeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 	},
 	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
 	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
@@ -533,13 +533,13 @@ var forEachChildTable ForEachChildTable = ForEachChildTable{
 	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
 	TODO_IDENTIFIER: forEachChildInJSDocTypeLikeTag,
 	TODO_IDENTIFIER: func /* forEachChildInJSDocSignature */ (node JSDocSignature, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return forEach(node.typeParameters, cbNode) || forEach(node.parameters, cbNode) || visitNode(cbNode, node.type_)
+		return forEach(node.TypeParameters, cbNode) || forEach(node.Parameters, cbNode) || visitNode(cbNode, node.Type_)
 	},
 	TODO_IDENTIFIER: forEachChildInJSDocLinkCodeOrPlain,
 	TODO_IDENTIFIER: forEachChildInJSDocLinkCodeOrPlain,
 	TODO_IDENTIFIER: forEachChildInJSDocLinkCodeOrPlain,
 	TODO_IDENTIFIER: func /* forEachChildInJSDocTypeLiteral */ (node JSDocTypeLiteral, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-		return forEach(node.jsDocPropertyTags, cbNode)
+		return forEach(node.JsDocPropertyTags, cbNode)
 	},
 	TODO_IDENTIFIER: forEachChildInJSDocTag,
 	TODO_IDENTIFIER: forEachChildInJSDocTag,
@@ -556,75 +556,75 @@ var forEachChildTable ForEachChildTable = ForEachChildTable{
 // shared
 
 func forEachChildInCallOrConstructSignature(node Union[CallSignatureDeclaration, ConstructSignatureDeclaration], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.parameters) || visitNode(cbNode, node.type_)
+	return visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.Parameters) || visitNode(cbNode, node.Type_)
 }
 
 func forEachChildInUnionOrIntersectionType(node Union[UnionTypeNode, IntersectionTypeNode], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNodes(cbNode, cbNodes, node.types)
+	return visitNodes(cbNode, cbNodes, node.Types)
 }
 
 func forEachChildInParenthesizedTypeOrTypeOperator(node Union[ParenthesizedTypeNode, TypeOperatorNode], cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.type_)
+	return visitNode(cbNode, node.Type_)
 }
 
 func forEachChildInObjectOrArrayBindingPattern(node BindingPattern, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNodes(cbNode, cbNodes, node.elements)
+	return visitNodes(cbNode, cbNodes, node.Elements)
 }
 
 func forEachChildInCallOrNewExpression(node Union[CallExpression, NewExpression], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.expression) || visitNode(cbNode, (node.AsCallExpression()).questionDotToken) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNodes(cbNode, cbNodes, node.arguments)
+	return visitNode(cbNode, node.Expression) || visitNode(cbNode, node.AsCallExpression().QuestionDotToken) || visitNodes(cbNode, cbNodes, node.TypeArguments) || visitNodes(cbNode, cbNodes, node.Arguments)
 }
 
 func forEachChildInBlock(node Union[Block, ModuleBlock], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNodes(cbNode, cbNodes, node.statements)
+	return visitNodes(cbNode, cbNodes, node.Statements)
 }
 
 func forEachChildInContinueOrBreakStatement(node Union[ContinueStatement, BreakStatement], cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.label)
+	return visitNode(cbNode, node.Label)
 }
 
 func forEachChildInClassDeclarationOrExpression(node Union[ClassDeclaration, ClassExpression], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNodes(cbNode, cbNodes, node.modifiers) || visitNode(cbNode, node.name) || visitNodes(cbNode, cbNodes, node.typeParameters) || visitNodes(cbNode, cbNodes, node.heritageClauses) || visitNodes(cbNode, cbNodes, node.members)
+	return visitNodes(cbNode, cbNodes, node.Modifiers) || visitNode(cbNode, node.Name) || visitNodes(cbNode, cbNodes, node.TypeParameters) || visitNodes(cbNode, cbNodes, node.HeritageClauses) || visitNodes(cbNode, cbNodes, node.Members)
 }
 
 func forEachChildInNamedImportsOrExports(node Union[NamedImports, NamedExports], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNodes(cbNode, cbNodes, node.elements)
+	return visitNodes(cbNode, cbNodes, node.Elements)
 }
 
 func forEachChildInImportOrExportSpecifier(node Union[ImportSpecifier, ExportSpecifier], cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.propertyName) || visitNode(cbNode, node.name)
+	return visitNode(cbNode, node.PropertyName) || visitNode(cbNode, node.Name)
 }
 
 func forEachChildInJsxOpeningOrSelfClosingElement(node JsxOpeningLikeElement, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNodes(cbNode, cbNodes, node.typeArguments) || visitNode(cbNode, node.attributes)
+	return visitNode(cbNode, node.TagName) || visitNodes(cbNode, cbNodes, node.TypeArguments) || visitNode(cbNode, node.Attributes)
 }
 
 func forEachChildInOptionalRestOrJSDocParameterModifier(node Union[OptionalTypeNode, RestTypeNode, JSDocTypeExpression, JSDocNullableType, JSDocNonNullableType, JSDocOptionalType, JSDocVariadicType], cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.type_)
+	return visitNode(cbNode, node.Type_)
 }
 
 func forEachChildInJSDocParameterOrPropertyTag(node Union[JSDocParameterTag, JSDocPropertyTag], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || (ifElse(node.isNameFirst, visitNode(cbNode, node.name) || visitNode(cbNode, node.typeExpression), visitNode(cbNode, node.typeExpression) || visitNode(cbNode, node.name))) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.TagName) || (ifElse(node.IsNameFirst, visitNode(cbNode, node.Name) || visitNode(cbNode, node.TypeExpression), visitNode(cbNode, node.TypeExpression) || visitNode(cbNode, node.Name))) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 }
 
 func forEachChildInJSDocTypeLikeTag(node Union[JSDocReturnTag, JSDocTypeTag, JSDocThisTag, JSDocEnumTag, JSDocThrowsTag, JSDocOverloadTag, JSDocSatisfiesTag], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.typeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.TypeExpression) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 }
 
 func forEachChildInJSDocLinkCodeOrPlain(node Union[JSDocLink, JSDocLinkCode, JSDocLinkPlain], cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.name)
+	return visitNode(cbNode, node.Name)
 }
 
 func forEachChildInJSDocTag(node Union[JSDocUnknownTag, JSDocClassTag, JSDocPublicTag, JSDocPrivateTag, JSDocProtectedTag, JSDocReadonlyTag, JSDocDeprecatedTag, JSDocOverrideTag], cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.TagName) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 }
 
 func forEachChildInJSDocImportTag(node JSDocImportTag, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.tagName) || visitNode(cbNode, node.importClause) || visitNode(cbNode, node.moduleSpecifier) || visitNode(cbNode, node.attributes) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.comment)))
+	return visitNode(cbNode, node.TagName) || visitNode(cbNode, node.ImportClause) || visitNode(cbNode, node.ModuleSpecifier) || visitNode(cbNode, node.Attributes) || (ifElse( /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof node.comment */ TODO == "string", nil, visitNodes(cbNode, cbNodes, node.Comment)))
 }
 
 func forEachChildInPartiallyEmittedExpression(node PartiallyEmittedExpression, cbNode func(node *ast.Node) *T, _cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	return visitNode(cbNode, node.expression)
+	return visitNode(cbNode, node.Expression)
 }
 
 /**
@@ -642,10 +642,10 @@ func forEachChildInPartiallyEmittedExpression(node PartiallyEmittedExpression, c
  */
 
 func forEachChild(node *ast.Node, cbNode func(node *ast.Node) *T, cbNodes func(nodes NodeArray[*ast.Node]) *T) *T {
-	if node == nil || node.kind <= ast.KindLastToken {
+	if node == nil || node.Kind <= ast.KindLastToken {
 		return
 	}
-	fn := (forEachChildTable.(Record[SyntaxKind, ForEachChildFunction[any]]))[node.kind]
+	fn := (forEachChildTable.(Record[SyntaxKind, ForEachChildFunction[any]]))[node.Kind]
 	if fn == nil {
 		return nil
 	} else {
@@ -701,7 +701,7 @@ func forEachChildRecursively(rootNode *ast.Node, cbNode func(node *ast.Node, par
 				}
 				return res
 			}
-			if current.kind >= ast.KindFirstNode {
+			if current.Kind >= ast.KindFirstNode {
 				// add children in reverse order to the queue, so popping gives the first child
 				for _, child := range gatherPossibleChildren(current) {
 					queue.push(child)
@@ -734,7 +734,7 @@ type CreateSourceFileOptions struct {
 }
 
 func setExternalModuleIndicator(sourceFile SourceFile) {
-	sourceFile.externalModuleIndicator = isFileProbablyExternalModule(sourceFile)
+	sourceFile.ExternalModuleIndicator = isFileProbablyExternalModule(sourceFile)
 }
 
 func createSourceFile(fileName string, sourceText string, languageVersionOrOptions Union[ScriptTarget, CreateSourceFileOptions], setParentNodes bool /*  = false */, scriptKind ScriptKind) SourceFile {
@@ -760,7 +760,7 @@ func createSourceFile(fileName string, sourceText string, languageVersionOrOptio
 			setIndicator = overrideSetExternalModuleIndicator
 		} else {
 			setIndicator = func(file SourceFile) {
-				file.impliedNodeFormat = format
+				file.ImpliedNodeFormat = format
 				return (overrideSetExternalModuleIndicator || setExternalModuleIndicator)(file)
 			}
 		}
@@ -789,7 +789,7 @@ func parseJsonText(fileName string, sourceText string) JsonSourceFile {
 
 // See also `isExternalOrCommonJsModule` in utilities.ts
 func isExternalModule(file SourceFile) bool {
-	return file.externalModuleIndicator != nil
+	return file.ExternalModuleIndicator != nil
 }
 
 // Produces a new SourceFile for the 'newText' provided. The 'textChangeRange' parameter
@@ -805,7 +805,7 @@ func updateSourceFile(sourceFile SourceFile, newText string, textChangeRange Tex
 	newSourceFile := IncrementalParser.updateSourceFile(sourceFile, newText, textChangeRange, aggressiveChecks)
 	// Because new source file node is created, it may not have the flag PossiblyContainDynamicImport. This is the case if there is no new edit to add dynamic import.
 	// We will manually port the flag to the new source file.
-	(newSourceFile.(Mutable[SourceFile])).flags |= sourceFile.flags & ast.NodeFlagsPermanentlySetIncrementalFlags
+	(newSourceFile.(Mutable[SourceFile])).Flags |= sourceFile.Flags & ast.NodeFlagsPermanentlySetIncrementalFlags
 	return newSourceFile
 }
 
@@ -996,13 +996,13 @@ func parseSourceFile(fileName string, sourceText string, languageVersion ScriptT
 	scriptKind = ensureScriptKind(fileName, scriptKind)
 	if scriptKind == ScriptKindJSON {
 		result := parseJsonText(fileName, sourceText, languageVersion, syntaxCursor, setParentNodes)
-		convertToJson(result, result.statements[0]. /* ? */ expression, result.parseDiagnostics, false /*returnValue*/, nil /*jsonConversionNotifier*/)
-		result.referencedFiles = emptyArray
-		result.typeReferenceDirectives = emptyArray
-		result.libReferenceDirectives = emptyArray
-		result.amdDependencies = emptyArray
-		result.hasNoDefaultLib = false
-		result.pragmas = emptyMap.(ReadonlyPragmaMap)
+		convertToJson(result, result.Statements[0]. /* ? */ Expression, result.ParseDiagnostics, false /*returnValue*/, nil /*jsonConversionNotifier*/)
+		result.ReferencedFiles = emptyArray
+		result.TypeReferenceDirectives = emptyArray
+		result.LibReferenceDirectives = emptyArray
+		result.AmdDependencies = emptyArray
+		result.HasNoDefaultLib = false
+		result.Pragmas = emptyMap.(ReadonlyPragmaMap)
 		return result
 	}
 
@@ -1108,12 +1108,12 @@ func parseJsonText(fileName string, sourceText string, languageVersion ScriptTar
 		fixupParentReferences(sourceFile)
 	}
 
-	sourceFile.nodeCount = nodeCount
-	sourceFile.identifierCount = identifierCount
-	sourceFile.identifiers = identifiers
-	sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile)
+	sourceFile.NodeCount = nodeCount
+	sourceFile.IdentifierCount = identifierCount
+	sourceFile.Identifiers = identifiers
+	sourceFile.ParseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile)
 	if jsDocDiagnostics {
-		sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
+		sourceFile.JsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
 	}
 
 	result := sourceFile.AsJsonSourceFile()
@@ -1208,14 +1208,14 @@ func parseSourceFileWorker(languageVersion ScriptTarget, setParentNodes bool, sc
 	processCommentPragmas(sourceFile. /* as {} */ (PragmaContext), sourceText)
 	processPragmasIntoFields(sourceFile. /* as {} */ (PragmaContext), reportPragmaDiagnostic)
 
-	sourceFile.commentDirectives = scanner.getCommentDirectives()
-	sourceFile.nodeCount = nodeCount
-	sourceFile.identifierCount = identifierCount
-	sourceFile.identifiers = identifiers
-	sourceFile.parseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile)
-	sourceFile.jsDocParsingMode = jsDocParsingMode
+	sourceFile.CommentDirectives = scanner.getCommentDirectives()
+	sourceFile.NodeCount = nodeCount
+	sourceFile.IdentifierCount = identifierCount
+	sourceFile.Identifiers = identifiers
+	sourceFile.ParseDiagnostics = attachFileToDiagnostics(parseDiagnostics, sourceFile)
+	sourceFile.JsDocParsingMode = jsDocParsingMode
 	if jsDocDiagnostics {
-		sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
+		sourceFile.JsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
 	}
 
 	if setParentNodes {
@@ -1237,17 +1237,17 @@ func withJSDoc(node T, hasJSDoc bool) T {
 		return node
 	}
 
-	Debug.assert(node.jsDoc == nil)
+	Debug.assert(node.JsDoc == nil)
 	// Should only be called once per node
 	jsDoc := mapDefined(getJSDocCommentRanges(node, sourceText), func(comment CommentRange) *JSDoc {
 		return JSDocParser.parseJSDocComment(node, comment.pos, comment.end-comment.pos)
 	})
 	if jsDoc.length != 0 {
-		node.jsDoc = jsDoc
+		node.JsDoc = jsDoc
 	}
 	if hasDeprecatedTag {
 		hasDeprecatedTag = false
-		(node.(Mutable[T])).flags |= ast.NodeFlagsDeprecated
+		(node.(Mutable[T])).Flags |= ast.NodeFlagsDeprecated
 	}
 	return node
 }
@@ -1265,22 +1265,22 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 	parseDiagnostics = []never{}
 
 	pos := 0
-	start := findNextStatementWithAwait(sourceFile.statements, 0)
+	start := findNextStatementWithAwait(sourceFile.Statements, 0)
 	for start != -1 {
 		// append all statements between pos and start
-		prevStatement := sourceFile.statements[pos]
-		nextStatement := sourceFile.statements[start]
-		addRange(statements, sourceFile.statements, pos, start)
-		pos = findNextStatementWithoutAwait(sourceFile.statements, start)
+		prevStatement := sourceFile.Statements[pos]
+		nextStatement := sourceFile.Statements[start]
+		addRange(statements, sourceFile.Statements, pos, start)
+		pos = findNextStatementWithoutAwait(sourceFile.Statements, start)
 
 		// append all diagnostics associated with the copied range
 		diagnosticStart := findIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
-			return diagnostic.start >= prevStatement.pos
+			return diagnostic.start >= prevStatement.Pos
 		})
 		var diagnosticEnd number
 		if diagnosticStart >= 0 {
 			diagnosticEnd = findIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
-				return diagnostic.start >= nextStatement.pos
+				return diagnostic.start >= nextStatement.Pos
 			}, diagnosticStart)
 		} else {
 			diagnosticEnd = -1
@@ -1293,7 +1293,7 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 		speculationHelper(func() {
 			savedContextFlags := contextFlags
 			contextFlags |= ast.NodeFlagsAwaitContext
-			scanner.resetTokenState(nextStatement.pos)
+			scanner.resetTokenState(nextStatement.Pos)
 			nextToken()
 
 			for token() != ast.KindEndOfFileToken {
@@ -1305,14 +1305,14 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 				}
 
 				if pos >= 0 {
-					nonAwaitStatement := sourceFile.statements[pos]
-					if statement.end == nonAwaitStatement.pos {
+					nonAwaitStatement := sourceFile.Statements[pos]
+					if statement.End == nonAwaitStatement.Pos {
 						// done reparsing this section
 						break
 					}
-					if statement.end > nonAwaitStatement.pos {
+					if statement.End > nonAwaitStatement.Pos {
 						// we ate into the next statement, so we must reparse it.
-						pos = findNextStatementWithoutAwait(sourceFile.statements, pos+1)
+						pos = findNextStatementWithoutAwait(sourceFile.Statements, pos+1)
 					}
 				}
 			}
@@ -1322,7 +1322,7 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 
 		// find the next statement containing an `await`
 		if pos >= 0 {
-			start = findNextStatementWithAwait(sourceFile.statements, pos)
+			start = findNextStatementWithAwait(sourceFile.Statements, pos)
 		} else {
 			start = -1
 		}
@@ -1330,12 +1330,12 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 
 	// append all statements between pos and the end of the list
 	if pos >= 0 {
-		prevStatement := sourceFile.statements[pos]
-		addRange(statements, sourceFile.statements, pos)
+		prevStatement := sourceFile.Statements[pos]
+		addRange(statements, sourceFile.Statements, pos)
 
 		// append all diagnostics associated with the copied range
 		diagnosticStart := findIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
-			return diagnostic.start >= prevStatement.pos
+			return diagnostic.start >= prevStatement.Pos
 		})
 		if diagnosticStart >= 0 {
 			addRange(parseDiagnostics, savedParseDiagnostics, diagnosticStart)
@@ -1343,10 +1343,10 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 	}
 
 	syntaxCursor = savedSyntaxCursor
-	return factory.updateSourceFile(sourceFile, setTextRange(factoryCreateNodeArray(statements), sourceFile.statements))
+	return factory.updateSourceFile(sourceFile, setTextRange(factoryCreateNodeArray(statements), sourceFile.Statements))
 
 	containsPossibleTopLevelAwait := func(node *ast.Node) bool {
-		return node.flags&ast.NodeFlagsAwaitContext == 0 && node.transformFlags&TransformFlagsContainsPossibleTopLevelAwait != 0
+		return node.Flags&ast.NodeFlagsAwaitContext == 0 && node.TransformFlags&TransformFlagsContainsPossibleTopLevelAwait != 0
 	}
 
 	findNextStatementWithAwait := func(statements NodeArray[Statement], start number) number {
@@ -1393,7 +1393,7 @@ func createSourceFile(fileName string, languageVersion ScriptTarget, scriptKind 
 	setFields(sourceFile)
 
 	// If we parsed this as an external module, it may contain top-level await
-	if !isDeclarationFile && isExternalModule(sourceFile) && sourceFile.transformFlags&TransformFlagsContainsPossibleTopLevelAwait != 0 {
+	if !isDeclarationFile && isExternalModule(sourceFile) && sourceFile.TransformFlags&TransformFlagsContainsPossibleTopLevelAwait != 0 {
 		oldSourceFile := sourceFile
 		sourceFile = reparseTopLevelAwait(sourceFile)
 		if oldSourceFile != sourceFile {
@@ -1404,17 +1404,17 @@ func createSourceFile(fileName string, languageVersion ScriptTarget, scriptKind 
 	return sourceFile
 
 	setFields := func(sourceFile SourceFile) {
-		sourceFile.text = sourceText
-		sourceFile.bindDiagnostics = []never{}
-		sourceFile.bindSuggestionDiagnostics = nil
-		sourceFile.languageVersion = languageVersion
-		sourceFile.fileName = fileName
-		sourceFile.languageVariant = getLanguageVariant(scriptKind)
-		sourceFile.isDeclarationFile = isDeclarationFile
-		sourceFile.scriptKind = scriptKind
+		sourceFile.Text = sourceText
+		sourceFile.BindDiagnostics = []never{}
+		sourceFile.BindSuggestionDiagnostics = nil
+		sourceFile.LanguageVersion = languageVersion
+		sourceFile.FileName = fileName
+		sourceFile.LanguageVariant = getLanguageVariant(scriptKind)
+		sourceFile.IsDeclarationFile = isDeclarationFile
+		sourceFile.ScriptKind = scriptKind
 
 		setExternalModuleIndicator(sourceFile)
-		sourceFile.setExternalModuleIndicator = setExternalModuleIndicator
+		sourceFile.SetExternalModuleIndicator = setExternalModuleIndicator
 	}
 
 }
@@ -1787,7 +1787,7 @@ func parseErrorForMissingSemicolonAfter(node Union[Expression, PropertyName]) {
 	//   module `M1` {
 	//   ^^^^^^^^^^^ This block is parsed as a template literal like module`M1`.
 	if isTaggedTemplateExpression(node) {
-		parseErrorAt(skipTrivia(sourceText, node.template.pos), node.template.end, Diagnostics.Module_declaration_names_may_only_use_or_quoted_strings)
+		parseErrorAt(skipTrivia(sourceText, node.Template.Pos), node.Template.End, Diagnostics.Module_declaration_names_may_only_use_or_quoted_strings)
 		return
 	}
 
@@ -1803,14 +1803,14 @@ func parseErrorForMissingSemicolonAfter(node Union[Expression, PropertyName]) {
 		return
 	}
 
-	pos := skipTrivia(sourceText, node.pos)
+	pos := skipTrivia(sourceText, node.Pos)
 
 	// Some known keywords are likely signs of syntax being used improperly.
 	switch expressionText {
 	case "const",
 		"let",
 		"var":
-		parseErrorAt(pos, node.end, Diagnostics.Variable_declaration_not_allowed_at_this_location)
+		parseErrorAt(pos, node.End, Diagnostics.Variable_declaration_not_allowed_at_this_location)
 		return
 	case "declare":
 		// If a declared node failed to parse, it would have emitted a diagnostic already.
@@ -1833,7 +1833,7 @@ func parseErrorForMissingSemicolonAfter(node Union[Expression, PropertyName]) {
 	// The user alternatively might have misspelled or forgotten to add a space after a common keyword.
 	suggestion := ifNotNilElse(getSpellingSuggestion(expressionText, viableKeywordSuggestions, identity), getSpaceSuggestion(expressionText))
 	if suggestion {
-		parseErrorAt(pos, node.end, Diagnostics.Unknown_keyword_or_identifier_Did_you_mean_0, suggestion)
+		parseErrorAt(pos, node.End, Diagnostics.Unknown_keyword_or_identifier_Did_you_mean_0, suggestion)
 		return
 	}
 
@@ -1843,7 +1843,7 @@ func parseErrorForMissingSemicolonAfter(node Union[Expression, PropertyName]) {
 	}
 
 	// Otherwise, we know this some kind of unknown word, not just a missing expected semicolon.
-	parseErrorAt(pos, node.end, Diagnostics.Unexpected_keyword_or_identifier)
+	parseErrorAt(pos, node.End, Diagnostics.Unexpected_keyword_or_identifier)
 }
 
 /**
@@ -2018,7 +2018,7 @@ func createNodeArray(elements []T, pos number, end number, hasTrailingComma bool
 func finishNode(node T, pos number, end number) T {
 	setTextRangePosEnd(node, pos, ifNotNilElse(end, scanner.getTokenFullStart()))
 	if contextFlags != 0 {
-		(node.(Mutable[T])).flags |= contextFlags
+		(node.(Mutable[T])).Flags |= contextFlags
 	}
 
 	// Keep track on the node if we encountered an error while parsing it.  If we did, then
@@ -2026,7 +2026,7 @@ func finishNode(node T, pos number, end number) T {
 	// flag so that we don't mark any subsequent nodes.
 	if parseErrorBeforeNextFinishedNode {
 		parseErrorBeforeNextFinishedNode = false
-		(node.(Mutable[T])).flags |= ast.NodeFlagsThisNodeHasError
+		(node.(Mutable[T])).Flags |= ast.NodeFlagsThisNodeHasError
 	}
 
 	return node
@@ -2147,7 +2147,7 @@ func isImportAttributeName() bool {
 func parsePropertyNameWorker(allowComputedPropertyNames bool) PropertyName {
 	if token() == ast.KindStringLiteral || token() == ast.KindNumericLiteral || token() == ast.KindBigIntLiteral {
 		node := parseLiteralNode() /* as StringLiteral | NumericLiteral | BigIntLiteral */
-		node.text = internIdentifier(node.text)
+		node.Text = internIdentifier(node.Text)
 		return node
 	}
 	if allowComputedPropertyNames && token() == ast.KindOpenBracketToken {
@@ -2570,7 +2570,7 @@ func currentNode(parsingContext ParsingContext, pos number) *ast.Node {
 	// differently depending on what mode it is in.
 	//
 	// This also applies to all our other context flags as well.
-	nodeContextFlags := node.flags & ast.NodeFlagsContextFlags
+	nodeContextFlags := node.Flags & ast.NodeFlagsContextFlags
 	if nodeContextFlags != contextFlags {
 		return nil
 	}
@@ -2581,9 +2581,9 @@ func currentNode(parsingContext ParsingContext, pos number) *ast.Node {
 		return nil
 	}
 
-	if canHaveJSDoc(node) && node.jsDoc. /* ? */ jsDocCache != nil {
+	if canHaveJSDoc(node) && node.JsDoc. /* ? */ jsDocCache != nil {
 		// jsDocCache may include tags from parent nodes, which might have been modified.
-		node.jsDoc.jsDocCache = nil
+		node.JsDoc.jsDocCache = nil
 	}
 
 	return node
@@ -2591,7 +2591,7 @@ func currentNode(parsingContext ParsingContext, pos number) *ast.Node {
 
 func consumeNode(node *ast.Node) *ast.Node {
 	// Move the scanner so it is after the node we just consumed.
-	scanner.resetTokenState(node.end)
+	scanner.resetTokenState(node.End)
 	nextToken()
 	return node
 }
@@ -2687,7 +2687,7 @@ func canReuseNode(node *ast.Node, parsingContext ParsingContext) bool {
 
 func isReusableClassMember(node *ast.Node) bool {
 	if node {
-		switch node.kind {
+		switch node.Kind {
 		case ast.KindConstructor,
 			ast.KindIndexSignature,
 			ast.KindGetAccessor,
@@ -2700,7 +2700,7 @@ func isReusableClassMember(node *ast.Node) bool {
 			// may have a method calls "constructor(...)" and we must reparse that
 			// into an actual .ConstructorDeclaration.
 			methodDeclaration := node.AsMethodDeclaration()
-			nameIsConstructor := methodDeclaration.name.kind == ast.KindIdentifier && methodDeclaration.name.escapedText == "constructor"
+			nameIsConstructor := methodDeclaration.Name.Kind == ast.KindIdentifier && methodDeclaration.Name.EscapedText == "constructor"
 
 			return !nameIsConstructor
 		}
@@ -2711,7 +2711,7 @@ func isReusableClassMember(node *ast.Node) bool {
 
 func isReusableSwitchClause(node *ast.Node) bool {
 	if node {
-		switch node.kind {
+		switch node.Kind {
 		case ast.KindCaseClause,
 			ast.KindDefaultClause:
 			return true
@@ -2723,7 +2723,7 @@ func isReusableSwitchClause(node *ast.Node) bool {
 
 func isReusableStatement(node *ast.Node) bool {
 	if node {
-		switch node.kind {
+		switch node.Kind {
 		case ast.KindFunctionDeclaration,
 			ast.KindVariableStatement,
 			ast.KindBlock,
@@ -2761,12 +2761,12 @@ func isReusableStatement(node *ast.Node) bool {
 }
 
 func isReusableEnumMember(node *ast.Node) bool {
-	return node.kind == ast.KindEnumMember
+	return node.Kind == ast.KindEnumMember
 }
 
 func isReusableTypeMember(node *ast.Node) bool {
 	if node {
-		switch node.kind {
+		switch node.Kind {
 		case ast.KindConstructSignature,
 			ast.KindMethodSignature,
 			ast.KindIndexSignature,
@@ -2780,7 +2780,7 @@ func isReusableTypeMember(node *ast.Node) bool {
 }
 
 func isReusableVariableDeclaration(node *ast.Node) bool {
-	if node.kind != ast.KindVariableDeclaration {
+	if node.Kind != ast.KindVariableDeclaration {
 		return false
 	}
 
@@ -2799,17 +2799,17 @@ func isReusableVariableDeclaration(node *ast.Node) bool {
 	// In order to prevent this, we do not allow a variable declarator to be reused if it
 	// has an initializer.
 	variableDeclarator := node.AsVariableDeclaration()
-	return variableDeclarator.initializer == nil
+	return variableDeclarator.Initializer == nil
 }
 
 func isReusableParameter(node *ast.Node) bool {
-	if node.kind != ast.KindParameter {
+	if node.Kind != ast.KindParameter {
 		return false
 	}
 
 	// See the comment in isReusableVariableDeclaration for why we do this.
 	parameter := node.AsParameterDeclaration()
-	return parameter.initializer == nil
+	return parameter.Initializer == nil
 }
 
 // Returns true if we should abort parsing.
@@ -3025,7 +3025,7 @@ func parseEntityName(allowReservedWords bool, diagnosticMessage DiagnosticMessag
 }
 
 func createQualifiedName(entity EntityName, name Identifier) QualifiedName {
-	return finishNode(factory.createQualifiedName(entity, name), entity.pos)
+	return finishNode(factory.createQualifiedName(entity, name), entity.Pos)
 }
 
 func parseRightSideOfDot(allowIdentifierNames bool, allowPrivateIdentifiers bool, allowUnicodeEscapeSequenceInIdentifierName bool) Union[Identifier, PrivateIdentifier] {
@@ -3083,7 +3083,7 @@ func parseTemplateSpans(isTaggedTemplate bool) NodeArray[TemplateSpan] {
 	pos := getNodePos()
 	list := []never{}
 	var node TemplateSpan
-	for ok := true; ok; ok = node.literal.kind == ast.KindTemplateMiddle { // do-while loop
+	for ok := true; ok; ok = node.Literal.Kind == ast.KindTemplateMiddle { // do-while loop
 		node = parseTemplateSpan(isTaggedTemplate)
 		list.push(node)
 	}
@@ -3104,7 +3104,7 @@ func parseTemplateTypeSpans() NodeArray[TemplateLiteralTypeSpan] {
 	pos := getNodePos()
 	list := []never{}
 	var node TemplateLiteralTypeSpan
-	for ok := true; ok; ok = node.literal.kind == ast.KindTemplateMiddle { // do-while loop
+	for ok := true; ok; ok = node.Literal.Kind == ast.KindTemplateMiddle { // do-while loop
 		node = parseTemplateTypeSpan()
 		list.push(node)
 	}
@@ -3140,13 +3140,13 @@ func parseTemplateHead(isTaggedTemplate bool) TemplateHead {
 		reScanTemplateToken(false)
 	}
 	fragment := parseLiteralLikeNode(token())
-	Debug.assert(fragment.kind == ast.KindTemplateHead, "Template head has wrong token kind")
+	Debug.assert(fragment.Kind == ast.KindTemplateHead, "Template head has wrong token kind")
 	return fragment.AsTemplateHead()
 }
 
 func parseTemplateMiddleOrTemplateTail() Union[TemplateMiddle, TemplateTail] {
 	fragment := parseLiteralLikeNode(token())
-	Debug.assert(fragment.kind == ast.KindTemplateMiddle || fragment.kind == ast.KindTemplateTail, "Template fragment has wrong token kind")
+	Debug.assert(fragment.Kind == ast.KindTemplateMiddle || fragment.Kind == ast.KindTemplateTail, "Template fragment has wrong token kind")
 	return fragment /* as TemplateMiddle | TemplateTail */
 }
 
@@ -3173,11 +3173,11 @@ func parseLiteralLikeNode(kind SyntaxKind) LiteralLikeNode {
 	}
 
 	if scanner.hasExtendedUnicodeEscape() {
-		node.hasExtendedUnicodeEscape = true
+		node.HasExtendedUnicodeEscape = true
 	}
 
 	if scanner.isUnterminated() {
-		node.isUnterminated = true
+		node.IsUnterminated = true
 	}
 
 	nextToken()
@@ -3203,15 +3203,15 @@ func parseTypeReference() TypeReferenceNode {
 
 // If true, we should abort parsing an error function.
 func typeHasArrowFunctionBlockingParseError(node TypeNode) bool {
-	switch node.kind {
+	switch node.Kind {
 	case ast.KindTypeReference:
-		return nodeIsMissing((node.AsTypeReferenceNode()).typeName)
+		return nodeIsMissing(node.AsTypeReferenceNode().TypeName)
 	case ast.KindFunctionType,
 		ast.KindConstructorType:
 		TODO_IDENTIFIER := node.AsFunctionOrConstructorTypeNode()
 		return isMissingList(parameters) || typeHasArrowFunctionBlockingParseError(t)
 	case ast.KindParenthesizedType:
-		return typeHasArrowFunctionBlockingParseError((node.AsParenthesizedTypeNode()).type_)
+		return typeHasArrowFunctionBlockingParseError(node.AsParenthesizedTypeNode().Type_)
 	default:
 		return false
 	}
@@ -3219,7 +3219,7 @@ func typeHasArrowFunctionBlockingParseError(node TypeNode) bool {
 
 func parseThisTypePredicate(lhs ThisTypeNode) TypePredicateNode {
 	nextToken()
-	return finishNode(factory.createTypePredicateNode(nil, lhs, parseType()), lhs.pos)
+	return finishNode(factory.createTypePredicateNode(nil, lhs, parseType()), lhs.Pos)
 }
 
 func parseThisTypeNode() ThisTypeNode {
@@ -3364,7 +3364,7 @@ func parseTypeParameter() TypeParameterDeclaration {
 		defaultType = nil
 	}
 	node := factory.createTypeParameterDeclaration(modifiers, name, constraint, defaultType)
-	node.expression = expression
+	node.Expression = expression
 	return finishNode(node, pos)
 }
 
@@ -3660,7 +3660,7 @@ func parsePropertyOrMethodSignature(pos number, hasJSDoc bool, modifiers *NodeAr
 		// to parse an initializer so we can report in the checker that an interface
 		// property or type literal property cannot have an initializer.
 		if token() == ast.KindEqualsToken {
-			(node.(Mutable[PropertySignature])).initializer = parseInitializer()
+			(node.(Mutable[PropertySignature])).Initializer = parseInitializer()
 		}
 	}
 	parseTypeMemberSemicolon()
@@ -3780,7 +3780,7 @@ func parseMappedType() MappedTypeNode {
 	var readonlyToken Union[ReadonlyKeyword, PlusToken, MinusToken, undefined]
 	if token() == ast.KindReadonlyKeyword || token() == ast.KindPlusToken || token() == ast.KindMinusToken {
 		readonlyToken = parseTokenNode()
-		if readonlyToken.kind != ast.KindReadonlyKeyword {
+		if readonlyToken.Kind != ast.KindReadonlyKeyword {
 			parseExpected(ast.KindReadonlyKeyword)
 		}
 	}
@@ -3796,7 +3796,7 @@ func parseMappedType() MappedTypeNode {
 	var questionToken Union[QuestionToken, PlusToken, MinusToken, undefined]
 	if token() == ast.KindQuestionToken || token() == ast.KindPlusToken || token() == ast.KindMinusToken {
 		questionToken = parseTokenNode()
-		if questionToken.kind != ast.KindQuestionToken {
+		if questionToken.Kind != ast.KindQuestionToken {
 			parseExpected(ast.KindQuestionToken)
 		}
 	}
@@ -3813,10 +3813,10 @@ func parseTupleElementType() TypeNode {
 		return finishNode(factory.createRestTypeNode(parseType()), pos)
 	}
 	t := parseType()
-	if isJSDocNullableType(t) && t.pos == t.type_.pos {
-		node := factory.createOptionalTypeNode(t.type_)
+	if isJSDocNullableType(t) && t.Pos == t.Type_.Pos {
+		node := factory.createOptionalTypeNode(t.Type_)
 		setTextRange(node, t)
-		(node.(Mutable[*ast.Node])).flags = t.flags
+		(node.(Mutable[*ast.Node])).Flags = t.Flags
 		return node
 	}
 	return t
@@ -4508,7 +4508,7 @@ func parseAssignmentExpressionOrHigher(allowReturnTypeInArrowFunction bool) Expr
 	// To avoid a look-ahead, we did not handle the case of an arrow function with a single un-parenthesized
 	// parameter ('x => ...') above. We handle it here by checking if the parsed expression was a single
 	// identifier and the current token is an arrow.
-	if expr.kind == ast.KindIdentifier && token() == ast.KindEqualsGreaterThanToken {
+	if expr.Kind == ast.KindIdentifier && token() == ast.KindEqualsGreaterThanToken {
 		return parseSimpleArrowFunctionExpression(pos, expr.AsIdentifier(), allowReturnTypeInArrowFunction, hasJSDoc, nil /*asyncModifier*/)
 	}
 
@@ -4580,9 +4580,9 @@ func parseYieldExpression() YieldExpression {
 func parseSimpleArrowFunctionExpression(pos number, identifier Identifier, allowReturnTypeInArrowFunction bool, hasJSDoc bool, asyncModifier *NodeArray[Modifier]) ArrowFunction {
 	Debug.assert(token() == ast.KindEqualsGreaterThanToken, "parseSimpleArrowFunctionExpression should only have been called if we had a =>")
 	parameter := factory.createParameterDeclaration(nil, nil, identifier, nil, nil, nil)
-	finishNode(parameter, identifier.pos)
+	finishNode(parameter, identifier.Pos)
 
-	parameters := createNodeArray([]ParameterDeclaration{parameter}, parameter.pos, parameter.end)
+	parameters := createNodeArray([]ParameterDeclaration{parameter}, parameter.Pos, parameter.End)
 	equalsGreaterThanToken := parseExpectedToken(ast.KindEqualsGreaterThanToken)
 	body := parseArrowFunctionExpressionBody(asyncModifier != nil, allowReturnTypeInArrowFunction)
 	node := factory.createArrowFunction(asyncModifier, nil /*typeParameters*/, parameters, nil /*type*/, equalsGreaterThanToken, body)
@@ -4798,7 +4798,7 @@ func isUnParenthesizedAsyncArrowFunctionWorker() Tristate {
 		}
 		// Check for un-parenthesized AsyncArrowFunction
 		expr := parseBinaryExpressionOrHigher(OperatorPrecedenceLowest)
-		if !scanner.hasPrecedingLineBreak() && expr.kind == ast.KindIdentifier && token() == ast.KindEqualsGreaterThanToken {
+		if !scanner.hasPrecedingLineBreak() && expr.Kind == ast.KindIdentifier && token() == ast.KindEqualsGreaterThanToken {
 			return TristateTrue
 		}
 	}
@@ -4865,7 +4865,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 
 	unwrappedType := t
 	for unwrappedType. /* ? */ kind == ast.KindParenthesizedType {
-		unwrappedType = (unwrappedType.AsParenthesizedTypeNode()).type_
+		unwrappedType = unwrappedType.AsParenthesizedTypeNode().Type_
 		// Skip parens if need be
 	}
 
@@ -5058,7 +5058,7 @@ func isBinaryOperator() bool {
 }
 
 func makeSatisfiesExpression(left Expression, right TypeNode) SatisfiesExpression {
-	return finishNode(factory.createSatisfiesExpression(left, right), left.pos)
+	return finishNode(factory.createSatisfiesExpression(left, right), left.Pos)
 }
 
 func makeBinaryExpression(left Expression, operatorToken BinaryOperatorToken, right Expression, pos number) BinaryExpression {
@@ -5066,7 +5066,7 @@ func makeBinaryExpression(left Expression, operatorToken BinaryOperatorToken, ri
 }
 
 func makeAsExpression(left Expression, right TypeNode) AsExpression {
-	return finishNode(factory.createAsExpression(left, right), left.pos)
+	return finishNode(factory.createAsExpression(left, right), left.Pos)
 }
 
 func parsePrefixUnaryExpression() PrefixUnaryExpression {
@@ -5148,9 +5148,9 @@ func parseUnaryExpressionOrHigher() Union[UnaryExpression, BinaryExpression] {
 	unaryOperator := token()
 	simpleUnaryExpression := parseSimpleUnaryExpression()
 	if token() == ast.KindAsteriskAsteriskToken {
-		pos := skipTrivia(sourceText, simpleUnaryExpression.pos)
+		pos := skipTrivia(sourceText, simpleUnaryExpression.Pos)
 		TODO_IDENTIFIER := simpleUnaryExpression
-		if simpleUnaryExpression.kind == ast.KindTypeAssertionExpression {
+		if simpleUnaryExpression.Kind == ast.KindTypeAssertionExpression {
 			parseErrorAt(pos, end, Diagnostics.A_type_assertion_expression_is_not_allowed_in_the_left_hand_side_of_an_exponentiation_expression_Consider_enclosing_the_expression_in_parentheses)
 		} else {
 			Debug.assert(isKeywordOrPunctuation(unaryOperator))
@@ -5271,7 +5271,7 @@ func parseUpdateExpression() UpdateExpression {
 	if (token() == ast.KindPlusPlusToken || token() == ast.KindMinusMinusToken) && !scanner.hasPrecedingLineBreak() {
 		operator := token().(PostfixUnaryOperator)
 		nextToken()
-		return finishNode(factory.createPostfixUnaryExpression(expression, operator), expression.pos)
+		return finishNode(factory.createPostfixUnaryExpression(expression, operator), expression.Pos)
 	}
 
 	return expression
@@ -5427,37 +5427,37 @@ func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, top
 	pos := getNodePos()
 	opening := parseJsxOpeningOrSelfClosingElementOrOpeningFragment(inExpressionContext)
 	var result Union[JsxElement, JsxSelfClosingElement, JsxFragment]
-	if opening.kind == ast.KindJsxOpeningElement {
+	if opening.Kind == ast.KindJsxOpeningElement {
 		children := parseJsxChildren(opening)
 		var closingElement JsxClosingElement
 
 		var lastChild *JsxChild = children[children.length-1]
-		if lastChild. /* ? */ kind == ast.KindJsxElement && !tagNamesAreEquivalent(lastChild.openingElement.tagName, lastChild.closingElement.tagName) && tagNamesAreEquivalent(opening.tagName, lastChild.closingElement.tagName) {
+		if lastChild. /* ? */ Kind == ast.KindJsxElement && !tagNamesAreEquivalent(lastChild.OpeningElement.TagName, lastChild.ClosingElement.TagName) && tagNamesAreEquivalent(opening.TagName, lastChild.ClosingElement.TagName) {
 			// when an unclosed JsxOpeningElement incorrectly parses its parent's JsxClosingElement,
 			// restructure (<div>(...<span>...</div>)) --> (<div>(...<span>...</>)</div>)
 			// (no need to error; the parent will error)
-			end := lastChild.children.end
-			newLast := finishNode(factory.createJsxElement(lastChild.openingElement, lastChild.children, finishNode(factory.createJsxClosingElement(finishNode(factoryCreateIdentifier(""), end, end)), end, end)), lastChild.openingElement.pos, end)
+			end := lastChild.Children.end
+			newLast := finishNode(factory.createJsxElement(lastChild.OpeningElement, lastChild.Children, finishNode(factory.createJsxClosingElement(finishNode(factoryCreateIdentifier(""), end, end)), end, end)), lastChild.OpeningElement.Pos, end)
 
 			children = createNodeArray([]JsxChild{ /* TODO(TS-TO-GO) Expression SpreadElement: ...children.slice(0, children.length - 1) */ newLast}, children.pos, end)
-			closingElement = lastChild.closingElement
+			closingElement = lastChild.ClosingElement
 		} else {
 			closingElement = parseJsxClosingElement(opening, inExpressionContext)
-			if !tagNamesAreEquivalent(opening.tagName, closingElement.tagName) {
-				if openingTag != nil && isJsxOpeningElement(openingTag) && tagNamesAreEquivalent(closingElement.tagName, openingTag.tagName) {
+			if !tagNamesAreEquivalent(opening.TagName, closingElement.TagName) {
+				if openingTag != nil && isJsxOpeningElement(openingTag) && tagNamesAreEquivalent(closingElement.TagName, openingTag.TagName) {
 					// opening incorrectly matched with its parent's closing -- put error on opening
-					parseErrorAtRange(opening.tagName, Diagnostics.JSX_element_0_has_no_corresponding_closing_tag, getTextOfNodeFromSourceText(sourceText, opening.tagName))
+					parseErrorAtRange(opening.TagName, Diagnostics.JSX_element_0_has_no_corresponding_closing_tag, getTextOfNodeFromSourceText(sourceText, opening.TagName))
 				} else {
 					// other opening/closing mismatches -- put error on closing
-					parseErrorAtRange(closingElement.tagName, Diagnostics.Expected_corresponding_JSX_closing_tag_for_0, getTextOfNodeFromSourceText(sourceText, opening.tagName))
+					parseErrorAtRange(closingElement.TagName, Diagnostics.Expected_corresponding_JSX_closing_tag_for_0, getTextOfNodeFromSourceText(sourceText, opening.TagName))
 				}
 			}
 		}
 		result = finishNode(factory.createJsxElement(opening, children, closingElement), pos)
-	} else if opening.kind == ast.KindJsxOpeningFragment {
+	} else if opening.Kind == ast.KindJsxOpeningFragment {
 		result = finishNode(factory.createJsxFragment(opening, parseJsxChildren(opening), parseJsxClosingFragment(inExpressionContext)), pos)
 	} else {
-		Debug.assert(opening.kind == ast.KindJsxSelfClosingElement)
+		Debug.assert(opening.Kind == ast.KindJsxSelfClosingElement)
 		// Nothing else to do for self-closing elements
 		result = opening
 	}
@@ -5474,7 +5474,7 @@ func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, top
 	if !mustBeUnary && inExpressionContext && token() == ast.KindLessThanToken {
 		var topBadPos number
 		if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof topInvalidNodePosition */ TODO == "undefined" {
-			topBadPos = result.pos
+			topBadPos = result.Pos
 		} else {
 			topBadPos = topInvalidNodePosition
 		}
@@ -5483,8 +5483,8 @@ func parseJsxElementOrSelfClosingElementOrFragment(inExpressionContext bool, top
 		})
 		if invalidElement {
 			operatorToken := createMissingNode(ast.KindCommaToken, false /*reportAtCurrentPosition*/)
-			setTextRangePosWidth(operatorToken, invalidElement.pos, 0)
-			parseErrorAt(skipTrivia(sourceText, topBadPos), invalidElement.end, Diagnostics.JSX_expressions_must_have_one_parent_element)
+			setTextRangePosWidth(operatorToken, invalidElement.Pos, 0)
+			parseErrorAt(skipTrivia(sourceText, topBadPos), invalidElement.End, Diagnostics.JSX_expressions_must_have_one_parent_element)
 			return finishNode(factory.createBinaryExpression(result, operatorToken.AsToken(), invalidElement), pos).AsNode().AsJsxElement()
 		}
 	}
@@ -5509,9 +5509,9 @@ func parseJsxChild(openingTag Union[JsxOpeningElement, JsxOpeningFragment], toke
 		} else {
 			// We want the error span to cover only 'Foo.Bar' in < Foo.Bar >
 			// or to cover only 'Foo' in < Foo >
-			tag := openingTag.tagName
-			start := min(skipTrivia(sourceText, tag.pos), tag.end)
-			parseErrorAt(start, tag.end, Diagnostics.JSX_element_0_has_no_corresponding_closing_tag, getTextOfNodeFromSourceText(sourceText, openingTag.tagName))
+			tag := openingTag.TagName
+			start := min(skipTrivia(sourceText, tag.Pos), tag.End)
+			parseErrorAt(start, tag.End, Diagnostics.JSX_element_0_has_no_corresponding_closing_tag, getTextOfNodeFromSourceText(sourceText, openingTag.TagName))
 		}
 		return nil
 	case ast.KindLessThanSlashToken,
@@ -5541,7 +5541,7 @@ func parseJsxChildren(openingTag Union[JsxOpeningElement, JsxOpeningFragment]) N
 			break
 		}
 		list.push(child)
-		if isJsxOpeningElement(openingTag) && child. /* ? */ kind == ast.KindJsxElement && !tagNamesAreEquivalent(child.openingElement.tagName, child.closingElement.tagName) && tagNamesAreEquivalent(openingTag.tagName, child.closingElement.tagName) {
+		if isJsxOpeningElement(openingTag) && child. /* ? */ Kind == ast.KindJsxElement && !tagNamesAreEquivalent(child.OpeningElement.TagName, child.ClosingElement.TagName) && tagNamesAreEquivalent(openingTag.TagName, child.ClosingElement.TagName) {
 			// stop after parsing a mismatched child like <div>...(<span></div>) in order to reattach the </div> higher
 			break
 		}
@@ -5715,7 +5715,7 @@ func parseJsxClosingElement(open JsxOpeningElement, inExpressionContext bool) Js
 	tagName := parseJsxElementName()
 	if parseExpected(ast.KindGreaterThanToken, nil /*diagnosticMessage*/, false /*shouldAdvance*/) {
 		// manually advance the scanner in order to look for jsx text inside jsx
-		if inExpressionContext || !tagNamesAreEquivalent(open.tagName, tagName) {
+		if inExpressionContext || !tagNamesAreEquivalent(open.TagName, tagName) {
 			nextToken()
 		} else {
 			scanJsxText()
@@ -5758,20 +5758,20 @@ func isStartOfOptionalPropertyOrElementAccessChain() bool {
 }
 
 func tryReparseOptionalChain(node Expression) bool {
-	if node.flags&ast.NodeFlagsOptionalChain != 0 {
+	if node.Flags&ast.NodeFlagsOptionalChain != 0 {
 		return true
 	}
 	// check for an optional chain in a non-null expression
 	if isNonNullExpression(node) {
-		expr := node.expression
-		for isNonNullExpression(expr) && expr.flags&ast.NodeFlagsOptionalChain == 0 {
-			expr = expr.expression
+		expr := node.Expression
+		for isNonNullExpression(expr) && expr.Flags&ast.NodeFlagsOptionalChain == 0 {
+			expr = expr.Expression
 		}
-		if expr.flags&ast.NodeFlagsOptionalChain != 0 {
+		if expr.Flags&ast.NodeFlagsOptionalChain != 0 {
 			// this is part of an optional chain. Walk down from `node` to `expression` and set the flag.
 			for isNonNullExpression(node) {
-				(node.(Mutable[NonNullExpression])).flags |= ast.NodeFlagsOptionalChain
-				node = node.expression
+				(node.(Mutable[NonNullExpression])).Flags |= ast.NodeFlagsOptionalChain
+				node = node.Expression
 			}
 			return true
 		}
@@ -5788,12 +5788,12 @@ func parsePropertyAccessExpressionRest(pos number, expression LeftHandSideExpres
 	} else {
 		propertyAccess = factoryCreatePropertyAccessExpression(expression, name)
 	}
-	if isOptionalChain && isPrivateIdentifier(propertyAccess.name) {
-		parseErrorAtRange(propertyAccess.name, Diagnostics.An_optional_chain_cannot_contain_private_identifiers)
+	if isOptionalChain && isPrivateIdentifier(propertyAccess.Name) {
+		parseErrorAtRange(propertyAccess.Name, Diagnostics.An_optional_chain_cannot_contain_private_identifiers)
 	}
-	if isExpressionWithTypeArguments(expression) && expression.typeArguments != nil {
-		pos := expression.typeArguments.pos - 1
-		end := skipTrivia(sourceText, expression.typeArguments.end) + 1
+	if isExpressionWithTypeArguments(expression) && expression.TypeArguments != nil {
+		pos := expression.TypeArguments.pos - 1
+		end := skipTrivia(sourceText, expression.TypeArguments.end) + 1
 		parseErrorAt(pos, end, Diagnostics.An_instantiation_expression_cannot_be_followed_by_a_property_access)
 	}
 	return finishNode(propertyAccess, pos)
@@ -5806,7 +5806,7 @@ func parseElementAccessExpressionRest(pos number, expression LeftHandSideExpress
 	} else {
 		argument := allowInAnd(parseExpression)
 		if isStringOrNumericLiteralLike(argument) {
-			argument.text = internIdentifier(argument.text)
+			argument.Text = internIdentifier(argument.Text)
 		}
 		argumentExpression = argument
 	}
@@ -5846,8 +5846,8 @@ func parseMemberExpressionRest(pos number, expression LeftHandSideExpression, al
 
 		if isTemplateStartOfTaggedTemplate() {
 			// Absorb type arguments into TemplateExpression when preceding expression is ExpressionWithTypeArguments
-			if questionDotToken == nil && expression.kind == ast.KindExpressionWithTypeArguments {
-				expression = parseTaggedTemplateRest(pos, (expression.AsExpressionWithTypeArguments()).expression, questionDotToken, (expression.AsExpressionWithTypeArguments()).typeArguments)
+			if questionDotToken == nil && expression.Kind == ast.KindExpressionWithTypeArguments {
+				expression = parseTaggedTemplateRest(pos, expression.AsExpressionWithTypeArguments().Expression, questionDotToken, expression.AsExpressionWithTypeArguments().TypeArguments)
 			} else {
 				expression = parseTaggedTemplateRest(pos, expression, questionDotToken, nil /*typeArguments*/)
 			}
@@ -5877,10 +5877,10 @@ func isTemplateStartOfTaggedTemplate() bool {
 
 func parseTaggedTemplateRest(pos number, tag LeftHandSideExpression, questionDotToken *QuestionDotToken, typeArguments *NodeArray[TypeNode]) TaggedTemplateExpression {
 	tagExpression := factory.createTaggedTemplateExpression(tag, typeArguments, ifElse(token() == ast.KindNoSubstitutionTemplateLiteral, ( /* TODO(TS-TO-GO) CommaToken BinaryExpression: reScanTemplateToken(/*isTaggedTemplate* / true), parseLiteralNode() as NoSubstitutionTemplateLiteral */ TODO), parseTemplateExpression(true)))
-	if questionDotToken != nil || tag.flags&ast.NodeFlagsOptionalChain != 0 {
-		(tagExpression.(Mutable[*ast.Node])).flags |= ast.NodeFlagsOptionalChain
+	if questionDotToken != nil || tag.Flags&ast.NodeFlagsOptionalChain != 0 {
+		(tagExpression.(Mutable[*ast.Node])).Flags |= ast.NodeFlagsOptionalChain
 	}
-	tagExpression.questionDotToken = questionDotToken
+	tagExpression.QuestionDotToken = questionDotToken
 	return finishNode(tagExpression, pos)
 }
 
@@ -5898,9 +5898,9 @@ func parseCallExpressionRest(pos number, expression LeftHandSideExpression) Left
 		}
 		if typeArguments != nil || token() == ast.KindOpenParenToken {
 			// Absorb type arguments into CallExpression when preceding expression is ExpressionWithTypeArguments
-			if !questionDotToken && expression.kind == ast.KindExpressionWithTypeArguments {
-				typeArguments = (expression.AsExpressionWithTypeArguments()).typeArguments
-				expression = (expression.AsExpressionWithTypeArguments()).expression
+			if !questionDotToken && expression.Kind == ast.KindExpressionWithTypeArguments {
+				typeArguments = expression.AsExpressionWithTypeArguments().TypeArguments
+				expression = expression.AsExpressionWithTypeArguments().Expression
 			}
 			argumentList := parseArgumentList()
 			var callExpr CallExpression
@@ -6122,7 +6122,7 @@ func parseObjectLiteralElement() ObjectLiteralElementLike {
 		node = factory.createShorthandPropertyAssignment(name.AsIdentifier(), objectAssignmentInitializer)
 		// Save equals token for error reporting.
 		// TODO(rbuckton): Consider manufacturing this when we need to report an error as it is otherwise not useful.
-		node.equalsToken = equalsToken
+		node.EqualsToken = equalsToken
 	} else {
 		parseExpected(ast.KindColonToken)
 		initializer := allowInAnd(func() Expression {
@@ -6131,9 +6131,9 @@ func parseObjectLiteralElement() ObjectLiteralElementLike {
 		node = factory.createPropertyAssignment(name, initializer)
 	}
 	// Decorators, Modifiers, questionToken, and exclamationToken are not supported by property assignments and are reported in the grammar checker
-	node.modifiers = modifiers
-	node.questionToken = questionToken
-	node.exclamationToken = exclamationToken
+	node.Modifiers = modifiers
+	node.QuestionToken = questionToken
+	node.ExclamationToken = exclamationToken
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -6215,9 +6215,9 @@ func parseNewExpressionOrNewDotTarget() Union[NewExpression, MetaProperty] {
 	var expression LeftHandSideExpression = parseMemberExpressionRest(expressionPos, parsePrimaryExpression(), false /*allowOptionalChain*/)
 	var typeArguments *NodeArray[TypeNode]
 	// Absorb type arguments into NewExpression when preceding expression is ExpressionWithTypeArguments
-	if expression.kind == ast.KindExpressionWithTypeArguments {
-		typeArguments = (expression.AsExpressionWithTypeArguments()).typeArguments
-		expression = (expression.AsExpressionWithTypeArguments()).expression
+	if expression.Kind == ast.KindExpressionWithTypeArguments {
+		typeArguments = expression.AsExpressionWithTypeArguments().TypeArguments
+		expression = expression.AsExpressionWithTypeArguments().Expression
 	}
 	if token() == ast.KindQuestionDotToken {
 		parseErrorAtCurrentToken(Diagnostics.Invalid_optional_chain_from_new_expression_Did_you_mean_to_call_0, getTextOfNodeFromSourceText(sourceText, expression))
@@ -6871,7 +6871,7 @@ func parseStatement() Statement {
 }
 
 func isDeclareModifier(modifier ModifierLike) bool {
-	return modifier.kind == ast.KindDeclareKeyword
+	return modifier.Kind == ast.KindDeclareKeyword
 }
 
 func parseDeclaration() Statement {
@@ -6889,7 +6889,7 @@ func parseDeclaration() Statement {
 		}
 
 		for _, m := range modifiers {
-			(m.(Mutable[*ast.Node])).flags |= ast.NodeFlagsAmbient
+			(m.(Mutable[*ast.Node])).Flags |= ast.NodeFlagsAmbient
 		}
 		return doInsideOfContext(ast.NodeFlagsAmbient, func() Statement {
 			return parseDeclarationWorker(pos, hasJSDoc, modifiers)
@@ -6952,7 +6952,7 @@ func parseDeclarationWorker(pos number, hasJSDoc bool, modifiersIn *NodeArray[Mo
 			// would follow. For recovery and error reporting purposes, return an incomplete declaration.
 			missing := createMissingNode(ast.KindMissingDeclaration, true /*reportAtCurrentPosition*/, Diagnostics.Declaration_expected)
 			setTextRangePos(missing, pos)
-			(missing.(Mutable[MissingDeclaration])).modifiers = modifiersIn
+			(missing.(Mutable[MissingDeclaration])).Modifiers = modifiersIn
 			return missing
 		}
 		return nil
@@ -7061,7 +7061,7 @@ func parseVariableDeclaration(allowExclamation bool) VariableDeclaration {
 	hasJSDoc := hasPrecedingJSDocComment()
 	name := parseIdentifierOrPattern(Diagnostics.Private_identifiers_are_not_allowed_in_variable_declarations)
 	var exclamationToken *ExclamationToken
-	if allowExclamation && name.kind == ast.KindIdentifier && token() == ast.KindExclamationToken && !scanner.hasPrecedingLineBreak() {
+	if allowExclamation && name.Kind == ast.KindIdentifier && token() == ast.KindExclamationToken && !scanner.hasPrecedingLineBreak() {
 		exclamationToken = parseTokenNode()
 	}
 	t := parseTypeAnnotation()
@@ -7175,7 +7175,7 @@ func parseConstructorName() * /* TODO(TS-TO-GO) inferred type boolean | LiteralE
 	if token() == ast.KindStringLiteral && lookAhead(nextToken) == ast.KindOpenParenToken {
 		return tryParse(func() *LiteralExpression {
 			literalNode := parseLiteralNode()
-			if literalNode.text == "constructor" {
+			if literalNode.Text == "constructor" {
 				return literalNode
 			} else {
 				return nil
@@ -7194,8 +7194,8 @@ func tryParseConstructorDeclaration(pos number, hasJSDoc bool, modifiers *NodeAr
 			node := factory.createConstructorDeclaration(modifiers, parameters, body)
 
 			// Attach invalid nodes if they exist so that we can report them in the grammar checker.
-			(node.(Mutable[ConstructorDeclaration])).typeParameters = typeParameters
-			(node.(Mutable[ConstructorDeclaration])).type_ = t
+			(node.(Mutable[ConstructorDeclaration])).TypeParameters = typeParameters
+			(node.(Mutable[ConstructorDeclaration])).Type_ = t
 			return withJSDoc(finishNode(node, pos), hasJSDoc)
 		}
 	})
@@ -7221,7 +7221,7 @@ func parseMethodDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Modi
 	node := factory.createMethodDeclaration(modifiers, asteriskToken, name, questionToken, typeParameters, parameters, t, body)
 
 	// An exclamation token on a method is invalid syntax and will be handled by the grammar checker
-	(node.(Mutable[MethodDeclaration])).exclamationToken = exclamationToken
+	(node.(Mutable[MethodDeclaration])).ExclamationToken = exclamationToken
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -7264,9 +7264,9 @@ func parseAccessorDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Mo
 		node = factory.createSetAccessorDeclaration(modifiers, name, parameters, body)
 	}
 	// Keep track of `typeParameters` (for both) and `type` (for setters) if they were parsed those indicate grammar errors
-	(node.(Mutable[AccessorDeclaration])).typeParameters = typeParameters
+	(node.(Mutable[AccessorDeclaration])).TypeParameters = typeParameters
 	if isSetAccessorDeclaration(node) {
-		(node.(Mutable[SetAccessorDeclaration])).type_ = t
+		(node.(Mutable[SetAccessorDeclaration])).Type_ = t
 	}
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
@@ -7344,7 +7344,7 @@ func parseClassStaticBlockDeclaration(pos number, hasJSDoc bool, modifiers *Node
 	parseExpectedToken(ast.KindStaticKeyword)
 	body := parseClassStaticBlockBody()
 	node := withJSDoc(finishNode(factory.createClassStaticBlockDeclaration(body), pos), hasJSDoc)
-	(node.(Mutable[ClassStaticBlockDeclaration])).modifiers = modifiers
+	(node.(Mutable[ClassStaticBlockDeclaration])).Modifiers = modifiers
 	return node
 }
 
@@ -7439,7 +7439,7 @@ func parseModifiers(allowDecorators bool, permitConstAsModifier bool, stopOnStar
 
 	// parse leading modifiers
 	for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: modifier = tryParseModifier(hasSeenStaticModifier, permitConstAsModifier, stopOnStartOfClassStaticBlock) */ TODO != nil {
-		if modifier.kind == ast.KindStaticKeyword {
+		if modifier.Kind == ast.KindStaticKeyword {
 			hasSeenStaticModifier = true
 		}
 		list = append(list, modifier)
@@ -7457,7 +7457,7 @@ func parseModifiers(allowDecorators bool, permitConstAsModifier bool, stopOnStar
 	// parse trailing modifiers, but only if we parsed any trailing decorators
 	if hasTrailingDecorator {
 		for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: modifier = tryParseModifier(hasSeenStaticModifier, permitConstAsModifier, stopOnStartOfClassStaticBlock) */ TODO != nil {
-			if modifier.kind == ast.KindStaticKeyword {
+			if modifier.Kind == ast.KindStaticKeyword {
 				hasSeenStaticModifier = true
 			}
 			list = append(list, modifier)
@@ -7516,7 +7516,7 @@ func parseClassElement() ClassElement {
 		isAmbient := some(modifiers, isDeclareModifier)
 		if isAmbient {
 			for _, m := range modifiers {
-				(m.(Mutable[*ast.Node])).flags |= ast.NodeFlagsAmbient
+				(m.(Mutable[*ast.Node])).Flags |= ast.NodeFlagsAmbient
 			}
 			return doInsideOfContext(ast.NodeFlagsAmbient, func() /* TODO(TS-TO-GO) inferred type MethodDeclaration | PropertyDeclaration */ any {
 				return parsePropertyOrMethodDeclaration(pos, hasJSDoc, modifiers)
@@ -7546,7 +7546,7 @@ func parseDecoratedExpression() PrimaryExpression {
 
 	missing := createMissingNode(ast.KindMissingDeclaration, true /*reportAtCurrentPosition*/, Diagnostics.Expression_expected)
 	setTextRangePos(missing, pos)
-	(missing.(Mutable[MissingDeclaration])).modifiers = modifiers
+	(missing.(Mutable[MissingDeclaration])).Modifiers = modifiers
 	return missing
 }
 
@@ -7630,7 +7630,7 @@ func parseHeritageClause() HeritageClause {
 func parseExpressionWithTypeArguments() ExpressionWithTypeArguments {
 	pos := getNodePos()
 	expression := parseLeftHandSideExpressionOrHigher()
-	if expression.kind == ast.KindExpressionWithTypeArguments {
+	if expression.Kind == ast.KindExpressionWithTypeArguments {
 		return expression.AsExpressionWithTypeArguments()
 	}
 	typeArguments := tryParseTypeArguments()
@@ -7746,7 +7746,7 @@ func parseAmbientExternalModuleDeclaration(pos number, hasJSDoc bool, modifiersI
 		flags |= ast.NodeFlagsGlobalAugmentation
 	} else {
 		name = parseLiteralNode().AsStringLiteral()
-		name.text = internIdentifier(name.text)
+		name.Text = internIdentifier(name.Text)
 	}
 	var body *ModuleBlock
 	if token() == ast.KindOpenBraceToken {
@@ -7797,7 +7797,7 @@ func parseNamespaceExportDeclaration(pos number, hasJSDoc bool, modifiers *NodeA
 	parseSemicolon()
 	node := factory.createNamespaceExportDeclaration(name)
 	// NamespaceExportDeclaration nodes cannot have decorators or modifiers, so we attach them here so we can report them in the grammar checker
-	(node.(Mutable[NamespaceExportDeclaration])).modifiers = modifiers
+	(node.(Mutable[NamespaceExportDeclaration])).Modifiers = modifiers
 	return withJSDoc(finishNode(node, pos), hasJSDoc)
 }
 
@@ -7956,7 +7956,7 @@ func parseExternalModuleReference() ExternalModuleReference {
 func parseModuleSpecifier() Expression {
 	if token() == ast.KindStringLiteral {
 		result := parseLiteralNode()
-		result.text = internIdentifier(result.text)
+		result.Text = internIdentifier(result.Text)
 		return result
 	} else {
 		// We allow arbitrary expressions here, even though the grammar only allows string
@@ -8034,7 +8034,7 @@ func parseImportOrExportSpecifier(kind SyntaxKind) ImportOrExportSpecifier {
 	var propertyName *ModuleExportName
 	canParseAsKeyword := true
 	name := parseModuleExportName(parseIdentifierName)
-	if name.kind == ast.KindIdentifier && name.escapedText == "type" {
+	if name.Kind == ast.KindIdentifier && name.EscapedText == "type" {
 		// If the first token of an import specifier is 'type', there are a lot of possibilities,
 		// especially if we see 'as' afterwards:
 		//
@@ -8086,10 +8086,10 @@ func parseImportOrExportSpecifier(kind SyntaxKind) ImportOrExportSpecifier {
 		name = parseModuleExportName(parseNameWithKeywordCheck)
 	}
 	if kind == ast.KindImportSpecifier {
-		if name.kind != ast.KindIdentifier {
+		if name.Kind != ast.KindIdentifier {
 			// ImportSpecifier casts "name" to Identifier below, so make sure it's an identifier
-			parseErrorAt(skipTrivia(sourceText, name.pos), name.end, Diagnostics.Identifier_expected)
-			name = setTextRangePosEnd(createMissingNode(ast.KindIdentifier, false /*reportAtCurrentPosition*/), name.pos, name.pos)
+			parseErrorAt(skipTrivia(sourceText, name.Pos), name.End, Diagnostics.Identifier_expected)
+			name = setTextRangePosEnd(createMissingNode(ast.KindIdentifier, false /*reportAtCurrentPosition*/), name.Pos, name.Pos)
 		} else if checkIdentifierIsKeyword {
 			parseErrorAt(checkIdentifierStart, checkIdentifierEnd, Diagnostics.Identifier_expected)
 		}
@@ -8217,7 +8217,7 @@ func parseJSDocTypeExpressionForTests(content string, start *number, length *num
 	sourceFile := createSourceFile("file.js", ScriptTargetLatest, ScriptKindJS, false /*isDeclarationFile*/, []never{}, factoryCreateToken(ast.KindEndOfFileToken), ast.NodeFlagsNone, noop)
 	diagnostics := attachFileToDiagnostics(parseDiagnostics, sourceFile)
 	if jsDocDiagnostics {
-		sourceFile.jsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
+		sourceFile.JsDocDiagnostics = attachFileToDiagnostics(jsDocDiagnostics, sourceFile)
 	}
 
 	clearState()
@@ -8553,7 +8553,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		indentText := skipWhitespaceOrAsterisk()
 
 		var tag *JSDocTag
-		switch tagName.escapedText {
+		switch tagName.EscapedText {
 		case "author":
 			tag = parseAuthorTag(start, tagName, margin, indentText)
 		case "implements":
@@ -8794,11 +8794,11 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		}
 		if !tags {
 			tags = []JSDocTag{tag}
-			tagsPos = tag.pos
+			tagsPos = tag.Pos
 		} else {
 			tags.push(tag)
 		}
-		tagsEnd = tag.end
+		tagsEnd = tag.End
 	}
 
 	tryParseTypeExpression := func() *JSDocTypeExpression {
@@ -8839,13 +8839,13 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	}
 
 	isObjectOrObjectArrayTypeReference := func(node TypeNode) bool {
-		switch node.kind {
+		switch node.Kind {
 		case ast.KindObjectKeyword:
 			return true
 		case ast.KindArrayType:
-			return isObjectOrObjectArrayTypeReference((node.AsArrayTypeNode()).elementType)
+			return isObjectOrObjectArrayTypeReference(node.AsArrayTypeNode().ElementType)
 		default:
-			return isTypeReferenceNode(node) && isIdentifierNode(node.typeName) && node.typeName.escapedText == "Object" && node.typeArguments == nil
+			return isTypeReferenceNode(node) && isIdentifierNode(node.TypeName) && node.TypeName.EscapedText == "Object" && node.TypeArguments == nil
 		}
 	}
 
@@ -8878,19 +8878,19 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	}
 
 	parseNestedTypeLiteral := func(typeExpression *JSDocTypeExpression, name EntityName, target PropertyLikeParse, indent number) *JSDocTypeExpression {
-		if typeExpression != nil && isObjectOrObjectArrayTypeReference(typeExpression.type_) {
+		if typeExpression != nil && isObjectOrObjectArrayTypeReference(typeExpression.Type_) {
 			pos := getNodePos()
 			var child Union[JSDocPropertyLikeTag, JSDocTypeTag, JSDocTemplateTag, JSDocThisTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]
 			var children *[]JSDocPropertyLikeTag
 			for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: child = tryParse(() => parseChildParameterOrPropertyTag(target, indent, name)) */ TODO {
-				if child.kind == ast.KindJSDocParameterTag || child.kind == ast.KindJSDocPropertyTag {
+				if child.Kind == ast.KindJSDocParameterTag || child.Kind == ast.KindJSDocPropertyTag {
 					children = append(children, child)
-				} else if child.kind == ast.KindJSDocTemplateTag {
-					parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag)
+				} else if child.Kind == ast.KindJSDocTemplateTag {
+					parseErrorAtRange(child.TagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag)
 				}
 			}
 			if children != nil {
-				literal := finishNode(factory.createJSDocTypeLiteral(children, typeExpression.type_.kind == ast.KindArrayType), pos)
+				literal := finishNode(factory.createJSDocTypeLiteral(children, typeExpression.Type_.Kind == ast.KindArrayType), pos)
 				return finishNode(factory.createJSDocTypeExpression(literal), pos)
 			}
 		}
@@ -8898,7 +8898,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 
 	parseReturnTag := func(start number, tagName Identifier, indent number, indentText string) JSDocReturnTag {
 		if some(tags, isJSDocReturnTag) {
-			parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.escapedText))
+			parseErrorAt(tagName.Pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.EscapedText))
 		}
 
 		typeExpression := tryParseTypeExpression()
@@ -8907,7 +8907,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 
 	parseTypeTag := func(start number, tagName Identifier, indent number, indentText string) JSDocTypeTag {
 		if some(tags, isJSDocTypeTag) {
-			parseErrorAt(tagName.pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.escapedText))
+			parseErrorAt(tagName.Pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.EscapedText))
 		}
 
 		typeExpression := parseJSDocTypeExpression(true)
@@ -8957,7 +8957,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof comments */ TODO != "string" {
 			allParts = createNodeArray(concatenate([]JSDocText{finishNode(textOnly, commentStart, commentEnd)}, comments) /* as JSDocComment[] */, commentStart)
 		} else {
-			allParts = textOnly.text + comments
+			allParts = textOnly.Text + comments
 		}
 		return finishNode(factory.createJSDocAuthorTag(tagName, allParts), start)
 	}
@@ -9075,17 +9075,17 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		comment := parseTagComments(indent)
 
 		var end *number
-		if typeExpression == nil || isObjectOrObjectArrayTypeReference(typeExpression.type_) {
+		if typeExpression == nil || isObjectOrObjectArrayTypeReference(typeExpression.Type_) {
 			var child Union[JSDocTypeTag, JSDocPropertyTag, JSDocTemplateTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]
 			var childTypeTag *JSDocTypeTag
 			var jsDocPropertyTags *[]JSDocPropertyTag
 			hasChildren := false
 			for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: child = tryParse(() => parseChildPropertyTag(indent)) */ TODO {
-				if child.kind == ast.KindJSDocTemplateTag {
+				if child.Kind == ast.KindJSDocTemplateTag {
 					break
 				}
 				hasChildren = true
-				if child.kind == ast.KindJSDocTypeTag {
+				if child.Kind == ast.KindJSDocTypeTag {
 					if childTypeTag != nil {
 						lastError := parseErrorAtCurrentToken(Diagnostics.A_JSDoc_typedef_comment_may_not_contain_multiple_type_tags)
 						if lastError != nil {
@@ -9100,14 +9100,14 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 				}
 			}
 			if hasChildren {
-				isArrayType := typeExpression && typeExpression.type_.kind == ast.KindArrayType
+				isArrayType := typeExpression && typeExpression.Type_.Kind == ast.KindArrayType
 				jsdocTypeLiteral := factory.createJSDocTypeLiteral(jsDocPropertyTags, isArrayType)
-				if childTypeTag != nil && childTypeTag.typeExpression && !isObjectOrObjectArrayTypeReference(childTypeTag.typeExpression.type_) {
-					typeExpression = childTypeTag.typeExpression
+				if childTypeTag != nil && childTypeTag.TypeExpression && !isObjectOrObjectArrayTypeReference(childTypeTag.TypeExpression.Type_) {
+					typeExpression = childTypeTag.TypeExpression
 				} else {
 					typeExpression = finishNode(jsdocTypeLiteral, start)
 				}
-				end = typeExpression.end
+				end = typeExpression.End
 			}
 		}
 
@@ -9115,7 +9115,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		if end || comment != nil {
 			end = getNodePos()
 		} else {
-			end = (ifNotNilElse(ifNotNilElse(fullName, typeExpression), tagName)).end
+			end = (ifNotNilElse(ifNotNilElse(fullName, typeExpression), tagName)).End
 		}
 
 		if !comment {
@@ -9139,7 +9139,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		}
 
 		if nested {
-			(typeNameOrNamespaceName.(Mutable[Identifier])).flags |= ast.NodeFlagsIdentifierIsInJSDocNamespace
+			(typeNameOrNamespaceName.(Mutable[Identifier])).Flags |= ast.NodeFlagsIdentifierIsInJSDocNamespace
 		}
 		return typeNameOrNamespaceName
 	}
@@ -9149,8 +9149,8 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		var child Union[JSDocParameterTag, JSDocTemplateTag /* TODO(TS-TO-GO) TypeNode LiteralType: false */, any]
 		var parameters TODO
 		for /* TODO(TS-TO-GO) EqualsToken BinaryExpression: child = tryParse(() => parseChildParameterOrPropertyTag(PropertyLikeParse.CallbackParameter, indent) as JSDocParameterTag | JSDocTemplateTag) */ TODO {
-			if child.kind == ast.KindJSDocTemplateTag {
-				parseErrorAtRange(child.tagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag)
+			if child.Kind == ast.KindJSDocTemplateTag {
+				parseErrorAtRange(child.TagName, Diagnostics.A_JSDoc_template_tag_may_not_follow_a_typedef_callback_or_overload_tag)
 				break
 			}
 			parameters = append(parameters, child)
@@ -9163,7 +9163,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		returnTag := tryParse(func() *JSDocReturnTag {
 			if parseOptionalJsdoc(ast.KindAtToken) {
 				tag := parseTag(indent)
-				if tag && tag.kind == ast.KindJSDocReturnTag {
+				if tag && tag.Kind == ast.KindJSDocReturnTag {
 					return tag.AsJSDocReturnTag()
 				}
 			}
@@ -9183,7 +9183,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		if comment != nil {
 			end = getNodePos()
 		} else {
-			end = typeExpression.end
+			end = typeExpression.End
 		}
 		return finishNode(factory.createJSDocCallbackTag(tagName, typeExpression, fullName, comment), start, end)
 	}
@@ -9199,21 +9199,21 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		if comment != nil {
 			end = getNodePos()
 		} else {
-			end = typeExpression.end
+			end = typeExpression.End
 		}
 		return finishNode(factory.createJSDocOverloadTag(tagName, typeExpression, comment), start, end)
 	}
 
 	escapedTextsEqual := func(a EntityName, b EntityName) bool {
 		for !isIdentifierNode(a) || !isIdentifierNode(b) {
-			if !isIdentifierNode(a) && !isIdentifierNode(b) && a.right.escapedText == b.right.escapedText {
-				a = a.left
-				b = b.left
+			if !isIdentifierNode(a) && !isIdentifierNode(b) && a.Right.EscapedText == b.Right.EscapedText {
+				a = a.Left
+				b = b.Left
 			} else {
 				return false
 			}
 		}
-		return a.escapedText == b.escapedText
+		return a.EscapedText == b.EscapedText
 	}
 
 	parseChildPropertyTag := func(indent number) /* TODO(TS-TO-GO) inferred type false | JSDocTemplateTag | JSDocPropertyTag | JSDocTypeTag */ any {
@@ -9228,7 +9228,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 			case ast.KindAtToken:
 				if canParseTag {
 					child := tryParseChildTag(target, indent)
-					if child && (child.kind == ast.KindJSDocParameterTag || child.kind == ast.KindJSDocPropertyTag) && name != nil && (isIdentifierNode(child.name) || !escapedTextsEqual(name, child.name.left)) {
+					if child && (child.Kind == ast.KindJSDocParameterTag || child.Kind == ast.KindJSDocPropertyTag) && name != nil && (isIdentifierNode(child.Name) || !escapedTextsEqual(name, child.Name.Left)) {
 						return false
 					}
 					return child
@@ -9258,7 +9258,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		tagName := parseJSDocIdentifierName()
 		indentText := skipWhitespaceOrAsterisk()
 		var t PropertyLikeParse
-		switch tagName.escapedText {
+		switch tagName.EscapedText {
 		case "type":
 			return target == PropertyLikeParseProperty && parseTypeTag(start, tagName)
 		case "prop",
@@ -9417,10 +9417,10 @@ func updateSourceFile(sourceFile SourceFile, newText string, textChangeRange Tex
 		return sourceFile
 	}
 
-	if sourceFile.statements.length == 0 {
+	if sourceFile.Statements.length == 0 {
 		// If we don't have any statements in the current source file, then there's no real
 		// way to incrementally parse.  So just do a full parse instead.
-		return Parser.parseSourceFile(sourceFile.fileName, newText, sourceFile.languageVersion, nil /*syntaxCursor*/, true /*setParentNodes*/, sourceFile.scriptKind, sourceFile.setExternalModuleIndicator, sourceFile.jsDocParsingMode)
+		return Parser.parseSourceFile(sourceFile.FileName, newText, sourceFile.LanguageVersion, nil /*syntaxCursor*/, true /*setParentNodes*/, sourceFile.ScriptKind, sourceFile.SetExternalModuleIndicator, sourceFile.JsDocParsingMode)
 	}
 
 	// Make sure we're not trying to incrementally update a source file more than once.  Once
@@ -9431,7 +9431,7 @@ func updateSourceFile(sourceFile SourceFile, newText string, textChangeRange Tex
 	// tree at all is not possible as far too much of it may violate invariants.
 	markAsIncrementallyParsed(sourceFile)
 	Parser.fixupParentReferences(sourceFile)
-	oldText := sourceFile.text
+	oldText := sourceFile.Text
 	syntaxCursor := createSyntaxCursor(sourceFile)
 
 	// Make the actual change larger so that we know to reparse anything whose lookahead
@@ -9481,9 +9481,9 @@ func updateSourceFile(sourceFile SourceFile, newText string, textChangeRange Tex
 	// inconsistent tree.  Setting the parents on the new tree should be very fast.  We
 	// will immediately bail out of walking any subtrees when we can see that their parents
 	// are already correct.
-	result := Parser.parseSourceFile(sourceFile.fileName, newText, sourceFile.languageVersion, syntaxCursor, true /*setParentNodes*/, sourceFile.scriptKind, sourceFile.setExternalModuleIndicator, sourceFile.jsDocParsingMode)
-	result.commentDirectives = getNewCommentDirectives(sourceFile.commentDirectives, result.commentDirectives, changeRange.span.start, textSpanEnd(changeRange.span), delta, oldText, newText, aggressiveChecks)
-	result.impliedNodeFormat = sourceFile.impliedNodeFormat
+	result := Parser.parseSourceFile(sourceFile.FileName, newText, sourceFile.LanguageVersion, syntaxCursor, true /*setParentNodes*/, sourceFile.ScriptKind, sourceFile.SetExternalModuleIndicator, sourceFile.JsDocParsingMode)
+	result.CommentDirectives = getNewCommentDirectives(sourceFile.CommentDirectives, result.CommentDirectives, changeRange.span.start, textSpanEnd(changeRange.span), delta, oldText, newText, aggressiveChecks)
+	result.ImpliedNodeFormat = sourceFile.ImpliedNodeFormat
 	transferSourceFileChildren(sourceFile, result)
 	return result
 }
@@ -9547,22 +9547,22 @@ func moveElementEntirelyPastChangeRange(element Union[*ast.Node, NodeArray[*ast.
 	visitNode := func(node *ast.Node) {
 		text := ""
 		if aggressiveChecks && shouldCheckNode(node) {
-			text = oldText.substring(node.pos, node.end)
+			text = oldText.substring(node.Pos, node.End)
 		}
 
 		// Ditch any existing LS children we may have created.  This way we can avoid
 		// moving them forward.
 		unsetNodeChildren(node, origSourceFile)
 
-		setTextRangePosEnd(node, node.pos+delta, node.end+delta)
+		setTextRangePosEnd(node, node.Pos+delta, node.End+delta)
 
 		if aggressiveChecks && shouldCheckNode(node) {
-			Debug.assert(text == newText.substring(node.pos, node.end))
+			Debug.assert(text == newText.substring(node.Pos, node.End))
 		}
 
 		forEachChild(node, visitNode /* as (node: Node) => void */, visitArray /* as (nodes: NodeArray<Node>) => void */)
 		if hasJSDocNodes(node) {
-			for _, jsDocComment := range node.jsDoc {
+			for _, jsDocComment := range node.JsDoc {
 				visitNode(jsDocComment)
 			}
 		}
@@ -9580,7 +9580,7 @@ func moveElementEntirelyPastChangeRange(element Union[*ast.Node, NodeArray[*ast.
 }
 
 func shouldCheckNode(node *ast.Node) bool {
-	switch node.kind {
+	switch node.Kind {
 	case ast.KindStringLiteral,
 		ast.KindNumericLiteral,
 		ast.KindIdentifier:
@@ -9658,8 +9658,8 @@ func adjustIntersectingElement(element Union[*ast.Node, NodeArray[*ast.Node]], c
 	Debug.assert(pos <= end)
 	if element.parent {
 		parent := element.parent.AsNode()
-		Debug.assertGreaterThanOrEqual(pos, parent.pos)
-		Debug.assertLessThanOrEqual(end, parent.end)
+		Debug.assertGreaterThanOrEqual(pos, parent.Pos)
+		Debug.assertLessThanOrEqual(end, parent.End)
 	}
 
 	setTextRangePosEnd(element, pos, end)
@@ -9667,18 +9667,18 @@ func adjustIntersectingElement(element Union[*ast.Node, NodeArray[*ast.Node]], c
 
 func checkNodePositions(node *ast.Node, aggressiveChecks bool) {
 	if aggressiveChecks {
-		pos := node.pos
+		pos := node.Pos
 		visitNode := func(child *ast.Node) {
-			Debug.assert(child.pos >= pos)
-			pos = child.end
+			Debug.assert(child.Pos >= pos)
+			pos = child.End
 		}
 		if hasJSDocNodes(node) {
-			for _, jsDocComment := range node.jsDoc {
+			for _, jsDocComment := range node.JsDoc {
 				visitNode(jsDocComment)
 			}
 		}
 		forEachChild(node, visitNode)
-		Debug.assert(pos <= node.end)
+		Debug.assert(pos <= node.End)
 	}
 }
 
@@ -9687,8 +9687,8 @@ func updateTokenPositionsAndMarkElements(sourceFile SourceFile, changeStart numb
 	return
 
 	visitNode := func(child *ast.Node) {
-		Debug.assert(child.pos <= child.end)
-		if child.pos > changeRangeOldEnd {
+		Debug.assert(child.Pos <= child.End)
+		if child.Pos > changeRangeOldEnd {
 			// Node is entirely past the change range.  We need to move both its pos and
 			// end, forward or backward appropriately.
 			moveElementEntirelyPastChangeRange(child, sourceFile, false /*isArray*/, delta, oldText, newText, aggressiveChecks)
@@ -9698,7 +9698,7 @@ func updateTokenPositionsAndMarkElements(sourceFile SourceFile, changeStart numb
 		// Check if the element intersects the change range.  If it does, then it is not
 		// reusable.  Also, we'll need to recurse to see what constituent portions we may
 		// be able to use.
-		fullEnd := child.end
+		fullEnd := child.End
 		if fullEnd >= changeStart {
 			markAsIntersectingIncrementalChange(child)
 			unsetNodeChildren(child, sourceFile)
@@ -9707,7 +9707,7 @@ func updateTokenPositionsAndMarkElements(sourceFile SourceFile, changeStart numb
 			adjustIntersectingElement(child, changeStart, changeRangeOldEnd, changeRangeNewEnd, delta)
 			forEachChild(child, visitNode /* as (node: Node) => void */, visitArray /* as (nodes: NodeArray<Node>) => void */)
 			if hasJSDocNodes(child) {
-				for _, jsDocComment := range child.jsDoc {
+				for _, jsDocComment := range child.JsDoc {
 					visitNode(jsDocComment)
 				}
 			}
@@ -9769,8 +9769,8 @@ func extendToAffectedRange(sourceFile SourceFile, changeRange TextChangeRange) T
 	// start of the tree.
 	for i := 0; start > 0 && i <= maxLookahead; i++ {
 		nearestNode := findNearestNodeStartingBeforeOrAtPosition(sourceFile, start)
-		Debug.assert(nearestNode.pos <= start)
-		position := nearestNode.pos
+		Debug.assert(nearestNode.Pos <= start)
+		position := nearestNode.Pos
 
 		start = max(0, position-1)
 	}
@@ -9789,7 +9789,7 @@ func findNearestNodeStartingBeforeOrAtPosition(sourceFile SourceFile, position n
 
 	if lastNodeEntirelyBeforePosition != nil {
 		lastChildOfLastEntireNodeBeforePosition := getLastDescendant(lastNodeEntirelyBeforePosition)
-		if lastChildOfLastEntireNodeBeforePosition.pos > bestResult.pos {
+		if lastChildOfLastEntireNodeBeforePosition.Pos > bestResult.Pos {
 			bestResult = lastChildOfLastEntireNodeBeforePosition
 		}
 	}
@@ -9816,8 +9816,8 @@ func findNearestNodeStartingBeforeOrAtPosition(sourceFile SourceFile, position n
 
 		// If the child intersects this position, then this node is currently the nearest
 		// node that starts before the position.
-		if child.pos <= position {
-			if child.pos >= bestResult.pos {
+		if child.Pos <= position {
+			if child.Pos >= bestResult.Pos {
 				// This node starts before the position, and is closer to the position than
 				// the previous best node we found.  It is now the new best node.
 				bestResult = child
@@ -9827,7 +9827,7 @@ func findNearestNodeStartingBeforeOrAtPosition(sourceFile SourceFile, position n
 			// position.  If it overlaps with the position, then either it, or one of its
 			// children must be the nearest node before the position.  So we can just
 			// recurse into this child to see if we can find something better.
-			if position < child.end {
+			if position < child.End {
 				// The nearest node is either this child, or one of the children inside
 				// of it.  We've already marked this child as the best so far.  Recurse
 				// in case one of the children is better.
@@ -9837,7 +9837,7 @@ func findNearestNodeStartingBeforeOrAtPosition(sourceFile SourceFile, position n
 				// continue any further.
 				return true
 			} else {
-				Debug.assert(child.end <= position)
+				Debug.assert(child.End <= position)
 				// The child ends entirely before this position.  Say you have the following
 				// (where $ is the position)
 				//
@@ -9854,7 +9854,7 @@ func findNearestNodeStartingBeforeOrAtPosition(sourceFile SourceFile, position n
 				lastNodeEntirelyBeforePosition = child
 			}
 		} else {
-			Debug.assert(child.pos > position)
+			Debug.assert(child.Pos > position)
 			// We're now at a node that is entirely past the position we're searching for.
 			// This node (and all following nodes) could never contribute to the result,
 			// so just skip them by returning 'true' here.
@@ -9865,7 +9865,7 @@ func findNearestNodeStartingBeforeOrAtPosition(sourceFile SourceFile, position n
 }
 
 func checkChangeRange(sourceFile SourceFile, newText string, textChangeRange TextChangeRange, aggressiveChecks bool) {
-	oldText := sourceFile.text
+	oldText := sourceFile.Text
 	if textChangeRange {
 		Debug.assert((oldText.length - textChangeRange.span.length + textChangeRange.newLength) == newText.length)
 
@@ -9889,7 +9889,7 @@ type SyntaxCursor struct {
 }
 
 func createSyntaxCursor(sourceFile SourceFile) SyntaxCursor {
-	var currentArray NodeArray[*ast.Node] = sourceFile.statements
+	var currentArray NodeArray[*ast.Node] = sourceFile.Statements
 	currentArrayIndex := 0
 
 	Debug.assert(currentArrayIndex < currentArray.length)
@@ -9906,14 +9906,14 @@ func createSyntaxCursor(sourceFile SourceFile) SyntaxCursor {
 				// Much of the time the parser will need the very next node in the array that
 				// we just returned a node from.So just simply check for that case and move
 				// forward in the array instead of searching for the node again.
-				if current && current.end == position && currentArrayIndex < (currentArray.length-1) {
+				if current && current.End == position && currentArrayIndex < (currentArray.length-1) {
 					currentArrayIndex++
 					current = currentArray[currentArrayIndex]
 				}
 
 				// If we don't have a node, or the node we have isn't in the right position,
 				// then try to find a viable node at the position requested.
-				if !current || current.pos != position {
+				if !current || current.Pos != position {
 					findHighestListElementThatStartsAtPosition(position)
 				}
 			}
@@ -9926,7 +9926,7 @@ func createSyntaxCursor(sourceFile SourceFile) SyntaxCursor {
 			lastQueriedPosition = position
 
 			// Either we don'd have a node, or we have a node at the position being asked for.
-			Debug.assert(!current || current.pos == position)
+			Debug.assert(!current || current.Pos == position)
 			return current
 		},
 	}
@@ -9945,7 +9945,7 @@ func createSyntaxCursor(sourceFile SourceFile) SyntaxCursor {
 		return
 
 		visitNode := func(node *ast.Node) bool {
-			if position >= node.pos && position < node.end {
+			if position >= node.Pos && position < node.End {
 				// Position was within this node.  Keep searching deeper to find the node.
 				forEachChild(node, visitNode, visitArray)
 
@@ -9964,14 +9964,14 @@ func createSyntaxCursor(sourceFile SourceFile) SyntaxCursor {
 				for i := 0; i < array.length; i++ {
 					child := array[i]
 					if child {
-						if child.pos == position {
+						if child.Pos == position {
 							// Found the right node.  We're done.
 							currentArray = array
 							currentArrayIndex = i
 							current = child
 							return true
 						} else {
-							if child.pos < position && position < child.end {
+							if child.Pos < position && position < child.End {
 								// Position in somewhere within this child.  Search in it and
 								// stop searching in this array.
 								forEachChild(child, visitNode, visitArray)
@@ -10300,24 +10300,24 @@ func getNamedPragmaArguments(pragma PragmaDefinition, text *string) Union[ /* TO
 /** @internal */
 
 func tagNamesAreEquivalent(lhs JsxTagNameExpression, rhs JsxTagNameExpression) bool {
-	if lhs.kind != rhs.kind {
+	if lhs.Kind != rhs.Kind {
 		return false
 	}
 
-	if lhs.kind == ast.KindIdentifier {
-		return lhs.escapedText == (rhs.AsIdentifier()).escapedText
+	if lhs.Kind == ast.KindIdentifier {
+		return lhs.EscapedText == rhs.AsIdentifier().EscapedText
 	}
 
-	if lhs.kind == ast.KindThisKeyword {
+	if lhs.Kind == ast.KindThisKeyword {
 		return true
 	}
 
-	if lhs.kind == ast.KindJsxNamespacedName {
-		return lhs.namespace.escapedText == (rhs.AsJsxNamespacedName()).namespace.escapedText && lhs.name.escapedText == (rhs.AsJsxNamespacedName()).name.escapedText
+	if lhs.Kind == ast.KindJsxNamespacedName {
+		return lhs.Namespace.EscapedText == rhs.AsJsxNamespacedName().Namespace.EscapedText && lhs.Name.EscapedText == rhs.AsJsxNamespacedName().Name.EscapedText
 	}
 
 	// If we are at this statement then we must have PropertyAccessExpression and because tag name in Jsx element can only
 	// take forms of JsxTagNameExpression which includes an identifier, "this" expression, or another propertyAccessExpression
 	// it is safe to case the expression property as such. See parseJsxElementName for how we parse tag name in Jsx element
-	return (lhs.AsPropertyAccessExpression()).name.escapedText == (rhs.AsPropertyAccessExpression()).name.escapedText && tagNamesAreEquivalent((lhs.AsPropertyAccessExpression()).expression.AsJsxTagNameExpression(), (rhs.AsPropertyAccessExpression()).expression.AsJsxTagNameExpression())
+	return lhs.AsPropertyAccessExpression().Name.EscapedText == rhs.AsPropertyAccessExpression().Name.EscapedText && tagNamesAreEquivalent(lhs.AsPropertyAccessExpression().Expression.AsJsxTagNameExpression(), rhs.AsPropertyAccessExpression().Expression.AsJsxTagNameExpression())
 }
