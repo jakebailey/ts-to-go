@@ -8057,7 +8057,7 @@ func Symbol(this *ast.Symbol, flags SymbolFlags, name string) {
 	this.constEnumOnlyModule = nil
 	this.isReferenced = nil
 	this.lastAssignmentPos = nil
-	(this).links = nil
+	this.links = nil
 	// used by TransientSymbol
 }
 

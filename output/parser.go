@@ -9656,8 +9656,8 @@ func adjustIntersectingElement(element Union[*ast.Node, NodeArray[*ast.Node]], c
 	}
 
 	Debug.assert(pos <= end)
-	if (element).parent {
-		parent := (element).parent.AsNode()
+	if element.parent {
+		parent := element.parent.AsNode()
 		Debug.assertGreaterThanOrEqual(pos, parent.pos)
 		Debug.assertLessThanOrEqual(end, parent.end)
 	}

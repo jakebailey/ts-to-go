@@ -5971,7 +5971,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 					return appendReferenceToType(parentName /* as TypeReferenceNode | ImportTypeNode */, factory.createTypeReferenceNode(memberName, nil /*typeArguments*/))
 				}
 				if isImportTypeNode(parentName) {
-					(parentName).isTypeOf = true
+					parentName.isTypeOf = true
 					// mutably update, node is freshly manufactured anyhow
 					return factory.createIndexedAccessTypeNode(parentName, factory.createLiteralTypeNode(factory.createStringLiteral(memberName)))
 				} else if isTypeReferenceNode(parentName) {
@@ -10093,7 +10093,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 					return results /* as T[] */
 				}
 				// The `Constructor`'s symbol isn't in the class's properties lists, obviously, since it's a signature on the static
-				return Debug.fail(__TEMPLATE__("Unhandled class member kind! ", (p).__debugFlags || p.flags))
+				return Debug.fail(__TEMPLATE__("Unhandled class member kind! ", p.__debugFlags || p.flags))
 			}
 		}
 
@@ -34537,9 +34537,9 @@ func (c *Checker) discriminateContextualTypeByObjectMembers(node ObjectLiteralEx
 		}
 		return false
 	}), func(prop /* TODO(TS-TO-GO) inferred type PropertyAssignment | ShorthandPropertyAssignment */ any) /* TODO(TS-TO-GO) inferred type [() => Type, __String] */ any {
-		return ([]any{func() *Type {
+		return []any{func() *Type {
 			return c.getContextFreeTypeOfExpression(ifElse(prop.kind == ast.KindPropertyAssignment, prop.initializer, prop.name))
-		}, prop.symbol.escapedName})
+		}, prop.symbol.escapedName}
 	}), map_(filter(c.getPropertiesOfType(contextualType), func(s *ast.Symbol) bool {
 		return s.flags&ast.SymbolFlagsOptional != 0 && node. /* ? */ symbol. /* ? */ members != nil && !node.symbol.members.has(s.escapedName) && c.isDiscriminantProperty(contextualType, s.escapedName)
 	}), func(s *ast.Symbol) /* TODO(TS-TO-GO) inferred type [() => IntrinsicType, __String] */ any {
@@ -34559,11 +34559,11 @@ func (c *Checker) discriminateContextualTypeByJSXAttributes(node JsxAttributes, 
 	return c.setCachedType(key, c.discriminateTypeByDiscriminableItems(contextualType, concatenate(map_(filter(node.properties, func(p /* TODO(TS-TO-GO) inferred type JsxAttribute | JsxSpreadAttribute */ any) bool {
 		return p.symbol && p.kind == ast.KindJsxAttribute && c.isDiscriminantProperty(contextualType, p.symbol.escapedName) && (p.initializer == nil || c.isPossiblyDiscriminantValue(p.initializer))
 	}), func(prop /* TODO(TS-TO-GO) inferred type JsxAttribute | JsxSpreadAttribute */ any) /* TODO(TS-TO-GO) inferred type [() => Type, __String] */ any {
-		return ([]any{ifElse((prop.AsJsxAttribute()).initializer == nil, (func() FreshableIntrinsicType {
+		return []any{ifElse((prop.AsJsxAttribute()).initializer == nil, (func() FreshableIntrinsicType {
 			return c.trueType
 		}), (func() *Type {
 			return c.getContextFreeTypeOfExpression((prop.AsJsxAttribute()).initializer)
-		})), prop.symbol.escapedName})
+		})), prop.symbol.escapedName}
 	}), map_(filter(c.getPropertiesOfType(contextualType), func(s *ast.Symbol) bool {
 		if s.flags&ast.SymbolFlagsOptional == 0 || node. /* ? */ symbol. /* ? */ members == nil {
 			return false

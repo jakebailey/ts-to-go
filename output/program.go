@@ -3435,7 +3435,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		tracing. /* ? */ push(tracing.Phase.Program, "findSourceFile", &Args{
 			fileName:        fileName,
 			isDefaultLib:    isDefaultLib || nil,
-			fileIncludeKind: (FileIncludeKind)[reason.kind],
+			fileIncludeKind: FileIncludeKind[reason.kind],
 		})
 		result := findSourceFileWorker(fileName, isDefaultLib, ignoreNoDefaultLib, reason, packageId)
 		tracing. /* ? */ pop()

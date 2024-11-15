@@ -644,13 +644,15 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
         }
         else if (Node.isParenthesizedExpression(node)) {
-            if (Node.isAsExpression(node) && isElidedAsExpression(node)) {
-                visitExpression(node.getExpression(), undefined, needBool);
+            const expr = node.getExpression();
+
+            if (Node.isAsExpression(expr) && isElidedAsExpression(expr)) {
+                visitExpression(expr, undefined, needBool);
                 return;
             }
 
             writer.write("(");
-            visitExpression(node.getExpression(), undefined, needBool);
+            visitExpression(expr, undefined, needBool);
             writer.write(")");
             return;
         }
