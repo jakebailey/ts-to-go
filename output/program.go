@@ -3304,7 +3304,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 		getNodeAtPosition := func(sourceFile SourceFile, position number) *ast.Node {
 			var current *ast.Node = sourceFile
-			getContainingChild := func(child *ast.Node) **ast.Node {
+			getContainingChild := func(child *ast.Node) *ast.Node {
 				if child.pos <= position && (position < child.end || (position == child.end && (child.kind == ast.KindEndOfFileToken))) {
 					return child
 				}

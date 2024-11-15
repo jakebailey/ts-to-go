@@ -128,17 +128,19 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         switch (name) {
             case "Node":
             case "*Node":
+            case "*ast.Node":
             case "Declaration":
             case "Expression":
             case "Statement":
             case "Type":
             case "*Type":
+            case "*ast.Type":
             case "CancellationToken":
             case "any":
             case "unknown":
             case "void":
             case "Symbol":
-            case "*Symbol":
+            case "*ast.Symbol":
                 return true;
             default:
                 return false;

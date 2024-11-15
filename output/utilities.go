@@ -11878,7 +11878,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 		if symbol.declarations != nil {
 			for _, decl := range symbol.declarations {
 				if decl.kind == ast.KindTypeParameter {
-					var parent **ast.Node
+					var parent *ast.Node
 					if isJSDocTemplateTag(decl.parent) {
 						parent = getJSDocHost(decl.parent)
 					} else {

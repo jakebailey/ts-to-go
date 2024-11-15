@@ -2128,7 +2128,7 @@ func (b *Binder) bindJsxAttributes(node JsxAttributes) *ast.Symbol {
 	return b.bindAnonymousDeclaration(node, ast.SymbolFlagsObjectLiteral, InternalSymbolNameJSXAttributes)
 }
 
-func (b *Binder) bindJsxAttribute(node JsxAttribute, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) **ast.Symbol {
+func (b *Binder) bindJsxAttribute(node JsxAttribute, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *ast.Symbol {
 	return b.declareSymbolAndAddToSymbolTable(node, symbolFlags, symbolExcludes)
 }
 
@@ -2796,7 +2796,7 @@ func (b *Binder) bindWorker(node *ast.Node) /* TODO(TS-TO-GO) inferred type numb
 	}
 }
 
-func (b *Binder) bindPropertyWorker(node Union[PropertyDeclaration, PropertySignature]) **ast.Symbol {
+func (b *Binder) bindPropertyWorker(node Union[PropertyDeclaration, PropertySignature]) *ast.Symbol {
 	isAutoAccessor := isAutoAccessorPropertyDeclaration(node)
 	var includes /* TODO(TS-TO-GO) inferred type SymbolFlags.Property | SymbolFlags.Accessor */ any
 	if isAutoAccessor {
@@ -2917,7 +2917,7 @@ func (b *Binder) bindObjectDefinePropertyExport(node BindableObjectDefinePropert
 	if !b.setCommonJsModuleIndicator(node) {
 		return
 	}
-	symbol := b.forEachIdentifierInEntityName(node.arguments[0], nil /*parent*/, func(id Declaration, symbol **ast.Symbol) **ast.Symbol {
+	symbol := b.forEachIdentifierInEntityName(node.arguments[0], nil /*parent*/, func(id Declaration, symbol *ast.Symbol) *ast.Symbol {
 		if symbol != nil {
 			b.addDeclarationToSymbol(symbol, id, ast.SymbolFlagsModule|ast.SymbolFlagsAssignment)
 		}
@@ -2935,7 +2935,7 @@ func (b *Binder) bindExportsPropertyAssignment(node BindableStaticPropertyAssign
 	if !b.setCommonJsModuleIndicator(node) {
 		return
 	}
-	symbol := b.forEachIdentifierInEntityName(node.left.expression, nil /*parent*/, func(id Declaration, symbol **ast.Symbol) **ast.Symbol {
+	symbol := b.forEachIdentifierInEntityName(node.left.expression, nil /*parent*/, func(id Declaration, symbol *ast.Symbol) *ast.Symbol {
 		if symbol != nil {
 			b.addDeclarationToSymbol(symbol, id, ast.SymbolFlagsModule|ast.SymbolFlagsAssignment)
 		}
@@ -3158,7 +3158,7 @@ func (b *Binder) bindStaticPropertyAssignment(node BindableStaticNameExpression)
 	b.bindPropertyAssignment(node.expression, node, false /*isPrototypeProperty*/, false /*containerIsClass*/)
 }
 
-func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol *ast.Symbol, entityName BindableStaticNameExpression, isToplevel bool, isPrototypeProperty bool, containerIsClass bool) **ast.Symbol {
+func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol *ast.Symbol, entityName BindableStaticNameExpression, isToplevel bool, isPrototypeProperty bool, containerIsClass bool) *ast.Symbol {
 	if namespaceSymbol. /* ? */ flags&ast.SymbolFlagsAlias != 0 {
 		return namespaceSymbol
 	}
@@ -3166,7 +3166,7 @@ func (b *Binder) bindPotentiallyMissingNamespaces(namespaceSymbol *ast.Symbol, e
 		// make symbols or add declarations for intermediate containers
 		flags := ast.SymbolFlagsModule | ast.SymbolFlagsAssignment
 		excludeFlags := ast.SymbolFlagsValueModuleExcludes & ^ast.SymbolFlagsAssignment
-		namespaceSymbol = b.forEachIdentifierInEntityName(entityName, namespaceSymbol, func(id Declaration, symbol **ast.Symbol, parent **ast.Symbol) *ast.Symbol {
+		namespaceSymbol = b.forEachIdentifierInEntityName(entityName, namespaceSymbol, func(id Declaration, symbol *ast.Symbol, parent *ast.Symbol) *ast.Symbol {
 			if symbol != nil {
 				b.addDeclarationToSymbol(symbol, id, flags)
 				return symbol
@@ -3468,7 +3468,7 @@ func (b *Binder) bindFunctionExpression(node Union[FunctionExpression, ArrowFunc
 	return b.bindAnonymousDeclaration(node, ast.SymbolFlagsFunction, bindingName)
 }
 
-func (b *Binder) bindPropertyOrMethodOrAccessor(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) **ast.Symbol {
+func (b *Binder) bindPropertyOrMethodOrAccessor(node Declaration, symbolFlags SymbolFlags, symbolExcludes SymbolFlags) *ast.Symbol {
 	if !b.file.isDeclarationFile && node.flags&ast.NodeFlagsAmbient == 0 && isAsyncFunction(node) {
 		b.emitFlags |= ast.NodeFlagsHasAsyncFunctions
 	}

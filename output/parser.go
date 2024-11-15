@@ -96,7 +96,7 @@ func isAnExternalModuleIndicatorNode(node *ast.Node) *HasModifiers {
 	}
 }
 
-func getImportMetaIfNecessary(sourceFile SourceFile) **ast.Node {
+func getImportMetaIfNecessary(sourceFile SourceFile) *ast.Node {
 	if sourceFile.flags&ast.NodeFlagsPossiblyContainsImportMeta != 0 {
 		return walkTreeForImportMeta(sourceFile)
 	} else {
