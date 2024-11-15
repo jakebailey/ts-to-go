@@ -658,7 +658,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             if (Node.isIdentifier(expression)) {
                 const type = expression.getType();
                 if (type.isEnum()) {
-                    const enumName = expression.getText();
+                    const enumName = fixEnumName(expression.getText());
                     writer.write(`${enumName}${getNameOfNamed(node)}`);
                     return;
                 }
@@ -1168,6 +1168,19 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         return `TODO_IDENTIFIER`;
     }
 
+    const enumNames = new Map([
+        ["SyntaxKind", "ast.Kind"],
+        ["CheckFlags", "ast.CheckFlags"],
+        ["ModifierFlags", "ast.ModifierFlags"],
+        ["NodeFlags", "ast.NodeFlags"],
+        ["SymbolFlags", "ast.SymbolFlags"],
+    ])
+
+    function fixEnumName(originalName: string): string {
+        const enumName = enumNames.get(originalName);
+        return enumName ?? originalName;
+    }
+
     function visitIfStatement(node: IfStatement) {
         writer.write("if ");
         visitExpression(node.getExpression(), undefined, true);
@@ -1522,7 +1535,13 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         }
 
         if (Node.isEnumDeclaration(node)) {
-            const enumName = getNameOfNamed(node);
+            let enumName = getNameOfNamed(node);
+            const newEnumName = fixEnumName(enumName);
+
+            if (enumName !== newEnumName) {
+                writer.writeLine(`// Should be ${newEnumName}`);
+                enumName = newEnumName.split(".")[1];
+            }
 
             writer.write(`type ${enumName}`);
             if (node.getMembers()[0].getInitializer()?.getKindName() === "StringLiteral") {

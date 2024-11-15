@@ -23,13 +23,13 @@ type ErrorCallback func(message DiagnosticMessage, length number, arg0 any)
 /** @internal */
 
 func tokenIsIdentifierOrKeyword(token SyntaxKind) bool {
-	return token >= SyntaxKindIdentifier
+	return token >= ast.KindIdentifier
 }
 
 /** @internal */
 
 func tokenIsIdentifierOrKeywordOrGreaterThan(token SyntaxKind) bool {
-	return token == SyntaxKindGreaterThanToken || tokenIsIdentifierOrKeyword(token)
+	return token == ast.KindGreaterThanToken || tokenIsIdentifierOrKeyword(token)
 }
 
 type Scanner struct {
@@ -39,156 +39,156 @@ type Scanner struct {
 /** @internal */
 
 var textToKeywordObj MapLike[KeywordSyntaxKind] = /* TODO(TS-TO-GO) inferred type MapLike<KeywordSyntaxKind> */ any{
-	abstract:        SyntaxKindAbstractKeyword,
-	accessor:        SyntaxKindAccessorKeyword,
-	any:             SyntaxKindAnyKeyword,
-	as:              SyntaxKindAsKeyword,
-	asserts:         SyntaxKindAssertsKeyword,
-	assert:          SyntaxKindAssertKeyword,
-	bigint:          SyntaxKindBigIntKeyword,
-	boolean:         SyntaxKindBooleanKeyword,
-	break_:          SyntaxKindBreakKeyword,
-	case_:           SyntaxKindCaseKeyword,
-	catch:           SyntaxKindCatchKeyword,
-	class:           SyntaxKindClassKeyword,
-	continue_:       SyntaxKindContinueKeyword,
-	const_:          SyntaxKindConstKeyword,
-	TODO_IDENTIFIER: SyntaxKindConstructorKeyword,
-	debugger:        SyntaxKindDebuggerKeyword,
-	declare:         SyntaxKindDeclareKeyword,
-	default_:        SyntaxKindDefaultKeyword,
-	delete:          SyntaxKindDeleteKeyword,
-	do:              SyntaxKindDoKeyword,
-	else_:           SyntaxKindElseKeyword,
-	enum:            SyntaxKindEnumKeyword,
-	export:          SyntaxKindExportKeyword,
-	extends:         SyntaxKindExtendsKeyword,
-	false:           SyntaxKindFalseKeyword,
-	finally:         SyntaxKindFinallyKeyword,
-	for_:            SyntaxKindForKeyword,
-	from:            SyntaxKindFromKeyword,
-	function:        SyntaxKindFunctionKeyword,
-	get:             SyntaxKindGetKeyword,
-	if_:             SyntaxKindIfKeyword,
-	implements:      SyntaxKindImplementsKeyword,
-	import_:         SyntaxKindImportKeyword,
-	in:              SyntaxKindInKeyword,
-	infer:           SyntaxKindInferKeyword,
-	instanceof:      SyntaxKindInstanceOfKeyword,
-	interface_:      SyntaxKindInterfaceKeyword,
-	intrinsic:       SyntaxKindIntrinsicKeyword,
-	is:              SyntaxKindIsKeyword,
-	keyof:           SyntaxKindKeyOfKeyword,
-	let:             SyntaxKindLetKeyword,
-	module:          SyntaxKindModuleKeyword,
-	namespace:       SyntaxKindNamespaceKeyword,
-	never:           SyntaxKindNeverKeyword,
-	new:             SyntaxKindNewKeyword,
-	null:            SyntaxKindNullKeyword,
-	number:          SyntaxKindNumberKeyword,
-	object:          SyntaxKindObjectKeyword,
-	package_:        SyntaxKindPackageKeyword,
-	private:         SyntaxKindPrivateKeyword,
-	protected:       SyntaxKindProtectedKeyword,
-	public:          SyntaxKindPublicKeyword,
-	override:        SyntaxKindOverrideKeyword,
-	out:             SyntaxKindOutKeyword,
-	readonly:        SyntaxKindReadonlyKeyword,
-	require:         SyntaxKindRequireKeyword,
-	global:          SyntaxKindGlobalKeyword,
-	return_:         SyntaxKindReturnKeyword,
-	satisfies:       SyntaxKindSatisfiesKeyword,
-	set:             SyntaxKindSetKeyword,
-	static:          SyntaxKindStaticKeyword,
-	string:          SyntaxKindStringKeyword,
-	super:           SyntaxKindSuperKeyword,
-	switch_:         SyntaxKindSwitchKeyword,
-	symbol:          SyntaxKindSymbolKeyword,
-	this:            SyntaxKindThisKeyword,
-	throw:           SyntaxKindThrowKeyword,
-	true:            SyntaxKindTrueKeyword,
-	try:             SyntaxKindTryKeyword,
-	t:               SyntaxKindTypeKeyword,
-	typeof:          SyntaxKindTypeOfKeyword,
-	undefined:       SyntaxKindUndefinedKeyword,
-	unique:          SyntaxKindUniqueKeyword,
-	unknown:         SyntaxKindUnknownKeyword,
-	using:           SyntaxKindUsingKeyword,
-	var_:            SyntaxKindVarKeyword,
-	void:            SyntaxKindVoidKeyword,
-	while:           SyntaxKindWhileKeyword,
-	with:            SyntaxKindWithKeyword,
-	yield:           SyntaxKindYieldKeyword,
-	async:           SyntaxKindAsyncKeyword,
-	await:           SyntaxKindAwaitKeyword,
-	of:              SyntaxKindOfKeyword,
+	abstract:        ast.KindAbstractKeyword,
+	accessor:        ast.KindAccessorKeyword,
+	any:             ast.KindAnyKeyword,
+	as:              ast.KindAsKeyword,
+	asserts:         ast.KindAssertsKeyword,
+	assert:          ast.KindAssertKeyword,
+	bigint:          ast.KindBigIntKeyword,
+	boolean:         ast.KindBooleanKeyword,
+	break_:          ast.KindBreakKeyword,
+	case_:           ast.KindCaseKeyword,
+	catch:           ast.KindCatchKeyword,
+	class:           ast.KindClassKeyword,
+	continue_:       ast.KindContinueKeyword,
+	const_:          ast.KindConstKeyword,
+	TODO_IDENTIFIER: ast.KindConstructorKeyword,
+	debugger:        ast.KindDebuggerKeyword,
+	declare:         ast.KindDeclareKeyword,
+	default_:        ast.KindDefaultKeyword,
+	delete:          ast.KindDeleteKeyword,
+	do:              ast.KindDoKeyword,
+	else_:           ast.KindElseKeyword,
+	enum:            ast.KindEnumKeyword,
+	export:          ast.KindExportKeyword,
+	extends:         ast.KindExtendsKeyword,
+	false:           ast.KindFalseKeyword,
+	finally:         ast.KindFinallyKeyword,
+	for_:            ast.KindForKeyword,
+	from:            ast.KindFromKeyword,
+	function:        ast.KindFunctionKeyword,
+	get:             ast.KindGetKeyword,
+	if_:             ast.KindIfKeyword,
+	implements:      ast.KindImplementsKeyword,
+	import_:         ast.KindImportKeyword,
+	in:              ast.KindInKeyword,
+	infer:           ast.KindInferKeyword,
+	instanceof:      ast.KindInstanceOfKeyword,
+	interface_:      ast.KindInterfaceKeyword,
+	intrinsic:       ast.KindIntrinsicKeyword,
+	is:              ast.KindIsKeyword,
+	keyof:           ast.KindKeyOfKeyword,
+	let:             ast.KindLetKeyword,
+	module:          ast.KindModuleKeyword,
+	namespace:       ast.KindNamespaceKeyword,
+	never:           ast.KindNeverKeyword,
+	new:             ast.KindNewKeyword,
+	null:            ast.KindNullKeyword,
+	number:          ast.KindNumberKeyword,
+	object:          ast.KindObjectKeyword,
+	package_:        ast.KindPackageKeyword,
+	private:         ast.KindPrivateKeyword,
+	protected:       ast.KindProtectedKeyword,
+	public:          ast.KindPublicKeyword,
+	override:        ast.KindOverrideKeyword,
+	out:             ast.KindOutKeyword,
+	readonly:        ast.KindReadonlyKeyword,
+	require:         ast.KindRequireKeyword,
+	global:          ast.KindGlobalKeyword,
+	return_:         ast.KindReturnKeyword,
+	satisfies:       ast.KindSatisfiesKeyword,
+	set:             ast.KindSetKeyword,
+	static:          ast.KindStaticKeyword,
+	string:          ast.KindStringKeyword,
+	super:           ast.KindSuperKeyword,
+	switch_:         ast.KindSwitchKeyword,
+	symbol:          ast.KindSymbolKeyword,
+	this:            ast.KindThisKeyword,
+	throw:           ast.KindThrowKeyword,
+	true:            ast.KindTrueKeyword,
+	try:             ast.KindTryKeyword,
+	t:               ast.KindTypeKeyword,
+	typeof:          ast.KindTypeOfKeyword,
+	undefined:       ast.KindUndefinedKeyword,
+	unique:          ast.KindUniqueKeyword,
+	unknown:         ast.KindUnknownKeyword,
+	using:           ast.KindUsingKeyword,
+	var_:            ast.KindVarKeyword,
+	void:            ast.KindVoidKeyword,
+	while:           ast.KindWhileKeyword,
+	with:            ast.KindWithKeyword,
+	yield:           ast.KindYieldKeyword,
+	async:           ast.KindAsyncKeyword,
+	await:           ast.KindAwaitKeyword,
+	of:              ast.KindOfKeyword,
 }
 
 var textToKeyword = NewMap(Object.entries(textToKeywordObj))
 
 var textToToken = NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 	/* TODO(TS-TO-GO) Node SpreadAssignment: ...textToKeywordObj */
-	"TODO_IDENTIFIER": SyntaxKindOpenBraceToken,
-	"TODO_IDENTIFIER": SyntaxKindCloseBraceToken,
-	"TODO_IDENTIFIER": SyntaxKindOpenParenToken,
-	"TODO_IDENTIFIER": SyntaxKindCloseParenToken,
-	"TODO_IDENTIFIER": SyntaxKindOpenBracketToken,
-	"TODO_IDENTIFIER": SyntaxKindCloseBracketToken,
-	"TODO_IDENTIFIER": SyntaxKindDotToken,
-	"TODO_IDENTIFIER": SyntaxKindDotDotDotToken,
-	"TODO_IDENTIFIER": SyntaxKindSemicolonToken,
-	"TODO_IDENTIFIER": SyntaxKindCommaToken,
-	"TODO_IDENTIFIER": SyntaxKindLessThanToken,
-	"TODO_IDENTIFIER": SyntaxKindGreaterThanToken,
-	"TODO_IDENTIFIER": SyntaxKindLessThanEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindGreaterThanEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindEqualsEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindExclamationEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindEqualsEqualsEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindExclamationEqualsEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindEqualsGreaterThanToken,
-	"TODO_IDENTIFIER": SyntaxKindPlusToken,
-	"TODO_IDENTIFIER": SyntaxKindMinusToken,
-	"TODO_IDENTIFIER": SyntaxKindAsteriskAsteriskToken,
-	"TODO_IDENTIFIER": SyntaxKindAsteriskToken,
-	"TODO_IDENTIFIER": SyntaxKindSlashToken,
-	"TODO_IDENTIFIER": SyntaxKindPercentToken,
-	"TODO_IDENTIFIER": SyntaxKindPlusPlusToken,
-	"TODO_IDENTIFIER": SyntaxKindMinusMinusToken,
-	"TODO_IDENTIFIER": SyntaxKindLessThanLessThanToken,
-	"TODO_IDENTIFIER": SyntaxKindLessThanSlashToken,
-	"TODO_IDENTIFIER": SyntaxKindGreaterThanGreaterThanToken,
-	"TODO_IDENTIFIER": SyntaxKindGreaterThanGreaterThanGreaterThanToken,
-	"TODO_IDENTIFIER": SyntaxKindAmpersandToken,
-	"TODO_IDENTIFIER": SyntaxKindBarToken,
-	"TODO_IDENTIFIER": SyntaxKindCaretToken,
-	"TODO_IDENTIFIER": SyntaxKindExclamationToken,
-	"TODO_IDENTIFIER": SyntaxKindTildeToken,
-	"TODO_IDENTIFIER": SyntaxKindAmpersandAmpersandToken,
-	"TODO_IDENTIFIER": SyntaxKindBarBarToken,
-	"TODO_IDENTIFIER": SyntaxKindQuestionToken,
-	"TODO_IDENTIFIER": SyntaxKindQuestionQuestionToken,
-	"TODO_IDENTIFIER": SyntaxKindQuestionDotToken,
-	"TODO_IDENTIFIER": SyntaxKindColonToken,
-	"TODO_IDENTIFIER": SyntaxKindEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindPlusEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindMinusEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindAsteriskEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindAsteriskAsteriskEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindSlashEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindPercentEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindLessThanLessThanEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindGreaterThanGreaterThanEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindGreaterThanGreaterThanGreaterThanEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindAmpersandEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindBarEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindCaretEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindBarBarEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindAmpersandAmpersandEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindQuestionQuestionEqualsToken,
-	"TODO_IDENTIFIER": SyntaxKindAtToken,
-	"TODO_IDENTIFIER": SyntaxKindHashToken,
-	"TODO_IDENTIFIER": SyntaxKindBacktickToken,
+	"TODO_IDENTIFIER": ast.KindOpenBraceToken,
+	"TODO_IDENTIFIER": ast.KindCloseBraceToken,
+	"TODO_IDENTIFIER": ast.KindOpenParenToken,
+	"TODO_IDENTIFIER": ast.KindCloseParenToken,
+	"TODO_IDENTIFIER": ast.KindOpenBracketToken,
+	"TODO_IDENTIFIER": ast.KindCloseBracketToken,
+	"TODO_IDENTIFIER": ast.KindDotToken,
+	"TODO_IDENTIFIER": ast.KindDotDotDotToken,
+	"TODO_IDENTIFIER": ast.KindSemicolonToken,
+	"TODO_IDENTIFIER": ast.KindCommaToken,
+	"TODO_IDENTIFIER": ast.KindLessThanToken,
+	"TODO_IDENTIFIER": ast.KindGreaterThanToken,
+	"TODO_IDENTIFIER": ast.KindLessThanEqualsToken,
+	"TODO_IDENTIFIER": ast.KindGreaterThanEqualsToken,
+	"TODO_IDENTIFIER": ast.KindEqualsEqualsToken,
+	"TODO_IDENTIFIER": ast.KindExclamationEqualsToken,
+	"TODO_IDENTIFIER": ast.KindEqualsEqualsEqualsToken,
+	"TODO_IDENTIFIER": ast.KindExclamationEqualsEqualsToken,
+	"TODO_IDENTIFIER": ast.KindEqualsGreaterThanToken,
+	"TODO_IDENTIFIER": ast.KindPlusToken,
+	"TODO_IDENTIFIER": ast.KindMinusToken,
+	"TODO_IDENTIFIER": ast.KindAsteriskAsteriskToken,
+	"TODO_IDENTIFIER": ast.KindAsteriskToken,
+	"TODO_IDENTIFIER": ast.KindSlashToken,
+	"TODO_IDENTIFIER": ast.KindPercentToken,
+	"TODO_IDENTIFIER": ast.KindPlusPlusToken,
+	"TODO_IDENTIFIER": ast.KindMinusMinusToken,
+	"TODO_IDENTIFIER": ast.KindLessThanLessThanToken,
+	"TODO_IDENTIFIER": ast.KindLessThanSlashToken,
+	"TODO_IDENTIFIER": ast.KindGreaterThanGreaterThanToken,
+	"TODO_IDENTIFIER": ast.KindGreaterThanGreaterThanGreaterThanToken,
+	"TODO_IDENTIFIER": ast.KindAmpersandToken,
+	"TODO_IDENTIFIER": ast.KindBarToken,
+	"TODO_IDENTIFIER": ast.KindCaretToken,
+	"TODO_IDENTIFIER": ast.KindExclamationToken,
+	"TODO_IDENTIFIER": ast.KindTildeToken,
+	"TODO_IDENTIFIER": ast.KindAmpersandAmpersandToken,
+	"TODO_IDENTIFIER": ast.KindBarBarToken,
+	"TODO_IDENTIFIER": ast.KindQuestionToken,
+	"TODO_IDENTIFIER": ast.KindQuestionQuestionToken,
+	"TODO_IDENTIFIER": ast.KindQuestionDotToken,
+	"TODO_IDENTIFIER": ast.KindColonToken,
+	"TODO_IDENTIFIER": ast.KindEqualsToken,
+	"TODO_IDENTIFIER": ast.KindPlusEqualsToken,
+	"TODO_IDENTIFIER": ast.KindMinusEqualsToken,
+	"TODO_IDENTIFIER": ast.KindAsteriskEqualsToken,
+	"TODO_IDENTIFIER": ast.KindAsteriskAsteriskEqualsToken,
+	"TODO_IDENTIFIER": ast.KindSlashEqualsToken,
+	"TODO_IDENTIFIER": ast.KindPercentEqualsToken,
+	"TODO_IDENTIFIER": ast.KindLessThanLessThanEqualsToken,
+	"TODO_IDENTIFIER": ast.KindGreaterThanGreaterThanEqualsToken,
+	"TODO_IDENTIFIER": ast.KindGreaterThanGreaterThanGreaterThanEqualsToken,
+	"TODO_IDENTIFIER": ast.KindAmpersandEqualsToken,
+	"TODO_IDENTIFIER": ast.KindBarEqualsToken,
+	"TODO_IDENTIFIER": ast.KindCaretEqualsToken,
+	"TODO_IDENTIFIER": ast.KindBarBarEqualsToken,
+	"TODO_IDENTIFIER": ast.KindAmpersandAmpersandEqualsToken,
+	"TODO_IDENTIFIER": ast.KindQuestionQuestionEqualsToken,
+	"TODO_IDENTIFIER": ast.KindAtToken,
+	"TODO_IDENTIFIER": ast.KindHashToken,
+	"TODO_IDENTIFIER": ast.KindBacktickToken,
 }))
 
 var charCodeToRegExpFlag = NewMap[CharacterCodes, RegularExpressionFlags]([] /* TODO(TS-TO-GO) inferred type [CharacterCodes.d, RegularExpressionFlags.HasIndices] | [CharacterCodes.g, RegularExpressionFlags.Global] | [CharacterCodes.i, RegularExpressionFlags.IgnoreCase] | [CharacterCodes.m, RegularExpressionFlags.Multiline] | [CharacterCodes.s, RegularExpressionFlags.DotAll] | [CharacterCodes.u, RegularExpressionFlags.Unicode] | [CharacterCodes.v, RegularExpressionFlags.UnicodeSets] | [CharacterCodes.y, RegularExpressionFlags.Sticky] */ any{[]any{CharacterCodesd, RegularExpressionFlagsHasIndices}, []any{CharacterCodesg, RegularExpressionFlagsGlobal}, []any{CharacterCodesi, RegularExpressionFlagsIgnoreCase}, []any{CharacterCodesm, RegularExpressionFlagsMultiline}, []any{CharacterCodess, RegularExpressionFlagsDotAll}, []any{CharacterCodesu, RegularExpressionFlagsUnicode}, []any{CharacterCodesv, RegularExpressionFlagsUnicodeSets}, []any{CharacterCodesy, RegularExpressionFlagsSticky}})
@@ -782,9 +782,9 @@ scan:
 			if nextChar == CharacterCodesslash || nextChar == CharacterCodesasterisk {
 				var kind /* TODO(TS-TO-GO) inferred type SyntaxKind.SingleLineCommentTrivia | SyntaxKind.MultiLineCommentTrivia */ any
 				if nextChar == CharacterCodesslash {
-					kind = SyntaxKindSingleLineCommentTrivia
+					kind = ast.KindSingleLineCommentTrivia
 				} else {
-					kind = SyntaxKindMultiLineCommentTrivia
+					kind = ast.KindMultiLineCommentTrivia
 				}
 				startPos := pos
 				pos += 2
@@ -1002,10 +1002,10 @@ func createScanner(languageVersion ScriptTarget, skipTrivia bool, languageVarian
 			return (scanner.tokenFlags & TokenFlagsPrecedingJSDocLeadingAsterisks) != 0
 		},
 		isIdentifier: func() bool {
-			return scanner.token == SyntaxKindIdentifier || scanner.token > SyntaxKindLastReservedWord
+			return scanner.token == ast.KindIdentifier || scanner.token > ast.KindLastReservedWord
 		},
 		isReservedWord: func() bool {
-			return scanner.token >= SyntaxKindFirstReservedWord && scanner.token <= SyntaxKindLastReservedWord
+			return scanner.token >= ast.KindFirstReservedWord && scanner.token <= ast.KindLastReservedWord
 		},
 		isUnterminated: func() bool {
 			return (scanner.tokenFlags & TokenFlagsUnterminated) != 0
@@ -1213,13 +1213,13 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 			// LegacyOctalIntegerLiteral
 			scanner.tokenValue = "" + parseInt(scanner.tokenValue, 8)
 			scanner.tokenFlags |= TokenFlagsOctal
-			withMinus := scanner.token == SyntaxKindMinusToken
+			withMinus := scanner.token == ast.KindMinusToken
 			literal := (ifElse(withMinus, "-", "")) + "0o" + (+scanner.tokenValue).toString(8)
 			if withMinus {
 				start--
 			}
 			scanner.error(Diagnostics.Octal_literals_are_not_allowed_Use_the_syntax_0, start, scanner.pos-start, literal)
-			return SyntaxKindNumericLiteral
+			return ast.KindNumericLiteral
 		}
 	} else {
 		mainFragment = scanner.scanNumberFragment()
@@ -1264,14 +1264,14 @@ func (scanner *Scanner) scanNumber() SyntaxKind {
 		scanner.error(Diagnostics.Decimals_with_leading_zeros_are_not_allowed, start, end-start)
 		// if a literal has a leading zero, it must not be bigint
 		scanner.tokenValue = "" + +result
-		return SyntaxKindNumericLiteral
+		return ast.KindNumericLiteral
 	}
 
 	if decimalFragment != nil || scanner.tokenFlags&TokenFlagsScientific != 0 {
 		scanner.checkForIdentifierStartAfterNumericLiteral(start, decimalFragment == nil && scanner.tokenFlags&TokenFlagsScientific != 0)
 		// if value is not an integer, it can be safely coerced to a number
 		scanner.tokenValue = "" + +result
-		return SyntaxKindNumericLiteral
+		return ast.KindNumericLiteral
 	} else {
 		scanner.tokenValue = result
 		t := scanner.checkBigIntSuffix()
@@ -1431,9 +1431,9 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			scanner.tokenFlags |= TokenFlagsUnterminated
 			scanner.error(Diagnostics.Unterminated_template_literal)
 			if startedWithBacktick {
-				resultingToken = SyntaxKindNoSubstitutionTemplateLiteral
+				resultingToken = ast.KindNoSubstitutionTemplateLiteral
 			} else {
-				resultingToken = SyntaxKindTemplateTail
+				resultingToken = ast.KindTemplateTail
 			}
 			break
 		}
@@ -1445,9 +1445,9 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			contents += scanner.text.substring(start, scanner.pos)
 			scanner.pos++
 			if startedWithBacktick {
-				resultingToken = SyntaxKindNoSubstitutionTemplateLiteral
+				resultingToken = ast.KindNoSubstitutionTemplateLiteral
 			} else {
-				resultingToken = SyntaxKindTemplateTail
+				resultingToken = ast.KindTemplateTail
 			}
 			break
 		}
@@ -1457,9 +1457,9 @@ func (scanner *Scanner) scanTemplateAndSetTokenValue(shouldEmitInvalidEscapeErro
 			contents += scanner.text.substring(start, scanner.pos)
 			scanner.pos += 2
 			if startedWithBacktick {
-				resultingToken = SyntaxKindTemplateHead
+				resultingToken = ast.KindTemplateHead
 			} else {
-				resultingToken = SyntaxKindTemplateMiddle
+				resultingToken = ast.KindTemplateMiddle
 			}
 			break
 		}
@@ -1793,7 +1793,7 @@ func (scanner *Scanner) getIdentifierToken() Union[ /* TODO(TS-TO-GO) Node Quali
 			}
 		}
 	}
-	scanner.token = SyntaxKindIdentifier
+	scanner.token = ast.KindIdentifier
 	return scanner.token
 }
 
@@ -1842,7 +1842,7 @@ func (scanner *Scanner) checkBigIntSuffix() SyntaxKind {
 			scanner.tokenValue = parsePseudoBigInt(scanner.tokenValue) + "n"
 		}
 		scanner.pos++
-		return SyntaxKindBigIntLiteral
+		return ast.KindBigIntLiteral
 	} else {
 		// Number() may not support 0b or 0o, so use parseInt() instead
 		var numericValue number
@@ -1855,7 +1855,7 @@ func (scanner *Scanner) checkBigIntSuffix() SyntaxKind {
 			numericValue = +scanner.tokenValue
 		}
 		scanner.tokenValue = "" + numericValue
-		return SyntaxKindNumericLiteral
+		return ast.KindNumericLiteral
 	}
 }
 
@@ -1865,7 +1865,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 	for true {
 		scanner.tokenStart = scanner.pos
 		if scanner.pos >= scanner.end {
-			scanner.token = SyntaxKindEndOfFileToken
+			scanner.token = ast.KindEndOfFileToken
 			return scanner.token
 		}
 
@@ -1877,7 +1877,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				if skipTrivia {
 					continue
 				} else {
-					scanner.token = SyntaxKindShebangTrivia
+					scanner.token = ast.KindShebangTrivia
 					return scanner.token
 				}
 			}
@@ -1897,7 +1897,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				} else {
 					scanner.pos++
 				}
-				scanner.token = SyntaxKindNewLineTrivia
+				scanner.token = ast.KindNewLineTrivia
 				return scanner.token
 			}
 			fallthrough
@@ -1930,7 +1930,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				for scanner.pos < scanner.end && isWhiteSpaceSingleLine(scanner.charCodeUnchecked(scanner.pos)) {
 					scanner.pos++
 				}
-				scanner.token = SyntaxKindWhitespaceTrivia
+				scanner.token = ast.KindWhitespaceTrivia
 				return scanner.token
 			}
 			fallthrough
@@ -1944,12 +1944,12 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.ExclamationEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindExclamationToken
+			scanner.token = ast.KindExclamationToken
 			return scanner.token
 		case CharacterCodesdoubleQuote,
 			CharacterCodessingleQuote:
 			scanner.tokenValue = scanner.scanString()
-			scanner.token = SyntaxKindStringLiteral
+			scanner.token = ast.KindStringLiteral
 			return scanner.token
 		case CharacterCodesbacktick:
 			scanner.token = scanner.scanTemplateAndSetTokenValue(false)
@@ -1960,7 +1960,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.PercentEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindPercentToken
+			scanner.token = ast.KindPercentToken
 			return scanner.token
 		case CharacterCodesampersand:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesampersand {
@@ -1976,15 +1976,15 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.AmpersandEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindAmpersandToken
+			scanner.token = ast.KindAmpersandToken
 			return scanner.token
 		case CharacterCodesopenParen:
 			scanner.pos++
-			scanner.token = SyntaxKindOpenParenToken
+			scanner.token = ast.KindOpenParenToken
 			return scanner.token
 		case CharacterCodescloseParen:
 			scanner.pos++
-			scanner.token = SyntaxKindCloseParenToken
+			scanner.token = ast.KindCloseParenToken
 			return scanner.token
 		case CharacterCodesasterisk:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
@@ -2005,7 +2005,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				scanner.tokenFlags |= TokenFlagsPrecedingJSDocLeadingAsterisks
 				continue
 			}
-			scanner.token = SyntaxKindAsteriskToken
+			scanner.token = ast.KindAsteriskToken
 			return scanner.token
 		case CharacterCodesplus:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesplus {
@@ -2017,11 +2017,11 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.PlusEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindPlusToken
+			scanner.token = ast.KindPlusToken
 			return scanner.token
 		case CharacterCodescomma:
 			scanner.pos++
-			scanner.token = SyntaxKindCommaToken
+			scanner.token = ast.KindCommaToken
 			return scanner.token
 		case CharacterCodesminus:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesminus {
@@ -2033,12 +2033,12 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.MinusEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindMinusToken
+			scanner.token = ast.KindMinusToken
 			return scanner.token
 		case CharacterCodesdot:
 			if isDigit(scanner.charCodeUnchecked(scanner.pos + 1)) {
 				scanner.scanNumber()
-				scanner.token = SyntaxKindNumericLiteral
+				scanner.token = ast.KindNumericLiteral
 				return scanner.token
 			}
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesdot && scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesdot {
@@ -2046,7 +2046,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.DotDotDotToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindDotToken
+			scanner.token = ast.KindDotToken
 			return scanner.token
 		case CharacterCodesslash:
 			// Single-line comment
@@ -2065,7 +2065,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				if skipTrivia {
 					continue
 				} else {
-					scanner.token = SyntaxKindSingleLineCommentTrivia
+					scanner.token = ast.KindSingleLineCommentTrivia
 					return scanner.token
 				}
 			}
@@ -2109,7 +2109,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					if !commentClosed {
 						scanner.tokenFlags |= TokenFlagsUnterminated
 					}
-					scanner.token = SyntaxKindMultiLineCommentTrivia
+					scanner.token = ast.KindMultiLineCommentTrivia
 					return scanner.token
 				}
 			}
@@ -2120,7 +2120,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			}
 
 			scanner.pos++
-			scanner.token = SyntaxKindSlashToken
+			scanner.token = ast.KindSlashToken
 			return scanner.token
 		case CharacterCodes_0:
 			if scanner.pos+2 < scanner.end && (scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesX || scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesx) {
@@ -2171,11 +2171,11 @@ func (scanner *Scanner) scan() SyntaxKind {
 			return scanner.token
 		case CharacterCodescolon:
 			scanner.pos++
-			scanner.token = SyntaxKindColonToken
+			scanner.token = ast.KindColonToken
 			return scanner.token
 		case CharacterCodessemicolon:
 			scanner.pos++
-			scanner.token = SyntaxKindSemicolonToken
+			scanner.token = ast.KindSemicolonToken
 			return scanner.token
 		case CharacterCodeslessThan:
 			if isConflictMarkerTrivia(scanner.text, scanner.pos) {
@@ -2183,7 +2183,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				if skipTrivia {
 					continue
 				} else {
-					scanner.token = SyntaxKindConflictMarkerTrivia
+					scanner.token = ast.KindConflictMarkerTrivia
 					return scanner.token
 				}
 			}
@@ -2205,7 +2205,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.LessThanSlashToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindLessThanToken
+			scanner.token = ast.KindLessThanToken
 			return scanner.token
 		case CharacterCodesequals:
 			if isConflictMarkerTrivia(scanner.text, scanner.pos) {
@@ -2213,7 +2213,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				if skipTrivia {
 					continue
 				} else {
-					scanner.token = SyntaxKindConflictMarkerTrivia
+					scanner.token = ast.KindConflictMarkerTrivia
 					return scanner.token
 				}
 			}
@@ -2231,7 +2231,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.EqualsGreaterThanToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindEqualsToken
+			scanner.token = ast.KindEqualsToken
 			return scanner.token
 		case CharacterCodesgreaterThan:
 			if isConflictMarkerTrivia(scanner.text, scanner.pos) {
@@ -2239,13 +2239,13 @@ func (scanner *Scanner) scan() SyntaxKind {
 				if skipTrivia {
 					continue
 				} else {
-					scanner.token = SyntaxKindConflictMarkerTrivia
+					scanner.token = ast.KindConflictMarkerTrivia
 					return scanner.token
 				}
 			}
 
 			scanner.pos++
-			scanner.token = SyntaxKindGreaterThanToken
+			scanner.token = ast.KindGreaterThanToken
 			return scanner.token
 		case CharacterCodesquestion:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesdot && !isDigit(scanner.charCodeUnchecked(scanner.pos+2)) {
@@ -2261,15 +2261,15 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.QuestionQuestionToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindQuestionToken
+			scanner.token = ast.KindQuestionToken
 			return scanner.token
 		case CharacterCodesopenBracket:
 			scanner.pos++
-			scanner.token = SyntaxKindOpenBracketToken
+			scanner.token = ast.KindOpenBracketToken
 			return scanner.token
 		case CharacterCodescloseBracket:
 			scanner.pos++
-			scanner.token = SyntaxKindCloseBracketToken
+			scanner.token = ast.KindCloseBracketToken
 			return scanner.token
 		case CharacterCodescaret:
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesequals {
@@ -2277,11 +2277,11 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.CaretEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindCaretToken
+			scanner.token = ast.KindCaretToken
 			return scanner.token
 		case CharacterCodesopenBrace:
 			scanner.pos++
-			scanner.token = SyntaxKindOpenBraceToken
+			scanner.token = ast.KindOpenBraceToken
 			return scanner.token
 		case CharacterCodesbar:
 			if isConflictMarkerTrivia(scanner.text, scanner.pos) {
@@ -2289,7 +2289,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				if skipTrivia {
 					continue
 				} else {
-					scanner.token = SyntaxKindConflictMarkerTrivia
+					scanner.token = ast.KindConflictMarkerTrivia
 					return scanner.token
 				}
 			}
@@ -2307,19 +2307,19 @@ func (scanner *Scanner) scan() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.BarEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindBarToken
+			scanner.token = ast.KindBarToken
 			return scanner.token
 		case CharacterCodescloseBrace:
 			scanner.pos++
-			scanner.token = SyntaxKindCloseBraceToken
+			scanner.token = ast.KindCloseBraceToken
 			return scanner.token
 		case CharacterCodestilde:
 			scanner.pos++
-			scanner.token = SyntaxKindTildeToken
+			scanner.token = ast.KindTildeToken
 			return scanner.token
 		case CharacterCodesat:
 			scanner.pos++
-			scanner.token = SyntaxKindAtToken
+			scanner.token = ast.KindAtToken
 			return scanner.token
 		case CharacterCodesbackslash:
 			extendedCookedChar := scanner.peekExtendedUnicodeEscape()
@@ -2340,13 +2340,13 @@ func (scanner *Scanner) scan() SyntaxKind {
 
 			scanner.error(Diagnostics.Invalid_character)
 			scanner.pos++
-			scanner.token = SyntaxKindUnknown
+			scanner.token = ast.KindUnknown
 			return scanner.token
 		case CharacterCodeshash:
 			if scanner.pos != 0 && scanner.text[scanner.pos+1] == "!" {
 				scanner.error(Diagnostics.can_only_be_used_at_the_start_of_a_file, scanner.pos, 2)
 				scanner.pos++
-				scanner.token = SyntaxKindUnknown
+				scanner.token = ast.KindUnknown
 				return scanner.token
 			}
 
@@ -2356,7 +2356,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 				extendedCookedChar := scanner.peekExtendedUnicodeEscape()
 				if extendedCookedChar >= 0 && isIdentifierStart(extendedCookedChar, languageVersion) {
 					scanner.tokenValue = "#" + scanner.scanExtendedUnicodeEscape(true) + scanner.scanIdentifierParts()
-					scanner.token = SyntaxKindPrivateIdentifier
+					scanner.token = ast.KindPrivateIdentifier
 					return scanner.token
 				}
 
@@ -2365,7 +2365,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 					scanner.pos += 6
 					scanner.tokenFlags |= TokenFlagsUnicodeEscape
 					scanner.tokenValue = "#" + String.fromCharCode(cookedChar) + scanner.scanIdentifierParts()
-					scanner.token = SyntaxKindPrivateIdentifier
+					scanner.token = ast.KindPrivateIdentifier
 					return scanner.token
 				}
 				scanner.pos--
@@ -2383,12 +2383,12 @@ func (scanner *Scanner) scan() SyntaxKind {
 				scanner.tokenValue = "#"
 				scanner.error(Diagnostics.Invalid_character /* TODO(TS-TO-GO) Expression PostfixUnaryExpression: pos++ */, TODO, charSize(ch))
 			}
-			scanner.token = SyntaxKindPrivateIdentifier
+			scanner.token = ast.KindPrivateIdentifier
 			return scanner.token
 		case CharacterCodesreplacementCharacter:
 			scanner.error(Diagnostics.File_appears_to_be_binary, 0, 0)
 			scanner.pos = scanner.end
-			scanner.token = SyntaxKindNonTextFileMarkerTrivia
+			scanner.token = ast.KindNonTextFileMarkerTrivia
 			return scanner.token
 		default:
 			identifierKind := scanner.scanIdentifier(ch, languageVersion)
@@ -2406,7 +2406,7 @@ func (scanner *Scanner) scan() SyntaxKind {
 			size := charSize(ch)
 			scanner.error(Diagnostics.Invalid_character, scanner.pos, size)
 			scanner.pos += size
-			scanner.token = SyntaxKindUnknown
+			scanner.token = ast.KindUnknown
 			return scanner.token
 		}
 	}
@@ -2435,7 +2435,7 @@ func (scanner *Scanner) shouldParseJSDoc() bool {
 }
 
 func (scanner *Scanner) reScanInvalidIdentifier() SyntaxKind {
-	Debug.assert(scanner.token == SyntaxKindUnknown, "'reScanInvalidIdentifier' should only be called when the current token is 'SyntaxKind.Unknown'.")
+	Debug.assert(scanner.token == ast.KindUnknown, "'reScanInvalidIdentifier' should only be called when the current token is 'SyntaxKind.Unknown'.")
 	scanner.pos = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: tokenStart = fullStartPos */ TODO
 	scanner.tokenFlags = 0
 	ch := scanner.codePointUnchecked(scanner.pos)
@@ -2465,7 +2465,7 @@ func (scanner *Scanner) scanIdentifier(startCharacter number, languageVersion Sc
 }
 
 func (scanner *Scanner) reScanGreaterToken() SyntaxKind {
-	if scanner.token == SyntaxKindGreaterThanToken {
+	if scanner.token == ast.KindGreaterThanToken {
 		if scanner.charCodeUnchecked(scanner.pos) == CharacterCodesgreaterThan {
 			if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesgreaterThan {
 				if scanner.charCodeUnchecked(scanner.pos+2) == CharacterCodesequals {
@@ -2480,12 +2480,12 @@ func (scanner *Scanner) reScanGreaterToken() SyntaxKind {
 				return /* TODO(TS-TO-GO) EqualsToken BinaryExpression: token = SyntaxKind.GreaterThanGreaterThanEqualsToken */ TODO
 			}
 			scanner.pos++
-			scanner.token = SyntaxKindGreaterThanGreaterThanToken
+			scanner.token = ast.KindGreaterThanGreaterThanToken
 			return scanner.token
 		}
 		if scanner.charCodeUnchecked(scanner.pos) == CharacterCodesequals {
 			scanner.pos++
-			scanner.token = SyntaxKindGreaterThanEqualsToken
+			scanner.token = ast.KindGreaterThanEqualsToken
 			return scanner.token
 		}
 	}
@@ -2493,14 +2493,14 @@ func (scanner *Scanner) reScanGreaterToken() SyntaxKind {
 }
 
 func (scanner *Scanner) reScanAsteriskEqualsToken() SyntaxKind {
-	Debug.assert(scanner.token == SyntaxKindAsteriskEqualsToken, "'reScanAsteriskEqualsToken' should only be called on a '*='")
+	Debug.assert(scanner.token == ast.KindAsteriskEqualsToken, "'reScanAsteriskEqualsToken' should only be called on a '*='")
 	scanner.pos = scanner.tokenStart + 1
-	scanner.token = SyntaxKindEqualsToken
+	scanner.token = ast.KindEqualsToken
 	return scanner.token
 }
 
 func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
-	if scanner.token == SyntaxKindSlashToken || scanner.token == SyntaxKindSlashEqualsToken {
+	if scanner.token == ast.KindSlashToken || scanner.token == ast.KindSlashEqualsToken {
 		// Quickly get to the end of regex such that we know the flags
 		startOfRegExpBody := scanner.tokenStart + 1
 		scanner.pos = startOfRegExpBody
@@ -2618,7 +2618,7 @@ func (scanner *Scanner) reScanSlashToken(reportErrors bool) SyntaxKind {
 			}
 		}
 		scanner.tokenValue = scanner.text.substring(scanner.tokenStart, scanner.pos)
-		scanner.token = SyntaxKindRegularExpressionLiteral
+		scanner.token = ast.KindRegularExpressionLiteral
 	}
 	return scanner.token
 }
@@ -3630,27 +3630,27 @@ func (scanner *Scanner) reScanJsxToken(allowMultilineJsxText bool /*  = true */)
 }
 
 func (scanner *Scanner) reScanLessThanToken() SyntaxKind {
-	if scanner.token == SyntaxKindLessThanLessThanToken {
+	if scanner.token == ast.KindLessThanLessThanToken {
 		scanner.pos = scanner.tokenStart + 1
-		scanner.token = SyntaxKindLessThanToken
+		scanner.token = ast.KindLessThanToken
 		return scanner.token
 	}
 	return scanner.token
 }
 
 func (scanner *Scanner) reScanHashToken() SyntaxKind {
-	if scanner.token == SyntaxKindPrivateIdentifier {
+	if scanner.token == ast.KindPrivateIdentifier {
 		scanner.pos = scanner.tokenStart + 1
-		scanner.token = SyntaxKindHashToken
+		scanner.token = ast.KindHashToken
 		return scanner.token
 	}
 	return scanner.token
 }
 
 func (scanner *Scanner) reScanQuestionToken() SyntaxKind {
-	Debug.assert(scanner.token == SyntaxKindQuestionQuestionToken, "'reScanQuestionToken' should only be called on a '??'")
+	Debug.assert(scanner.token == ast.KindQuestionQuestionToken, "'reScanQuestionToken' should only be called on a '??'")
 	scanner.pos = scanner.tokenStart + 1
-	scanner.token = SyntaxKindQuestionToken
+	scanner.token = ast.KindQuestionToken
 	return scanner.token
 }
 
@@ -3658,7 +3658,7 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 	scanner.fullStartPos = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: tokenStart = pos */ TODO
 
 	if scanner.pos >= scanner.end {
-		scanner.token = SyntaxKindEndOfFileToken
+		scanner.token = ast.KindEndOfFileToken
 		return scanner.token
 	}
 
@@ -3666,17 +3666,17 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 	if char == CharacterCodeslessThan {
 		if scanner.charCodeUnchecked(scanner.pos+1) == CharacterCodesslash {
 			scanner.pos += 2
-			scanner.token = SyntaxKindLessThanSlashToken
+			scanner.token = ast.KindLessThanSlashToken
 			return scanner.token
 		}
 		scanner.pos++
-		scanner.token = SyntaxKindLessThanToken
+		scanner.token = ast.KindLessThanToken
 		return scanner.token
 	}
 
 	if char == CharacterCodesopenBrace {
 		scanner.pos++
-		scanner.token = SyntaxKindOpenBraceToken
+		scanner.token = ast.KindOpenBraceToken
 		return scanner.token
 	}
 
@@ -3694,7 +3694,7 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 		if char == CharacterCodeslessThan {
 			if isConflictMarkerTrivia(scanner.text, scanner.pos) {
 				scanner.pos = scanConflictMarkerTrivia(scanner.text, scanner.pos, scanner.error)
-				scanner.token = SyntaxKindConflictMarkerTrivia
+				scanner.token = ast.KindConflictMarkerTrivia
 				return scanner.token
 			}
 			break
@@ -3728,9 +3728,9 @@ func (scanner *Scanner) scanJsxToken(allowMultilineJsxText bool /*  = true */) J
 	scanner.tokenValue = scanner.text.substring(scanner.fullStartPos, scanner.pos)
 
 	if firstNonWhitespace == -1 {
-		return SyntaxKindJsxTextAllWhiteSpaces
+		return ast.KindJsxTextAllWhiteSpaces
 	} else {
-		return SyntaxKindJsxText
+		return ast.KindJsxText
 	}
 }
 
@@ -3768,7 +3768,7 @@ func (scanner *Scanner) scanJsxAttributeValue() SyntaxKind {
 	case CharacterCodesdoubleQuote,
 		CharacterCodessingleQuote:
 		scanner.tokenValue = scanner.scanString(true)
-		scanner.token = SyntaxKindStringLiteral
+		scanner.token = ast.KindStringLiteral
 		return scanner.token
 	default:
 		// If this scans anything other than `{`, it's a parse error.
@@ -3785,7 +3785,7 @@ func (scanner *Scanner) scanJSDocCommentTextToken(inBackticks bool) Union[JSDocS
 	scanner.fullStartPos = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: tokenStart = pos */ TODO
 	scanner.tokenFlags = TokenFlagsNone
 	if scanner.pos >= scanner.end {
-		scanner.token = SyntaxKindEndOfFileToken
+		scanner.token = ast.KindEndOfFileToken
 		return scanner.token
 	}
 	for ch := scanner.charCodeUnchecked(scanner.pos); scanner.pos < scanner.end && (!isLineBreak(ch) && ch != CharacterCodesbacktick); ch = scanner.codePointUnchecked( /* TODO(TS-TO-GO) Expression PrefixUnaryExpression: ++pos */ TODO) {
@@ -3802,7 +3802,7 @@ func (scanner *Scanner) scanJSDocCommentTextToken(inBackticks bool) Union[JSDocS
 		return scanner.scanJsDocToken()
 	}
 	scanner.tokenValue = scanner.text.substring(scanner.tokenStart, scanner.pos)
-	scanner.token = SyntaxKindJSDocCommentTextToken
+	scanner.token = ast.KindJSDocCommentTextToken
 	return scanner.token
 }
 
@@ -3810,7 +3810,7 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 	scanner.fullStartPos = /* TODO(TS-TO-GO) EqualsToken BinaryExpression: tokenStart = pos */ TODO
 	scanner.tokenFlags = TokenFlagsNone
 	if scanner.pos >= scanner.end {
-		scanner.token = SyntaxKindEndOfFileToken
+		scanner.token = ast.KindEndOfFileToken
 		return scanner.token
 	}
 
@@ -3824,10 +3824,10 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 		for scanner.pos < scanner.end && isWhiteSpaceSingleLine(scanner.charCodeUnchecked(scanner.pos)) {
 			scanner.pos++
 		}
-		scanner.token = SyntaxKindWhitespaceTrivia
+		scanner.token = ast.KindWhitespaceTrivia
 		return scanner.token
 	case CharacterCodesat:
-		scanner.token = SyntaxKindAtToken
+		scanner.token = ast.KindAtToken
 		return scanner.token
 	case CharacterCodescarriageReturn:
 		if scanner.charCodeUnchecked(scanner.pos) == CharacterCodeslineFeed {
@@ -3836,49 +3836,49 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 		fallthrough
 	case CharacterCodeslineFeed:
 		scanner.tokenFlags |= TokenFlagsPrecedingLineBreak
-		scanner.token = SyntaxKindNewLineTrivia
+		scanner.token = ast.KindNewLineTrivia
 		return scanner.token
 	case CharacterCodesasterisk:
-		scanner.token = SyntaxKindAsteriskToken
+		scanner.token = ast.KindAsteriskToken
 		return scanner.token
 	case CharacterCodesopenBrace:
-		scanner.token = SyntaxKindOpenBraceToken
+		scanner.token = ast.KindOpenBraceToken
 		return scanner.token
 	case CharacterCodescloseBrace:
-		scanner.token = SyntaxKindCloseBraceToken
+		scanner.token = ast.KindCloseBraceToken
 		return scanner.token
 	case CharacterCodesopenBracket:
-		scanner.token = SyntaxKindOpenBracketToken
+		scanner.token = ast.KindOpenBracketToken
 		return scanner.token
 	case CharacterCodescloseBracket:
-		scanner.token = SyntaxKindCloseBracketToken
+		scanner.token = ast.KindCloseBracketToken
 		return scanner.token
 	case CharacterCodesopenParen:
-		scanner.token = SyntaxKindOpenParenToken
+		scanner.token = ast.KindOpenParenToken
 		return scanner.token
 	case CharacterCodescloseParen:
-		scanner.token = SyntaxKindCloseParenToken
+		scanner.token = ast.KindCloseParenToken
 		return scanner.token
 	case CharacterCodeslessThan:
-		scanner.token = SyntaxKindLessThanToken
+		scanner.token = ast.KindLessThanToken
 		return scanner.token
 	case CharacterCodesgreaterThan:
-		scanner.token = SyntaxKindGreaterThanToken
+		scanner.token = ast.KindGreaterThanToken
 		return scanner.token
 	case CharacterCodesequals:
-		scanner.token = SyntaxKindEqualsToken
+		scanner.token = ast.KindEqualsToken
 		return scanner.token
 	case CharacterCodescomma:
-		scanner.token = SyntaxKindCommaToken
+		scanner.token = ast.KindCommaToken
 		return scanner.token
 	case CharacterCodesdot:
-		scanner.token = SyntaxKindDotToken
+		scanner.token = ast.KindDotToken
 		return scanner.token
 	case CharacterCodesbacktick:
-		scanner.token = SyntaxKindBacktickToken
+		scanner.token = ast.KindBacktickToken
 		return scanner.token
 	case CharacterCodeshash:
-		scanner.token = SyntaxKindHashToken
+		scanner.token = ast.KindHashToken
 		return scanner.token
 	case CharacterCodesbackslash:
 		scanner.pos--
@@ -3898,7 +3898,7 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 			return scanner.token
 		}
 		scanner.pos++
-		scanner.token = SyntaxKindUnknown
+		scanner.token = ast.KindUnknown
 		return scanner.token
 	}
 
@@ -3914,7 +3914,7 @@ func (scanner *Scanner) scanJsDocToken() JSDocSyntaxKind {
 		scanner.token = scanner.getIdentifierToken()
 		return scanner.token
 	} else {
-		scanner.token = SyntaxKindUnknown
+		scanner.token = ast.KindUnknown
 		return scanner.token
 	}
 }
@@ -4017,7 +4017,7 @@ func (scanner *Scanner) resetTokenState(position number) {
 	scanner.pos = position
 	scanner.fullStartPos = position
 	scanner.tokenStart = position
-	scanner.token = SyntaxKindUnknown
+	scanner.token = ast.KindUnknown
 	scanner.tokenValue = nil
 	scanner.tokenFlags = TokenFlagsNone
 }

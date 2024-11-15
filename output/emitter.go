@@ -175,7 +175,7 @@ func getOutputPathsForBundle(options CompilerOptions, forceDtsPaths bool) EmitFi
 
 func getOutputPathsFor(sourceFile Union[SourceFile, Bundle], host EmitHost, forceDtsPaths bool) EmitFileNames {
 	options := host.getCompilerOptions()
-	if sourceFile.kind == SyntaxKindBundle {
+	if sourceFile.kind == ast.KindBundle {
 		return getOutputPathsForBundle(options, forceDtsPaths)
 	} else {
 		ownOutputFilePath := getOwnEmitOutputFilePath(sourceFile.fileName, host, getOutputExtension(sourceFile.fileName, options))
@@ -655,7 +655,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 
 	collectLinkedAliases := func(node *Node) {
 		if isExportAssignment(node) {
-			if node.expression.kind == SyntaxKindIdentifier {
+			if node.expression.kind == ast.KindIdentifier {
 				resolver.collectLinkedAliases(node.expression.AsIdentifier(), true /*setVisibility*/)
 			}
 			return
@@ -690,13 +690,13 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 	printSourceFileOrBundle := func(jsFilePath string, sourceMapFilePath *string, transform TransformationResult[Union[SourceFile, Bundle]], printer Printer, mapOptions SourceMapOptions) bool {
 		sourceFileOrBundle := transform.transformed[0]
 		var bundle * /* TODO(TS-TO-GO) inferred type ts.Bundle */ any
-		if sourceFileOrBundle.kind == SyntaxKindBundle {
+		if sourceFileOrBundle.kind == ast.KindBundle {
 			bundle = sourceFileOrBundle
 		} else {
 			bundle = nil
 		}
 		var sourceFile * /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any
-		if sourceFileOrBundle.kind == SyntaxKindSourceFile {
+		if sourceFileOrBundle.kind == ast.KindSourceFile {
 			sourceFile = sourceFileOrBundle
 		} else {
 			sourceFile = nil
@@ -771,7 +771,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 	}
 
 	shouldEmitSourceMaps := func(mapOptions SourceMapOptions, sourceFileOrBundle Union[SourceFile, Bundle]) *bool {
-		return (mapOptions.sourceMap || mapOptions.inlineSourceMap) && (sourceFileOrBundle.kind != SyntaxKindSourceFile || !fileExtensionIs(sourceFileOrBundle.fileName, ExtensionJson))
+		return (mapOptions.sourceMap || mapOptions.inlineSourceMap) && (sourceFileOrBundle.kind != ast.KindSourceFile || !fileExtensionIs(sourceFileOrBundle.fileName, ExtensionJson))
 	}
 
 	getSourceRoot := func(mapOptions SourceMapOptions) string {
@@ -1016,9 +1016,9 @@ func (printer *Printer) printNode(hint EmitHint, node *Node, sourceFile SourceFi
 		Debug.assert(isExpression(node), "Expected an Expression node.")
 	}
 	switch node.kind {
-	case SyntaxKindSourceFile:
+	case ast.KindSourceFile:
 		return printer.printFile(node.AsSourceFile())
-	case SyntaxKindBundle:
+	case ast.KindBundle:
 		return printer.printBundle(node.AsBundle())
 	}
 	printer.writeNode(hint, node, sourceFile, printer.beginPrint())
@@ -1294,338 +1294,338 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 	}
 	if hint == EmitHintUnspecified {
 		switch node.kind {
-		case SyntaxKindTemplateHead,
-			SyntaxKindTemplateMiddle,
-			SyntaxKindTemplateTail:
+		case ast.KindTemplateHead,
+			ast.KindTemplateMiddle,
+			ast.KindTemplateTail:
 			return printer.emitLiteral(node.AsLiteralExpression(), false /*jsxAttributeEscape*/)
 
 			// Identifiers
-		case SyntaxKindIdentifier:
+		case ast.KindIdentifier:
 			return printer.emitIdentifier(node.AsIdentifier())
 
 			// PrivateIdentifiers
-		case SyntaxKindPrivateIdentifier:
+		case ast.KindPrivateIdentifier:
 			return printer.emitPrivateIdentifier(node.AsPrivateIdentifier())
 
 			// Parse tree nodes
 			// Names
-		case SyntaxKindQualifiedName:
+		case ast.KindQualifiedName:
 			return printer.emitQualifiedName(node.AsQualifiedName())
-		case SyntaxKindComputedPropertyName:
+		case ast.KindComputedPropertyName:
 			return printer.emitComputedPropertyName(node.AsComputedPropertyName())
 
 			// Signature elements
-		case SyntaxKindTypeParameter:
+		case ast.KindTypeParameter:
 			return printer.emitTypeParameter(node.AsTypeParameterDeclaration())
-		case SyntaxKindParameter:
+		case ast.KindParameter:
 			return printer.emitParameter(node.AsParameterDeclaration())
-		case SyntaxKindDecorator:
+		case ast.KindDecorator:
 			return printer.emitDecorator(node.AsDecorator())
 
 			// Type members
-		case SyntaxKindPropertySignature:
+		case ast.KindPropertySignature:
 			return printer.emitPropertySignature(node.AsPropertySignature())
-		case SyntaxKindPropertyDeclaration:
+		case ast.KindPropertyDeclaration:
 			return printer.emitPropertyDeclaration(node.AsPropertyDeclaration())
-		case SyntaxKindMethodSignature:
+		case ast.KindMethodSignature:
 			return printer.emitMethodSignature(node.AsMethodSignature())
-		case SyntaxKindMethodDeclaration:
+		case ast.KindMethodDeclaration:
 			return printer.emitMethodDeclaration(node.AsMethodDeclaration())
-		case SyntaxKindClassStaticBlockDeclaration:
+		case ast.KindClassStaticBlockDeclaration:
 			return printer.emitClassStaticBlockDeclaration(node.AsClassStaticBlockDeclaration())
-		case SyntaxKindConstructor:
+		case ast.KindConstructor:
 			return printer.emitConstructor(node.AsConstructorDeclaration())
-		case SyntaxKindGetAccessor,
-			SyntaxKindSetAccessor:
+		case ast.KindGetAccessor,
+			ast.KindSetAccessor:
 			return printer.emitAccessorDeclaration(node.AsAccessorDeclaration())
-		case SyntaxKindCallSignature:
+		case ast.KindCallSignature:
 			return printer.emitCallSignature(node.AsCallSignatureDeclaration())
-		case SyntaxKindConstructSignature:
+		case ast.KindConstructSignature:
 			return printer.emitConstructSignature(node.AsConstructSignatureDeclaration())
-		case SyntaxKindIndexSignature:
+		case ast.KindIndexSignature:
 			return printer.emitIndexSignature(node.AsIndexSignatureDeclaration())
 
 			// Types
-		case SyntaxKindTypePredicate:
+		case ast.KindTypePredicate:
 			return printer.emitTypePredicate(node.AsTypePredicateNode())
-		case SyntaxKindTypeReference:
+		case ast.KindTypeReference:
 			return printer.emitTypeReference(node.AsTypeReferenceNode())
-		case SyntaxKindFunctionType:
+		case ast.KindFunctionType:
 			return printer.emitFunctionType(node.AsFunctionTypeNode())
-		case SyntaxKindConstructorType:
+		case ast.KindConstructorType:
 			return printer.emitConstructorType(node.AsConstructorTypeNode())
-		case SyntaxKindTypeQuery:
+		case ast.KindTypeQuery:
 			return printer.emitTypeQuery(node.AsTypeQueryNode())
-		case SyntaxKindTypeLiteral:
+		case ast.KindTypeLiteral:
 			return printer.emitTypeLiteral(node.AsTypeLiteralNode())
-		case SyntaxKindArrayType:
+		case ast.KindArrayType:
 			return printer.emitArrayType(node.AsArrayTypeNode())
-		case SyntaxKindTupleType:
+		case ast.KindTupleType:
 			return printer.emitTupleType(node.AsTupleTypeNode())
-		case SyntaxKindOptionalType:
+		case ast.KindOptionalType:
 			return printer.emitOptionalType(node.AsOptionalTypeNode())
 			// SyntaxKind.RestType is handled below
-		case SyntaxKindUnionType:
+		case ast.KindUnionType:
 			return printer.emitUnionType(node.AsUnionTypeNode())
-		case SyntaxKindIntersectionType:
+		case ast.KindIntersectionType:
 			return printer.emitIntersectionType(node.AsIntersectionTypeNode())
-		case SyntaxKindConditionalType:
+		case ast.KindConditionalType:
 			return printer.emitConditionalType(node.AsConditionalTypeNode())
-		case SyntaxKindInferType:
+		case ast.KindInferType:
 			return printer.emitInferType(node.AsInferTypeNode())
-		case SyntaxKindParenthesizedType:
+		case ast.KindParenthesizedType:
 			return printer.emitParenthesizedType(node.AsParenthesizedTypeNode())
-		case SyntaxKindExpressionWithTypeArguments:
+		case ast.KindExpressionWithTypeArguments:
 			return printer.emitExpressionWithTypeArguments(node.AsExpressionWithTypeArguments())
-		case SyntaxKindThisType:
+		case ast.KindThisType:
 			return printer.emitThisType()
-		case SyntaxKindTypeOperator:
+		case ast.KindTypeOperator:
 			return printer.emitTypeOperator(node.AsTypeOperatorNode())
-		case SyntaxKindIndexedAccessType:
+		case ast.KindIndexedAccessType:
 			return printer.emitIndexedAccessType(node.AsIndexedAccessTypeNode())
-		case SyntaxKindMappedType:
+		case ast.KindMappedType:
 			return printer.emitMappedType(node.AsMappedTypeNode())
-		case SyntaxKindLiteralType:
+		case ast.KindLiteralType:
 			return printer.emitLiteralType(node.AsLiteralTypeNode())
-		case SyntaxKindNamedTupleMember:
+		case ast.KindNamedTupleMember:
 			return printer.emitNamedTupleMember(node.AsNamedTupleMember())
-		case SyntaxKindTemplateLiteralType:
+		case ast.KindTemplateLiteralType:
 			return printer.emitTemplateType(node.AsTemplateLiteralTypeNode())
-		case SyntaxKindTemplateLiteralTypeSpan:
+		case ast.KindTemplateLiteralTypeSpan:
 			return printer.emitTemplateTypeSpan(node.AsTemplateLiteralTypeSpan())
-		case SyntaxKindImportType:
+		case ast.KindImportType:
 			return printer.emitImportTypeNode(node.AsImportTypeNode())
 
 			// Binding patterns
-		case SyntaxKindObjectBindingPattern:
+		case ast.KindObjectBindingPattern:
 			return printer.emitObjectBindingPattern(node.AsObjectBindingPattern())
-		case SyntaxKindArrayBindingPattern:
+		case ast.KindArrayBindingPattern:
 			return printer.emitArrayBindingPattern(node.AsArrayBindingPattern())
-		case SyntaxKindBindingElement:
+		case ast.KindBindingElement:
 			return printer.emitBindingElement(node.AsBindingElement())
 
 			// Misc
-		case SyntaxKindTemplateSpan:
+		case ast.KindTemplateSpan:
 			return printer.emitTemplateSpan(node.AsTemplateSpan())
-		case SyntaxKindSemicolonClassElement:
+		case ast.KindSemicolonClassElement:
 			return printer.emitSemicolonClassElement()
 
 			// Statements
-		case SyntaxKindBlock:
+		case ast.KindBlock:
 			return printer.emitBlock(node.AsBlock())
-		case SyntaxKindVariableStatement:
+		case ast.KindVariableStatement:
 			return printer.emitVariableStatement(node.AsVariableStatement())
-		case SyntaxKindEmptyStatement:
+		case ast.KindEmptyStatement:
 			return printer.emitEmptyStatement(false)
-		case SyntaxKindExpressionStatement:
+		case ast.KindExpressionStatement:
 			return printer.emitExpressionStatement(node.AsExpressionStatement())
-		case SyntaxKindIfStatement:
+		case ast.KindIfStatement:
 			return printer.emitIfStatement(node.AsIfStatement())
-		case SyntaxKindDoStatement:
+		case ast.KindDoStatement:
 			return printer.emitDoStatement(node.AsDoStatement())
-		case SyntaxKindWhileStatement:
+		case ast.KindWhileStatement:
 			return printer.emitWhileStatement(node.AsWhileStatement())
-		case SyntaxKindForStatement:
+		case ast.KindForStatement:
 			return printer.emitForStatement(node.AsForStatement())
-		case SyntaxKindForInStatement:
+		case ast.KindForInStatement:
 			return printer.emitForInStatement(node.AsForInStatement())
-		case SyntaxKindForOfStatement:
+		case ast.KindForOfStatement:
 			return printer.emitForOfStatement(node.AsForOfStatement())
-		case SyntaxKindContinueStatement:
+		case ast.KindContinueStatement:
 			return printer.emitContinueStatement(node.AsContinueStatement())
-		case SyntaxKindBreakStatement:
+		case ast.KindBreakStatement:
 			return printer.emitBreakStatement(node.AsBreakStatement())
-		case SyntaxKindReturnStatement:
+		case ast.KindReturnStatement:
 			return printer.emitReturnStatement(node.AsReturnStatement())
-		case SyntaxKindWithStatement:
+		case ast.KindWithStatement:
 			return printer.emitWithStatement(node.AsWithStatement())
-		case SyntaxKindSwitchStatement:
+		case ast.KindSwitchStatement:
 			return printer.emitSwitchStatement(node.AsSwitchStatement())
-		case SyntaxKindLabeledStatement:
+		case ast.KindLabeledStatement:
 			return printer.emitLabeledStatement(node.AsLabeledStatement())
-		case SyntaxKindThrowStatement:
+		case ast.KindThrowStatement:
 			return printer.emitThrowStatement(node.AsThrowStatement())
-		case SyntaxKindTryStatement:
+		case ast.KindTryStatement:
 			return printer.emitTryStatement(node.AsTryStatement())
-		case SyntaxKindDebuggerStatement:
+		case ast.KindDebuggerStatement:
 			return printer.emitDebuggerStatement(node.AsDebuggerStatement())
 
 			// Declarations
-		case SyntaxKindVariableDeclaration:
+		case ast.KindVariableDeclaration:
 			return printer.emitVariableDeclaration(node.AsVariableDeclaration())
-		case SyntaxKindVariableDeclarationList:
+		case ast.KindVariableDeclarationList:
 			return printer.emitVariableDeclarationList(node.AsVariableDeclarationList())
-		case SyntaxKindFunctionDeclaration:
+		case ast.KindFunctionDeclaration:
 			return printer.emitFunctionDeclaration(node.AsFunctionDeclaration())
-		case SyntaxKindClassDeclaration:
+		case ast.KindClassDeclaration:
 			return printer.emitClassDeclaration(node.AsClassDeclaration())
-		case SyntaxKindInterfaceDeclaration:
+		case ast.KindInterfaceDeclaration:
 			return printer.emitInterfaceDeclaration(node.AsInterfaceDeclaration())
-		case SyntaxKindTypeAliasDeclaration:
+		case ast.KindTypeAliasDeclaration:
 			return printer.emitTypeAliasDeclaration(node.AsTypeAliasDeclaration())
-		case SyntaxKindEnumDeclaration:
+		case ast.KindEnumDeclaration:
 			return printer.emitEnumDeclaration(node.AsEnumDeclaration())
-		case SyntaxKindModuleDeclaration:
+		case ast.KindModuleDeclaration:
 			return printer.emitModuleDeclaration(node.AsModuleDeclaration())
-		case SyntaxKindModuleBlock:
+		case ast.KindModuleBlock:
 			return printer.emitModuleBlock(node.AsModuleBlock())
-		case SyntaxKindCaseBlock:
+		case ast.KindCaseBlock:
 			return printer.emitCaseBlock(node.AsCaseBlock())
-		case SyntaxKindNamespaceExportDeclaration:
+		case ast.KindNamespaceExportDeclaration:
 			return printer.emitNamespaceExportDeclaration(node.AsNamespaceExportDeclaration())
-		case SyntaxKindImportEqualsDeclaration:
+		case ast.KindImportEqualsDeclaration:
 			return printer.emitImportEqualsDeclaration(node.AsImportEqualsDeclaration())
-		case SyntaxKindImportDeclaration:
+		case ast.KindImportDeclaration:
 			return printer.emitImportDeclaration(node.AsImportDeclaration())
-		case SyntaxKindImportClause:
+		case ast.KindImportClause:
 			return printer.emitImportClause(node.AsImportClause())
-		case SyntaxKindNamespaceImport:
+		case ast.KindNamespaceImport:
 			return printer.emitNamespaceImport(node.AsNamespaceImport())
-		case SyntaxKindNamespaceExport:
+		case ast.KindNamespaceExport:
 			return printer.emitNamespaceExport(node.AsNamespaceExport())
-		case SyntaxKindNamedImports:
+		case ast.KindNamedImports:
 			return printer.emitNamedImports(node.AsNamedImports())
-		case SyntaxKindImportSpecifier:
+		case ast.KindImportSpecifier:
 			return printer.emitImportSpecifier(node.AsImportSpecifier())
-		case SyntaxKindExportAssignment:
+		case ast.KindExportAssignment:
 			return printer.emitExportAssignment(node.AsExportAssignment())
-		case SyntaxKindExportDeclaration:
+		case ast.KindExportDeclaration:
 			return printer.emitExportDeclaration(node.AsExportDeclaration())
-		case SyntaxKindNamedExports:
+		case ast.KindNamedExports:
 			return printer.emitNamedExports(node.AsNamedExports())
-		case SyntaxKindExportSpecifier:
+		case ast.KindExportSpecifier:
 			return printer.emitExportSpecifier(node.AsExportSpecifier())
-		case SyntaxKindImportAttributes:
+		case ast.KindImportAttributes:
 			return printer.emitImportAttributes(node.AsImportAttributes())
-		case SyntaxKindImportAttribute:
+		case ast.KindImportAttribute:
 			return printer.emitImportAttribute(node.AsImportAttribute())
-		case SyntaxKindMissingDeclaration:
+		case ast.KindMissingDeclaration:
 			return
 
 			// Module references
-		case SyntaxKindExternalModuleReference:
+		case ast.KindExternalModuleReference:
 			return printer.emitExternalModuleReference(node.AsExternalModuleReference())
 
 			// JSX (non-expression)
-		case SyntaxKindJsxText:
+		case ast.KindJsxText:
 			return printer.emitJsxText(node.AsJsxText())
-		case SyntaxKindJsxOpeningElement,
-			SyntaxKindJsxOpeningFragment:
+		case ast.KindJsxOpeningElement,
+			ast.KindJsxOpeningFragment:
 			return printer.emitJsxOpeningElementOrFragment(node.AsJsxOpeningElement())
-		case SyntaxKindJsxClosingElement,
-			SyntaxKindJsxClosingFragment:
+		case ast.KindJsxClosingElement,
+			ast.KindJsxClosingFragment:
 			return printer.emitJsxClosingElementOrFragment(node.AsJsxClosingElement())
-		case SyntaxKindJsxAttribute:
+		case ast.KindJsxAttribute:
 			return printer.emitJsxAttribute(node.AsJsxAttribute())
-		case SyntaxKindJsxAttributes:
+		case ast.KindJsxAttributes:
 			return printer.emitJsxAttributes(node.AsJsxAttributes())
-		case SyntaxKindJsxSpreadAttribute:
+		case ast.KindJsxSpreadAttribute:
 			return printer.emitJsxSpreadAttribute(node.AsJsxSpreadAttribute())
-		case SyntaxKindJsxExpression:
+		case ast.KindJsxExpression:
 			return printer.emitJsxExpression(node.AsJsxExpression())
-		case SyntaxKindJsxNamespacedName:
+		case ast.KindJsxNamespacedName:
 			return printer.emitJsxNamespacedName(node.AsJsxNamespacedName())
 
 			// Clauses
-		case SyntaxKindCaseClause:
+		case ast.KindCaseClause:
 			return printer.emitCaseClause(node.AsCaseClause())
-		case SyntaxKindDefaultClause:
+		case ast.KindDefaultClause:
 			return printer.emitDefaultClause(node.AsDefaultClause())
-		case SyntaxKindHeritageClause:
+		case ast.KindHeritageClause:
 			return printer.emitHeritageClause(node.AsHeritageClause())
-		case SyntaxKindCatchClause:
+		case ast.KindCatchClause:
 			return printer.emitCatchClause(node.AsCatchClause())
 
 			// Property assignments
-		case SyntaxKindPropertyAssignment:
+		case ast.KindPropertyAssignment:
 			return printer.emitPropertyAssignment(node.AsPropertyAssignment())
-		case SyntaxKindShorthandPropertyAssignment:
+		case ast.KindShorthandPropertyAssignment:
 			return printer.emitShorthandPropertyAssignment(node.AsShorthandPropertyAssignment())
-		case SyntaxKindSpreadAssignment:
+		case ast.KindSpreadAssignment:
 			return printer.emitSpreadAssignment(node.AsSpreadAssignment())
 
 			// Enum
-		case SyntaxKindEnumMember:
+		case ast.KindEnumMember:
 			return printer.emitEnumMember(node.AsEnumMember())
 
 			// Top-level nodes
-		case SyntaxKindSourceFile:
+		case ast.KindSourceFile:
 			return printer.emitSourceFile(node.AsSourceFile())
-		case SyntaxKindBundle:
+		case ast.KindBundle:
 			return Debug.fail("Bundles should be printed using printBundle")
 
 			// JSDoc nodes (only used in codefixes currently)
-		case SyntaxKindJSDocTypeExpression:
+		case ast.KindJSDocTypeExpression:
 			return printer.emitJSDocTypeExpression(node.AsJSDocTypeExpression())
-		case SyntaxKindJSDocNameReference:
+		case ast.KindJSDocNameReference:
 			return printer.emitJSDocNameReference(node.AsJSDocNameReference())
-		case SyntaxKindJSDocAllType:
+		case ast.KindJSDocAllType:
 			return printer.writePunctuation("*")
-		case SyntaxKindJSDocUnknownType:
+		case ast.KindJSDocUnknownType:
 			return printer.writePunctuation("?")
-		case SyntaxKindJSDocNullableType:
+		case ast.KindJSDocNullableType:
 			return printer.emitJSDocNullableType(node.AsJSDocNullableType())
-		case SyntaxKindJSDocNonNullableType:
+		case ast.KindJSDocNonNullableType:
 			return printer.emitJSDocNonNullableType(node.AsJSDocNonNullableType())
-		case SyntaxKindJSDocOptionalType:
+		case ast.KindJSDocOptionalType:
 			return printer.emitJSDocOptionalType(node.AsJSDocOptionalType())
-		case SyntaxKindJSDocFunctionType:
+		case ast.KindJSDocFunctionType:
 			return printer.emitJSDocFunctionType(node.AsJSDocFunctionType())
-		case SyntaxKindRestType,
-			SyntaxKindJSDocVariadicType:
+		case ast.KindRestType,
+			ast.KindJSDocVariadicType:
 			return printer.emitRestOrJSDocVariadicType(node /* as RestTypeNode | JSDocVariadicType */)
-		case SyntaxKindJSDocNamepathType:
+		case ast.KindJSDocNamepathType:
 			return
-		case SyntaxKindJSDoc:
+		case ast.KindJSDoc:
 			return printer.emitJSDoc(node.AsJSDoc())
-		case SyntaxKindJSDocTypeLiteral:
+		case ast.KindJSDocTypeLiteral:
 			return printer.emitJSDocTypeLiteral(node.AsJSDocTypeLiteral())
-		case SyntaxKindJSDocSignature:
+		case ast.KindJSDocSignature:
 			return printer.emitJSDocSignature(node.AsJSDocSignature())
-		case SyntaxKindJSDocTag,
-			SyntaxKindJSDocClassTag,
-			SyntaxKindJSDocOverrideTag:
+		case ast.KindJSDocTag,
+			ast.KindJSDocClassTag,
+			ast.KindJSDocOverrideTag:
 			return printer.emitJSDocSimpleTag(node.AsJSDocTag())
-		case SyntaxKindJSDocAugmentsTag,
-			SyntaxKindJSDocImplementsTag:
+		case ast.KindJSDocAugmentsTag,
+			ast.KindJSDocImplementsTag:
 			return printer.emitJSDocHeritageTag(node /* as JSDocImplementsTag | JSDocAugmentsTag */)
-		case SyntaxKindJSDocAuthorTag,
-			SyntaxKindJSDocDeprecatedTag:
+		case ast.KindJSDocAuthorTag,
+			ast.KindJSDocDeprecatedTag:
 			return
 			// SyntaxKind.JSDocClassTag (see JSDocTag, above)
-		case SyntaxKindJSDocPublicTag,
-			SyntaxKindJSDocPrivateTag,
-			SyntaxKindJSDocProtectedTag,
-			SyntaxKindJSDocReadonlyTag:
+		case ast.KindJSDocPublicTag,
+			ast.KindJSDocPrivateTag,
+			ast.KindJSDocProtectedTag,
+			ast.KindJSDocReadonlyTag:
 			return
-		case SyntaxKindJSDocCallbackTag:
+		case ast.KindJSDocCallbackTag:
 			return printer.emitJSDocCallbackTag(node.AsJSDocCallbackTag())
-		case SyntaxKindJSDocOverloadTag:
+		case ast.KindJSDocOverloadTag:
 			return printer.emitJSDocOverloadTag(node.AsJSDocOverloadTag())
 			// SyntaxKind.JSDocEnumTag (see below)
-		case SyntaxKindJSDocParameterTag,
-			SyntaxKindJSDocPropertyTag:
+		case ast.KindJSDocParameterTag,
+			ast.KindJSDocPropertyTag:
 			return printer.emitJSDocPropertyLikeTag(node.AsJSDocPropertyLikeTag())
-		case SyntaxKindJSDocEnumTag,
-			SyntaxKindJSDocReturnTag,
-			SyntaxKindJSDocThisTag,
-			SyntaxKindJSDocTypeTag,
-			SyntaxKindJSDocThrowsTag,
-			SyntaxKindJSDocSatisfiesTag:
+		case ast.KindJSDocEnumTag,
+			ast.KindJSDocReturnTag,
+			ast.KindJSDocThisTag,
+			ast.KindJSDocTypeTag,
+			ast.KindJSDocThrowsTag,
+			ast.KindJSDocSatisfiesTag:
 			return printer.emitJSDocSimpleTypedTag(node /* as JSDocTypeTag | JSDocReturnTag | JSDocThisTag | JSDocTypeTag | JSDocThrowsTag | JSDocSatisfiesTag */)
-		case SyntaxKindJSDocTemplateTag:
+		case ast.KindJSDocTemplateTag:
 			return printer.emitJSDocTemplateTag(node.AsJSDocTemplateTag())
-		case SyntaxKindJSDocTypedefTag:
+		case ast.KindJSDocTypedefTag:
 			return printer.emitJSDocTypedefTag(node.AsJSDocTypedefTag())
-		case SyntaxKindJSDocSeeTag:
+		case ast.KindJSDocSeeTag:
 			return printer.emitJSDocSeeTag(node.AsJSDocSeeTag())
-		case SyntaxKindJSDocImportTag:
+		case ast.KindJSDocImportTag:
 			return printer.emitJSDocImportTag(node.AsJSDocImportTag())
 			// SyntaxKind.JSDocPropertyTag (see JSDocParameterTag, above)
 
 			// Transformation nodes
-		case SyntaxKindNotEmittedStatement,
-			SyntaxKindNotEmittedTypeElement:
+		case ast.KindNotEmittedStatement,
+			ast.KindNotEmittedTypeElement:
 			return
 		}
 		if isExpression(node) {
@@ -1643,104 +1643,104 @@ func (printer *Printer) pipelineEmitWithHintWorker(hint EmitHint, node *Node, al
 	}
 	if hint == EmitHintExpression {
 		switch node.kind {
-		case SyntaxKindNumericLiteral,
-			SyntaxKindBigIntLiteral:
+		case ast.KindNumericLiteral,
+			ast.KindBigIntLiteral:
 			return printer.emitNumericOrBigIntLiteral(node /* as NumericLiteral | BigIntLiteral */)
-		case SyntaxKindStringLiteral,
-			SyntaxKindRegularExpressionLiteral,
-			SyntaxKindNoSubstitutionTemplateLiteral:
+		case ast.KindStringLiteral,
+			ast.KindRegularExpressionLiteral,
+			ast.KindNoSubstitutionTemplateLiteral:
 			return printer.emitLiteral(node.AsLiteralExpression(), false /*jsxAttributeEscape*/)
 
 			// Identifiers
-		case SyntaxKindIdentifier:
+		case ast.KindIdentifier:
 			return printer.emitIdentifier(node.AsIdentifier())
-		case SyntaxKindPrivateIdentifier:
+		case ast.KindPrivateIdentifier:
 			return printer.emitPrivateIdentifier(node.AsPrivateIdentifier())
 
 			// Expressions
-		case SyntaxKindArrayLiteralExpression:
+		case ast.KindArrayLiteralExpression:
 			return printer.emitArrayLiteralExpression(node.AsArrayLiteralExpression())
-		case SyntaxKindObjectLiteralExpression:
+		case ast.KindObjectLiteralExpression:
 			return printer.emitObjectLiteralExpression(node.AsObjectLiteralExpression())
-		case SyntaxKindPropertyAccessExpression:
+		case ast.KindPropertyAccessExpression:
 			return printer.emitPropertyAccessExpression(node.AsPropertyAccessExpression())
-		case SyntaxKindElementAccessExpression:
+		case ast.KindElementAccessExpression:
 			return printer.emitElementAccessExpression(node.AsElementAccessExpression())
-		case SyntaxKindCallExpression:
+		case ast.KindCallExpression:
 			return printer.emitCallExpression(node.AsCallExpression())
-		case SyntaxKindNewExpression:
+		case ast.KindNewExpression:
 			return printer.emitNewExpression(node.AsNewExpression())
-		case SyntaxKindTaggedTemplateExpression:
+		case ast.KindTaggedTemplateExpression:
 			return printer.emitTaggedTemplateExpression(node.AsTaggedTemplateExpression())
-		case SyntaxKindTypeAssertionExpression:
+		case ast.KindTypeAssertionExpression:
 			return printer.emitTypeAssertionExpression(node.AsTypeAssertion())
-		case SyntaxKindParenthesizedExpression:
+		case ast.KindParenthesizedExpression:
 			return printer.emitParenthesizedExpression(node.AsParenthesizedExpression())
-		case SyntaxKindFunctionExpression:
+		case ast.KindFunctionExpression:
 			return printer.emitFunctionExpression(node.AsFunctionExpression())
-		case SyntaxKindArrowFunction:
+		case ast.KindArrowFunction:
 			return printer.emitArrowFunction(node.AsArrowFunction())
-		case SyntaxKindDeleteExpression:
+		case ast.KindDeleteExpression:
 			return printer.emitDeleteExpression(node.AsDeleteExpression())
-		case SyntaxKindTypeOfExpression:
+		case ast.KindTypeOfExpression:
 			return printer.emitTypeOfExpression(node.AsTypeOfExpression())
-		case SyntaxKindVoidExpression:
+		case ast.KindVoidExpression:
 			return printer.emitVoidExpression(node.AsVoidExpression())
-		case SyntaxKindAwaitExpression:
+		case ast.KindAwaitExpression:
 			return printer.emitAwaitExpression(node.AsAwaitExpression())
-		case SyntaxKindPrefixUnaryExpression:
+		case ast.KindPrefixUnaryExpression:
 			return printer.emitPrefixUnaryExpression(node.AsPrefixUnaryExpression())
-		case SyntaxKindPostfixUnaryExpression:
+		case ast.KindPostfixUnaryExpression:
 			return printer.emitPostfixUnaryExpression(node.AsPostfixUnaryExpression())
-		case SyntaxKindBinaryExpression:
+		case ast.KindBinaryExpression:
 			return printer.emitBinaryExpression(node.AsBinaryExpression())
-		case SyntaxKindConditionalExpression:
+		case ast.KindConditionalExpression:
 			return printer.emitConditionalExpression(node.AsConditionalExpression())
-		case SyntaxKindTemplateExpression:
+		case ast.KindTemplateExpression:
 			return printer.emitTemplateExpression(node.AsTemplateExpression())
-		case SyntaxKindYieldExpression:
+		case ast.KindYieldExpression:
 			return printer.emitYieldExpression(node.AsYieldExpression())
-		case SyntaxKindSpreadElement:
+		case ast.KindSpreadElement:
 			return printer.emitSpreadElement(node.AsSpreadElement())
-		case SyntaxKindClassExpression:
+		case ast.KindClassExpression:
 			return printer.emitClassExpression(node.AsClassExpression())
-		case SyntaxKindOmittedExpression:
+		case ast.KindOmittedExpression:
 			return
-		case SyntaxKindAsExpression:
+		case ast.KindAsExpression:
 			return printer.emitAsExpression(node.AsAsExpression())
-		case SyntaxKindNonNullExpression:
+		case ast.KindNonNullExpression:
 			return printer.emitNonNullExpression(node.AsNonNullExpression())
-		case SyntaxKindExpressionWithTypeArguments:
+		case ast.KindExpressionWithTypeArguments:
 			return printer.emitExpressionWithTypeArguments(node.AsExpressionWithTypeArguments())
-		case SyntaxKindSatisfiesExpression:
+		case ast.KindSatisfiesExpression:
 			return printer.emitSatisfiesExpression(node.AsSatisfiesExpression())
-		case SyntaxKindMetaProperty:
+		case ast.KindMetaProperty:
 			return printer.emitMetaProperty(node.AsMetaProperty())
-		case SyntaxKindSyntheticExpression:
+		case ast.KindSyntheticExpression:
 			return Debug.fail("SyntheticExpression should never be printed.")
-		case SyntaxKindMissingDeclaration:
+		case ast.KindMissingDeclaration:
 			return
 
 			// JSX
-		case SyntaxKindJsxElement:
+		case ast.KindJsxElement:
 			return printer.emitJsxElement(node.AsJsxElement())
-		case SyntaxKindJsxSelfClosingElement:
+		case ast.KindJsxSelfClosingElement:
 			return printer.emitJsxSelfClosingElement(node.AsJsxSelfClosingElement())
-		case SyntaxKindJsxFragment:
+		case ast.KindJsxFragment:
 			return printer.emitJsxFragment(node.AsJsxFragment())
 
 			// Synthesized list
-		case SyntaxKindSyntaxList:
+		case ast.KindSyntaxList:
 			return Debug.fail("SyntaxList should not be printed")
 
 			// Transformation nodes
-		case SyntaxKindNotEmittedStatement:
+		case ast.KindNotEmittedStatement:
 			return
-		case SyntaxKindPartiallyEmittedExpression:
+		case ast.KindPartiallyEmittedExpression:
 			return printer.emitPartiallyEmittedExpression(node.AsPartiallyEmittedExpression())
-		case SyntaxKindCommaListExpression:
+		case ast.KindCommaListExpression:
 			return printer.emitCommaList(node.AsCommaListExpression())
-		case SyntaxKindSyntheticReferenceExpression:
+		case ast.KindSyntheticReferenceExpression:
 			return Debug.fail("SyntheticReferenceExpression should not be printed")
 		}
 	}
@@ -1772,7 +1772,7 @@ func (printer *Printer) pipelineEmitWithSubstitution(hint EmitHint, node *Node) 
 func (printer *Printer) emitHelpers(node *Node) *bool {
 	helpersEmitted := false
 	var bundle * /* TODO(TS-TO-GO) inferred type ts.Bundle */ any
-	if node.kind == SyntaxKindBundle {
+	if node.kind == ast.KindBundle {
 		bundle = node.AsBundle()
 	} else {
 		bundle = nil
@@ -1861,7 +1861,7 @@ func (printer *Printer) emitNumericOrBigIntLiteral(node Union[NumericLiteral, Bi
 // SyntaxKind.TemplateTail
 func (printer *Printer) emitLiteral(node LiteralLikeNode, jsxAttributeEscape bool) {
 	text := printer.getLiteralTextOfNode(node, nil /*sourceFile*/, printerOptions.neverAsciiEscape, jsxAttributeEscape)
-	if (printerOptions.sourceMap || printerOptions.inlineSourceMap) && (node.kind == SyntaxKindStringLiteral || isTemplateLiteralKind(node.kind)) {
+	if (printerOptions.sourceMap || printerOptions.inlineSourceMap) && (node.kind == ast.KindStringLiteral || isTemplateLiteralKind(node.kind)) {
 		printer.writeLiteral(text)
 	} else {
 		// Quick info expects all literals to be called with writeStringLiteral, as there's no specific type for numberLiterals
@@ -1893,7 +1893,7 @@ func (printer *Printer) emitPlaceholder(hint EmitHint, node *Node, snippet Place
 
 func (printer *Printer) emitTabStop(hint EmitHint, node *Node, snippet TabStop) {
 	// A tab stop should only be attached to an empty node, i.e. a node that doesn't emit any text.
-	Debug.assert(node.kind == SyntaxKindEmptyStatement, __TEMPLATE__("A tab stop cannot be attached to a node of kind ", Debug.formatSyntaxKind(node.kind), "."))
+	Debug.assert(node.kind == ast.KindEmptyStatement, __TEMPLATE__("A tab stop cannot be attached to a node of kind ", Debug.formatSyntaxKind(node.kind), "."))
 	Debug.assert(hint != EmitHintEmbeddedStatement, `A tab stop cannot be attached to an embedded statement.`)
 	printer.nonEscapingWrite(__TEMPLATE__("$", snippet.order))
 }
@@ -1929,7 +1929,7 @@ func (printer *Printer) emitQualifiedName(node QualifiedName) {
 }
 
 func (printer *Printer) emitEntityName(node EntityName) {
-	if node.kind == SyntaxKindIdentifier {
+	if node.kind == ast.KindIdentifier {
 		printer.emitExpression(node)
 	} else {
 		printer.emit(node)
@@ -1968,7 +1968,7 @@ func (printer *Printer) emitParameter(node ParameterDeclaration) {
 	printer.emit(node.dotDotDotToken)
 	printer.emitNodeWithWriter(node.name, printer.writeParameter)
 	printer.emit(node.questionToken)
-	if node.parent && node.parent.kind == SyntaxKindJSDocFunctionType && !node.name {
+	if node.parent && node.parent.kind == ast.KindJSDocFunctionType && !node.name {
 		printer.emit(node.type_)
 	} else {
 		printer.emitTypeAnnotation(node.type_)
@@ -2035,10 +2035,10 @@ func (printer *Printer) emitConstructor(node ConstructorDeclaration) {
 func (printer *Printer) emitAccessorDeclaration(node AccessorDeclaration) {
 	pos := printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
 	var token /* TODO(TS-TO-GO) inferred type ts.SyntaxKind.GetKeyword | ts.SyntaxKind.SetKeyword */ any
-	if node.kind == SyntaxKindGetAccessor {
-		token = SyntaxKindGetKeyword
+	if node.kind == ast.KindGetAccessor {
+		token = ast.KindGetKeyword
 	} else {
-		token = SyntaxKindSetKeyword
+		token = ast.KindSetKeyword
 	}
 	printer.emitTokenWithComment(token, pos, printer.writeKeyword, node)
 	printer.writeSpace()
@@ -2176,7 +2176,7 @@ func (printer *Printer) emitRestOrJSDocVariadicType(node Union[RestTypeNode, JSD
 }
 
 func (printer *Printer) emitTupleType(node TupleTypeNode) {
-	printer.emitTokenWithComment(SyntaxKindOpenBracketToken, node.pos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenBracketToken, node.pos, printer.writePunctuation, node)
 	var flags /* TODO(TS-TO-GO) inferred type ts.ListFormat.SingleLineTupleTypeElements | ts.ListFormat.MultiLineTupleTypeElements */ any
 	if getEmitFlags(node)&EmitFlagsSingleLine != 0 {
 		flags = ListFormatSingleLineTupleTypeElements
@@ -2184,14 +2184,14 @@ func (printer *Printer) emitTupleType(node TupleTypeNode) {
 		flags = ListFormatMultiLineTupleTypeElements
 	}
 	printer.emitList(node, node.elements, flags|ListFormatNoSpaceIfEmpty, printer.parenthesizer.parenthesizeElementTypeOfTupleType)
-	printer.emitTokenWithComment(SyntaxKindCloseBracketToken, node.elements.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseBracketToken, node.elements.end, printer.writePunctuation, node)
 }
 
 func (printer *Printer) emitNamedTupleMember(node NamedTupleMember) {
 	printer.emit(node.dotDotDotToken)
 	printer.emit(node.name)
 	printer.emit(node.questionToken)
-	printer.emitTokenWithComment(SyntaxKindColonToken, node.name.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindColonToken, node.name.end, printer.writePunctuation, node)
 	printer.writeSpace()
 	printer.emit(node.type_)
 }
@@ -2246,7 +2246,7 @@ func (printer *Printer) emitTypeOperator(node TypeOperatorNode) {
 	printer.writeSpace()
 
 	var parenthesizerRule /* TODO(TS-TO-GO) inferred type (type: TypeNode) => TypeNode */ any
-	if node.operator == SyntaxKindReadonlyKeyword {
+	if node.operator == ast.KindReadonlyKeyword {
 		parenthesizerRule = printer.parenthesizer.parenthesizeOperandOfReadonlyTypeOperator
 	} else {
 		parenthesizerRule = printer.parenthesizer.parenthesizeOperandOfTypeOperator
@@ -2272,7 +2272,7 @@ func (printer *Printer) emitMappedType(node MappedTypeNode) {
 	}
 	if node.readonlyToken != nil {
 		printer.emit(node.readonlyToken)
-		if node.readonlyToken.kind != SyntaxKindReadonlyKeyword {
+		if node.readonlyToken.kind != ast.KindReadonlyKeyword {
 			printer.writeKeyword("readonly")
 		}
 		printer.writeSpace()
@@ -2290,7 +2290,7 @@ func (printer *Printer) emitMappedType(node MappedTypeNode) {
 	printer.writePunctuation("]")
 	if node.questionToken != nil {
 		printer.emit(node.questionToken)
-		if node.questionToken.kind != SyntaxKindQuestionToken {
+		if node.questionToken.kind != ast.KindQuestionToken {
 			printer.writePunctuation("?")
 		}
 	}
@@ -2412,13 +2412,13 @@ func (printer *Printer) emitObjectLiteralExpression(node ObjectLiteralExpression
 
 func (printer *Printer) emitPropertyAccessExpression(node PropertyAccessExpression) {
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeLeftSideOfAccess)
-	token := node.questionDotToken || setTextRangePosEnd(factory.createToken(SyntaxKindDotToken).AsDotToken(), node.expression.end, node.name.pos)
+	token := node.questionDotToken || setTextRangePosEnd(factory.createToken(ast.KindDotToken).AsDotToken(), node.expression.end, node.name.pos)
 	linesBeforeDot := printer.getLinesBetweenNodes(node, node.expression, token)
 	linesAfterDot := printer.getLinesBetweenNodes(node, token, node.name)
 
 	printer.writeLinesAndIndent(linesBeforeDot, false /*writeSpaceIfNotIndenting*/)
 
-	shouldEmitDotDot := token.kind != SyntaxKindQuestionDotToken && printer.mayNeedDotDotForPropertyAccess(node.expression) && !printer.writer.hasTrailingComment() && !printer.writer.hasTrailingWhitespace()
+	shouldEmitDotDot := token.kind != ast.KindQuestionDotToken && printer.mayNeedDotDotForPropertyAccess(node.expression) && !printer.writer.hasTrailingComment() && !printer.writer.hasTrailingWhitespace()
 
 	if shouldEmitDotDot {
 		printer.writePunctuation(".")
@@ -2443,7 +2443,7 @@ func (printer *Printer) mayNeedDotDotForPropertyAccess(expression Expression) *b
 		text := printer.getLiteralTextOfNode(expression.AsLiteralExpression(), nil /*sourceFile*/, true /*neverAsciiEscape*/, false /*jsxAttributeEscape*/)
 		// If the number will be printed verbatim and it doesn't already contain a dot or an exponent indicator, add one
 		// if the expression doesn't have any comments that will be emitted.
-		return expression.numericLiteralFlags&TokenFlagsWithSpecifier == 0 && !text.includes(tokenToString(SyntaxKindDotToken)) && !text.includes(String.fromCharCode(CharacterCodesE)) && !text.includes(String.fromCharCode(CharacterCodese))
+		return expression.numericLiteralFlags&TokenFlagsWithSpecifier == 0 && !text.includes(tokenToString(ast.KindDotToken)) && !text.includes(String.fromCharCode(CharacterCodesE)) && !text.includes(String.fromCharCode(CharacterCodese))
 	} else if isAccessExpression(expression) {
 		// check if constant enum value is a non-negative integer
 		constantValue := getConstantValue(expression)
@@ -2455,9 +2455,9 @@ func (printer *Printer) mayNeedDotDotForPropertyAccess(expression Expression) *b
 func (printer *Printer) emitElementAccessExpression(node ElementAccessExpression) {
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeLeftSideOfAccess)
 	printer.emit(node.questionDotToken)
-	printer.emitTokenWithComment(SyntaxKindOpenBracketToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenBracketToken, node.expression.end, printer.writePunctuation, node)
 	printer.emitExpression(node.argumentExpression)
-	printer.emitTokenWithComment(SyntaxKindCloseBracketToken, node.argumentExpression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseBracketToken, node.argumentExpression.end, printer.writePunctuation, node)
 }
 
 func (printer *Printer) emitCallExpression(node CallExpression) {
@@ -2478,7 +2478,7 @@ func (printer *Printer) emitCallExpression(node CallExpression) {
 }
 
 func (printer *Printer) emitNewExpression(node NewExpression) {
-	printer.emitTokenWithComment(SyntaxKindNewKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindNewKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeExpressionOfNew)
 	printer.emitTypeArguments(node, node.typeArguments)
@@ -2510,12 +2510,12 @@ func (printer *Printer) emitTypeAssertionExpression(node TypeAssertion) {
 }
 
 func (printer *Printer) emitParenthesizedExpression(node ParenthesizedExpression) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindOpenParenToken, node.pos, printer.writePunctuation, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindOpenParenToken, node.pos, printer.writePunctuation, node)
 	indented := printer.writeLineSeparatorsAndIndentBefore(node.expression, node)
 	printer.emitExpression(node.expression, nil /*parenthesizerRule*/)
 	printer.writeLineSeparatorsAfter(node.expression, node)
 	printer.decreaseIndentIf(indented)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, ifElse(node.expression, node.expression.end, openParenPos), printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, ifElse(node.expression, node.expression.end, openParenPos), printer.writePunctuation, node)
 }
 
 func (printer *Printer) emitFunctionExpression(node FunctionExpression) {
@@ -2546,25 +2546,25 @@ func (printer *Printer) emitArrowFunctionBody(node ArrowFunction) {
 }
 
 func (printer *Printer) emitDeleteExpression(node DeleteExpression) {
-	printer.emitTokenWithComment(SyntaxKindDeleteKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindDeleteKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeOperandOfPrefixUnary)
 }
 
 func (printer *Printer) emitTypeOfExpression(node TypeOfExpression) {
-	printer.emitTokenWithComment(SyntaxKindTypeOfKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindTypeOfKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeOperandOfPrefixUnary)
 }
 
 func (printer *Printer) emitVoidExpression(node VoidExpression) {
-	printer.emitTokenWithComment(SyntaxKindVoidKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindVoidKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeOperandOfPrefixUnary)
 }
 
 func (printer *Printer) emitAwaitExpression(node AwaitExpression) {
-	printer.emitTokenWithComment(SyntaxKindAwaitKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindAwaitKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeOperandOfPrefixUnary)
 }
@@ -2591,7 +2591,7 @@ func (printer *Printer) shouldEmitWhitespaceBeforeOperand(node PrefixUnaryExpres
 	// expression a prefix increment whose operand is a plus expression - (++(+x))
 	// The same is true of minus of course.
 	operand := node.operand
-	return operand.kind == SyntaxKindPrefixUnaryExpression && ((node.operator == SyntaxKindPlusToken && ((operand.AsPrefixUnaryExpression()).operator == SyntaxKindPlusToken || (operand.AsPrefixUnaryExpression()).operator == SyntaxKindPlusPlusToken)) || (node.operator == SyntaxKindMinusToken && ((operand.AsPrefixUnaryExpression()).operator == SyntaxKindMinusToken || (operand.AsPrefixUnaryExpression()).operator == SyntaxKindMinusMinusToken)))
+	return operand.kind == ast.KindPrefixUnaryExpression && ((node.operator == ast.KindPlusToken && ((operand.AsPrefixUnaryExpression()).operator == ast.KindPlusToken || (operand.AsPrefixUnaryExpression()).operator == ast.KindPlusPlusToken)) || (node.operator == ast.KindMinusToken && ((operand.AsPrefixUnaryExpression()).operator == ast.KindMinusToken || (operand.AsPrefixUnaryExpression()).operator == ast.KindMinusMinusToken)))
 }
 
 func (printer *Printer) emitPostfixUnaryExpression(node PostfixUnaryExpression) {
@@ -2648,12 +2648,12 @@ func (printer *Printer) createEmitBinaryExpression() /* TODO(TS-TO-GO) inferred 
 	}
 
 	onOperator := func(operatorToken BinaryOperatorToken, _state WorkArea, node BinaryExpression) {
-		isCommaOperator := operatorToken.kind != SyntaxKindCommaToken
+		isCommaOperator := operatorToken.kind != ast.KindCommaToken
 		linesBeforeOperator := printer.getLinesBetweenNodes(node, node.left, operatorToken)
 		linesAfterOperator := printer.getLinesBetweenNodes(node, operatorToken, node.right)
 		printer.writeLinesAndIndent(linesBeforeOperator, isCommaOperator)
 		printer.emitLeadingCommentsOfPosition(operatorToken.pos)
-		printer.writeTokenNode(operatorToken, ifElse(operatorToken.kind == SyntaxKindInKeyword, printer.writeKeyword, printer.writeOperator))
+		printer.writeTokenNode(operatorToken, ifElse(operatorToken.kind == ast.KindInKeyword, printer.writeKeyword, printer.writeOperator))
 		printer.emitTrailingCommentsOfPosition(operatorToken.end, true /*prefixSpace*/)
 		// Binary operators should have a space before the comment starts
 		printer.writeLinesAndIndent(linesAfterOperator, true /*writeSpaceIfNotIndenting*/)
@@ -2740,13 +2740,13 @@ func (printer *Printer) emitTemplateExpression(node TemplateExpression) {
 }
 
 func (printer *Printer) emitYieldExpression(node YieldExpression) {
-	printer.emitTokenWithComment(SyntaxKindYieldKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindYieldKeyword, node.pos, printer.writeKeyword, node)
 	printer.emit(node.asteriskToken)
 	printer.emitExpressionWithLeadingSpace(node.expression && printer.parenthesizeExpressionForNoAsi(node.expression), printer.parenthesizeExpressionForNoAsiAndDisallowedComma)
 }
 
 func (printer *Printer) emitSpreadElement(node SpreadElement) {
-	printer.emitTokenWithComment(SyntaxKindDotDotDotToken, node.pos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindDotDotDotToken, node.pos, printer.writePunctuation, node)
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeExpressionForDisallowedComma)
 }
 
@@ -2809,7 +2809,7 @@ func (printer *Printer) emitBlock(node Block) {
 }
 
 func (printer *Printer) emitBlockStatements(node BlockLike, forceSingleLine bool) {
-	printer.emitTokenWithComment(SyntaxKindOpenBraceToken, node.pos, printer.writePunctuation, node /*contextNode*/)
+	printer.emitTokenWithComment(ast.KindOpenBraceToken, node.pos, printer.writePunctuation, node /*contextNode*/)
 	var format /* TODO(TS-TO-GO) inferred type ts.ListFormat.SingleLineTypeLiteralMembers | ts.ListFormat.MultiLineBlockStatements */ any
 	if forceSingleLine || getEmitFlags(node)&EmitFlagsSingleLine != 0 {
 		format = ListFormatSingleLineBlockStatements
@@ -2817,7 +2817,7 @@ func (printer *Printer) emitBlockStatements(node BlockLike, forceSingleLine bool
 		format = ListFormatMultiLineBlockStatements
 	}
 	printer.emitList(node, node.statements, format)
-	printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.statements.end, printer.writePunctuation, node /*contextNode*/, format&ListFormatMultiLine != 0 /*indentLeading*/)
+	printer.emitTokenWithComment(ast.KindCloseBraceToken, node.statements.end, printer.writePunctuation, node /*contextNode*/, format&ListFormatMultiLine != 0 /*indentLeading*/)
 }
 
 func (printer *Printer) emitVariableStatement(node VariableStatement) {
@@ -2846,16 +2846,16 @@ func (printer *Printer) emitExpressionStatement(node ExpressionStatement) {
 }
 
 func (printer *Printer) emitIfStatement(node IfStatement) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindIfKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindIfKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 	printer.emitExpression(node.expression)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, node.expression.end, printer.writePunctuation, node)
 	printer.emitEmbeddedStatement(node, node.thenStatement)
 	if node.elseStatement != nil {
 		printer.writeLineOrSpace(node, node.thenStatement, node.elseStatement)
-		printer.emitTokenWithComment(SyntaxKindElseKeyword, node.thenStatement.end, printer.writeKeyword, node)
-		if node.elseStatement.kind == SyntaxKindIfStatement {
+		printer.emitTokenWithComment(ast.KindElseKeyword, node.thenStatement.end, printer.writeKeyword, node)
+		if node.elseStatement.kind == ast.KindIfStatement {
 			printer.writeSpace()
 			printer.emit(node.elseStatement)
 		} else {
@@ -2865,15 +2865,15 @@ func (printer *Printer) emitIfStatement(node IfStatement) {
 }
 
 func (printer *Printer) emitWhileClause(node Union[WhileStatement, DoStatement], startPos number) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindWhileKeyword, startPos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindWhileKeyword, startPos, printer.writeKeyword, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 	printer.emitExpression(node.expression)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, node.expression.end, printer.writePunctuation, node)
 }
 
 func (printer *Printer) emitDoStatement(node DoStatement) {
-	printer.emitTokenWithComment(SyntaxKindDoKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindDoKeyword, node.pos, printer.writeKeyword, node)
 	printer.emitEmbeddedStatement(node, node.statement)
 	if isBlock(node.statement) && !printer.preserveSourceNewlines {
 		printer.writeSpace()
@@ -2891,48 +2891,48 @@ func (printer *Printer) emitWhileStatement(node WhileStatement) {
 }
 
 func (printer *Printer) emitForStatement(node ForStatement) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindForKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindForKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	pos := printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node /*contextNode*/)
+	pos := printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node /*contextNode*/)
 	printer.emitForBinding(node.initializer)
-	pos = printer.emitTokenWithComment(SyntaxKindSemicolonToken, ifElse(node.initializer != nil, node.initializer.end, pos), printer.writePunctuation, node)
+	pos = printer.emitTokenWithComment(ast.KindSemicolonToken, ifElse(node.initializer != nil, node.initializer.end, pos), printer.writePunctuation, node)
 	printer.emitExpressionWithLeadingSpace(node.condition)
-	pos = printer.emitTokenWithComment(SyntaxKindSemicolonToken, ifElse(node.condition != nil, node.condition.end, pos), printer.writePunctuation, node)
+	pos = printer.emitTokenWithComment(ast.KindSemicolonToken, ifElse(node.condition != nil, node.condition.end, pos), printer.writePunctuation, node)
 	printer.emitExpressionWithLeadingSpace(node.incrementor)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, ifElse(node.incrementor != nil, node.incrementor.end, pos), printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, ifElse(node.incrementor != nil, node.incrementor.end, pos), printer.writePunctuation, node)
 	printer.emitEmbeddedStatement(node, node.statement)
 }
 
 func (printer *Printer) emitForInStatement(node ForInStatement) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindForKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindForKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 	printer.emitForBinding(node.initializer)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindInKeyword, node.initializer.end, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindInKeyword, node.initializer.end, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, node.expression.end, printer.writePunctuation, node)
 	printer.emitEmbeddedStatement(node, node.statement)
 }
 
 func (printer *Printer) emitForOfStatement(node ForOfStatement) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindForKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindForKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitWithTrailingSpace(node.awaitModifier)
-	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 	printer.emitForBinding(node.initializer)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindOfKeyword, node.initializer.end, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindOfKeyword, node.initializer.end, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, node.expression.end, printer.writePunctuation, node)
 	printer.emitEmbeddedStatement(node, node.statement)
 }
 
 func (printer *Printer) emitForBinding(node Union[VariableDeclarationList, Expression, undefined]) {
 	if node != nil {
-		if node.kind == SyntaxKindVariableDeclarationList {
+		if node.kind == ast.KindVariableDeclarationList {
 			printer.emit(node)
 		} else {
 			printer.emitExpression(node)
@@ -2941,13 +2941,13 @@ func (printer *Printer) emitForBinding(node Union[VariableDeclarationList, Expre
 }
 
 func (printer *Printer) emitContinueStatement(node ContinueStatement) {
-	printer.emitTokenWithComment(SyntaxKindContinueKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindContinueKeyword, node.pos, printer.writeKeyword, node)
 	printer.emitWithLeadingSpace(node.label)
 	printer.writeTrailingSemicolon()
 }
 
 func (printer *Printer) emitBreakStatement(node BreakStatement) {
-	printer.emitTokenWithComment(SyntaxKindBreakKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindBreakKeyword, node.pos, printer.writeKeyword, node)
 	printer.emitWithLeadingSpace(node.label)
 	printer.writeTrailingSemicolon()
 }
@@ -2974,21 +2974,21 @@ func (printer *Printer) emitTokenWithComment(token SyntaxKind, pos number, write
 	// we need to emit source positions for open and close braces so that tools like istanbul
 	// can map branches for code coverage. However, we still omit brace source positions when
 	// the output is a declaration file.
-	if !printer.omitBraceSourcePositions && (token == SyntaxKindOpenBraceToken || token == SyntaxKindCloseBraceToken) {
+	if !printer.omitBraceSourcePositions && (token == ast.KindOpenBraceToken || token == ast.KindCloseBraceToken) {
 		pos = printer.writeToken(token, pos, printer.writer, contextNode)
 	} else {
 		pos = printer.writeTokenText(token, printer.writer, pos)
 	}
 
 	if isSimilarNode && contextNode.end != pos {
-		isJsxExprContext := contextNode.kind == SyntaxKindJsxExpression
+		isJsxExprContext := contextNode.kind == ast.KindJsxExpression
 		printer.emitTrailingCommentsOfPosition(pos, !isJsxExprContext /*prefixSpace*/, isJsxExprContext /*forceNoNewline*/)
 	}
 	return pos
 }
 
 func (printer *Printer) commentWillEmitNewLine(node CommentRange) bool {
-	return node.kind == SyntaxKindSingleLineCommentTrivia || node.hasTrailingNewLine
+	return node.kind == ast.KindSingleLineCommentTrivia || node.hasTrailingNewLine
 }
 
 func (printer *Printer) willEmitLeadingNewLine(node Expression) bool {
@@ -3044,45 +3044,45 @@ func (printer *Printer) parenthesizeExpressionForNoAsiAndDisallowedComma(node Ex
 }
 
 func (printer *Printer) emitReturnStatement(node ReturnStatement) {
-	printer.emitTokenWithComment(SyntaxKindReturnKeyword, node.pos, printer.writeKeyword, node /*contextNode*/)
+	printer.emitTokenWithComment(ast.KindReturnKeyword, node.pos, printer.writeKeyword, node /*contextNode*/)
 	printer.emitExpressionWithLeadingSpace(node.expression && printer.parenthesizeExpressionForNoAsi(node.expression), printer.parenthesizeExpressionForNoAsi)
 	printer.writeTrailingSemicolon()
 }
 
 func (printer *Printer) emitWithStatement(node WithStatement) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindWithKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindWithKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 	printer.emitExpression(node.expression)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, node.expression.end, printer.writePunctuation, node)
 	printer.emitEmbeddedStatement(node, node.statement)
 }
 
 func (printer *Printer) emitSwitchStatement(node SwitchStatement) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindSwitchKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindSwitchKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 	printer.emitExpression(node.expression)
-	printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.expression.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindCloseParenToken, node.expression.end, printer.writePunctuation, node)
 	printer.writeSpace()
 	printer.emit(node.caseBlock)
 }
 
 func (printer *Printer) emitLabeledStatement(node LabeledStatement) {
 	printer.emit(node.label)
-	printer.emitTokenWithComment(SyntaxKindColonToken, node.label.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindColonToken, node.label.end, printer.writePunctuation, node)
 	printer.writeSpace()
 	printer.emit(node.statement)
 }
 
 func (printer *Printer) emitThrowStatement(node ThrowStatement) {
-	printer.emitTokenWithComment(SyntaxKindThrowKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindThrowKeyword, node.pos, printer.writeKeyword, node)
 	printer.emitExpressionWithLeadingSpace(printer.parenthesizeExpressionForNoAsi(node.expression), printer.parenthesizeExpressionForNoAsi)
 	printer.writeTrailingSemicolon()
 }
 
 func (printer *Printer) emitTryStatement(node TryStatement) {
-	printer.emitTokenWithComment(SyntaxKindTryKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindTryKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emit(node.tryBlock)
 	if node.catchClause != nil {
@@ -3091,14 +3091,14 @@ func (printer *Printer) emitTryStatement(node TryStatement) {
 	}
 	if node.finallyBlock != nil {
 		printer.writeLineOrSpace(node, node.catchClause || node.tryBlock, node.finallyBlock)
-		printer.emitTokenWithComment(SyntaxKindFinallyKeyword, (node.catchClause || node.tryBlock).end, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindFinallyKeyword, (node.catchClause || node.tryBlock).end, printer.writeKeyword, node)
 		printer.writeSpace()
 		printer.emit(node.finallyBlock)
 	}
 }
 
 func (printer *Printer) emitDebuggerStatement(node DebuggerStatement) {
-	printer.writeToken(SyntaxKindDebuggerKeyword, node.pos, printer.writeKeyword)
+	printer.writeToken(ast.KindDebuggerKeyword, node.pos, printer.writeKeyword)
 	printer.writeTrailingSemicolon()
 }
 
@@ -3239,7 +3239,7 @@ func (printer *Printer) emitBlockFunctionBody(body Block) {
 	printer.emitBodyWithDetachedComments(body, body.statements, emitBlockFunctionBody)
 
 	printer.decreaseIndent()
-	printer.writeToken(SyntaxKindCloseBraceToken, body.statements.end, printer.writePunctuation, body)
+	printer.writeToken(ast.KindCloseBraceToken, body.statements.end, printer.writePunctuation, body)
 	onAfterEmitNode(body)
 }
 
@@ -3267,7 +3267,7 @@ func (printer *Printer) emitClassDeclaration(node ClassDeclaration) {
 
 func (printer *Printer) emitClassDeclarationOrExpression(node Union[ClassDeclaration, ClassExpression]) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers, true /*allowDecorators*/)
-	printer.emitTokenWithComment(SyntaxKindClassKeyword, moveRangePastModifiers(node).pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindClassKeyword, moveRangePastModifiers(node).pos, printer.writeKeyword, node)
 	if node.name != nil {
 		printer.writeSpace()
 		printer.emitIdentifierName(node.name)
@@ -3340,8 +3340,8 @@ func (printer *Printer) emitEnumDeclaration(node EnumDeclaration) {
 
 func (printer *Printer) emitModuleDeclaration(node ModuleDeclaration) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
-	if ^node.flags&NodeFlagsGlobalAugmentation != 0 {
-		printer.writeKeyword(ifElse(node.flags&NodeFlagsNamespace != 0, "namespace", "module"))
+	if ^node.flags&ast.NodeFlagsGlobalAugmentation != 0 {
+		printer.writeKeyword(ifElse(node.flags&ast.NodeFlagsNamespace != 0, "namespace", "module"))
 		printer.writeSpace()
 	}
 	printer.emit(node.name)
@@ -3368,29 +3368,29 @@ func (printer *Printer) emitModuleBlock(node ModuleBlock) {
 }
 
 func (printer *Printer) emitCaseBlock(node CaseBlock) {
-	printer.emitTokenWithComment(SyntaxKindOpenBraceToken, node.pos, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindOpenBraceToken, node.pos, printer.writePunctuation, node)
 	printer.emitList(node, node.clauses, ListFormatCaseBlockClauses)
-	printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.clauses.end, printer.writePunctuation, node, true /*indentLeading*/)
+	printer.emitTokenWithComment(ast.KindCloseBraceToken, node.clauses.end, printer.writePunctuation, node, true /*indentLeading*/)
 }
 
 func (printer *Printer) emitImportEqualsDeclaration(node ImportEqualsDeclaration) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
-	printer.emitTokenWithComment(SyntaxKindImportKeyword, ifElse(node.modifiers != nil, node.modifiers.end, node.pos), printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindImportKeyword, ifElse(node.modifiers != nil, node.modifiers.end, node.pos), printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.isTypeOnly {
-		printer.emitTokenWithComment(SyntaxKindTypeKeyword, node.pos, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindTypeKeyword, node.pos, printer.writeKeyword, node)
 		printer.writeSpace()
 	}
 	printer.emit(node.name)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindEqualsToken, node.name.end, printer.writePunctuation, node)
+	printer.emitTokenWithComment(ast.KindEqualsToken, node.name.end, printer.writePunctuation, node)
 	printer.writeSpace()
 	printer.emitModuleReference(node.moduleReference)
 	printer.writeTrailingSemicolon()
 }
 
 func (printer *Printer) emitModuleReference(node ModuleReference) {
-	if node.kind == SyntaxKindIdentifier {
+	if node.kind == ast.KindIdentifier {
 		printer.emitExpression(node)
 	} else {
 		printer.emit(node)
@@ -3399,12 +3399,12 @@ func (printer *Printer) emitModuleReference(node ModuleReference) {
 
 func (printer *Printer) emitImportDeclaration(node ImportDeclaration) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
-	printer.emitTokenWithComment(SyntaxKindImportKeyword, ifElse(node.modifiers != nil, node.modifiers.end, node.pos), printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindImportKeyword, ifElse(node.modifiers != nil, node.modifiers.end, node.pos), printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.importClause != nil {
 		printer.emit(node.importClause)
 		printer.writeSpace()
-		printer.emitTokenWithComment(SyntaxKindFromKeyword, node.importClause.end, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindFromKeyword, node.importClause.end, printer.writeKeyword, node)
 		printer.writeSpace()
 	}
 	printer.emitExpression(node.moduleSpecifier)
@@ -3416,21 +3416,21 @@ func (printer *Printer) emitImportDeclaration(node ImportDeclaration) {
 
 func (printer *Printer) emitImportClause(node ImportClause) {
 	if node.isTypeOnly {
-		printer.emitTokenWithComment(SyntaxKindTypeKeyword, node.pos, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindTypeKeyword, node.pos, printer.writeKeyword, node)
 		printer.writeSpace()
 	}
 	printer.emit(node.name)
 	if node.name != nil && node.namedBindings != nil {
-		printer.emitTokenWithComment(SyntaxKindCommaToken, node.name.end, printer.writePunctuation, node)
+		printer.emitTokenWithComment(ast.KindCommaToken, node.name.end, printer.writePunctuation, node)
 		printer.writeSpace()
 	}
 	printer.emit(node.namedBindings)
 }
 
 func (printer *Printer) emitNamespaceImport(node NamespaceImport) {
-	asPos := printer.emitTokenWithComment(SyntaxKindAsteriskToken, node.pos, printer.writePunctuation, node)
+	asPos := printer.emitTokenWithComment(ast.KindAsteriskToken, node.pos, printer.writePunctuation, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindAsKeyword, asPos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindAsKeyword, asPos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emit(node.name)
 }
@@ -3444,30 +3444,30 @@ func (printer *Printer) emitImportSpecifier(node ImportSpecifier) {
 }
 
 func (printer *Printer) emitExportAssignment(node ExportAssignment) {
-	nextPos := printer.emitTokenWithComment(SyntaxKindExportKeyword, node.pos, printer.writeKeyword, node)
+	nextPos := printer.emitTokenWithComment(ast.KindExportKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.isExportEquals {
-		printer.emitTokenWithComment(SyntaxKindEqualsToken, nextPos, printer.writeOperator, node)
+		printer.emitTokenWithComment(ast.KindEqualsToken, nextPos, printer.writeOperator, node)
 	} else {
-		printer.emitTokenWithComment(SyntaxKindDefaultKeyword, nextPos, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindDefaultKeyword, nextPos, printer.writeKeyword, node)
 	}
 	printer.writeSpace()
-	printer.emitExpression(node.expression, ifElse(node.isExportEquals, printer.parenthesizer.getParenthesizeRightSideOfBinaryForOperator(SyntaxKindEqualsToken), printer.parenthesizer.parenthesizeExpressionOfExportDefault))
+	printer.emitExpression(node.expression, ifElse(node.isExportEquals, printer.parenthesizer.getParenthesizeRightSideOfBinaryForOperator(ast.KindEqualsToken), printer.parenthesizer.parenthesizeExpressionOfExportDefault))
 	printer.writeTrailingSemicolon()
 }
 
 func (printer *Printer) emitExportDeclaration(node ExportDeclaration) {
 	printer.emitDecoratorsAndModifiers(node, node.modifiers, false /*allowDecorators*/)
-	nextPos := printer.emitTokenWithComment(SyntaxKindExportKeyword, node.pos, printer.writeKeyword, node)
+	nextPos := printer.emitTokenWithComment(ast.KindExportKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.isTypeOnly {
-		nextPos = printer.emitTokenWithComment(SyntaxKindTypeKeyword, nextPos, printer.writeKeyword, node)
+		nextPos = printer.emitTokenWithComment(ast.KindTypeKeyword, nextPos, printer.writeKeyword, node)
 		printer.writeSpace()
 	}
 	if node.exportClause != nil {
 		printer.emit(node.exportClause)
 	} else {
-		nextPos = printer.emitTokenWithComment(SyntaxKindAsteriskToken, nextPos, printer.writePunctuation, node)
+		nextPos = printer.emitTokenWithComment(ast.KindAsteriskToken, nextPos, printer.writePunctuation, node)
 	}
 	if node.moduleSpecifier != nil {
 		printer.writeSpace()
@@ -3477,7 +3477,7 @@ func (printer *Printer) emitExportDeclaration(node ExportDeclaration) {
 		} else {
 			fromPos = nextPos
 		}
-		printer.emitTokenWithComment(SyntaxKindFromKeyword, fromPos, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindFromKeyword, fromPos, printer.writeKeyword, node)
 		printer.writeSpace()
 		printer.emitExpression(node.moduleSpecifier)
 	}
@@ -3490,7 +3490,7 @@ func (printer *Printer) emitExportDeclaration(node ExportDeclaration) {
 func (printer *Printer) emitImportTypeNodeAttributes(node ImportAttributes) {
 	printer.writePunctuation("{")
 	printer.writeSpace()
-	printer.writeKeyword(ifElse(node.token == SyntaxKindAssertKeyword, "assert", "with"))
+	printer.writeKeyword(ifElse(node.token == ast.KindAssertKeyword, "assert", "with"))
 	printer.writePunctuation(":")
 	printer.writeSpace()
 	elements := node.elements
@@ -3522,21 +3522,21 @@ func (printer *Printer) emitImportAttribute(node ImportAttribute) {
 }
 
 func (printer *Printer) emitNamespaceExportDeclaration(node NamespaceExportDeclaration) {
-	nextPos := printer.emitTokenWithComment(SyntaxKindExportKeyword, node.pos, printer.writeKeyword, node)
+	nextPos := printer.emitTokenWithComment(ast.KindExportKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
-	nextPos = printer.emitTokenWithComment(SyntaxKindAsKeyword, nextPos, printer.writeKeyword, node)
+	nextPos = printer.emitTokenWithComment(ast.KindAsKeyword, nextPos, printer.writeKeyword, node)
 	printer.writeSpace()
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	nextPos = printer.emitTokenWithComment(SyntaxKindNamespaceKeyword, nextPos, printer.writeKeyword, node)
+	nextPos = printer.emitTokenWithComment(ast.KindNamespaceKeyword, nextPos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emit(node.name)
 	printer.writeTrailingSemicolon()
 }
 
 func (printer *Printer) emitNamespaceExport(node NamespaceExport) {
-	asPos := printer.emitTokenWithComment(SyntaxKindAsteriskToken, node.pos, printer.writePunctuation, node)
+	asPos := printer.emitTokenWithComment(ast.KindAsteriskToken, node.pos, printer.writePunctuation, node)
 	printer.writeSpace()
-	printer.emitTokenWithComment(SyntaxKindAsKeyword, asPos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindAsKeyword, asPos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emit(node.name)
 }
@@ -3563,7 +3563,7 @@ func (printer *Printer) emitImportOrExportSpecifier(node ImportOrExportSpecifier
 	if node.propertyName != nil {
 		printer.emit(node.propertyName)
 		printer.writeSpace()
-		printer.emitTokenWithComment(SyntaxKindAsKeyword, node.propertyName.end, printer.writeKeyword, node)
+		printer.emitTokenWithComment(ast.KindAsKeyword, node.propertyName.end, printer.writeKeyword, node)
 		printer.writeSpace()
 	}
 
@@ -3677,10 +3677,10 @@ func (printer *Printer) emitJsxExpression(node JsxExpression) {
 		if isMultiline {
 			printer.writer.increaseIndent()
 		}
-		end := printer.emitTokenWithComment(SyntaxKindOpenBraceToken, node.pos, printer.writePunctuation, node)
+		end := printer.emitTokenWithComment(ast.KindOpenBraceToken, node.pos, printer.writePunctuation, node)
 		printer.emit(node.dotDotDotToken)
 		printer.emitExpression(node.expression)
-		printer.emitTokenWithComment(SyntaxKindCloseBraceToken, node.expression. /* ? */ end || end, printer.writePunctuation, node)
+		printer.emitTokenWithComment(ast.KindCloseBraceToken, node.expression. /* ? */ end || end, printer.writePunctuation, node)
 		if isMultiline {
 			printer.writer.decreaseIndent()
 		}
@@ -3694,7 +3694,7 @@ func (printer *Printer) emitJsxNamespacedName(node JsxNamespacedName) {
 }
 
 func (printer *Printer) emitJsxTagName(node JsxTagNameExpression) {
-	if node.kind == SyntaxKindIdentifier {
+	if node.kind == ast.KindIdentifier {
 		printer.emitExpression(node)
 	} else {
 		printer.emit(node)
@@ -3706,7 +3706,7 @@ func (printer *Printer) emitJsxTagName(node JsxTagNameExpression) {
 //
 
 func (printer *Printer) emitCaseClause(node CaseClause) {
-	printer.emitTokenWithComment(SyntaxKindCaseKeyword, node.pos, printer.writeKeyword, node)
+	printer.emitTokenWithComment(ast.KindCaseKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeExpressionForDisallowedComma)
 
@@ -3714,7 +3714,7 @@ func (printer *Printer) emitCaseClause(node CaseClause) {
 }
 
 func (printer *Printer) emitDefaultClause(node DefaultClause) {
-	pos := printer.emitTokenWithComment(SyntaxKindDefaultKeyword, node.pos, printer.writeKeyword, node)
+	pos := printer.emitTokenWithComment(ast.KindDefaultKeyword, node.pos, printer.writeKeyword, node)
 	printer.emitCaseOrDefaultClauseRest(node, node.statements, pos)
 }
 
@@ -3723,11 +3723,11 @@ func (printer *Printer) emitCaseOrDefaultClauseRest(parentNode *Node, statements
 
 	format := ListFormatCaseOrDefaultClauseStatements
 	if emitAsSingleStatement {
-		printer.writeToken(SyntaxKindColonToken, colonPos, printer.writePunctuation, parentNode)
+		printer.writeToken(ast.KindColonToken, colonPos, printer.writePunctuation, parentNode)
 		printer.writeSpace()
 		format &^= (ListFormatMultiLine | ListFormatIndented)
 	} else {
-		printer.emitTokenWithComment(SyntaxKindColonToken, colonPos, printer.writePunctuation, parentNode)
+		printer.emitTokenWithComment(ast.KindColonToken, colonPos, printer.writePunctuation, parentNode)
 	}
 	printer.emitList(parentNode, statements, format)
 }
@@ -3740,12 +3740,12 @@ func (printer *Printer) emitHeritageClause(node HeritageClause) {
 }
 
 func (printer *Printer) emitCatchClause(node CatchClause) {
-	openParenPos := printer.emitTokenWithComment(SyntaxKindCatchKeyword, node.pos, printer.writeKeyword, node)
+	openParenPos := printer.emitTokenWithComment(ast.KindCatchKeyword, node.pos, printer.writeKeyword, node)
 	printer.writeSpace()
 	if node.variableDeclaration != nil {
-		printer.emitTokenWithComment(SyntaxKindOpenParenToken, openParenPos, printer.writePunctuation, node)
+		printer.emitTokenWithComment(ast.KindOpenParenToken, openParenPos, printer.writePunctuation, node)
 		printer.emit(node.variableDeclaration)
-		printer.emitTokenWithComment(SyntaxKindCloseParenToken, node.variableDeclaration.end, printer.writePunctuation, node)
+		printer.emitTokenWithComment(ast.KindCloseParenToken, node.variableDeclaration.end, printer.writePunctuation, node)
 		printer.writeSpace()
 	}
 	printer.emit(node.block)
@@ -3786,7 +3786,7 @@ func (printer *Printer) emitShorthandPropertyAssignment(node ShorthandPropertyAs
 
 func (printer *Printer) emitSpreadAssignment(node SpreadAssignment) {
 	if node.expression {
-		printer.emitTokenWithComment(SyntaxKindDotDotDotToken, node.pos, printer.writePunctuation, node)
+		printer.emitTokenWithComment(ast.KindDotDotDotToken, node.pos, printer.writePunctuation, node)
 		printer.emitExpression(node.expression, printer.parenthesizer.parenthesizeExpressionForDisallowedComma)
 	}
 }
@@ -3817,7 +3817,7 @@ func (printer *Printer) emitJSDoc(node JSDoc) {
 		}
 	}
 	if node.tags != nil {
-		if node.tags.length == 1 && node.tags[0].kind == SyntaxKindJSDocTypeTag && !node.comment {
+		if node.tags.length == 1 && node.tags[0].kind == ast.KindJSDocTypeTag && !node.comment {
 			printer.writeSpace()
 			printer.emit(node.tags[0])
 		} else {
@@ -3848,7 +3848,7 @@ func (printer *Printer) emitJSDocImportTag(tag JSDocImportTag) {
 		printer.emit(tag.importClause)
 		printer.writeSpace()
 
-		printer.emitTokenWithComment(SyntaxKindFromKeyword, tag.importClause.end, printer.writeKeyword, tag)
+		printer.emitTokenWithComment(ast.KindFromKeyword, tag.importClause.end, printer.writeKeyword, tag)
 		printer.writeSpace()
 	}
 
@@ -3886,7 +3886,7 @@ func (printer *Printer) emitJSDocTemplateTag(tag JSDocTemplateTag) {
 func (printer *Printer) emitJSDocTypedefTag(tag JSDocTypedefTag) {
 	printer.emitJSDocTagName(tag.tagName)
 	if tag.typeExpression != nil {
-		if tag.typeExpression.kind == SyntaxKindJSDocTypeExpression {
+		if tag.typeExpression.kind == ast.KindJSDocTypeExpression {
 			printer.emitJSDocTypeExpression(tag.typeExpression)
 		} else {
 			printer.writeSpace()
@@ -3904,7 +3904,7 @@ func (printer *Printer) emitJSDocTypedefTag(tag JSDocTypedefTag) {
 		printer.emit(tag.fullName)
 	}
 	printer.emitJSDocComment(tag.comment)
-	if tag.typeExpression != nil && tag.typeExpression.kind == SyntaxKindJSDocTypeLiteral {
+	if tag.typeExpression != nil && tag.typeExpression.kind == ast.KindJSDocTypeLiteral {
 		printer.emitJSDocTypeLiteral(tag.typeExpression)
 	}
 }
@@ -4255,7 +4255,7 @@ func (printer *Printer) emitTypeAnnotation(node *TypeNode) {
 func (printer *Printer) emitInitializer(node Expression, equalCommentStartPos number, container *Node, parenthesizerRule func(node Expression) Expression) {
 	if node != nil {
 		printer.writeSpace()
-		printer.emitTokenWithComment(SyntaxKindEqualsToken, equalCommentStartPos, printer.writeOperator, container)
+		printer.emitTokenWithComment(ast.KindEqualsToken, equalCommentStartPos, printer.writeOperator, container)
 		printer.writeSpace()
 		printer.emitExpression(node, parenthesizerRule)
 	}
@@ -4524,7 +4524,7 @@ func (printer *Printer) emitNodeListItems(emit EmitFunction, parentNode *Node, c
 	emitTrailingComma := hasTrailingComma && (format & ListFormatAllowTrailingComma) && (format & ListFormatCommaDelimited)
 	if emitTrailingComma {
 		if previousSibling != nil && !skipTrailingComments {
-			printer.emitTokenWithComment(SyntaxKindCommaToken, previousSibling.end, printer.writePunctuation, previousSibling)
+			printer.emitTokenWithComment(ast.KindCommaToken, previousSibling.end, printer.writePunctuation, previousSibling)
 		} else {
 			printer.writePunctuation(",")
 		}
@@ -4742,7 +4742,7 @@ func (printer *Printer) getLeadingLineTerminatorCount(parentNode *Node, firstChi
 			// leading newline to start the modifiers.
 			return 0
 		}
-		if firstChild.kind == SyntaxKindJsxText {
+		if firstChild.kind == ast.KindJsxText {
 			// JsxText will be written with its leading whitespace, so don't add more manually.
 			return 0
 		}
@@ -4774,7 +4774,7 @@ func (printer *Printer) getSeparatingLineTerminatorCount(previousNode *Node, nex
 		if previousNode == nil || nextNode == nil {
 			return 0
 		}
-		if nextNode.kind == SyntaxKindJsxText {
+		if nextNode.kind == ast.KindJsxText {
 			// JsxText will be written with its leading whitespace, so don't add more manually.
 			return 0
 		} else if printer.currentSourceFile != nil && !nodeIsSynthesized(previousNode) && !nodeIsSynthesized(nextNode) {
@@ -4937,7 +4937,7 @@ func (printer *Printer) isEmptyBlock(block BlockLike) bool {
 }
 
 func (printer *Printer) skipSynthesizedParentheses(node *Node) /* TODO(TS-TO-GO) inferred type ts.Node */ any {
-	for node.kind == SyntaxKindParenthesizedExpression && nodeIsSynthesized(node) {
+	for node.kind == ast.KindParenthesizedExpression && nodeIsSynthesized(node) {
 		node = (node.AsParenthesizedExpression()).expression
 	}
 
@@ -4973,7 +4973,7 @@ func (printer *Printer) getTextOfNode(node Union[Identifier, PrivateIdentifier, 
 }
 
 func (printer *Printer) getLiteralTextOfNode(node LiteralLikeNode, sourceFile * /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any /*  = currentSourceFile */, neverAsciiEscape *bool, jsxAttributeEscape bool) string {
-	if node.kind == SyntaxKindStringLiteral && (node.AsStringLiteral()).textSourceNode != nil {
+	if node.kind == ast.KindStringLiteral && (node.AsStringLiteral()).textSourceNode != nil {
 		textSourceNode := (node.AsStringLiteral()).textSourceNode
 		if isIdentifier(textSourceNode) || isPrivateIdentifier(textSourceNode) || isNumericLiteral(textSourceNode) || isJsxNamespacedName(textSourceNode) {
 			var text string
@@ -5056,65 +5056,65 @@ func (printer *Printer) generateNames(node *Node) {
 		return
 	}
 	switch node.kind {
-	case SyntaxKindBlock:
+	case ast.KindBlock:
 		forEach((node.AsBlock()).statements, printer.generateNames)
-	case SyntaxKindLabeledStatement,
-		SyntaxKindWithStatement,
-		SyntaxKindDoStatement,
-		SyntaxKindWhileStatement:
+	case ast.KindLabeledStatement,
+		ast.KindWithStatement,
+		ast.KindDoStatement,
+		ast.KindWhileStatement:
 		printer.generateNames((node /* as LabeledStatement | WithStatement | DoStatement | WhileStatement */).statement)
-	case SyntaxKindIfStatement:
+	case ast.KindIfStatement:
 		printer.generateNames((node.AsIfStatement()).thenStatement)
 		printer.generateNames((node.AsIfStatement()).elseStatement)
-	case SyntaxKindForStatement,
-		SyntaxKindForOfStatement,
-		SyntaxKindForInStatement:
+	case ast.KindForStatement,
+		ast.KindForOfStatement,
+		ast.KindForInStatement:
 		printer.generateNames((node /* as ForStatement | ForInOrOfStatement */).initializer)
 		printer.generateNames((node /* as ForStatement | ForInOrOfStatement */).statement)
-	case SyntaxKindSwitchStatement:
+	case ast.KindSwitchStatement:
 		printer.generateNames((node.AsSwitchStatement()).caseBlock)
-	case SyntaxKindCaseBlock:
+	case ast.KindCaseBlock:
 		forEach((node.AsCaseBlock()).clauses, printer.generateNames)
-	case SyntaxKindCaseClause,
-		SyntaxKindDefaultClause:
+	case ast.KindCaseClause,
+		ast.KindDefaultClause:
 		forEach((node.AsCaseOrDefaultClause()).statements, printer.generateNames)
-	case SyntaxKindTryStatement:
+	case ast.KindTryStatement:
 		printer.generateNames((node.AsTryStatement()).tryBlock)
 		printer.generateNames((node.AsTryStatement()).catchClause)
 		printer.generateNames((node.AsTryStatement()).finallyBlock)
-	case SyntaxKindCatchClause:
+	case ast.KindCatchClause:
 		printer.generateNames((node.AsCatchClause()).variableDeclaration)
 		printer.generateNames((node.AsCatchClause()).block)
-	case SyntaxKindVariableStatement:
+	case ast.KindVariableStatement:
 		printer.generateNames((node.AsVariableStatement()).declarationList)
-	case SyntaxKindVariableDeclarationList:
+	case ast.KindVariableDeclarationList:
 		forEach((node.AsVariableDeclarationList()).declarations, printer.generateNames)
-	case SyntaxKindVariableDeclaration,
-		SyntaxKindParameter,
-		SyntaxKindBindingElement,
-		SyntaxKindClassDeclaration:
+	case ast.KindVariableDeclaration,
+		ast.KindParameter,
+		ast.KindBindingElement,
+		ast.KindClassDeclaration:
 		printer.generateNameIfNeeded((node.AsNamedDeclaration()).name)
-	case SyntaxKindFunctionDeclaration:
+	case ast.KindFunctionDeclaration:
 		printer.generateNameIfNeeded((node.AsFunctionDeclaration()).name)
 		if getEmitFlags(node)&EmitFlagsReuseTempVariableScope != 0 {
 			forEach((node.AsFunctionDeclaration()).parameters, printer.generateNames)
 			printer.generateNames((node.AsFunctionDeclaration()).body)
 		}
-	case SyntaxKindObjectBindingPattern,
-		SyntaxKindArrayBindingPattern:
+	case ast.KindObjectBindingPattern,
+		ast.KindArrayBindingPattern:
 		forEach((node.AsBindingPattern()).elements, printer.generateNames)
-	case SyntaxKindImportDeclaration:
+	case ast.KindImportDeclaration:
 		printer.generateNames((node.AsImportDeclaration()).importClause)
-	case SyntaxKindImportClause:
+	case ast.KindImportClause:
 		printer.generateNameIfNeeded((node.AsImportClause()).name)
 		printer.generateNames((node.AsImportClause()).namedBindings)
-	case SyntaxKindNamespaceImport:
+	case ast.KindNamespaceImport:
 		printer.generateNameIfNeeded((node.AsNamespaceImport()).name)
-	case SyntaxKindNamespaceExport:
+	case ast.KindNamespaceExport:
 		printer.generateNameIfNeeded((node.AsNamespaceExport()).name)
-	case SyntaxKindNamedImports:
+	case ast.KindNamedImports:
 		forEach((node.AsNamedImports()).elements, printer.generateNames)
-	case SyntaxKindImportSpecifier:
+	case ast.KindImportSpecifier:
 		printer.generateNameIfNeeded((node.AsImportSpecifier()).propertyName || (node.AsImportSpecifier()).name)
 	}
 }
@@ -5124,14 +5124,14 @@ func (printer *Printer) generateMemberNames(node *Node) {
 		return
 	}
 	switch node.kind {
-	case SyntaxKindPropertyAssignment,
-		SyntaxKindShorthandPropertyAssignment,
-		SyntaxKindPropertyDeclaration,
-		SyntaxKindPropertySignature,
-		SyntaxKindMethodDeclaration,
-		SyntaxKindMethodSignature,
-		SyntaxKindGetAccessor,
-		SyntaxKindSetAccessor:
+	case ast.KindPropertyAssignment,
+		ast.KindShorthandPropertyAssignment,
+		ast.KindPropertyDeclaration,
+		ast.KindPropertySignature,
+		ast.KindMethodDeclaration,
+		ast.KindMethodSignature,
+		ast.KindGetAccessor,
+		ast.KindSetAccessor:
 		printer.generateNameIfNeeded((node.AsNamedDeclaration()).name)
 	}
 }
@@ -5234,7 +5234,7 @@ func (printer *Printer) isUniqueLocalName(name string, container *HasLocals) boo
 		if canHaveLocals(node) && node.locals != nil {
 			local := node.locals.get(escapeLeadingUnderscores(name))
 			// We conservatively include alias symbols to cover cases where they're emitted as locals
-			if local != nil && local.flags&(SymbolFlagsValue|SymbolFlagsExportValue|SymbolFlagsAlias) != 0 {
+			if local != nil && local.flags&(ast.SymbolFlagsValue|ast.SymbolFlagsExportValue|ast.SymbolFlagsAlias) != 0 {
 				return false
 			}
 		}
@@ -5439,36 +5439,36 @@ func (printer *Printer) generateNameForMethodOrAccessor(node Union[MethodDeclara
 
 func (printer *Printer) generateNameForNode(node *Node, privateName bool, flags GeneratedIdentifierFlags, prefix string, suffix string) string {
 	switch node.kind {
-	case SyntaxKindIdentifier,
-		SyntaxKindPrivateIdentifier:
+	case ast.KindIdentifier,
+		ast.KindPrivateIdentifier:
 		return printer.makeUniqueName(printer.getTextOfNode(node.AsIdentifier()), printer.isUniqueName, flags&GeneratedIdentifierFlagsOptimistic != 0, flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0, privateName, prefix, suffix)
-	case SyntaxKindModuleDeclaration,
-		SyntaxKindEnumDeclaration:
+	case ast.KindModuleDeclaration,
+		ast.KindEnumDeclaration:
 		Debug.assert(prefix == "" && suffix == "" && !privateName)
 		return printer.generateNameForModuleOrEnum(node /* as ModuleDeclaration | EnumDeclaration */)
-	case SyntaxKindImportDeclaration,
-		SyntaxKindExportDeclaration:
+	case ast.KindImportDeclaration,
+		ast.KindExportDeclaration:
 		Debug.assert(prefix == "" && suffix == "" && !privateName)
 		return printer.generateNameForImportOrExportDeclaration(node /* as ImportDeclaration | ExportDeclaration */)
-	case SyntaxKindFunctionDeclaration,
-		SyntaxKindClassDeclaration:
+	case ast.KindFunctionDeclaration,
+		ast.KindClassDeclaration:
 		Debug.assert(prefix == "" && suffix == "" && !privateName)
 		name := (node /* as ClassDeclaration | FunctionDeclaration */).name
 		if name != nil && !isGeneratedIdentifier(name) {
 			return printer.generateNameForNode(name, false /*privateName*/, flags, prefix, suffix)
 		}
 		return printer.generateNameForExportDefault()
-	case SyntaxKindExportAssignment:
+	case ast.KindExportAssignment:
 		Debug.assert(prefix == "" && suffix == "" && !privateName)
 		return printer.generateNameForExportDefault()
-	case SyntaxKindClassExpression:
+	case ast.KindClassExpression:
 		Debug.assert(prefix == "" && suffix == "" && !privateName)
 		return printer.generateNameForClassExpression()
-	case SyntaxKindMethodDeclaration,
-		SyntaxKindGetAccessor,
-		SyntaxKindSetAccessor:
+	case ast.KindMethodDeclaration,
+		ast.KindGetAccessor,
+		ast.KindSetAccessor:
 		return printer.generateNameForMethodOrAccessor(node /* as MethodDeclaration | AccessorDeclaration */, privateName, prefix, suffix)
-	case SyntaxKindComputedPropertyName:
+	case ast.KindComputedPropertyName:
 		return printer.makeTempVariableName(TempFlagsAuto, true /*reservedInNestedScopes*/, privateName, prefix, suffix)
 	default:
 		return printer.makeTempVariableName(TempFlagsAuto, false /*reservedInNestedScopes*/, privateName, prefix, suffix)
@@ -5540,15 +5540,15 @@ func (printer *Printer) emitLeadingCommentsOfNode(node *Node, emitFlags EmitFlag
 
 	// We have to explicitly check that the node is JsxText because if the compilerOptions.jsx is "preserve" we will not do any transformation.
 	// It is expensive to walk entire tree just to set one kind of node to have no comments.
-	skipLeadingComments := pos < 0 || (emitFlags&EmitFlagsNoLeadingComments) != 0 || node.kind == SyntaxKindJsxText
-	skipTrailingComments := end < 0 || (emitFlags&EmitFlagsNoTrailingComments) != 0 || node.kind == SyntaxKindJsxText
+	skipLeadingComments := pos < 0 || (emitFlags&EmitFlagsNoLeadingComments) != 0 || node.kind == ast.KindJsxText
+	skipTrailingComments := end < 0 || (emitFlags&EmitFlagsNoTrailingComments) != 0 || node.kind == ast.KindJsxText
 
 	// Save current container state on the stack.
 	if (pos > 0 || end > 0) && pos != end {
 		// Emit leading comments if the position is not synthesized and the node
 		// has not opted out from emitting leading comments.
 		if !skipLeadingComments {
-			printer.emitLeadingComments(pos, node.kind != SyntaxKindNotEmittedStatement /*isEmittedNode*/)
+			printer.emitLeadingComments(pos, node.kind != ast.KindNotEmittedStatement /*isEmittedNode*/)
 		}
 
 		if !skipLeadingComments || (pos >= 0 && (emitFlags&EmitFlagsNoLeadingComments) != 0) {
@@ -5562,7 +5562,7 @@ func (printer *Printer) emitLeadingCommentsOfNode(node *Node, emitFlags EmitFlag
 
 			// To avoid invalid comment emit in a down-level binding pattern, we
 			// keep track of the last declaration list container's end
-			if node.kind == SyntaxKindVariableDeclarationList {
+			if node.kind == ast.KindVariableDeclarationList {
 				printer.declarationListContainerEnd = end
 			}
 		}
@@ -5573,7 +5573,7 @@ func (printer *Printer) emitLeadingCommentsOfNode(node *Node, emitFlags EmitFlag
 
 func (printer *Printer) emitTrailingCommentsOfNode(node *Node, emitFlags EmitFlags, pos number, end number, savedContainerPos number, savedContainerEnd number, savedDeclarationListContainerEnd number) {
 	enterComment()
-	skipTrailingComments := end < 0 || (emitFlags&EmitFlagsNoTrailingComments) != 0 || node.kind == SyntaxKindJsxText
+	skipTrailingComments := end < 0 || (emitFlags&EmitFlagsNoTrailingComments) != 0 || node.kind == ast.KindJsxText
 	forEach(getSyntheticTrailingComments(node), printer.emitTrailingSynthesizedComment)
 	if (pos > 0 || end > 0) && pos != end {
 		// Restore previous container state.
@@ -5583,7 +5583,7 @@ func (printer *Printer) emitTrailingCommentsOfNode(node *Node, emitFlags EmitFla
 
 		// Emit trailing comments if the position is not synthesized and the node
 		// has not opted out from emitting leading comments and is an emitted node.
-		if !skipTrailingComments && node.kind != SyntaxKindNotEmittedStatement {
+		if !skipTrailingComments && node.kind != ast.KindNotEmittedStatement {
 			printer.emitTrailingComments(end)
 		}
 	}
@@ -5591,11 +5591,11 @@ func (printer *Printer) emitTrailingCommentsOfNode(node *Node, emitFlags EmitFla
 }
 
 func (printer *Printer) emitLeadingSynthesizedComment(comment SynthesizedComment) {
-	if comment.hasLeadingNewline || comment.kind == SyntaxKindSingleLineCommentTrivia {
+	if comment.hasLeadingNewline || comment.kind == ast.KindSingleLineCommentTrivia {
 		printer.writer.writeLine()
 	}
 	printer.writeSynthesizedComment(comment)
-	if comment.hasTrailingNewLine || comment.kind == SyntaxKindSingleLineCommentTrivia {
+	if comment.hasTrailingNewLine || comment.kind == ast.KindSingleLineCommentTrivia {
 		printer.writer.writeLine()
 	} else {
 		printer.writer.writeSpace(" ")
@@ -5615,7 +5615,7 @@ func (printer *Printer) emitTrailingSynthesizedComment(comment SynthesizedCommen
 func (printer *Printer) writeSynthesizedComment(comment SynthesizedComment) {
 	text := printer.formatSynthesizedComment(comment)
 	var lineMap *[]number
-	if comment.kind == SyntaxKindMultiLineCommentTrivia {
+	if comment.kind == ast.KindMultiLineCommentTrivia {
 		lineMap = computeLineStarts(text)
 	} else {
 		lineMap = nil
@@ -5624,7 +5624,7 @@ func (printer *Printer) writeSynthesizedComment(comment SynthesizedComment) {
 }
 
 func (printer *Printer) formatSynthesizedComment(comment SynthesizedComment) string {
-	if comment.kind == SyntaxKindMultiLineCommentTrivia {
+	if comment.kind == ast.KindMultiLineCommentTrivia {
 		return __TEMPLATE__("/*", comment.text, "*/")
 	} else {
 		return __TEMPLATE__("//", comment.text)
@@ -5741,7 +5741,7 @@ func (printer *Printer) emitLeadingComment(commentPos number, commentEnd number,
 
 	if hasTrailingNewLine {
 		printer.writer.writeLine()
-	} else if kind == SyntaxKindMultiLineCommentTrivia {
+	} else if kind == ast.KindMultiLineCommentTrivia {
 		printer.writer.writeSpace(" ")
 	}
 }
@@ -5795,7 +5795,7 @@ func (printer *Printer) emitTrailingCommentOfPositionNoNewline(commentPos number
 	writeCommentRange(printer.currentSourceFile.text, printer.getCurrentLineMap(), printer.writer, commentPos, commentEnd, printer.newLine)
 	printer.emitPos(commentEnd)
 
-	if kind == SyntaxKindSingleLineCommentTrivia {
+	if kind == ast.KindSingleLineCommentTrivia {
 		printer.writer.writeLine()
 		// still write a newline for single-line comments, so closing tokens aren't written on the same line
 	}
@@ -5899,7 +5899,7 @@ func (printer *Printer) emitSourceMapsBeforeNode(node *Node) {
 
 	// Emit leading sourcemap
 	source := sourceMapRange.source || printer.sourceMapSource
-	if node.kind != SyntaxKindNotEmittedStatement && (emitFlags&EmitFlagsNoLeadingSourceMap) == 0 && sourceMapRange.pos >= 0 {
+	if node.kind != ast.KindNotEmittedStatement && (emitFlags&EmitFlagsNoLeadingSourceMap) == 0 && sourceMapRange.pos >= 0 {
 		printer.emitSourcePos(sourceMapRange.source || printer.sourceMapSource, printer.skipSourceTrivia(source, sourceMapRange.pos))
 	}
 	if emitFlags&EmitFlagsNoNestedSourceMaps != 0 {
@@ -5915,7 +5915,7 @@ func (printer *Printer) emitSourceMapsAfterNode(node *Node) {
 	if emitFlags&EmitFlagsNoNestedSourceMaps != 0 {
 		printer.sourceMapsDisabled = false
 	}
-	if node.kind != SyntaxKindNotEmittedStatement && (emitFlags&EmitFlagsNoTrailingSourceMap) == 0 && sourceMapRange.end >= 0 {
+	if node.kind != ast.KindNotEmittedStatement && (emitFlags&EmitFlagsNoTrailingSourceMap) == 0 && sourceMapRange.end >= 0 {
 		printer.emitSourcePos(sourceMapRange.source || printer.sourceMapSource, sourceMapRange.end)
 	}
 }

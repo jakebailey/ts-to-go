@@ -769,7 +769,7 @@ func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(n
 		return nil
 	}
 	if length(node.elements) != 1 {
-		grammarErrorOnNode(node, ifElse(node.token == SyntaxKindWithKeyword, Diagnostics.Type_import_attributes_should_have_exactly_one_key_resolution_mode_with_value_import_or_require, Diagnostics.Type_import_assertions_should_have_exactly_one_key_resolution_mode_with_value_import_or_require))
+		grammarErrorOnNode(node, ifElse(node.token == ast.KindWithKeyword, Diagnostics.Type_import_attributes_should_have_exactly_one_key_resolution_mode_with_value_import_or_require, Diagnostics.Type_import_assertions_should_have_exactly_one_key_resolution_mode_with_value_import_or_require))
 		return nil
 	}
 	elem := node.elements[0]
@@ -777,7 +777,7 @@ func getResolutionModeOverride(node *ImportAttributes, grammarErrorOnNode func(n
 		return nil
 	}
 	if elem.name.text != "resolution-mode" {
-		grammarErrorOnNode(elem.name, ifElse(node.token == SyntaxKindWithKeyword, Diagnostics.resolution_mode_is_the_only_valid_key_for_type_import_attributes, Diagnostics.resolution_mode_is_the_only_valid_key_for_type_import_assertions))
+		grammarErrorOnNode(elem.name, ifElse(node.token == ast.KindWithKeyword, Diagnostics.resolution_mode_is_the_only_valid_key_for_type_import_attributes, Diagnostics.resolution_mode_is_the_only_valid_key_for_type_import_assertions))
 		return nil
 	}
 	if !isStringLiteralLike(elem.value) {
@@ -2374,7 +2374,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					} else if !arrayIsEqualTo(oldSourceFile.moduleAugmentations, newSourceFile.moduleAugmentations, moduleNameIsEqualTo) {
 						// moduleAugmentations has changed
 						structureIsReused = StructureIsReusedSafeModules
-					} else if (oldSourceFile.flags & NodeFlagsPermanentlySetIncrementalFlags) != (newSourceFile.flags & NodeFlagsPermanentlySetIncrementalFlags) {
+					} else if (oldSourceFile.flags & ast.NodeFlagsPermanentlySetIncrementalFlags) != (newSourceFile.flags & ast.NodeFlagsPermanentlySetIncrementalFlags) {
 						// dynamicImport has changed
 						structureIsReused = StructureIsReusedSafeModules
 					} else if !arrayIsEqualTo(oldSourceFile.typeReferenceDirectives, newSourceFile.typeReferenceDirectives, fileReferenceIsEqualTo) {
@@ -2872,22 +2872,22 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				// Otherwise break to visit each child
 
 				switch parent.kind {
-				case SyntaxKindParameter,
-					SyntaxKindPropertyDeclaration,
-					SyntaxKindMethodDeclaration:
+				case ast.KindParameter,
+					ast.KindPropertyDeclaration,
+					ast.KindMethodDeclaration:
 					if (parent /* as ParameterDeclaration | PropertyDeclaration | MethodDeclaration */).questionToken == node {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, "?"))
 						return "skip"
 					}
 					fallthrough
-				case SyntaxKindMethodSignature,
-					SyntaxKindConstructor,
-					SyntaxKindGetAccessor,
-					SyntaxKindSetAccessor,
-					SyntaxKindFunctionExpression,
-					SyntaxKindFunctionDeclaration,
-					SyntaxKindArrowFunction,
-					SyntaxKindVariableDeclaration:
+				case ast.KindMethodSignature,
+					ast.KindConstructor,
+					ast.KindGetAccessor,
+					ast.KindSetAccessor,
+					ast.KindFunctionExpression,
+					ast.KindFunctionDeclaration,
+					ast.KindArrowFunction,
+					ast.KindVariableDeclaration:
 					// type annotation
 					if (parent /* as FunctionLikeDeclaration | VariableDeclaration | ParameterDeclaration | PropertyDeclaration */).type_ == node {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.Type_annotations_can_only_be_used_in_TypeScript_files))
@@ -2896,76 +2896,76 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				}
 
 				switch node.kind {
-				case SyntaxKindImportClause:
+				case ast.KindImportClause:
 					if (node.AsImportClause()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(parent, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, "import type"))
 						return "skip"
 					}
-				case SyntaxKindExportDeclaration:
+				case ast.KindExportDeclaration:
 					if (node.AsExportDeclaration()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, "export type"))
 						return "skip"
 					}
-				case SyntaxKindImportSpecifier,
-					SyntaxKindExportSpecifier:
+				case ast.KindImportSpecifier,
+					ast.KindExportSpecifier:
 					if (node.AsImportOrExportSpecifier()).isTypeOnly {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, ifElse(isImportSpecifier(node), "import...type", "export...type")))
 						return "skip"
 					}
-				case SyntaxKindImportEqualsDeclaration:
+				case ast.KindImportEqualsDeclaration:
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.import_can_only_be_used_in_TypeScript_files))
 					return "skip"
-				case SyntaxKindExportAssignment:
+				case ast.KindExportAssignment:
 					if (node.AsExportAssignment()).isExportEquals {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.export_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
-				case SyntaxKindHeritageClause:
+				case ast.KindHeritageClause:
 					heritageClause := node.AsHeritageClause()
-					if heritageClause.token == SyntaxKindImplementsKeyword {
+					if heritageClause.token == ast.KindImplementsKeyword {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.implements_clauses_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
-				case SyntaxKindInterfaceDeclaration:
-					interfaceKeyword := tokenToString(SyntaxKindInterfaceKeyword)
+				case ast.KindInterfaceDeclaration:
+					interfaceKeyword := tokenToString(ast.KindInterfaceKeyword)
 					Debug.assertIsDefined(interfaceKeyword)
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, interfaceKeyword))
 					return "skip"
-				case SyntaxKindModuleDeclaration:
+				case ast.KindModuleDeclaration:
 					var moduleKeyword string
-					if node.flags&NodeFlagsNamespace != 0 {
-						moduleKeyword = tokenToString(SyntaxKindNamespaceKeyword)
+					if node.flags&ast.NodeFlagsNamespace != 0 {
+						moduleKeyword = tokenToString(ast.KindNamespaceKeyword)
 					} else {
-						moduleKeyword = tokenToString(SyntaxKindModuleKeyword)
+						moduleKeyword = tokenToString(ast.KindModuleKeyword)
 					}
 					Debug.assertIsDefined(moduleKeyword)
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, moduleKeyword))
 					return "skip"
-				case SyntaxKindTypeAliasDeclaration:
+				case ast.KindTypeAliasDeclaration:
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.Type_aliases_can_only_be_used_in_TypeScript_files))
 					return "skip"
-				case SyntaxKindConstructor,
-					SyntaxKindMethodDeclaration,
-					SyntaxKindFunctionDeclaration:
+				case ast.KindConstructor,
+					ast.KindMethodDeclaration,
+					ast.KindFunctionDeclaration:
 					if (node.AsFunctionLikeDeclaration()).body == nil {
 						diagnostics.push(createDiagnosticForNode(node, Diagnostics.Signature_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
 					return
-				case SyntaxKindEnumDeclaration:
-					enumKeyword := Debug.checkDefined(tokenToString(SyntaxKindEnumKeyword))
+				case ast.KindEnumDeclaration:
+					enumKeyword := Debug.checkDefined(tokenToString(ast.KindEnumKeyword))
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics._0_declarations_can_only_be_used_in_TypeScript_files, enumKeyword))
 					return "skip"
-				case SyntaxKindNonNullExpression:
+				case ast.KindNonNullExpression:
 					diagnostics.push(createDiagnosticForNode(node, Diagnostics.Non_null_assertions_can_only_be_used_in_TypeScript_files))
 					return "skip"
-				case SyntaxKindAsExpression:
+				case ast.KindAsExpression:
 					diagnostics.push(createDiagnosticForNode((node.AsAsExpression()).type_, Diagnostics.Type_assertion_expressions_can_only_be_used_in_TypeScript_files))
 					return "skip"
-				case SyntaxKindSatisfiesExpression:
+				case ast.KindSatisfiesExpression:
 					diagnostics.push(createDiagnosticForNode((node.AsSatisfiesExpression()).type_, Diagnostics.Type_satisfaction_expressions_can_only_be_used_in_TypeScript_files))
 					return "skip"
-				case SyntaxKindTypeAssertionExpression:
+				case ast.KindTypeAssertionExpression:
 					Debug.fail()
 					// Won't parse these in a JS file anyway, as they are interpreted as JSX.
 				}
@@ -3003,49 +3003,49 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				}
 
 				switch parent.kind {
-				case SyntaxKindClassDeclaration,
-					SyntaxKindClassExpression,
-					SyntaxKindMethodDeclaration,
-					SyntaxKindConstructor,
-					SyntaxKindGetAccessor,
-					SyntaxKindSetAccessor,
-					SyntaxKindFunctionExpression,
-					SyntaxKindFunctionDeclaration,
-					SyntaxKindArrowFunction:
+				case ast.KindClassDeclaration,
+					ast.KindClassExpression,
+					ast.KindMethodDeclaration,
+					ast.KindConstructor,
+					ast.KindGetAccessor,
+					ast.KindSetAccessor,
+					ast.KindFunctionExpression,
+					ast.KindFunctionDeclaration,
+					ast.KindArrowFunction:
 					// Check type parameters
 					if nodes == (parent.AsDeclarationWithTypeParameterChildren()).typeParameters {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_parameter_declarations_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
 					fallthrough
-				case SyntaxKindVariableStatement:
+				case ast.KindVariableStatement:
 					// Check modifiers
 					if nodes == (parent.AsVariableStatement()).modifiers {
-						checkModifiers((parent.AsVariableStatement()).modifiers, parent.kind == SyntaxKindVariableStatement)
+						checkModifiers((parent.AsVariableStatement()).modifiers, parent.kind == ast.KindVariableStatement)
 						return "skip"
 					}
-				case SyntaxKindPropertyDeclaration:
+				case ast.KindPropertyDeclaration:
 					// Check modifiers of property declaration
 					if nodes == (parent.AsPropertyDeclaration()).modifiers {
 						for _, modifier := range nodes.(NodeArray[ModifierLike]) {
-							if isModifier(modifier) && modifier.kind != SyntaxKindStaticKeyword && modifier.kind != SyntaxKindAccessorKeyword {
+							if isModifier(modifier) && modifier.kind != ast.KindStaticKeyword && modifier.kind != ast.KindAccessorKeyword {
 								diagnostics.push(createDiagnosticForNode(modifier, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, tokenToString(modifier.kind)))
 							}
 						}
 						return "skip"
 					}
-				case SyntaxKindParameter:
+				case ast.KindParameter:
 					// Check modifiers of parameter declaration
 					if nodes == (parent.AsParameterDeclaration()).modifiers && some(nodes, isModifier) {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Parameter_modifiers_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
-				case SyntaxKindCallExpression,
-					SyntaxKindNewExpression,
-					SyntaxKindExpressionWithTypeArguments,
-					SyntaxKindJsxSelfClosingElement,
-					SyntaxKindJsxOpeningElement,
-					SyntaxKindTaggedTemplateExpression:
+				case ast.KindCallExpression,
+					ast.KindNewExpression,
+					ast.KindExpressionWithTypeArguments,
+					ast.KindJsxSelfClosingElement,
+					ast.KindJsxOpeningElement,
+					ast.KindTaggedTemplateExpression:
 					// Check type arguments
 					if nodes == (parent.AsNodeWithTypeArguments()).typeArguments {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Type_arguments_can_only_be_used_in_TypeScript_files))
@@ -3057,28 +3057,28 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			checkModifiers := func(modifiers NodeArray[ModifierLike], isConstValid bool) {
 				for _, modifier := range modifiers {
 					switch modifier.kind {
-					case SyntaxKindConstKeyword:
+					case ast.KindConstKeyword:
 						if isConstValid {
 							continue
 						}
 						// to report error,
 						fallthrough
-					case SyntaxKindPublicKeyword,
-						SyntaxKindPrivateKeyword,
-						SyntaxKindProtectedKeyword,
-						SyntaxKindReadonlyKeyword,
-						SyntaxKindDeclareKeyword,
-						SyntaxKindAbstractKeyword,
-						SyntaxKindOverrideKeyword,
-						SyntaxKindInKeyword,
-						SyntaxKindOutKeyword:
+					case ast.KindPublicKeyword,
+						ast.KindPrivateKeyword,
+						ast.KindProtectedKeyword,
+						ast.KindReadonlyKeyword,
+						ast.KindDeclareKeyword,
+						ast.KindAbstractKeyword,
+						ast.KindOverrideKeyword,
+						ast.KindInKeyword,
+						ast.KindOutKeyword:
 						diagnostics.push(createDiagnosticForNode(modifier, Diagnostics.The_0_modifier_can_only_be_used_in_TypeScript_files, tokenToString(modifier.kind)))
 
 						// These are all legal modifiers.
-					case SyntaxKindStaticKeyword:
-					case SyntaxKindExportKeyword:
-					case SyntaxKindDefaultKeyword:
-					case SyntaxKindAccessorKeyword:
+					case ast.KindStaticKeyword:
+					case ast.KindExportKeyword:
+					case ast.KindDefaultKeyword:
+					case ast.KindAccessorKeyword:
 					}
 				}
 			}
@@ -3157,10 +3157,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	moduleNameIsEqualTo := func(a Union[StringLiteralLike, Identifier], b Union[StringLiteralLike, Identifier]) bool {
-		if a.kind == SyntaxKindIdentifier {
-			return b.kind == SyntaxKindIdentifier && a.escapedText == b.escapedText
+		if a.kind == ast.KindIdentifier {
+			return b.kind == ast.KindIdentifier && a.escapedText == b.escapedText
 		} else {
-			return b.kind == SyntaxKindStringLiteral && a.text == b.text
+			return b.kind == ast.KindStringLiteral && a.text == b.text
 		}
 	}
 
@@ -3172,8 +3172,8 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		setParent(importDecl, file)
 		// explicitly unset the synthesized flag on these declarations so the checker API will answer questions about them
 		// (which is required to build the dependency graph for incremental emit)
-		(externalHelpersModuleReference.(Mutable[*Node])).flags &^= NodeFlagsSynthesized
-		(importDecl.(Mutable[*Node])).flags &^= NodeFlagsSynthesized
+		(externalHelpersModuleReference.(Mutable[*Node])).flags &^= ast.NodeFlagsSynthesized
+		(importDecl.(Mutable[*Node])).flags &^= ast.NodeFlagsSynthesized
 		return externalHelpersModuleReference
 	}
 
@@ -3211,7 +3211,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			collectModuleReferences(node, false /*inAmbientModule*/)
 		}
 
-		if (file.flags&NodeFlagsPossiblyContainsDynamicImport != 0) || isJavaScriptFile {
+		if (file.flags&ast.NodeFlagsPossiblyContainsDynamicImport != 0) || isJavaScriptFile {
 			collectDynamicImportOrRequireOrJsDocImportCalls(file)
 		}
 
@@ -3242,7 +3242,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					}
 				}
 			} else if isModuleDeclaration(node) {
-				if isAmbientModule(node) && (inAmbientModule || hasSyntacticModifier(node, ModifierFlagsAmbient) || file.isDeclarationFile) {
+				if isAmbientModule(node) && (inAmbientModule || hasSyntacticModifier(node, ast.ModifierFlagsAmbient) || file.isDeclarationFile) {
 					(node.name.(Mutable[*Node])).parent = node
 					nameText := getTextOfIdentifierOrLiteral(node.name)
 					// Ambient module declarations can be interpreted as augmentations for some existing external modules.
@@ -3305,7 +3305,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		getNodeAtPosition := func(sourceFile SourceFile, position number) *Node {
 			var current *Node = sourceFile
 			getContainingChild := func(child *Node) *Node {
-				if child.pos <= position && (position < child.end || (position == child.end && (child.kind == SyntaxKindEndOfFileToken))) {
+				if child.pos <= position && (position < child.end || (position == child.end && (child.kind == ast.KindEndOfFileToken))) {
 					return child
 				}
 			}
@@ -3930,7 +3930,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				elideImport := isJsFileFromNodeModules && currentNodeModulesDepth > maxNodeModuleJsDepth
 				// Don't add the file if it has a bad extension (e.g. 'tsx' if we don't have '--allowJs')
 				// This may still end up being an untyped module -- the file won't be included but imports will be allowed.
-				shouldAddFile := resolvedFileName && getResolutionDiagnostic(optionsForFile, resolution, file) == nil && !optionsForFile.noResolve && index < file.imports.length && !elideImport && !(isJsFile && !getAllowJSCompilerOption(optionsForFile)) && (isInJSFile(file.imports[index]) || file.imports[index].flags&NodeFlagsJSDoc == 0)
+				shouldAddFile := resolvedFileName && getResolutionDiagnostic(optionsForFile, resolution, file) == nil && !optionsForFile.noResolve && index < file.imports.length && !elideImport && !(isJsFile && !getAllowJSCompilerOption(optionsForFile)) && (isInJSFile(file.imports[index]) || file.imports[index].flags&ast.NodeFlagsJSDoc == 0)
 
 				if elideImport {
 					modulesWithElidedImports.set(file.path, true)
@@ -5301,7 +5301,7 @@ func getModuleNames(TODO_IDENTIFIER SourceFile) []StringLiteralLike {
 		return i
 	})
 	for _, aug := range moduleAugmentations {
-		if aug.kind == SyntaxKindStringLiteral {
+		if aug.kind == ast.KindStringLiteral {
 			res.push(aug)
 		}
 		// Do nothing if it's an Identifier; we don't need to do module resolution for `declare global`.
@@ -5317,7 +5317,7 @@ func getModuleNameStringLiteralAt(TODO_IDENTIFIER SourceFileImportsList, index n
 	}
 	augIndex := imports.length
 	for _, aug := range moduleAugmentations {
-		if aug.kind == SyntaxKindStringLiteral {
+		if aug.kind == ast.KindStringLiteral {
 			if index == augIndex {
 				return aug
 			}
