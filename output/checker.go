@@ -5992,7 +5992,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 			return factory.createLiteralTypeNode(ifElse(value < 0, factory.createPrefixUnaryExpression(ast.KindMinusToken, factory.createNumericLiteral(-value)), factory.createNumericLiteral(value)))
 		}
 		if t.flags&TypeFlagsBigIntLiteral != 0 {
-			context.approximateLength += (pseudoBigIntToString((t.AsBigIntLiteralType()).value).length) + 1
+			context.approximateLength += pseudoBigIntToString((t.AsBigIntLiteralType()).value).length + 1
 			return factory.createLiteralTypeNode(factory.createBigIntLiteral((t.AsBigIntLiteralType()).value))
 		}
 		if t.flags&TypeFlagsBooleanLiteral != 0 {
@@ -19907,7 +19907,7 @@ func (c *Checker) isGenericIndexType(t *Type) bool {
 }
 
 func (c *Checker) getGenericObjectFlags(t *Type) ObjectFlags {
-	if t.flags&(TypeFlagsUnionOrIntersection) != 0 {
+	if t.flags&TypeFlagsUnionOrIntersection != 0 {
 		if (t.AsUnionOrIntersectionType()).objectFlags&ObjectFlagsIsGenericTypeComputed == 0 {
 			(t.AsUnionOrIntersectionType()).objectFlags |= ObjectFlagsIsGenericTypeComputed | reduceLeft((t.AsUnionOrIntersectionType()).types, func(flags number, t *Type) number {
 				return flags | c.getGenericObjectFlags(t)
@@ -50146,7 +50146,7 @@ func (c *Checker) evaluateEntityNameExpression(expr EntityNameExpression, locati
 			// Technically we resolved a global lib file here, but the decision to treat this as numeric
 			// is more predicated on the fact that the single-file resolution *didn't* resolve to a
 			// different meaning of `Infinity` or `NaN`. Transpilers handle this no problem.
-			return evaluatorResult(+(identifier.escapedText), false /*isSyntacticallyString*/)
+			return evaluatorResult(+identifier.escapedText, false /*isSyntacticallyString*/)
 		}
 	}
 

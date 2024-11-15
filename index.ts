@@ -644,9 +644,19 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
         }
         else if (Node.isParenthesizedExpression(node)) {
-            const expr = node.getExpression();
+            let expr = node.getExpression();
+            let elide = false;
 
             if (Node.isAsExpression(expr) && isElidedAsExpression(expr)) {
+                expr = expr.getExpression();
+                elide = true;
+            }
+
+            if (
+                elide
+                || Node.isIdentifier(expr)
+                || Node.isPropertyAccessExpression(expr)
+            ) {
                 visitExpression(expr, undefined, needBool);
                 return;
             }

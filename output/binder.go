@@ -3578,7 +3578,7 @@ func eachUnreachableRange(node *ast.Node, options CompilerOptions, cb func(start
 	// As opposed to a pure declaration like an `interface`
 	isExecutableStatement := func(s Statement) bool {
 		// Don't remove statements that can validly be used before they appear.
-		return !isFunctionDeclaration(s) && !isPurelyTypeDeclaration(s) && !(isVariableStatement(s) && getCombinedNodeFlags(s)&(ast.NodeFlagsBlockScoped) == 0 && s.declarationList.declarations.some(func(d VariableDeclaration) bool {
+		return !isFunctionDeclaration(s) && !isPurelyTypeDeclaration(s) && !(isVariableStatement(s) && getCombinedNodeFlags(s)&ast.NodeFlagsBlockScoped == 0 && s.declarationList.declarations.some(func(d VariableDeclaration) bool {
 			return d.initializer == nil
 		}))
 	}
