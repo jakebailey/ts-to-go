@@ -62,6 +62,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             case "Printer":
                 methodReceiver = "printer";
                 break;
+            case "SyntacticTypeNodeBuilder":
+                methodReceiver = "stnb";
+                break;
             default:
                 throw new Error(`Unknown main struct: ${mainStruct}`);
         }
@@ -1515,6 +1518,9 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 const funcs = mainStructScanState;
                 assert(Array.isArray(funcs));
                 mainStructScanState = "after";
+                // for (const f of funcs) {
+                //     console.log(f.getText());
+                // }
                 funcs.forEach(visitStatement);
             }
 
@@ -2204,5 +2210,6 @@ await convert("utilities.ts", "output/utilities.go");
 await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
 await convert("program.ts", "output/program.go");
 await convert("emitter.ts", "output/emitter.go", "Printer");
+await convert("expressionToTypeNode.ts", "output/expressionToTypeNode.go", "SyntacticTypeNodeBuilder");
 
 console.log("Done!");
