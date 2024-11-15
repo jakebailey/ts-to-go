@@ -5,6 +5,7 @@ import path from "path";
 import prettyMilliseconds from "pretty-ms";
 import {
     ArrowFunction,
+    AsExpression,
     BinaryExpression,
     Block,
     BodyableNode,
@@ -414,6 +415,17 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         return block?.getParentIfKind(ts.SyntaxKind.FunctionDeclaration)?.getName() === createFunction;
     }
 
+    function isElidedAsExpression(node: AsExpression) {
+        const type = node.getTypeNodeOrThrow();
+        switch (type.getText()) {
+            case "const":
+            case "unknown":
+            case "any":
+                return true;
+        }
+        return false;
+    }
+
     function visitExpression(
         node: Expression,
         inStatement?: boolean,
@@ -448,12 +460,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
         }
         else if (Node.isAsExpression(node)) {
-            const type = node.getTypeNodeOrThrow();
-            if (type.getText() === "const") {
-                // Skip over as const
+            if (isElidedAsExpression(node)) {
                 visitExpression(node.getExpression(), undefined, needBool);
                 return;
             }
+
+            const type = node.getTypeNodeOrThrow();
 
             if (Node.isTypeReference(type) && !Node.isStringLiteral(node.getExpression())) {
                 const entity = type.getTypeName();
@@ -632,6 +644,11 @@ async function convert(filename: string, output: string, mainStruct?: string) {
             }
         }
         else if (Node.isParenthesizedExpression(node)) {
+            if (Node.isAsExpression(node) && isElidedAsExpression(node)) {
+                visitExpression(node.getExpression(), undefined, needBool);
+                return;
+            }
+
             writer.write("(");
             visitExpression(node.getExpression(), undefined, needBool);
             writer.write(")");
@@ -1115,7 +1132,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -1176,7 +1193,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         ["ModifierFlags", "ast.ModifierFlags"],
         ["NodeFlags", "ast.NodeFlags"],
         ["SymbolFlags", "ast.SymbolFlags"],
-    ])
+    ]);
 
     function fixEnumName(originalName: string): string {
         const enumName = enumNames.get(originalName);
@@ -2102,7 +2119,7 @@ async function convert(filename: string, output: string, mainStruct?: string) {
 
     try {
         cp.execFileSync(which.sync("gofmt"), ["-w", "-s", output]);
-        
+
         cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A != $B)", "-r", "$A == $B", output]);
         cp.execFileSync(which.sync("ast-grep"), ["-U", "-p", "!($A == $B)", "-r", "$A != $B", output]);
 

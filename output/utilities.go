@@ -8057,7 +8057,7 @@ func Symbol(this *ast.Symbol, flags SymbolFlags, name string) {
 	this.constEnumOnlyModule = nil
 	this.isReferenced = nil
 	this.lastAssignmentPos = nil
-	(this /* as any */).links = nil
+	(this).links = nil
 	// used by TransientSymbol
 }
 
@@ -8129,31 +8129,31 @@ func SourceMapSource(this SourceMapSource, fileName string, text string, skipTri
 
 var objectAllocator ObjectAllocator = ObjectAllocator{
 	getNodeConstructor: func() any {
-		return Node /* as any */
+		return Node
 	},
 	getTokenConstructor: func() any {
-		return Token /* as any */
+		return Token
 	},
 	getIdentifierConstructor: func() any {
-		return Identifier /* as any */
+		return Identifier
 	},
 	getPrivateIdentifierConstructor: func() any {
-		return Node /* as any */
+		return Node
 	},
 	getSourceFileConstructor: func() any {
-		return Node /* as any */
+		return Node
 	},
 	getSymbolConstructor: func() any {
-		return Symbol /* as any */
+		return Symbol
 	},
 	getTypeConstructor: func() any {
-		return Type /* as any */
+		return Type
 	},
 	getSignatureConstructor: func() any {
-		return Signature /* as any */
+		return Signature
 	},
 	getSourceMapSourceConstructor: func() any {
-		return SourceMapSource /* as any */
+		return SourceMapSource
 	},
 }
 

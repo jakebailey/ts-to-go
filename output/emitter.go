@@ -5493,7 +5493,7 @@ func (printer *Printer) makeName(name Union[GeneratedIdentifier, GeneratedPrivat
 		return printer.makeUniqueName(idText(name), ifElse((autoGenerate.flags&GeneratedIdentifierFlagsFileLevel != 0), printer.isFileLevelUniqueNameInCurrentFile, printer.isUniqueName), autoGenerate.flags&GeneratedIdentifierFlagsOptimistic != 0, autoGenerate.flags&GeneratedIdentifierFlagsReservedInNestedScopes != 0, isPrivateIdentifier(name), prefix, suffix)
 	}
 
-	return Debug.fail(__TEMPLATE__("Unsupported GeneratedIdentifierKind: ", Debug.formatEnum(autoGenerate.flags&GeneratedIdentifierFlagsKindMask, (ts /* as any */).GeneratedIdentifierFlags, true /*isFlags*/), "."))
+	return Debug.fail(__TEMPLATE__("Unsupported GeneratedIdentifierKind: ", Debug.formatEnum(autoGenerate.flags&GeneratedIdentifierFlagsKindMask, (ts).GeneratedIdentifierFlags, true /*isFlags*/), "."))
 }
 
 // Comments

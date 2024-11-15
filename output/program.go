@@ -2177,7 +2177,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 				oldResolved := oldResolution && getResolved(oldResolution)
 				if oldResolved != nil {
 					if isTraceEnabled(options, host) {
-						trace(host, ifElse(resolutionWorker == resolveModuleNamesWorker /* as unknown */, ifElse(oldResolved.packageId != nil, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2), ifElse(oldResolved.packageId != nil, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2)), name, ifElse(containingSourceFile, getNormalizedAbsolutePath(containingSourceFile.originalFileName, currentDirectory), containingFile), oldResolved.resolvedFileName, oldResolved.packageId && packageIdToString(oldResolved.packageId))
+						trace(host, ifElse(resolutionWorker == resolveModuleNamesWorker, ifElse(oldResolved.packageId != nil, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_module_0_from_1_of_old_program_it_was_successfully_resolved_to_2), ifElse(oldResolved.packageId != nil, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2_with_Package_ID_3, Diagnostics.Reusing_resolution_of_type_reference_directive_0_from_1_of_old_program_it_was_successfully_resolved_to_2)), name, ifElse(containingSourceFile, getNormalizedAbsolutePath(containingSourceFile.originalFileName, currentDirectory), containingFile), oldResolved.resolvedFileName, oldResolved.packageId && packageIdToString(oldResolved.packageId))
 					}
 					( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: result ??= new Array(entries.length) */ TODO)[i] = oldResolution
 					( /* TODO(TS-TO-GO) QuestionQuestionEqualsToken BinaryExpression: reusedNames ??= [] */ TODO).push(entry)
@@ -3140,7 +3140,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		if rootNames.length != 0 {
 			return sortAndDeduplicateDiagnostics(getTypeChecker().getGlobalDiagnostics().slice())
 		} else {
-			return emptyArray. /* as any */ (SortedReadonlyArray[Diagnostic])
+			return emptyArray.(SortedReadonlyArray[Diagnostic])
 		}
 	}
 
@@ -3435,7 +3435,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		tracing. /* ? */ push(tracing.Phase.Program, "findSourceFile", &Args{
 			fileName:        fileName,
 			isDefaultLib:    isDefaultLib || nil,
-			fileIncludeKind: (FileIncludeKind /* as any */)[reason.kind],
+			fileIncludeKind: (FileIncludeKind)[reason.kind],
 		})
 		result := findSourceFileWorker(fileName, isDefaultLib, ignoreNoDefaultLib, reason, packageId)
 		tracing. /* ? */ pop()

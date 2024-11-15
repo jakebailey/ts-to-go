@@ -4059,8 +4059,8 @@ func utf16EncodeAsStringFallback(codePoint number) string {
 	return String.fromCharCode(codeUnit1, codeUnit2)
 }
 
-var utf16EncodeAsStringWorker func(codePoint number) string = ifElse((String /* as any */).fromCodePoint, func(codePoint number) any {
-	return (String /* as any */).fromCodePoint(codePoint)
+var utf16EncodeAsStringWorker func(codePoint number) string = ifElse((String).fromCodePoint, func(codePoint number) any {
+	return (String).fromCodePoint(codePoint)
 }, utf16EncodeAsStringFallback)
 
 /** @internal */

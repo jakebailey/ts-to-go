@@ -5971,7 +5971,7 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 					return appendReferenceToType(parentName /* as TypeReferenceNode | ImportTypeNode */, factory.createTypeReferenceNode(memberName, nil /*typeArguments*/))
 				}
 				if isImportTypeNode(parentName) {
-					(parentName /* as any */).isTypeOf = true
+					(parentName).isTypeOf = true
 					// mutably update, node is freshly manufactured anyhow
 					return factory.createIndexedAccessTypeNode(parentName, factory.createLiteralTypeNode(factory.createStringLiteral(memberName)))
 				} else if isTypeReferenceNode(parentName) {
@@ -10090,10 +10090,10 @@ func (c *Checker) createNodeBuilder() /* TODO(TS-TO-GO) inferred type { typeToTy
 						}
 						results.push(setTextRange(context, decl, location))
 					}
-					return results /* as unknown */ /* as T[] */
+					return results /* as T[] */
 				}
 				// The `Constructor`'s symbol isn't in the class's properties lists, obviously, since it's a signature on the static
-				return Debug.fail(__TEMPLATE__("Unhandled class member kind! ", (p /* as any */).__debugFlags || p.flags))
+				return Debug.fail(__TEMPLATE__("Unhandled class member kind! ", (p).__debugFlags || p.flags))
 			}
 		}
 
@@ -51399,7 +51399,7 @@ func (c *Checker) getTypeFromJSDocVariadicType(node JSDocVariadicType) *Type {
 			*/
 			var lastParamDeclaration * /* TODO(TS-TO-GO) inferred type ParameterDeclaration | JSDocParameterTag */ any
 			if isCallbackTag {
-				lastParamDeclaration = lastOrUndefined((paramTag.parent.parent. /* as unknown */ AsJSDocCallbackTag()).typeExpression.parameters)
+				lastParamDeclaration = lastOrUndefined((paramTag.parent.parent.AsJSDocCallbackTag()).typeExpression.parameters)
 			} else {
 				lastParamDeclaration = lastOrUndefined(host.parameters)
 			}
