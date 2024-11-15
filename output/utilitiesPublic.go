@@ -335,7 +335,7 @@ func isParameterPropertyDeclaration(node *ast.Node, parent *ast.Node) bool {
 
 func isEmptyBindingPattern(node BindingName) bool {
 	if isBindingPattern(node) {
-		return every(node.Elements, isEmptyBindingElement)
+		return core.Every(node.Elements, isEmptyBindingElement)
 	}
 	return false
 }
@@ -671,7 +671,7 @@ func nodeHasName(statement *ast.Node, name Identifier) bool {
 	if isNamedDeclaration(statement) && isIdentifier(statement.Name) && idText(statement.Name.AsIdentifier()) == idText(name) {
 		return true
 	}
-	if isVariableStatement(statement) && some(statement.DeclarationList.Declarations, func(d VariableDeclaration) bool {
+	if isVariableStatement(statement) && core.Some(statement.DeclarationList.Declarations, func(d VariableDeclaration) bool {
 		return nodeHasName(d, name)
 	}) {
 		return true
@@ -766,13 +766,13 @@ func getAssignedName(node *ast.Node) *DeclarationName {
 
 func getDecorators(node HasDecorators) *[]Decorator {
 	if hasDecorators(node) {
-		return filter(node.Modifiers, isDecorator)
+		return core.Filter(node.Modifiers, isDecorator)
 	}
 }
 
 func getModifiers(node HasModifiers) *[]Modifier {
 	if hasSyntacticModifier(node, ast.ModifierFlagsModifier) {
-		return filter(node.Modifiers, isModifier)
+		return core.Filter(node.Modifiers, isModifier)
 	}
 }
 
@@ -996,7 +996,7 @@ func getJSDocTypeTag(node *ast.Node) *JSDocTypeTag {
 func getJSDocType(node *ast.Node) *TypeNode {
 	var tag Union[JSDocTypeTag, JSDocParameterTag, undefined] = getFirstJSDocTag(node, isJSDocTypeTag)
 	if tag == nil && isParameter(node) {
-		tag = find(getJSDocParameterTags(node), func(tag JSDocParameterTag) bool {
+		tag = core.Find(getJSDocParameterTags(node), func(tag JSDocParameterTag) bool {
 			return tag.TypeExpression != nil
 		})
 	}
@@ -1020,7 +1020,7 @@ func getJSDocReturnType(node *ast.Node) *TypeNode {
 	if typeTag != nil && typeTag.TypeExpression {
 		t := typeTag.TypeExpression.Type_
 		if isTypeLiteralNode(t) {
-			sig := find(t.Members, isCallSignatureDeclaration)
+			sig := core.Find(t.Members, isCallSignatureDeclaration)
 			return sig && sig.Type_
 		}
 		if isFunctionTypeNode(t) || isJSDocFunctionType(t) {
@@ -1064,7 +1064,7 @@ func getJSDocTags(node *ast.Node) []JSDocTag {
 /** Get the first JSDoc tag of a specified kind, or undefined if not present. */
 
 func getFirstJSDocTag(node *ast.Node, predicate func(tag JSDocTag) /* TODO(TS-TO-GO) TypeNode TypePredicate: tag is T */ any, noCache bool) *T {
-	return find(getJSDocTagsWorker(node, noCache), predicate)
+	return core.Find(getJSDocTagsWorker(node, noCache), predicate)
 }
 
 /** Gets all JSDoc tags that match a specified predicate */
@@ -1934,7 +1934,7 @@ func isScopeMarker(node *ast.Node) bool {
 /** @internal */
 
 func hasScopeMarker(statements []Statement) bool {
-	return some(statements, isScopeMarker)
+	return core.Some(statements, isScopeMarker)
 }
 
 /** @internal */
@@ -2381,11 +2381,11 @@ func isInternalDeclaration(node *ast.Node, sourceFile SourceFile) bool {
 		text := sourceFile.Text
 		var commentRanges *[]CommentRange
 		if previousSibling != nil {
-			commentRanges = concatenate(getTrailingCommentRanges(text, skipTrivia(text, previousSibling.End+1, false /*stopAfterLineBreak*/, true /*stopAtComments*/)), getLeadingCommentRanges(text, node.Pos))
+			commentRanges = core.Concatenate(getTrailingCommentRanges(text, skipTrivia(text, previousSibling.End+1, false /*stopAfterLineBreak*/, true /*stopAtComments*/)), getLeadingCommentRanges(text, node.Pos))
 		} else {
 			commentRanges = getTrailingCommentRanges(text, skipTrivia(text, node.Pos, false /*stopAfterLineBreak*/, true /*stopAtComments*/))
 		}
-		return some(commentRanges) && hasInternalAnnotation(last(commentRanges), sourceFile)
+		return core.Some(commentRanges) && hasInternalAnnotation(core.LastOrNil(commentRanges), sourceFile)
 	}
 	leadingCommentRanges := parseTreeNode && getLeadingCommentRangesOfNode(parseTreeNode, sourceFile)
 	return forEach(leadingCommentRanges, func(range_ CommentRange) bool {

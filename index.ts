@@ -593,7 +593,36 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 }
             }
 
-            visitExpression(expression);
+            
+            if (Node.isIdentifier(expression)) {
+                const newName = {
+                    "some": "core.Some",
+                    "filter": "core.Filter",
+                    "concatenate": "core.Concatenate",
+                    "map": "core.Map",
+                    "sameMap": "core.SameMap",
+                    "every": "core.Every",
+                    "find": "core.Find",
+                    "findIndex": "core.FindIndex",
+                    "findLast": "core.FindLast",
+                    "findLastIndex": "core.FindLastIndex",
+                    "first": "core.FirstOrNil",
+                    "last": "core.LastOrNil",
+                    "countWhere": "core.CountWhere",
+                    "memoize": "core.Memoize",
+                    "replaceElement": "core.ReplaceElement",
+                    "insertSorted": "core.InsertSorted",
+                    "appendIfUnique": "core.AppendIfUnique",
+                }[expression.getText()];
+                if (newName) {
+                    writer.write(newName);
+                } else {
+                    visitExpression(expression);
+                }
+            } else {
+                visitExpression(expression);
+            }
+
             writer.write("(");
             const args = node.getArguments();
             for (let i = 0; i < args.length; i++) {

@@ -355,7 +355,7 @@ func getCommonSourceDirectory(options CompilerOptions, emittedFiles func() []str
 
 func getCommonSourceDirectoryOfConfig(TODO_IDENTIFIER ParsedCommandLine, ignoreCase bool) string {
 	return getCommonSourceDirectory(options, func() []string {
-		return filter(fileNames, func(file string) bool {
+		return core.Filter(fileNames, func(file string) bool {
 			return !(options.noEmitForJsFiles && fileExtensionIsOneOf(file, supportedJSExtensionsFlat)) && !isDeclarationFileName(file)
 		})
 	}, getDirectoryPath(normalizeSlashes(Debug.checkDefined(options.configFilePath))), createGetCanonicalFileName(!ignoreCase))
@@ -368,7 +368,7 @@ func getAllProjectOutputs(configFile ParsedCommandLine, ignoreCase bool) []strin
 	if configFile.options.outFile {
 		getSingleOutputFileNames(configFile, addOutput)
 	} else {
-		getCommonSourceDirectory := memoize(func() string {
+		getCommonSourceDirectory := core.Memoize(func() string {
 			return getCommonSourceDirectoryOfConfig(configFile, ignoreCase)
 		})
 		for _, inputFileName := range configFile.fileNames {
@@ -399,7 +399,7 @@ func getFirstProjectOutput(configFile ParsedCommandLine, ignoreCase bool) string
 		return Debug.checkDefined(jsFilePath || declarationFilePath, __TEMPLATE__("project ", configFile.options.configFilePath, " expected to have at least one output"))
 	}
 
-	getCommonSourceDirectory := memoize(func() string {
+	getCommonSourceDirectory := core.Memoize(func() string {
 		return getCommonSourceDirectoryOfConfig(configFile, ignoreCase)
 	})
 	for _, inputFileName := range configFile.fileNames {
@@ -519,7 +519,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 			return
 		}
 
-		(ifElse(isSourceFile(sourceFileOrBundle), [] /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any{sourceFileOrBundle}, filter(sourceFileOrBundle.SourceFiles, isSourceFileNotJson))).forEach(func(sourceFile /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any) {
+		(ifElse(isSourceFile(sourceFileOrBundle), [] /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any{sourceFileOrBundle}, core.Filter(sourceFileOrBundle.SourceFiles, isSourceFileNotJson))).forEach(func(sourceFile /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any) {
 			if compilerOptions.noCheck || !canIncludeBindAndCheckDiagnostics(sourceFile, compilerOptions) {
 				markLinkedReferences(sourceFile)
 			}
@@ -585,7 +585,7 @@ func emitFiles(resolver EmitResolver, host EmitHost, targetSourceFile *SourceFil
 		if forceDtsEmit {
 			filesForEmit = sourceFiles
 		} else {
-			filesForEmit = filter(sourceFiles, isSourceFileNotJson)
+			filesForEmit = core.Filter(sourceFiles, isSourceFileNotJson)
 		}
 		// Setup and perform the transformation to retrieve declarations from the input files
 		var inputListOrBundle [] /* TODO(TS-TO-GO) inferred type ts.SourceFile[] | ts.Bundle */ any
@@ -905,13 +905,13 @@ const (
 
 /** @internal */
 
-var createPrinterWithDefaults func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
+var createPrinterWithDefaults func() Printer = core.Memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
 	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{})
 })
 
 /** @internal */
 
-var createPrinterWithRemoveComments func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
+var createPrinterWithRemoveComments func() Printer = core.Memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
 	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
 		removeComments: true,
 	})
@@ -919,7 +919,7 @@ var createPrinterWithRemoveComments func() Printer = memoize(func() /* TODO(TS-T
 
 /** @internal */
 
-var createPrinterWithRemoveCommentsNeverAsciiEscape func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
+var createPrinterWithRemoveCommentsNeverAsciiEscape func() Printer = core.Memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
 	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
 		removeComments:   true,
 		neverAsciiEscape: true,
@@ -928,7 +928,7 @@ var createPrinterWithRemoveCommentsNeverAsciiEscape func() Printer = memoize(fun
 
 /** @internal */
 
-var createPrinterWithRemoveCommentsOmitTrailingSemicolon func() Printer = memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
+var createPrinterWithRemoveCommentsOmitTrailingSemicolon func() Printer = core.Memoize(func() /* TODO(TS-TO-GO) inferred type ts.Printer */ any {
 	return createPrinter(& /* TODO(TS-TO-GO) inferred type ts.PrinterOptions */ any{
 		removeComments:        true,
 		omitTrailingSemicolon: true,
@@ -3002,15 +3002,15 @@ func (printer *Printer) willEmitLeadingNewLine(node Expression) bool {
 			return true
 		}
 	}
-	if some(leadingCommentRanges, printer.commentWillEmitNewLine) {
+	if core.Some(leadingCommentRanges, printer.commentWillEmitNewLine) {
 		return true
 	}
-	if some(getSyntheticLeadingComments(node), printer.commentWillEmitNewLine) {
+	if core.Some(getSyntheticLeadingComments(node), printer.commentWillEmitNewLine) {
 		return true
 	}
 	if isPartiallyEmittedExpression(node) {
 		if node.Pos != node.Expression.Pos {
-			if some(getTrailingCommentRanges(printer.currentSourceFile.Text, node.Expression.Pos), printer.commentWillEmitNewLine) {
+			if core.Some(getTrailingCommentRanges(printer.currentSourceFile.Text, node.Expression.Pos), printer.commentWillEmitNewLine) {
 				return true
 			}
 		}
@@ -4061,7 +4061,7 @@ func (printer *Printer) emitSourceFileWorker(node SourceFile) {
 	printer.pushNameGenerationScope(node)
 	forEach(node.Statements, printer.generateNames)
 	printer.emitHelpers(node)
-	index := findIndex(statements, func(statement /* TODO(TS-TO-GO) inferred type ts.Statement */ any) bool {
+	index := core.FindIndex(statements, func(statement /* TODO(TS-TO-GO) inferred type ts.Statement */ any) bool {
 		return !isPrologueDirective(statement)
 	})
 	printer.emitTripleSlashDirectivesIfNeeded(node)
@@ -4168,12 +4168,12 @@ func (printer *Printer) emitNodeWithWriter(node *ast.Node, writer /* TODO(TS-TO-
 
 func (printer *Printer) emitDecoratorsAndModifiers(node *ast.Node, modifiers *NodeArray[ModifierLike], allowDecorators bool) number {
 	if modifiers. /* ? */ length {
-		if every(modifiers, isModifier) {
+		if core.Every(modifiers, isModifier) {
 			// if all modifier-likes are `Modifier`, simply emit the array as modifiers.
 			return printer.emitModifierList(node, modifiers.(NodeArray[Modifier]))
 		}
 
-		if every(modifiers, isDecorator) {
+		if core.Every(modifiers, isDecorator) {
 			if allowDecorators {
 				// if all modifier-likes are `Decorator`, simply emit the array as decorators.
 				return printer.emitDecoratorList(node, modifiers.(NodeArray[Decorator]))
@@ -4332,7 +4332,7 @@ func (printer *Printer) emitParameters(parentNode *ast.Node, parameters NodeArra
 
 func (printer *Printer) canEmitSimpleArrowHead(parentNode Union[FunctionTypeNode, ConstructorTypeNode, ArrowFunction], parameters NodeArray[ParameterDeclaration]) *bool {
 	parameter := singleOrUndefined(parameters)
-	return parameter && parameter.Pos == parentNode.Pos && isArrowFunction(parentNode) && parentNode.Type_ == nil && !some(parentNode.Modifiers) && !some(parentNode.TypeParameters) && !some(parameter.Modifiers) && parameter.DotDotDotToken == nil && parameter.QuestionToken == nil && parameter.Type_ == nil && parameter.Initializer == nil && isIdentifier(parameter.Name)
+	return parameter && parameter.Pos == parentNode.Pos && isArrowFunction(parentNode) && parentNode.Type_ == nil && !core.Some(parentNode.Modifiers) && !core.Some(parentNode.TypeParameters) && !core.Some(parameter.Modifiers) && parameter.DotDotDotToken == nil && parameter.QuestionToken == nil && parameter.Type_ == nil && parameter.Initializer == nil && isIdentifier(parameter.Name)
 	// parameter name must be identifier
 }
 
@@ -5837,7 +5837,7 @@ func (printer *Printer) forEachTrailingCommentToEmit(end number, cb func(comment
 }
 
 func (printer *Printer) hasDetachedComments(pos number) bool {
-	return printer.detachedCommentsInfo != nil && last(printer.detachedCommentsInfo).nodePos == pos
+	return printer.detachedCommentsInfo != nil && core.LastOrNil(printer.detachedCommentsInfo).nodePos == pos
 }
 
 func (printer *Printer) forEachLeadingCommentWithoutDetachedComments(cb func(commentPos number, commentEnd number, kind SyntaxKind, hasTrailingNewLine bool, rangePos number)) {
@@ -5845,7 +5845,7 @@ func (printer *Printer) forEachLeadingCommentWithoutDetachedComments(cb func(com
 		return
 	}
 	// get the leading comments from detachedPos
-	pos := last(printer.detachedCommentsInfo).detachedCommentEndPos
+	pos := core.LastOrNil(printer.detachedCommentsInfo).detachedCommentEndPos
 	if printer.detachedCommentsInfo.length-1 != 0 {
 		printer.detachedCommentsInfo.pop()
 	} else {

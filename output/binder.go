@@ -348,7 +348,7 @@ func (b *Binder) addDeclarationToSymbol(symbol *ast.Symbol, node Declaration, sy
 	symbol.Flags |= symbolFlags
 
 	node.Symbol = symbol
-	symbol.Declarations = appendIfUnique(symbol.Declarations, node)
+	symbol.Declarations = core.AppendIfUnique(symbol.Declarations, node)
 
 	if symbolFlags&(ast.SymbolFlagsClass|ast.SymbolFlagsEnum|ast.SymbolFlagsModule|ast.SymbolFlagsVariable) != 0 && symbol.Exports == nil {
 		symbol.Exports = createSymbolTable()
@@ -1395,7 +1395,7 @@ func (b *Binder) bindTryStatement(node TryStatement) {
 		// set of antecedents for the pre-finally label. As control flow analysis passes by a ReduceLabel
 		// node, the pre-finally label is temporarily switched to the reduced antecedent set.
 		finallyLabel := b.createBranchLabel()
-		finallyLabel.antecedent = concatenate(concatenate(normalExitLabel.antecedent, exceptionLabel.antecedent), returnLabel.antecedent)
+		finallyLabel.antecedent = core.Concatenate(core.Concatenate(normalExitLabel.antecedent, exceptionLabel.antecedent), returnLabel.antecedent)
 		b.currentFlow = finallyLabel
 		b.bind(node.FinallyBlock)
 		if b.currentFlow.flags&FlowFlagsUnreachable != 0 {
@@ -2857,7 +2857,7 @@ func (b *Binder) bindExportAssignment(node ExportAssignment) {
 }
 
 func (b *Binder) bindNamespaceExportDeclaration(node NamespaceExportDeclaration) {
-	if some(node.Modifiers) {
+	if core.Some(node.Modifiers) {
 		b.file.BindDiagnostics.push(b.createDiagnosticForNode(node, Diagnostics.Modifiers_cannot_appear_here))
 	}
 	var diag any
@@ -2967,7 +2967,7 @@ func (b *Binder) bindModuleExportsAssignment(node BindablePropertyAssignmentExpr
 		return
 	}
 
-	if isObjectLiteralExpression(assignedExpression) && every(assignedExpression.Properties, isShorthandPropertyAssignment) {
+	if isObjectLiteralExpression(assignedExpression) && core.Every(assignedExpression.Properties, isShorthandPropertyAssignment) {
 		forEach(assignedExpression.Properties, b.bindExportAssignedObjectMemberAlias)
 		return
 	}
@@ -3207,7 +3207,7 @@ func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration Union[Bi
 		includes = ast.SymbolFlagsMethod
 		excludes = ast.SymbolFlagsMethodExcludes
 	} else if isCallExpression(declaration) && isBindableObjectDefinePropertyCall(declaration) {
-		if some(declaration.Arguments[2].Properties, func(p /* TODO(TS-TO-GO) inferred type MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment */ any) bool {
+		if core.Some(declaration.Arguments[2].Properties, func(p /* TODO(TS-TO-GO) inferred type MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment */ any) bool {
 			id := getNameOfDeclaration(p)
 			return id != nil && isIdentifier(id) && idText(id) == "set"
 		}) {
@@ -3216,7 +3216,7 @@ func (b *Binder) bindPotentiallyNewExpandoMemberToNamespace(declaration Union[Bi
 			includes |= ast.SymbolFlagsSetAccessor | ast.SymbolFlagsProperty
 			excludes |= ast.SymbolFlagsSetAccessorExcludes
 		}
-		if some(declaration.Arguments[2].Properties, func(p /* TODO(TS-TO-GO) inferred type MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment */ any) bool {
+		if core.Some(declaration.Arguments[2].Properties, func(p /* TODO(TS-TO-GO) inferred type MethodDeclaration | GetAccessorDeclaration | SetAccessorDeclaration | PropertyAssignment | ShorthandPropertyAssignment | SpreadAssignment */ any) bool {
 			id := getNameOfDeclaration(p)
 			return id != nil && isIdentifier(id) && idText(id) == "get"
 		}) {

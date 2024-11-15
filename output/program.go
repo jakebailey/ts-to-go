@@ -163,7 +163,7 @@ func createCompilerHostWorker(options CompilerOptions, setParentNodes bool, syst
 		}, func(path string) bool {
 			return directoryExists(path)
 		}),
-		getCurrentDirectory: memoize(func() string {
+		getCurrentDirectory: core.Memoize(func() string {
 			return system.getCurrentDirectory()
 		}),
 		useCaseSensitiveFileNames: func() bool {
@@ -1310,7 +1310,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 	}
 
-	reportInvalidIgnoreDeprecations := memoize(func() {
+	reportInvalidIgnoreDeprecations := core.Memoize(func() {
 		return createOptionValueDiagnostic("ignoreDeprecations", Diagnostics.Invalid_value_for_ignoreDeprecations)
 	})
 
@@ -1374,7 +1374,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	configParsingHost := parseConfigHostFromCompilerHostLike(host)
 
 	skipDefaultLib := options.noLib
-	getDefaultLibraryFileName := memoize(func() string {
+	getDefaultLibraryFileName := core.Memoize(func() string {
 		return host.getDefaultLibFileName(options)
 	})
 	var defaultLibraryPath string
@@ -1551,7 +1551,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 								index: index,
 							})
 						} else if getEmitModuleKind(parsedRef.commandLine.options) == ModuleKindNone {
-							getCommonSourceDirectory := memoize(func() string {
+							getCommonSourceDirectory := core.Memoize(func() string {
 								return getCommonSourceDirectoryOfConfig(parsedRef.commandLine, !host.useCaseSensitiveFileNames())
 							})
 							for _, fileName := range parsedRef.commandLine.fileNames {
@@ -2052,7 +2052,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 	getCommonSourceDirectory := func() string {
 		if commonSourceDirectory == nil {
-			emittedFiles := filter(files, func(file SourceFile) bool {
+			emittedFiles := core.Filter(files, func(file SourceFile) bool {
 				return sourceFileMayBeEmitted(file, program)
 			})
 			commonSourceDirectory = ts_getCommonSourceDirectory(options, func() []string {
@@ -2599,7 +2599,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		if options.lib == nil {
 			return equalityComparer(file.FileName, getDefaultLibraryFileName())
 		} else {
-			return some(options.lib, func(libFileName string) bool {
+			return core.Some(options.lib, func(libFileName string) bool {
 				// We might not have resolved lib if one of the root file included contained no-default-lib = true
 				resolvedLib := resolvedLibReferences.get(libFileName)
 				return resolvedLib != nil && equalityComparer(file.FileName, resolvedLib.actual)
@@ -2718,7 +2718,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			if sourceFile.AdditionalSyntacticDiagnostics == nil {
 				sourceFile.AdditionalSyntacticDiagnostics = getJSSyntacticDiagnosticsForFile(sourceFile)
 			}
-			return concatenate(sourceFile.AdditionalSyntacticDiagnostics, sourceFile.ParseDiagnostics)
+			return core.Concatenate(sourceFile.AdditionalSyntacticDiagnostics, sourceFile.ParseDiagnostics)
 		}
 		return sourceFile.ParseDiagnostics
 	}
@@ -2739,7 +2739,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	getSemanticDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*ast.Node) []Diagnostic {
-		return concatenate(filterSemanticDiagnostics(getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken, nodesToCheck), options), getProgramDiagnostics(sourceFile))
+		return core.Concatenate(filterSemanticDiagnostics(getBindAndCheckDiagnosticsForFile(sourceFile, cancellationToken, nodesToCheck), options), getProgramDiagnostics(sourceFile))
 	}
 
 	getBindAndCheckDiagnosticsForFile := func(sourceFile SourceFile, cancellationToken CancellationToken, nodesToCheck *[]*ast.Node) []Diagnostic {
@@ -2770,10 +2770,10 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 			bindDiagnostics := sourceFile.BindDiagnostics
 			checkDiagnostics := typeChecker.getDiagnostics(sourceFile, cancellationToken, nodesToCheck)
 			if isPlainJs {
-				bindDiagnostics = filter(bindDiagnostics, func(d DiagnosticWithLocation) bool {
+				bindDiagnostics = core.Filter(bindDiagnostics, func(d DiagnosticWithLocation) bool {
 					return plainJSErrors.has(d.code)
 				})
-				checkDiagnostics = filter(checkDiagnostics, func(d Diagnostic) bool {
+				checkDiagnostics = core.Filter(checkDiagnostics, func(d Diagnostic) bool {
 					return plainJSErrors.has(d.code)
 				})
 			}
@@ -2973,26 +2973,26 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 			walkArray := func(nodes NodeArray[*ast.Node], parent *ast.Node) * /* TODO(TS-TO-GO) inferred type "skip" */ any {
 				if canHaveIllegalDecorators(parent) {
-					decorator := find(parent.Modifiers, isDecorator)
+					decorator := core.Find(parent.Modifiers, isDecorator)
 					if decorator != nil {
 						// report illegal decorator
 						diagnostics.push(createDiagnosticForNode(decorator, Diagnostics.Decorators_are_not_valid_here))
 					}
 				} else if canHaveDecorators(parent) && parent.Modifiers != nil {
-					decoratorIndex := findIndex(parent.Modifiers, isDecorator)
+					decoratorIndex := core.FindIndex(parent.Modifiers, isDecorator)
 					if decoratorIndex >= 0 {
 						if isParameter(parent) && !options.experimentalDecorators {
 							// report illegall decorator on parameter
 							diagnostics.push(createDiagnosticForNode(parent.Modifiers[decoratorIndex], Diagnostics.Decorators_are_not_valid_here))
 						} else if isClassDeclaration(parent) {
-							exportIndex := findIndex(parent.Modifiers, isExportModifier)
+							exportIndex := core.FindIndex(parent.Modifiers, isExportModifier)
 							if exportIndex >= 0 {
-								defaultIndex := findIndex(parent.Modifiers, isDefaultModifier)
+								defaultIndex := core.FindIndex(parent.Modifiers, isDefaultModifier)
 								if decoratorIndex > exportIndex && defaultIndex >= 0 && decoratorIndex < defaultIndex {
 									// report illegal decorator between `export` and `default`
 									diagnostics.push(createDiagnosticForNode(parent.Modifiers[decoratorIndex], Diagnostics.Decorators_are_not_valid_here))
 								} else if exportIndex >= 0 && decoratorIndex < exportIndex {
-									trailingDecoratorIndex := findIndex(parent.Modifiers, isDecorator, exportIndex)
+									trailingDecoratorIndex := core.FindIndex(parent.Modifiers, isDecorator, exportIndex)
 									if trailingDecoratorIndex >= 0 {
 										diagnostics.push(addRelatedInfo(createDiagnosticForNode(parent.Modifiers[trailingDecoratorIndex], Diagnostics.Decorators_may_not_appear_after_export_or_export_default_if_they_also_appear_before_export), createDiagnosticForNode(parent.Modifiers[decoratorIndex], Diagnostics.Decorator_used_before_export_here)))
 									}
@@ -3036,7 +3036,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					}
 				case ast.KindParameter:
 					// Check modifiers of parameter declaration
-					if nodes == parent.AsParameterDeclaration().Modifiers && some(nodes, isModifier) {
+					if nodes == parent.AsParameterDeclaration().Modifiers && core.Some(nodes, isModifier) {
 						diagnostics.push(createDiagnosticForNodeArray(nodes, Diagnostics.Parameter_modifiers_can_only_be_used_in_TypeScript_files))
 						return "skip"
 					}
@@ -3122,7 +3122,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	getOptionsDiagnostics := func() SortedReadonlyArray[Diagnostic] {
-		return sortAndDeduplicateDiagnostics(concatenate(updateAndGetProgramDiagnostics().getGlobalDiagnostics(), getOptionsDiagnosticsOfConfigFile()))
+		return sortAndDeduplicateDiagnostics(core.Concatenate(updateAndGetProgramDiagnostics().getGlobalDiagnostics(), getOptionsDiagnosticsOfConfigFile()))
 	}
 
 	getOptionsDiagnosticsOfConfigFile := func() []DiagnosticWithLocation {
@@ -3131,7 +3131,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 		}
 		diagnostics := updateAndGetProgramDiagnostics().getDiagnostics(options.configFile.FileName)
 		forEachResolvedProjectReference(func(resolvedRef ResolvedProjectReference) {
-			diagnostics = concatenate(diagnostics, updateAndGetProgramDiagnostics().getDiagnostics(resolvedRef.sourceFile.FileName))
+			diagnostics = core.Concatenate(diagnostics, updateAndGetProgramDiagnostics().getDiagnostics(resolvedRef.sourceFile.FileName))
 		})
 		return diagnostics
 	}
@@ -3403,7 +3403,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 	}
 
 	reportFileNamesDifferOnlyInCasingError := func(fileName string, existingFile SourceFile, reason FileIncludeReason) {
-		hasExistingReasonToReportErrorOn := !isReferencedFile(reason) && some(fileReasons.get(existingFile.Path), isReferencedFile)
+		hasExistingReasonToReportErrorOn := !isReferencedFile(reason) && core.Some(fileReasons.get(existingFile.Path), isReferencedFile)
 		if hasExistingReasonToReportErrorOn {
 			addFilePreprocessingFileExplainingDiagnostic(existingFile, reason, Diagnostics.Already_included_file_name_0_differs_from_file_name_1_only_in_casing, []string{existingFile.FileName, fileName})
 		} else {
@@ -3721,7 +3721,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 					outputDts := changeExtension(out, ExtensionDts)
 					mapFromToProjectReferenceRedirectSource.set(toPath(outputDts), true)
 				} else {
-					getCommonSourceDirectory := memoize(func() string {
+					getCommonSourceDirectory := core.Memoize(func() string {
 						return getCommonSourceDirectoryOfConfig(resolvedRef.commandLine, !host.useCaseSensitiveFileNames())
 					})
 					forEach(resolvedRef.commandLine.fileNames, func(fileName string) {
@@ -4114,7 +4114,7 @@ func createProgram(rootNamesOrOptions Union[[]string, CreateProgramOptions], _op
 
 		languageVersion := getEmitScriptTarget(options)
 
-		firstNonAmbientExternalModuleSourceFile := find(files, func(f SourceFile) bool {
+		firstNonAmbientExternalModuleSourceFile := core.Find(files, func(f SourceFile) bool {
 			return isExternalModule(f) && !f.IsDeclarationFile
 		})
 		if options.isolatedModules || options.verbatimModuleSyntax {
@@ -5187,7 +5187,7 @@ func handleNoEmitOptions(program Union[Program, T], sourceFile *SourceFile, writ
 /** @internal */
 
 func filterSemanticDiagnostics(diagnostic []Diagnostic, option CompilerOptions) []Diagnostic {
-	return filter(diagnostic, func(d Diagnostic) bool {
+	return core.Filter(diagnostic, func(d Diagnostic) bool {
 		return !d.skippedOn || !option[d.skippedOn]
 	})
 }

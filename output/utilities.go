@@ -36,7 +36,7 @@ func getDeclarationOfKind(symbol *ast.Symbol, kind /* TODO(TS-TO-GO) TypeNode In
 /** @internal */
 
 func getDeclarationsOfKind(symbol *ast.Symbol, kind /* TODO(TS-TO-GO) TypeNode IndexedAccessType: T["kind"] */ any) []T {
-	return filter(symbol.Declarations || emptyArray, func(d Declaration) bool {
+	return core.Filter(symbol.Declarations || emptyArray, func(d Declaration) bool {
 		return d.Kind == kind
 	}) /* as T[] */
 }
@@ -740,7 +740,7 @@ func getTokenPosOfNode(node *ast.Node, sourceFile SourceFileLike, includeJsDoc b
 func getNonDecoratorTokenPosOfNode(node *ast.Node, sourceFile SourceFileLike) number {
 	var lastDecorator *Decorator
 	if !nodeIsMissing(node) && canHaveModifiers(node) {
-		lastDecorator = findLast(node.Modifiers, isDecorator)
+		lastDecorator = core.FindLast(node.Modifiers, isDecorator)
 	} else {
 		lastDecorator = nil
 	}
@@ -756,7 +756,7 @@ func getNonDecoratorTokenPosOfNode(node *ast.Node, sourceFile SourceFileLike) nu
 func getNonModifierTokenPosOfNode(node *ast.Node, sourceFile SourceFileLike) number {
 	var lastModifier * /* TODO(TS-TO-GO) inferred type Decorator | AbstractKeyword | AccessorKeyword | AsyncKeyword | ConstKeyword | DeclareKeyword | DefaultKeyword | ExportKeyword | InKeyword | PrivateKeyword | ProtectedKeyword | PublicKeyword | OutKeyword | OverrideKeyword | ReadonlyKeyword | StaticKeyword */ any
 	if !nodeIsMissing(node) && canHaveModifiers(node) && node.Modifiers != nil {
-		lastModifier = last(node.Modifiers)
+		lastModifier = core.LastOrNil(node.Modifiers)
 	} else {
 		lastModifier = nil
 	}
@@ -883,7 +883,7 @@ type ScriptTargetFeatures ReadonlyMap[string, ReadonlyMap[string, []string]]
 
 /** @internal */
 
-var getScriptTargetFeatures func() ScriptTargetFeatures = memoize(func() ScriptTargetFeatures {
+var getScriptTargetFeatures func() ScriptTargetFeatures = core.Memoize(func() ScriptTargetFeatures {
 	return NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 		"Array": NewMap(Object.entries(map[any]any{ /* TODO(TS-TO-GO): was object literal */
 			"es2015": []string{"find", "findIndex", "fill", "copyWithin", "entries", "keys", "values"},
@@ -1926,7 +1926,7 @@ func isHoistedVariable(node VariableDeclaration) bool {
 /** @internal */
 
 func isHoistedVariableStatement(node Statement) bool {
-	return isCustomPrologue(node) && isVariableStatement(node) && every(node.DeclarationList.Declarations, isHoistedVariable)
+	return isCustomPrologue(node) && isVariableStatement(node) && core.Every(node.DeclarationList.Declarations, isHoistedVariable)
 }
 
 /** @internal */
@@ -1944,12 +1944,12 @@ func getLeadingCommentRangesOfNode(node *ast.Node, sourceFileOfNode SourceFile) 
 func getJSDocCommentRanges(node *ast.Node, text string) *[]CommentRange {
 	var commentRanges *[]CommentRange
 	if node.Kind == ast.KindParameter || node.Kind == ast.KindTypeParameter || node.Kind == ast.KindFunctionExpression || node.Kind == ast.KindArrowFunction || node.Kind == ast.KindParenthesizedExpression || node.Kind == ast.KindVariableDeclaration || node.Kind == ast.KindExportSpecifier {
-		commentRanges = concatenate(getTrailingCommentRanges(text, node.Pos), getLeadingCommentRanges(text, node.Pos))
+		commentRanges = core.Concatenate(getTrailingCommentRanges(text, node.Pos), getLeadingCommentRanges(text, node.Pos))
 	} else {
 		commentRanges = getLeadingCommentRanges(text, node.Pos)
 	}
 	// True if the comment starts with '/**' but not if it is '/**/'
-	return filter(commentRanges, func(comment CommentRange) bool {
+	return core.Filter(commentRanges, func(comment CommentRange) bool {
 		return comment.end <= node.End && text.charCodeAt(comment.pos+1) == CharacterCodesasterisk && text.charCodeAt(comment.pos+2) == CharacterCodesasterisk && text.charCodeAt(comment.pos+3) != CharacterCodesslash
 	})
 }
@@ -2297,7 +2297,7 @@ func forEachPropertyAssignment(objectLiteral *ObjectLiteralExpression, key strin
 func getPropertyArrayElementValue(objectLiteral ObjectLiteralExpression, propKey string, elementValue string) *StringLiteral {
 	return forEachPropertyAssignment(objectLiteral, propKey, func(property PropertyAssignment) *StringLiteral {
 		if isArrayLiteralExpression(property.Initializer) {
-			return find(property.Initializer.Elements, func(element Expression) bool {
+			return core.Find(property.Initializer.Elements, func(element Expression) bool {
 				return isStringLiteral(element) && element.Text == elementValue
 			})
 		} else {
@@ -2320,7 +2320,7 @@ func getTsConfigObjectLiteralExpression(tsConfigSourceFile *TsConfigSourceFile) 
 func getTsConfigPropArrayElementValue(tsConfigSourceFile *TsConfigSourceFile, propKey string, elementValue string) *StringLiteral {
 	return forEachTsConfigPropArray(tsConfigSourceFile, propKey, func(property PropertyAssignment) *StringLiteral {
 		if isArrayLiteralExpression(property.Initializer) {
-			return find(property.Initializer.Elements, func(element Expression) bool {
+			return core.Find(property.Initializer.Elements, func(element Expression) bool {
 				return isStringLiteral(element) && element.Text == elementValue
 			})
 		} else {
@@ -2759,17 +2759,17 @@ func nodeOrChildIsDecorated(useLegacyDecorators bool, node *ast.Node, parent *as
 func childIsDecorated(useLegacyDecorators bool, node *ast.Node, parent *ast.Node) bool {
 	switch node.Kind {
 	case ast.KindClassDeclaration:
-		return some(node.AsClassDeclaration().Members, func(m ClassElement) bool {
+		return core.Some(node.AsClassDeclaration().Members, func(m ClassElement) bool {
 			return nodeOrChildIsDecorated(useLegacyDecorators, m, node, parent)
 		})
 	case ast.KindClassExpression:
-		return !useLegacyDecorators && some(node.AsClassExpression().Members, func(m ClassElement) bool {
+		return !useLegacyDecorators && core.Some(node.AsClassExpression().Members, func(m ClassElement) bool {
 			return nodeOrChildIsDecorated(useLegacyDecorators, m, node, parent)
 		})
 	case ast.KindMethodDeclaration,
 		ast.KindSetAccessor,
 		ast.KindConstructor:
-		return some(node.AsFunctionLikeDeclaration().Parameters, func(p ParameterDeclaration) bool {
+		return core.Some(node.AsFunctionLikeDeclaration().Parameters, func(p ParameterDeclaration) bool {
 			return nodeIsDecorated(useLegacyDecorators, p, node, parent)
 		})
 	default:
@@ -3122,7 +3122,7 @@ func isVariableDeclarationInitializedWithRequireHelper(node *ast.Node, allowAcce
 /** @internal */
 
 func isRequireVariableStatement(node *ast.Node) bool {
-	return isVariableStatement(node) && node.DeclarationList.Declarations.length > 0 && every(node.DeclarationList.Declarations, func(decl VariableDeclaration) bool {
+	return isVariableStatement(node) && node.DeclarationList.Declarations.length > 0 && core.Every(node.DeclarationList.Declarations, func(decl VariableDeclaration) bool {
 		return isVariableDeclarationInitializedToRequire(decl)
 	})
 }
@@ -3950,10 +3950,10 @@ func getJSDocCommentsAndTags(hostNode *ast.Node, noCache bool) []Union[JSDoc, JS
 }
 
 func filterOwnedJSDocTags(hostNode *ast.Node, comments JSDocArray) [] /* TODO(TS-TO-GO) inferred type (JSDocTag | JSDoc) */ any {
-	lastJsDoc := last(comments)
+	lastJsDoc := core.LastOrNil(comments)
 	return flatMap(comments, func(jsDoc JSDoc) *[] /* TODO(TS-TO-GO) inferred type JSDocTag[] | JSDoc */ any {
 		if jsDoc == lastJsDoc {
-			ownedTags := filter(jsDoc.Tags, func(tag JSDocTag) bool {
+			ownedTags := core.Filter(jsDoc.Tags, func(tag JSDocTag) bool {
 				return ownsJSDocTag(hostNode, tag)
 			})
 			if jsDoc.Tags == ownedTags {
@@ -3962,7 +3962,7 @@ func filterOwnedJSDocTags(hostNode *ast.Node, comments JSDocArray) [] /* TODO(TS
 				return ownedTags
 			}
 		} else {
-			return filter(jsDoc.Tags, isJSDocOverloadTag)
+			return core.Filter(jsDoc.Tags, isJSDocOverloadTag)
 		}
 	})
 }
@@ -4007,7 +4007,7 @@ func getParameterSymbolFromJSDoc(node JSDocParameterTag) *ast.Symbol {
 	if decl == nil {
 		return nil
 	}
-	parameter := find(decl.Parameters, func(p ParameterDeclaration) bool {
+	parameter := core.Find(decl.Parameters, func(p ParameterDeclaration) bool {
 		return p.Name.Kind == ast.KindIdentifier && p.Name.EscapedText == name
 	})
 	return parameter && parameter.Symbol
@@ -4018,7 +4018,7 @@ func getParameterSymbolFromJSDoc(node JSDocParameterTag) *ast.Symbol {
 func getEffectiveContainerForJSDocTemplateTag(node JSDocTemplateTag) Union[SignatureDeclaration, JSDocTypedefTag, JSDocCallbackTag, JSDocEnumTag, undefined] {
 	if isJSDoc(node.Parent) && node.Parent.Tags != nil {
 		// A @template tag belongs to any @typedef, @callback, or @enum tags in the same comment block, if they exist.
-		typeAlias := find(node.Parent.Tags, isJSDocTypeAlias)
+		typeAlias := core.Find(node.Parent.Tags, isJSDocTypeAlias)
 		if typeAlias != nil {
 			return typeAlias
 		}
@@ -4088,7 +4088,7 @@ func getJSDocRoot(node *ast.Node) *JSDoc {
 func getTypeParameterFromJsDoc(node Intersection[TypeParameterDeclaration /* TODO(TS-TO-GO) TypeNode TypeLiteral: { parent: JSDocTemplateTag; } */, any]) *TypeParameterDeclaration {
 	name := node.Name.EscapedText
 	TODO_IDENTIFIER := node.Parent.Parent.Parent /* as SignatureDeclaration | InterfaceDeclaration | ClassDeclaration */
-	return typeParameters && find(typeParameters, func(p TypeParameterDeclaration) bool {
+	return typeParameters && core.Find(typeParameters, func(p TypeParameterDeclaration) bool {
 		return p.Name.EscapedText == name
 	})
 }
@@ -4535,7 +4535,7 @@ func getAllSuperTypeNodes(node *ast.Node) []TypeNode {
 	case isInterfaceDeclaration(node):
 		return getInterfaceBaseTypeNodes(node) || emptyArray
 	case isClassLike(node):
-		return concatenate(singleElementArray(getEffectiveBaseTypeNode(node)), getEffectiveImplementsTypeNodes(node)) || emptyArray
+		return core.Concatenate(singleElementArray(getEffectiveBaseTypeNode(node)), getEffectiveImplementsTypeNodes(node)) || emptyArray
 	default:
 		return emptyArray
 	}
@@ -5366,7 +5366,7 @@ func getBinaryOperatorPrecedence(kind SyntaxKind) OperatorPrecedence {
 /** @internal */
 
 func getSemanticJsxChildren(children []JsxChild) []JsxChild {
-	return filter(children, func(i JsxChild) bool {
+	return core.Filter(children, func(i JsxChild) bool {
 		switch i.Kind {
 		case ast.KindJsxExpression:
 			return i.Expression != nil
@@ -5422,7 +5422,7 @@ func createDiagnosticCollection() DiagnosticCollection {
 				diagnostics = []never{}. /* as Diagnostic[] */ (SortedArray[DiagnosticWithLocation])
 				// See GH#19873
 				fileDiagnostics.set(diagnostic.file.FileName, diagnostics.(SortedArray[DiagnosticWithLocation]))
-				insertSorted(filesWithDiagnostics, diagnostic.file.FileName, compareStringsCaseSensitive)
+				core.InsertSorted(filesWithDiagnostics, diagnostic.file.FileName, compareStringsCaseSensitive)
 			}
 		} else {
 			// If we've already read the non-file diagnostics, do not modify the existing array.
@@ -5434,7 +5434,7 @@ func createDiagnosticCollection() DiagnosticCollection {
 			diagnostics = nonFileDiagnostics
 		}
 
-		insertSorted(diagnostics, diagnostic, compareDiagnosticsSkipRelatedInformation, diagnosticsEqualityComparer)
+		core.InsertSorted(diagnostics, diagnostic, compareDiagnosticsSkipRelatedInformation, diagnosticsEqualityComparer)
 	}
 
 	getGlobalDiagnostics := func() []Diagnostic {
@@ -5476,7 +5476,7 @@ func containsInvalidEscapeFlag(node TemplateLiteralToken) bool {
 /** @internal */
 
 func hasInvalidEscape(template TemplateLiteral) bool {
-	return template && ifElse(isNoSubstitutionTemplateLiteral(template), containsInvalidEscapeFlag(template), (containsInvalidEscapeFlag(template.Head) || some(template.TemplateSpans, func(span TemplateSpan) bool {
+	return template && ifElse(isNoSubstitutionTemplateLiteral(template), containsInvalidEscapeFlag(template), (containsInvalidEscapeFlag(template.Head) || core.Some(template.TemplateSpans, func(span TemplateSpan) bool {
 		return containsInvalidEscapeFlag(span.Literal)
 	})))
 }
@@ -5662,7 +5662,7 @@ func createTextWriter(newLine string) EmitTextWriter {
 		lineStartsOfS := computeLineStarts(s)
 		if lineStartsOfS.length > 1 {
 			lineCount = lineCount + lineStartsOfS.length - 1
-			linePos = output.length - s.length + last(lineStartsOfS)
+			linePos = output.length - s.length + core.LastOrNil(lineStartsOfS)
 			lineStart = (linePos - output.length) == 0
 		} else {
 			lineStart = false
@@ -6037,7 +6037,7 @@ func getSourceFilesToEmit(host EmitHost, targetSourceFile SourceFile, forceDtsEm
 		moduleKind := getEmitModuleKind(options)
 		moduleEmitEnabled := options.emitDeclarationOnly || moduleKind == ModuleKindAMD || moduleKind == ModuleKindSystem
 		// Can emit only sources that are not declaration file and are either non module code or module with --module or --target es6 specified
-		return filter(host.getSourceFiles(), func(sourceFile SourceFile) bool {
+		return core.Filter(host.getSourceFiles(), func(sourceFile SourceFile) bool {
 			return (moduleEmitEnabled || !isExternalModule(sourceFile)) && sourceFileMayBeEmitted(sourceFile, host, forceDtsEmit)
 		})
 	} else {
@@ -6047,7 +6047,7 @@ func getSourceFilesToEmit(host EmitHost, targetSourceFile SourceFile, forceDtsEm
 		} else {
 			sourceFiles = []SourceFile{targetSourceFile}
 		}
-		return filter(sourceFiles, func(sourceFile SourceFile) bool {
+		return core.Filter(sourceFiles, func(sourceFile SourceFile) bool {
 			return sourceFileMayBeEmitted(sourceFile, host, forceDtsEmit)
 		})
 	}
@@ -6173,7 +6173,7 @@ func getLineOfLocalPositionFromLineMap(lineMap []number, pos number) number {
 /** @internal */
 
 func getFirstConstructorWithBody(node ClassLikeDeclaration) *Intersection[ConstructorDeclaration /* TODO(TS-TO-GO) TypeNode TypeLiteral: { body: FunctionBody; } */, any] {
-	return find(node.Members, func(member ClassElement) bool {
+	return core.Find(node.Members, func(member ClassElement) bool {
 		return isConstructorDeclaration(member) && nodeIsPresent(member.Body)
 	})
 }
@@ -6458,7 +6458,7 @@ func emitDetachedComments(text string, lineMap []number, writer EmitTextWriter, 
 		//
 		//      var x = 10;
 		if node.pos == 0 {
-			leadingComments = filter(getLeadingCommentRanges(text, node.pos), isPinnedCommentLocal)
+			leadingComments = core.Filter(getLeadingCommentRanges(text, node.pos), isPinnedCommentLocal)
 		}
 	} else {
 		// removeComments is false, just get detached as normal and bypass the process to filter comment
@@ -6490,7 +6490,7 @@ func emitDetachedComments(text string, lineMap []number, writer EmitTextWriter, 
 			// All comments look like they could have been part of the copyright header.  Make
 			// sure there is at least one blank line between it and the node.  If not, it's not
 			// a copyright header.
-			lastCommentLine := getLineOfLocalPositionFromLineMap(lineMap, last(detachedComments).end)
+			lastCommentLine := getLineOfLocalPositionFromLineMap(lineMap, core.LastOrNil(detachedComments).end)
 			nodeLine := getLineOfLocalPositionFromLineMap(lineMap, skipTrivia(text, node.pos))
 			if nodeLine >= lastCommentLine+2 {
 				// Valid detachedComments
@@ -6498,7 +6498,7 @@ func emitDetachedComments(text string, lineMap []number, writer EmitTextWriter, 
 				emitComments(text, lineMap, writer, detachedComments, false /*leadingSeparator*/, true /*trailingSeparator*/, newLine, writeComment)
 				currentDetachedCommentInfo = map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"nodePos":               node.pos,
-					"detachedCommentEndPos": last(detachedComments).end,
+					"detachedCommentEndPos": core.LastOrNil(detachedComments).end,
 				}
 			}
 		}
@@ -7118,7 +7118,7 @@ func isExportDefaultSymbol(symbol *ast.Symbol) bool {
  */
 
 func tryExtractTSExtension(fileName string) *string {
-	return find(supportedTSExtensionsForExtractExtension, func(extension Extension) bool {
+	return core.Find(supportedTSExtensionsForExtractExtension, func(extension Extension) bool {
 		return fileExtensionIs(fileName, extension)
 	})
 }
@@ -7389,7 +7389,7 @@ func moveRangePos(range_ TextRange, pos number) TextRange {
 func moveRangePastDecorators(node *ast.Node) TextRange {
 	var lastDecorator *Decorator
 	if canHaveModifiers(node) {
-		lastDecorator = findLast(node.Modifiers, isDecorator)
+		lastDecorator = core.FindLast(node.Modifiers, isDecorator)
 	} else {
 		lastDecorator = nil
 	}
@@ -7547,7 +7547,7 @@ func isDeclarationNameOfEnumOrNamespace(node Identifier) bool {
 /** @internal */
 
 func getInitializedVariables(node VariableDeclarationList) []InitializedVariableDeclaration {
-	return filter(node.Declarations, isInitializedVariable)
+	return core.Filter(node.Declarations, isInitializedVariable)
 }
 
 /** @internal */
@@ -7583,7 +7583,7 @@ func getCheckFlags(symbol *ast.Symbol) CheckFlags {
 
 func getDeclarationModifierFlagsFromSymbol(s *ast.Symbol, isWrite bool /*  = false */) ModifierFlags {
 	if s.ValueDeclaration != nil {
-		declaration := (isWrite && s.Declarations && find(s.Declarations, isSetAccessorDeclaration)) || (s.Flags&ast.SymbolFlagsGetAccessor && find(s.Declarations, isGetAccessorDeclaration)) || s.ValueDeclaration
+		declaration := (isWrite && s.Declarations && core.Find(s.Declarations, isSetAccessorDeclaration)) || (s.Flags&ast.SymbolFlagsGetAccessor && core.Find(s.Declarations, isGetAccessorDeclaration)) || s.ValueDeclaration
 		flags := getCombinedModifierFlags(declaration)
 		if s.Parent != nil && s.Parent.Flags&ast.SymbolFlagsClass != 0 {
 			return flags
@@ -8220,7 +8220,7 @@ func createDetachedDiagnostic(fileName string, sourceText string, start number, 
 	assertDiagnosticLocation(sourceText, start, length)
 	text := getLocaleSpecificMessage(message)
 
-	if some(args) {
+	if core.Some(args) {
 		text = formatStringFromArgs(text, args)
 	}
 
@@ -8287,7 +8287,7 @@ func createFileDiagnostic(file SourceFile, start number, length number, message 
 
 	text := getLocaleSpecificMessage(message)
 
-	if some(args) {
+	if core.Some(args) {
 		text = formatStringFromArgs(text, args)
 	}
 
@@ -8308,7 +8308,7 @@ func createFileDiagnostic(file SourceFile, start number, length number, message 
 func formatMessage(message DiagnosticMessage, args DiagnosticArguments) string {
 	text := getLocaleSpecificMessage(message)
 
-	if some(args) {
+	if core.Some(args) {
 		text = formatStringFromArgs(text, args)
 	}
 
@@ -8320,7 +8320,7 @@ func formatMessage(message DiagnosticMessage, args DiagnosticArguments) string {
 func createCompilerDiagnostic(message DiagnosticMessage, args DiagnosticArguments) Diagnostic {
 	text := getLocaleSpecificMessage(message)
 
-	if some(args) {
+	if core.Some(args) {
 		text = formatStringFromArgs(text, args)
 	}
 
@@ -8355,7 +8355,7 @@ func createCompilerDiagnosticFromMessageChain(chain DiagnosticMessageChain, rela
 func chainDiagnosticMessages(details Union[DiagnosticMessageChain, []DiagnosticMessageChain, undefined], message DiagnosticMessage, args DiagnosticArguments) DiagnosticMessageChain {
 	text := getLocaleSpecificMessage(message)
 
-	if some(args) {
+	if core.Some(args) {
 		text = formatStringFromArgs(text, args)
 	}
 	return DiagnosticMessageChain{
@@ -9379,7 +9379,7 @@ func getSubPatternFromSpec(spec string, basePath string, usage Union[ /* TODO(TS
 	subpattern := ""
 	hasWrittenComponent := false
 	components := getNormalizedPathComponents(spec, basePath)
-	lastComponent := last(components)
+	lastComponent := core.LastOrNil(components)
 	if usage != "exclude" && lastComponent == "**" {
 		return nil
 	}
@@ -9488,7 +9488,7 @@ func getFileMatcherPatterns(path string, excludes *[]string, includes *[]string,
 	absolutePath := combinePaths(currentDirectory, path)
 
 	return FileMatcherPatterns{
-		includeFilePatterns: map_(getRegularExpressionsForWildcards(includes, absolutePath, "files"), func(pattern string) string {
+		includeFilePatterns: core.Map(getRegularExpressionsForWildcards(includes, absolutePath, "files"), func(pattern string) string {
 			return __TEMPLATE__("^", pattern, "$")
 		}),
 		includeFilePattern:      getRegularExpressionForWildcard(includes, absolutePath, "files"),
@@ -9560,7 +9560,7 @@ func matchFiles(path string, extensions *[]string, excludes *[]string, includes 
 			if includeFileRegexes == nil {
 				results[0].push(name)
 			} else {
-				includeIndex := findIndex(includeFileRegexes, func(re RegExp) bool {
+				includeIndex := core.FindIndex(includeFileRegexes, func(re RegExp) bool {
 					return re.test(absoluteName)
 				})
 				if includeIndex != -1 {
@@ -9617,7 +9617,7 @@ func getBasePaths(path string, includes *[]string, useCaseSensitiveFileNames boo
 		// Iterate over each include base path and include unique base paths that are not a
 		// subpath of an existing base path
 		for _, includeBasePath := range includeBasePaths {
-			if every(basePaths, func(basePath string) bool {
+			if core.Every(basePaths, func(basePath string) bool {
 				return !containsPath(basePath, includeBasePath, path, !useCaseSensitiveFileNames)
 			}) {
 				basePaths.push(includeBasePath)
@@ -9770,7 +9770,7 @@ func isJSLike(scriptKind *ScriptKind) bool {
 /** @internal */
 
 func hasJSFileExtension(fileName string) bool {
-	return some(supportedJSExtensionsFlat, func(extension Extension) bool {
+	return core.Some(supportedJSExtensionsFlat, func(extension Extension) bool {
 		return fileExtensionIs(fileName, extension)
 	})
 }
@@ -9778,7 +9778,7 @@ func hasJSFileExtension(fileName string) bool {
 /** @internal */
 
 func hasTSFileExtension(fileName string) bool {
-	return some(supportedTSExtensionsFlat, func(extension Extension) bool {
+	return core.Some(supportedTSExtensionsFlat, func(extension Extension) bool {
 		return fileExtensionIs(fileName, extension)
 	})
 }
@@ -9786,7 +9786,7 @@ func hasTSFileExtension(fileName string) bool {
 /** @internal */
 
 func hasImplementationTSFileExtension(fileName string) bool {
-	return some(supportedTSImplementationExtensions, func(extension Extension) bool {
+	return core.Some(supportedTSImplementationExtensions, func(extension Extension) bool {
 		return fileExtensionIs(fileName, extension)
 	}) && !isDeclarationFileName(fileName)
 }
@@ -9903,7 +9903,7 @@ func getRequiresAtTopOfFile(sourceFile SourceFile) []RequireOrImportCall {
 			break
 		}
 		if isRequireVariableStatement(statement) {
-			requires = concatenate(requires, statement.DeclarationList.Declarations.map_(func(d /* TODO(TS-TO-GO) inferred type VariableDeclarationInitializedTo<RequireOrImportCall> */ any) RequireOrImportCall {
+			requires = core.Concatenate(requires, statement.DeclarationList.Declarations.map_(func(d /* TODO(TS-TO-GO) inferred type VariableDeclarationInitializedTo<RequireOrImportCall> */ any) RequireOrImportCall {
 				return d.Initializer
 			}))
 		} else if isExpressionStatement(statement) && isRequireCall(statement.Expression, true /*requireStringLiteralLikeArgument*/) {
@@ -10095,7 +10095,7 @@ func isAnySupportedFileExtension(path string) bool {
 /** @internal */
 
 func tryGetExtensionFromPath(path string) *Extension {
-	return find(extensionsToRemove, func(e Extension) bool {
+	return core.Find(extensionsToRemove, func(e Extension) bool {
 		return fileExtensionIs(path, e)
 	})
 }
@@ -10604,7 +10604,7 @@ func isPackedElement(node Expression) bool {
  */
 
 func isPackedArrayLiteral(node Expression) bool {
-	return isArrayLiteralExpression(node) && every(node.Elements, isPackedElement)
+	return isArrayLiteralExpression(node) && core.Every(node.Elements, isPackedElement)
 }
 
 /**
@@ -10630,7 +10630,7 @@ func expressionResultIsUnused(node Expression) bool {
 		}
 		if isCommaListExpression(parent) {
 			// left side of comma is always unused
-			if node != last(parent.Elements) {
+			if node != core.LastOrNil(parent.Elements) {
 				return true
 			}
 			// right side of comma is unused if parent is unused
@@ -10653,7 +10653,7 @@ func expressionResultIsUnused(node Expression) bool {
 /** @internal */
 
 func containsIgnoredPath(path string) bool {
-	return some(ignoredPaths, func(p string) bool {
+	return core.Some(ignoredPaths, func(p string) bool {
 		return path.includes(p)
 	})
 }
@@ -10773,7 +10773,7 @@ func hasContextSensitiveParameters(node FunctionLikeDeclaration) bool {
 	// Functions with type parameters are not context sensitive.
 	if node.TypeParameters == nil {
 		// Functions with any parameters that lack type annotations are context sensitive.
-		if some(node.Parameters, func(p ParameterDeclaration) bool {
+		if core.Some(node.Parameters, func(p ParameterDeclaration) bool {
 			return getEffectiveTypeAnnotationNode(p) == nil
 		}) {
 			return true
@@ -11885,7 +11885,7 @@ func createNameResolver(TODO_IDENTIFIER NameResolverOptions) NameResolver {
 						parent = decl.Parent
 					}
 					if parent == container {
-						return !(isJSDocTemplateTag(decl.Parent) && find(decl.Parent.Parent.AsJSDoc().Tags, isJSDocTypeAlias) != nil)
+						return !(isJSDocTemplateTag(decl.Parent) && core.Find(decl.Parent.Parent.AsJSDoc().Tags, isJSDocTypeAlias) != nil)
 					}
 				}
 			}

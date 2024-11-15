@@ -115,7 +115,7 @@ func walkTreeForImportMeta(node *ast.Node) *ast.Node {
 /** Do not use hasModifier inside the parser; it relies on parent pointers. Use this instead. */
 
 func hasModifierOfKind(node HasModifiers, kind SyntaxKind) bool {
-	return some(node.Modifiers, func(m /* TODO(TS-TO-GO) inferred type Decorator | AbstractKeyword | AccessorKeyword | AsyncKeyword | ConstKeyword | DeclareKeyword | DefaultKeyword | ExportKeyword | InKeyword | PrivateKeyword | ProtectedKeyword | PublicKeyword | OutKeyword | OverrideKeyword | ReadonlyKeyword | StaticKeyword */ any) bool {
+	return core.Some(node.Modifiers, func(m /* TODO(TS-TO-GO) inferred type Decorator | AbstractKeyword | AccessorKeyword | AsyncKeyword | ConstKeyword | DeclareKeyword | DefaultKeyword | ExportKeyword | InKeyword | PrivateKeyword | ProtectedKeyword | PublicKeyword | OutKeyword | OverrideKeyword | ReadonlyKeyword | StaticKeyword */ any) bool {
 		return m.Kind == kind
 	})
 }
@@ -1274,12 +1274,12 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 		pos = findNextStatementWithoutAwait(sourceFile.Statements, start)
 
 		// append all diagnostics associated with the copied range
-		diagnosticStart := findIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
+		diagnosticStart := core.FindIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
 			return diagnostic.start >= prevStatement.Pos
 		})
 		var diagnosticEnd number
 		if diagnosticStart >= 0 {
-			diagnosticEnd = findIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
+			diagnosticEnd = core.FindIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
 				return diagnostic.start >= nextStatement.Pos
 			}, diagnosticStart)
 		} else {
@@ -1334,7 +1334,7 @@ func reparseTopLevelAwait(sourceFile SourceFile) SourceFile {
 		addRange(statements, sourceFile.Statements, pos)
 
 		// append all diagnostics associated with the copied range
-		diagnosticStart := findIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
+		diagnosticStart := core.FindIndex(savedParseDiagnostics, func(diagnostic DiagnosticWithDetachedLocation) bool {
 			return diagnostic.start >= prevStatement.Pos
 		})
 		if diagnosticStart >= 0 {
@@ -3382,7 +3382,7 @@ func parseNameOfParameter(modifiers *NodeArray[ModifierLike]) /* TODO(TS-TO-GO) 
 	// FormalParameter [Yield,Await]:
 	//      BindingElement[?Yield,?Await]
 	name := parseIdentifierOrPattern(Diagnostics.Private_identifiers_cannot_be_used_as_parameters)
-	if getFullWidth(name) == 0 && !some(modifiers) && isModifierKind(token()) {
+	if getFullWidth(name) == 0 && !core.Some(modifiers) && isModifierKind(token()) {
 		// in cases like
 		// 'use strict'
 		// function foo(static)
@@ -4811,7 +4811,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 	hasJSDoc := hasPrecedingJSDocComment()
 	modifiers := parseModifiersForArrowFunction()
 	var isAsync /* TODO(TS-TO-GO) inferred type SignatureFlags.None | SignatureFlags.Await */ any
-	if some(modifiers, isAsyncModifier) {
+	if core.Some(modifiers, isAsyncModifier) {
 		isAsync = SignatureFlagsAwait
 	} else {
 		isAsync = SignatureFlagsNone
@@ -4881,7 +4881,7 @@ func parseParenthesizedArrowFunctionExpression(allowAmbiguity bool, allowReturnT
 	equalsGreaterThanToken := parseExpectedToken(ast.KindEqualsGreaterThanToken)
 	var body /* TODO(TS-TO-GO) inferred type Expression | Block */ any
 	if lastToken == ast.KindEqualsGreaterThanToken || lastToken == ast.KindOpenBraceToken {
-		body = parseArrowFunctionExpressionBody(some(modifiers, isAsyncModifier), allowReturnTypeInArrowFunction)
+		body = parseArrowFunctionExpressionBody(core.Some(modifiers, isAsyncModifier), allowReturnTypeInArrowFunction)
 	} else {
 		body = parseIdentifier()
 	}
@@ -6168,7 +6168,7 @@ func parseFunctionExpression() FunctionExpression {
 		isGenerator = SignatureFlagsNone
 	}
 	var isAsync /* TODO(TS-TO-GO) inferred type SignatureFlags.None | SignatureFlags.Await */ any
-	if some(modifiers, isAsyncModifier) {
+	if core.Some(modifiers, isAsyncModifier) {
 		isAsync = SignatureFlagsAwait
 	} else {
 		isAsync = SignatureFlagsNone
@@ -6881,7 +6881,7 @@ func parseDeclaration() Statement {
 	pos := getNodePos()
 	hasJSDoc := hasPrecedingJSDocComment()
 	modifiers := parseModifiers(true)
-	isAmbient := some(modifiers, isDeclareModifier)
+	isAmbient := core.Some(modifiers, isDeclareModifier)
 	if isAmbient {
 		node := tryReuseAmbientDeclaration(pos)
 		if node != nil {
@@ -7209,7 +7209,7 @@ func parseMethodDeclaration(pos number, hasJSDoc bool, modifiers *NodeArray[Modi
 		isGenerator = SignatureFlagsNone
 	}
 	var isAsync /* TODO(TS-TO-GO) inferred type SignatureFlags.None | SignatureFlags.Await */ any
-	if some(modifiers, isAsyncModifier) {
+	if core.Some(modifiers, isAsyncModifier) {
 		isAsync = SignatureFlagsAwait
 	} else {
 		isAsync = SignatureFlagsNone
@@ -7513,7 +7513,7 @@ func parseClassElement() ClassElement {
 	// It is very important that we check this *after* checking indexers because
 	// the [ token can start an index signature or a computed property name
 	if tokenIsIdentifierOrKeyword(token()) || token() == ast.KindStringLiteral || token() == ast.KindNumericLiteral || token() == ast.KindBigIntLiteral || token() == ast.KindAsteriskToken || token() == ast.KindOpenBracketToken {
-		isAmbient := some(modifiers, isDeclareModifier)
+		isAmbient := core.Some(modifiers, isDeclareModifier)
 		if isAmbient {
 			for _, m := range modifiers {
 				(m.(Mutable[*ast.Node])).Flags |= ast.NodeFlagsAmbient
@@ -7565,7 +7565,7 @@ func parseClassDeclarationOrExpression(pos number, hasJSDoc bool, modifiers *Nod
 	// We don't parse the name here in await context, instead we will report a grammar error in the checker.
 	name := parseNameOfClassDeclarationOrExpression()
 	typeParameters := parseTypeParameters()
-	if some(modifiers, isExportModifier) {
+	if core.Some(modifiers, isExportModifier) {
 		setAwaitContext(true)
 	}
 	heritageClauses := parseHeritageClauses()
@@ -8897,7 +8897,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	}
 
 	parseReturnTag := func(start number, tagName Identifier, indent number, indentText string) JSDocReturnTag {
-		if some(tags, isJSDocReturnTag) {
+		if core.Some(tags, isJSDocReturnTag) {
 			parseErrorAt(tagName.Pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.EscapedText))
 		}
 
@@ -8906,7 +8906,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 	}
 
 	parseTypeTag := func(start number, tagName Identifier, indent number, indentText string) JSDocTypeTag {
-		if some(tags, isJSDocTypeTag) {
+		if core.Some(tags, isJSDocTypeTag) {
 			parseErrorAt(tagName.Pos, scanner.getTokenStart(), Diagnostics._0_tag_already_specified, unescapeLeadingUnderscores(tagName.EscapedText))
 		}
 
@@ -8955,7 +8955,7 @@ func parseJSDocCommentWorker(start number /*  = 0 */, length *number) *JSDoc {
 		}
 		var allParts /* TODO(TS-TO-GO) inferred type string | NodeArray<JSDocComment> */ any
 		if /* TODO(TS-TO-GO) Expression TypeOfExpression: typeof comments */ TODO != "string" {
-			allParts = createNodeArray(concatenate([]JSDocText{finishNode(textOnly, commentStart, commentEnd)}, comments) /* as JSDocComment[] */, commentStart)
+			allParts = createNodeArray(core.Concatenate([]JSDocText{finishNode(textOnly, commentStart, commentEnd)}, comments) /* as JSDocComment[] */, commentStart)
 		} else {
 			allParts = textOnly.Text + comments
 		}
@@ -10119,7 +10119,7 @@ func processPragmasIntoFields(context PragmaContext, reportDiagnostic PragmaDiag
 				}
 			})
 		case "amd-dependency":
-			context.amdDependencies = map_(toArray(entryOrList) /* as PragmaPseudoMap["amd-dependency"][] */, func(x /* TODO(TS-TO-GO) inferred type { arguments: { path: string; } & { name?: string | undefined; }; range: CommentRange; } */ any) /* TODO(TS-TO-GO) inferred type { name: string | undefined; path: string; } */ any {
+			context.amdDependencies = core.Map(toArray(entryOrList) /* as PragmaPseudoMap["amd-dependency"][] */, func(x /* TODO(TS-TO-GO) inferred type { arguments: { path: string; } & { name?: string | undefined; }; range: CommentRange; } */ any) /* TODO(TS-TO-GO) inferred type { name: string | undefined; path: string; } */ any {
 				return (map[any]any{ /* TODO(TS-TO-GO): was object literal */
 					"name": x.arguments.name,
 					"path": x.arguments.path,
