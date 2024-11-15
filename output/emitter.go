@@ -2591,7 +2591,7 @@ func (printer *Printer) shouldEmitWhitespaceBeforeOperand(node PrefixUnaryExpres
 	// expression a prefix increment whose operand is a plus expression - (++(+x))
 	// The same is true of minus of course.
 	operand := node.operand
-	return operand.kind == ast.KindPrefixUnaryExpression && ((node.operator == ast.KindPlusToken && ((operand.AsPrefixUnaryExpression()).operator == ast.KindPlusToken || (operand.AsPrefixUnaryExpression()).operator == ast.KindPlusPlusToken)) || (node.operator == ast.KindMinusToken && ((operand.AsPrefixUnaryExpression()).operator == ast.KindMinusToken || (operand.AsPrefixUnaryExpression()).operator == ast.KindMinusMinusToken)))
+	return operand.kind == ast.KindPrefixUnaryExpression && ((node.operator == ast.KindPlusToken && (operand.AsPrefixUnaryExpression().operator == ast.KindPlusToken || operand.AsPrefixUnaryExpression().operator == ast.KindPlusPlusToken)) || (node.operator == ast.KindMinusToken && (operand.AsPrefixUnaryExpression().operator == ast.KindMinusToken || operand.AsPrefixUnaryExpression().operator == ast.KindMinusMinusToken)))
 }
 
 func (printer *Printer) emitPostfixUnaryExpression(node PostfixUnaryExpression) {
@@ -4938,7 +4938,7 @@ func (printer *Printer) isEmptyBlock(block BlockLike) bool {
 
 func (printer *Printer) skipSynthesizedParentheses(node *ast.Node) /* TODO(TS-TO-GO) inferred type ts.Node */ any {
 	for node.kind == ast.KindParenthesizedExpression && nodeIsSynthesized(node) {
-		node = (node.AsParenthesizedExpression()).expression
+		node = node.AsParenthesizedExpression().expression
 	}
 
 	return node
@@ -4973,8 +4973,8 @@ func (printer *Printer) getTextOfNode(node Union[Identifier, PrivateIdentifier, 
 }
 
 func (printer *Printer) getLiteralTextOfNode(node LiteralLikeNode, sourceFile * /* TODO(TS-TO-GO) inferred type ts.SourceFile */ any /*  = currentSourceFile */, neverAsciiEscape *bool, jsxAttributeEscape bool) string {
-	if node.kind == ast.KindStringLiteral && (node.AsStringLiteral()).textSourceNode != nil {
-		textSourceNode := (node.AsStringLiteral()).textSourceNode
+	if node.kind == ast.KindStringLiteral && node.AsStringLiteral().textSourceNode != nil {
+		textSourceNode := node.AsStringLiteral().textSourceNode
 		if isIdentifier(textSourceNode) || isPrivateIdentifier(textSourceNode) || isNumericLiteral(textSourceNode) || isJsxNamespacedName(textSourceNode) {
 			var text string
 			if isNumericLiteral(textSourceNode) {
@@ -5057,65 +5057,65 @@ func (printer *Printer) generateNames(node *ast.Node) {
 	}
 	switch node.kind {
 	case ast.KindBlock:
-		forEach((node.AsBlock()).statements, printer.generateNames)
+		forEach(node.AsBlock().statements, printer.generateNames)
 	case ast.KindLabeledStatement,
 		ast.KindWithStatement,
 		ast.KindDoStatement,
 		ast.KindWhileStatement:
 		printer.generateNames((node /* as LabeledStatement | WithStatement | DoStatement | WhileStatement */).statement)
 	case ast.KindIfStatement:
-		printer.generateNames((node.AsIfStatement()).thenStatement)
-		printer.generateNames((node.AsIfStatement()).elseStatement)
+		printer.generateNames(node.AsIfStatement().thenStatement)
+		printer.generateNames(node.AsIfStatement().elseStatement)
 	case ast.KindForStatement,
 		ast.KindForOfStatement,
 		ast.KindForInStatement:
 		printer.generateNames((node /* as ForStatement | ForInOrOfStatement */).initializer)
 		printer.generateNames((node /* as ForStatement | ForInOrOfStatement */).statement)
 	case ast.KindSwitchStatement:
-		printer.generateNames((node.AsSwitchStatement()).caseBlock)
+		printer.generateNames(node.AsSwitchStatement().caseBlock)
 	case ast.KindCaseBlock:
-		forEach((node.AsCaseBlock()).clauses, printer.generateNames)
+		forEach(node.AsCaseBlock().clauses, printer.generateNames)
 	case ast.KindCaseClause,
 		ast.KindDefaultClause:
-		forEach((node.AsCaseOrDefaultClause()).statements, printer.generateNames)
+		forEach(node.AsCaseOrDefaultClause().statements, printer.generateNames)
 	case ast.KindTryStatement:
-		printer.generateNames((node.AsTryStatement()).tryBlock)
-		printer.generateNames((node.AsTryStatement()).catchClause)
-		printer.generateNames((node.AsTryStatement()).finallyBlock)
+		printer.generateNames(node.AsTryStatement().tryBlock)
+		printer.generateNames(node.AsTryStatement().catchClause)
+		printer.generateNames(node.AsTryStatement().finallyBlock)
 	case ast.KindCatchClause:
-		printer.generateNames((node.AsCatchClause()).variableDeclaration)
-		printer.generateNames((node.AsCatchClause()).block)
+		printer.generateNames(node.AsCatchClause().variableDeclaration)
+		printer.generateNames(node.AsCatchClause().block)
 	case ast.KindVariableStatement:
-		printer.generateNames((node.AsVariableStatement()).declarationList)
+		printer.generateNames(node.AsVariableStatement().declarationList)
 	case ast.KindVariableDeclarationList:
-		forEach((node.AsVariableDeclarationList()).declarations, printer.generateNames)
+		forEach(node.AsVariableDeclarationList().declarations, printer.generateNames)
 	case ast.KindVariableDeclaration,
 		ast.KindParameter,
 		ast.KindBindingElement,
 		ast.KindClassDeclaration:
-		printer.generateNameIfNeeded((node.AsNamedDeclaration()).name)
+		printer.generateNameIfNeeded(node.AsNamedDeclaration().name)
 	case ast.KindFunctionDeclaration:
-		printer.generateNameIfNeeded((node.AsFunctionDeclaration()).name)
+		printer.generateNameIfNeeded(node.AsFunctionDeclaration().name)
 		if getEmitFlags(node)&EmitFlagsReuseTempVariableScope != 0 {
-			forEach((node.AsFunctionDeclaration()).parameters, printer.generateNames)
-			printer.generateNames((node.AsFunctionDeclaration()).body)
+			forEach(node.AsFunctionDeclaration().parameters, printer.generateNames)
+			printer.generateNames(node.AsFunctionDeclaration().body)
 		}
 	case ast.KindObjectBindingPattern,
 		ast.KindArrayBindingPattern:
-		forEach((node.AsBindingPattern()).elements, printer.generateNames)
+		forEach(node.AsBindingPattern().elements, printer.generateNames)
 	case ast.KindImportDeclaration:
-		printer.generateNames((node.AsImportDeclaration()).importClause)
+		printer.generateNames(node.AsImportDeclaration().importClause)
 	case ast.KindImportClause:
-		printer.generateNameIfNeeded((node.AsImportClause()).name)
-		printer.generateNames((node.AsImportClause()).namedBindings)
+		printer.generateNameIfNeeded(node.AsImportClause().name)
+		printer.generateNames(node.AsImportClause().namedBindings)
 	case ast.KindNamespaceImport:
-		printer.generateNameIfNeeded((node.AsNamespaceImport()).name)
+		printer.generateNameIfNeeded(node.AsNamespaceImport().name)
 	case ast.KindNamespaceExport:
-		printer.generateNameIfNeeded((node.AsNamespaceExport()).name)
+		printer.generateNameIfNeeded(node.AsNamespaceExport().name)
 	case ast.KindNamedImports:
-		forEach((node.AsNamedImports()).elements, printer.generateNames)
+		forEach(node.AsNamedImports().elements, printer.generateNames)
 	case ast.KindImportSpecifier:
-		printer.generateNameIfNeeded((node.AsImportSpecifier()).propertyName || (node.AsImportSpecifier()).name)
+		printer.generateNameIfNeeded(node.AsImportSpecifier().propertyName || node.AsImportSpecifier().name)
 	}
 }
 
@@ -5132,7 +5132,7 @@ func (printer *Printer) generateMemberNames(node *ast.Node) {
 		ast.KindMethodSignature,
 		ast.KindGetAccessor,
 		ast.KindSetAccessor:
-		printer.generateNameIfNeeded((node.AsNamedDeclaration()).name)
+		printer.generateNameIfNeeded(node.AsNamedDeclaration().name)
 	}
 }
 

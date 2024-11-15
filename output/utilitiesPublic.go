@@ -635,14 +635,14 @@ func nameForNamelessJSDocTypedef(declaration Union[JSDocTypedefTag, JSDocEnumTag
 		}
 	case ast.KindExpressionStatement:
 		expr := hostNode.expression
-		if expr.kind == ast.KindBinaryExpression && (expr.AsBinaryExpression()).operatorToken.kind == ast.KindEqualsToken {
-			expr = (expr.AsBinaryExpression()).left
+		if expr.kind == ast.KindBinaryExpression && expr.AsBinaryExpression().operatorToken.kind == ast.KindEqualsToken {
+			expr = expr.AsBinaryExpression().left
 		}
 		switch expr.kind {
 		case ast.KindPropertyAccessExpression:
-			return (expr.AsPropertyAccessExpression()).name
+			return expr.AsPropertyAccessExpression().name
 		case ast.KindElementAccessExpression:
-			arg := (expr.AsElementAccessExpression()).argumentExpression
+			arg := expr.AsElementAccessExpression().argumentExpression
 			if isIdentifier(arg) {
 				return arg
 			}
@@ -686,7 +686,7 @@ func getNameOfJSDocTypedef(declaration JSDocTypedefTag) Union[Identifier, Privat
 /** @internal */
 
 func isNamedDeclaration(node *ast.Node) bool {
-	return (node.AsNamedDeclaration()).name != nil
+	return node.AsNamedDeclaration().name != nil
 	// A 'name' property should always be a DeclarationName.
 }
 
@@ -710,11 +710,11 @@ func getNonAssignedNameOfDeclaration(declaration Union[Declaration, Expression])
 			AssignmentDeclarationKindThisProperty,
 			AssignmentDeclarationKindProperty,
 			AssignmentDeclarationKindPrototypeProperty:
-			return getElementOrPropertyAccessArgumentExpressionOrName((expr.AsBinaryExpression()).left.AsAccessExpression())
+			return getElementOrPropertyAccessArgumentExpressionOrName(expr.AsBinaryExpression().left.AsAccessExpression())
 		case AssignmentDeclarationKindObjectDefinePropertyValue,
 			AssignmentDeclarationKindObjectDefinePropertyExports,
 			AssignmentDeclarationKindObjectDefinePrototypeProperty:
-			return (expr.AsBindableObjectDefinePropertyCall()).arguments[1]
+			return expr.AsBindableObjectDefinePropertyCall().arguments[1]
 		default:
 			return nil
 		}
@@ -736,7 +736,7 @@ func getNonAssignedNameOfDeclaration(declaration Union[Declaration, Expression])
 			return expr.argumentExpression
 		}
 	}
-	return (declaration.AsNamedDeclaration()).name
+	return declaration.AsNamedDeclaration().name
 }
 
 func getNameOfDeclaration(declaration Union[Declaration, Expression, undefined]) *DeclarationName {
@@ -1254,7 +1254,7 @@ func isOutermostOptionalChain(node OptionalChain) bool {
 }
 
 func isNullishCoalesce(node *ast.Node) bool {
-	return node.kind == ast.KindBinaryExpression && (node.AsBinaryExpression()).operatorToken.kind == ast.KindQuestionQuestionToken
+	return node.kind == ast.KindBinaryExpression && node.AsBinaryExpression().operatorToken.kind == ast.KindQuestionQuestionToken
 }
 
 func isConstTypeReference(node *ast.Node) bool {
@@ -1367,9 +1367,9 @@ func isImportOrExportSpecifier(node *ast.Node) bool {
 func isTypeOnlyImportDeclaration(node *ast.Node) bool {
 	switch node.kind {
 	case ast.KindImportSpecifier:
-		return (node.AsImportSpecifier()).isTypeOnly || (node.AsImportSpecifier()).parent.parent.isTypeOnly
+		return node.AsImportSpecifier().isTypeOnly || node.AsImportSpecifier().parent.parent.isTypeOnly
 	case ast.KindNamespaceImport:
-		return (node.AsNamespaceImport()).parent.isTypeOnly
+		return node.AsNamespaceImport().parent.isTypeOnly
 	case ast.KindImportClause,
 		ast.KindImportEqualsDeclaration:
 		return (node /* as ImportClause | ImportEqualsDeclaration */).isTypeOnly
@@ -1380,11 +1380,11 @@ func isTypeOnlyImportDeclaration(node *ast.Node) bool {
 func isTypeOnlyExportDeclaration(node *ast.Node) bool {
 	switch node.kind {
 	case ast.KindExportSpecifier:
-		return (node.AsExportSpecifier()).isTypeOnly || (node.AsExportSpecifier()).parent.parent.isTypeOnly
+		return node.AsExportSpecifier().isTypeOnly || node.AsExportSpecifier().parent.parent.isTypeOnly
 	case ast.KindExportDeclaration:
-		return (node.AsExportDeclaration()).isTypeOnly && (node.AsExportDeclaration()).moduleSpecifier != nil && (node.AsExportDeclaration()).exportClause == nil
+		return node.AsExportDeclaration().isTypeOnly && node.AsExportDeclaration().moduleSpecifier != nil && node.AsExportDeclaration().exportClause == nil
 	case ast.KindNamespaceExport:
-		return (node.AsNamespaceExport()).parent.isTypeOnly
+		return node.AsNamespaceExport().parent.isTypeOnly
 	}
 	return false
 }
@@ -1859,7 +1859,7 @@ func isUnaryExpressionWithWrite(expr *ast.Node) bool {
 	case ast.KindPostfixUnaryExpression:
 		return true
 	case ast.KindPrefixUnaryExpression:
-		return (expr.AsPrefixUnaryExpression()).operator == ast.KindPlusPlusToken || (expr.AsPrefixUnaryExpression()).operator == ast.KindMinusMinusToken
+		return expr.AsPrefixUnaryExpression().operator == ast.KindPlusPlusToken || expr.AsPrefixUnaryExpression().operator == ast.KindMinusMinusToken
 	default:
 		return false
 	}
@@ -1921,7 +1921,7 @@ func isIterationStatement(node *ast.Node, lookInLabeledStatements bool) bool {
 		ast.KindWhileStatement:
 		return true
 	case ast.KindLabeledStatement:
-		return lookInLabeledStatements && isIterationStatement((node.AsLabeledStatement()).statement, lookInLabeledStatements)
+		return lookInLabeledStatements && isIterationStatement(node.AsLabeledStatement().statement, lookInLabeledStatements)
 	}
 
 	return false
@@ -2268,7 +2268,7 @@ func hasJSDocNodes(node *ast.Node) bool {
  */
 
 func hasType(node *ast.Node) bool {
-	return (node.AsHasType()).type_ != nil
+	return node.AsHasType().type_ != nil
 }
 
 /**
@@ -2278,7 +2278,7 @@ func hasType(node *ast.Node) bool {
  */
 
 func hasInitializer(node *ast.Node) bool {
-	return (node.AsHasInitializer()).initializer != nil
+	return node.AsHasInitializer().initializer != nil
 }
 
 /** True if has initializer node attached to it. */
@@ -2338,7 +2338,7 @@ func guessIndentation(lines []string) *number {
 }
 
 func isStringLiteralLike(node Union[*ast.Node, FileReference]) bool {
-	return (node.AsNode()).kind == ast.KindStringLiteral || (node.AsNode()).kind == ast.KindNoSubstitutionTemplateLiteral
+	return node.AsNode().kind == ast.KindStringLiteral || node.AsNode().kind == ast.KindNoSubstitutionTemplateLiteral
 }
 
 func isJSDocLinkLike(node *ast.Node) bool {
@@ -2357,7 +2357,7 @@ func isRestParameter(node Union[ParameterDeclaration, JSDocParameterTag]) bool {
 	} else {
 		t = node.type_
 	}
-	return (node.AsParameterDeclaration()).dotDotDotToken != nil || t && t.kind == ast.KindJSDocVariadicType
+	return node.AsParameterDeclaration().dotDotDotToken != nil || t && t.kind == ast.KindJSDocVariadicType
 }
 
 func hasInternalAnnotation(range_ CommentRange, sourceFile SourceFile) bool {
@@ -2371,10 +2371,10 @@ func isInternalDeclaration(node *ast.Node, sourceFile SourceFile) bool {
 	}
 	parseTreeNode := getParseTreeNode(node)
 	if parseTreeNode != nil && parseTreeNode.kind == ast.KindParameter {
-		paramIdx := (parseTreeNode.parent.AsSignatureDeclaration()).parameters.indexOf(parseTreeNode.AsParameterDeclaration())
+		paramIdx := parseTreeNode.parent.AsSignatureDeclaration().parameters.indexOf(parseTreeNode.AsParameterDeclaration())
 		var previousSibling *ParameterDeclaration
 		if paramIdx > 0 {
-			previousSibling = (parseTreeNode.parent.AsSignatureDeclaration()).parameters[paramIdx-1]
+			previousSibling = parseTreeNode.parent.AsSignatureDeclaration().parameters[paramIdx-1]
 		} else {
 			previousSibling = nil
 		}
