@@ -311,12 +311,12 @@ const (
 	IterationUsePossiblyOutOfBounds      IterationUse = 1 << 7
 	// Spread, Destructuring, Array element assignment
 	IterationUseElement                  IterationUse = IterationUseAllowsSyncIterablesFlag
-	IterationUseSpread                   IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseSpreadFlag
-	IterationUseDestructuring            IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseDestructuringFlag
-	IterationUseForOf                    IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsStringInputFlag | IterationUseIterationUseForOfFlag
-	IterationUseForAwaitOf               IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsAsyncIterablesFlag | IterationUseAllowsStringInputFlag | IterationUseIterationUseForOfFlag
-	IterationUseYieldStar                IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseIterationUseYieldStarFlag
-	IterationUseAsyncYieldStar           IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsAsyncIterablesFlag | IterationUseIterationUseYieldStarFlag
+	IterationUseSpread                   IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseSpreadFlag
+	IterationUseDestructuring            IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseDestructuringFlag
+	IterationUseForOf                    IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsStringInputFlag | IterationUseForOfFlag
+	IterationUseForAwaitOf               IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsAsyncIterablesFlag | IterationUseAllowsStringInputFlag | IterationUseForOfFlag
+	IterationUseYieldStar                IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseYieldStarFlag
+	IterationUseAsyncYieldStar           IterationUse = IterationUseAllowsSyncIterablesFlag | IterationUseAllowsAsyncIterablesFlag | IterationUseYieldStarFlag
 	IterationUseGeneratorReturnType      IterationUse = IterationUseAllowsSyncIterablesFlag
 	IterationUseAsyncGeneratorReturnType IterationUse = IterationUseAllowsAsyncIterablesFlag
 )
@@ -391,50 +391,50 @@ const (
 	// The following members encode facts about particular kinds of types for use in the getTypeFacts function.
 	// The presence of a particular fact means that the given test is true for some (and possibly all) values
 	// of that kind of type.
-	TypeFactsBaseStringStrictFacts     TypeFacts = TypeFactsTypeofEQString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
-	TypeFactsBaseStringFacts           TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsStringStrictFacts         TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsTruthy | TypeFactsFalsy
-	TypeFactsStringFacts               TypeFacts = TypeFactsBaseTypeFactsStringFacts | TypeFactsTruthy
-	TypeFactsEmptyStringStrictFacts    TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsFalsy
-	TypeFactsEmptyStringFacts          TypeFacts = TypeFactsBaseTypeFactsStringFacts
-	TypeFactsNonEmptyStringStrictFacts TypeFacts = TypeFactsBaseTypeFactsStringStrictFacts | TypeFactsTruthy
-	TypeFactsNonEmptyStringFacts       TypeFacts = TypeFactsBaseTypeFactsStringFacts | TypeFactsTruthy
-	TypeFactsBaseNumberStrictFacts     TypeFacts = TypeFactsTypeofEQNumber | TypeFactsTypeofNEString | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
-	TypeFactsBaseNumberFacts           TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsNumberStrictFacts         TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsTruthy | TypeFactsFalsy
-	TypeFactsNumberFacts               TypeFacts = TypeFactsBaseTypeFactsNumberFacts | TypeFactsTruthy
-	TypeFactsZeroNumberStrictFacts     TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsFalsy
-	TypeFactsZeroNumberFacts           TypeFacts = TypeFactsBaseTypeFactsNumberFacts
-	TypeFactsNonZeroNumberStrictFacts  TypeFacts = TypeFactsBaseTypeFactsNumberStrictFacts | TypeFactsTruthy
-	TypeFactsNonZeroNumberFacts        TypeFacts = TypeFactsBaseTypeFactsNumberFacts | TypeFactsTruthy
-	TypeFactsBaseBigIntStrictFacts     TypeFacts = TypeFactsTypeofEQBigInt | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
-	TypeFactsBaseBigIntFacts           TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsBigIntStrictFacts         TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsTruthy | TypeFactsFalsy
-	TypeFactsBigIntFacts               TypeFacts = TypeFactsBaseTypeFactsBigIntFacts | TypeFactsTruthy
-	TypeFactsZeroBigIntStrictFacts     TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsFalsy
-	TypeFactsZeroBigIntFacts           TypeFacts = TypeFactsBaseTypeFactsBigIntFacts
-	TypeFactsNonZeroBigIntStrictFacts  TypeFacts = TypeFactsBaseTypeFactsBigIntStrictFacts | TypeFactsTruthy
-	TypeFactsNonZeroBigIntFacts        TypeFacts = TypeFactsBaseTypeFactsBigIntFacts | TypeFactsTruthy
-	TypeFactsBaseBooleanStrictFacts    TypeFacts = TypeFactsTypeofEQBoolean | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull
-	TypeFactsBaseBooleanFacts          TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsBooleanStrictFacts        TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsTruthy | TypeFactsFalsy
-	TypeFactsBooleanFacts              TypeFacts = TypeFactsBaseTypeFactsBooleanFacts | TypeFactsTruthy
-	TypeFactsFalseStrictFacts          TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsFalsy
-	TypeFactsFalseFacts                TypeFacts = TypeFactsBaseTypeFactsBooleanFacts
-	TypeFactsTrueStrictFacts           TypeFacts = TypeFactsBaseTypeFactsBooleanStrictFacts | TypeFactsTruthy
-	TypeFactsTrueFacts                 TypeFacts = TypeFactsBaseTypeFactsBooleanFacts | TypeFactsTruthy
-	TypeFactsSymbolStrictFacts         TypeFacts = TypeFactsTypeofEQSymbol | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull | TypeFactsTruthy
-	TypeFactsSymbolFacts               TypeFacts = TypeFactsSymbolStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsObjectStrictFacts         TypeFacts = TypeFactsTypeofEQObject | TypeFactsTypeofEQHostObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEFunction | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull | TypeFactsTruthy
-	TypeFactsObjectFacts               TypeFacts = TypeFactsObjectStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsFunctionStrictFacts       TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofEQHostObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsTypeFactsNEUndefinedOrNull | TypeFactsTruthy
-	TypeFactsFunctionFacts             TypeFacts = TypeFactsFunctionStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsFalsy
-	TypeFactsVoidFacts                 TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQUndefined | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsNENull | TypeFactsFalsy
-	TypeFactsUndefinedFacts            TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQUndefined | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsNENull | TypeFactsFalsy | TypeFactsIsUndefined
-	TypeFactsNullFacts                 TypeFacts = TypeFactsTypeofEQObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsNEUndefined | TypeFactsFalsy | TypeFactsIsNull
-	TypeFactsEmptyObjectStrictFacts    TypeFacts = TypeFactsAll & ^(TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsTypeFactsEQUndefinedOrNull | TypeFactsTypeFactsIsUndefinedOrNull)
-	TypeFactsEmptyObjectFacts          TypeFacts = TypeFactsAll & ^TypeFactsTypeFactsIsUndefinedOrNull
-	TypeFactsUnknownFacts              TypeFacts = TypeFactsAll & ^TypeFactsTypeFactsIsUndefinedOrNull
+	TypeFactsBaseStringStrictFacts     TypeFacts = TypeFactsTypeofEQString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull
+	TypeFactsBaseStringFacts           TypeFacts = TypeFactsBaseStringStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsStringStrictFacts         TypeFacts = TypeFactsBaseStringStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+	TypeFactsStringFacts               TypeFacts = TypeFactsBaseStringFacts | TypeFactsTruthy
+	TypeFactsEmptyStringStrictFacts    TypeFacts = TypeFactsBaseStringStrictFacts | TypeFactsFalsy
+	TypeFactsEmptyStringFacts          TypeFacts = TypeFactsBaseStringFacts
+	TypeFactsNonEmptyStringStrictFacts TypeFacts = TypeFactsBaseStringStrictFacts | TypeFactsTruthy
+	TypeFactsNonEmptyStringFacts       TypeFacts = TypeFactsBaseStringFacts | TypeFactsTruthy
+	TypeFactsBaseNumberStrictFacts     TypeFacts = TypeFactsTypeofEQNumber | TypeFactsTypeofNEString | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull
+	TypeFactsBaseNumberFacts           TypeFacts = TypeFactsBaseNumberStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsNumberStrictFacts         TypeFacts = TypeFactsBaseNumberStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+	TypeFactsNumberFacts               TypeFacts = TypeFactsBaseNumberFacts | TypeFactsTruthy
+	TypeFactsZeroNumberStrictFacts     TypeFacts = TypeFactsBaseNumberStrictFacts | TypeFactsFalsy
+	TypeFactsZeroNumberFacts           TypeFacts = TypeFactsBaseNumberFacts
+	TypeFactsNonZeroNumberStrictFacts  TypeFacts = TypeFactsBaseNumberStrictFacts | TypeFactsTruthy
+	TypeFactsNonZeroNumberFacts        TypeFacts = TypeFactsBaseNumberFacts | TypeFactsTruthy
+	TypeFactsBaseBigIntStrictFacts     TypeFacts = TypeFactsTypeofEQBigInt | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull
+	TypeFactsBaseBigIntFacts           TypeFacts = TypeFactsBaseBigIntStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsBigIntStrictFacts         TypeFacts = TypeFactsBaseBigIntStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+	TypeFactsBigIntFacts               TypeFacts = TypeFactsBaseBigIntFacts | TypeFactsTruthy
+	TypeFactsZeroBigIntStrictFacts     TypeFacts = TypeFactsBaseBigIntStrictFacts | TypeFactsFalsy
+	TypeFactsZeroBigIntFacts           TypeFacts = TypeFactsBaseBigIntFacts
+	TypeFactsNonZeroBigIntStrictFacts  TypeFacts = TypeFactsBaseBigIntStrictFacts | TypeFactsTruthy
+	TypeFactsNonZeroBigIntFacts        TypeFacts = TypeFactsBaseBigIntFacts | TypeFactsTruthy
+	TypeFactsBaseBooleanStrictFacts    TypeFacts = TypeFactsTypeofEQBoolean | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull
+	TypeFactsBaseBooleanFacts          TypeFacts = TypeFactsBaseBooleanStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsBooleanStrictFacts        TypeFacts = TypeFactsBaseBooleanStrictFacts | TypeFactsTruthy | TypeFactsFalsy
+	TypeFactsBooleanFacts              TypeFacts = TypeFactsBaseBooleanFacts | TypeFactsTruthy
+	TypeFactsFalseStrictFacts          TypeFacts = TypeFactsBaseBooleanStrictFacts | TypeFactsFalsy
+	TypeFactsFalseFacts                TypeFacts = TypeFactsBaseBooleanFacts
+	TypeFactsTrueStrictFacts           TypeFacts = TypeFactsBaseBooleanStrictFacts | TypeFactsTruthy
+	TypeFactsTrueFacts                 TypeFacts = TypeFactsBaseBooleanFacts | TypeFactsTruthy
+	TypeFactsSymbolStrictFacts         TypeFacts = TypeFactsTypeofEQSymbol | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull | TypeFactsTruthy
+	TypeFactsSymbolFacts               TypeFacts = TypeFactsSymbolStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsObjectStrictFacts         TypeFacts = TypeFactsTypeofEQObject | TypeFactsTypeofEQHostObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEFunction | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull | TypeFactsTruthy
+	TypeFactsObjectFacts               TypeFacts = TypeFactsObjectStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsFunctionStrictFacts       TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofEQHostObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsNEUndefined | TypeFactsNENull | TypeFactsNEUndefinedOrNull | TypeFactsTruthy
+	TypeFactsFunctionFacts             TypeFacts = TypeFactsFunctionStrictFacts | TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsFalsy
+	TypeFactsVoidFacts                 TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQUndefined | TypeFactsEQUndefinedOrNull | TypeFactsNENull | TypeFactsFalsy
+	TypeFactsUndefinedFacts            TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQUndefined | TypeFactsEQUndefinedOrNull | TypeFactsNENull | TypeFactsFalsy | TypeFactsIsUndefined
+	TypeFactsNullFacts                 TypeFacts = TypeFactsTypeofEQObject | TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEFunction | TypeFactsTypeofNEHostObject | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsNEUndefined | TypeFactsFalsy | TypeFactsIsNull
+	TypeFactsEmptyObjectStrictFacts    TypeFacts = TypeFactsAll & ^(TypeFactsEQUndefined | TypeFactsEQNull | TypeFactsEQUndefinedOrNull | TypeFactsIsUndefinedOrNull)
+	TypeFactsEmptyObjectFacts          TypeFacts = TypeFactsAll & ^TypeFactsIsUndefinedOrNull
+	TypeFactsUnknownFacts              TypeFacts = TypeFactsAll & ^TypeFactsIsUndefinedOrNull
 	TypeFactsAllTypeofNE               TypeFacts = TypeFactsTypeofNEString | TypeFactsTypeofNENumber | TypeFactsTypeofNEBigInt | TypeFactsTypeofNEBoolean | TypeFactsTypeofNESymbol | TypeFactsTypeofNEObject | TypeFactsTypeofNEFunction | TypeFactsNEUndefined
 	// Masks
 	TypeFactsOrFactsMask  TypeFacts = TypeFactsTypeofEQFunction | TypeFactsTypeofNEObject
@@ -496,7 +496,7 @@ const (
 	SignatureCheckModeIgnoreReturnTypes  SignatureCheckMode = 1 << 2
 	SignatureCheckModeStrictArity        SignatureCheckMode = 1 << 3
 	SignatureCheckModeStrictTopSignature SignatureCheckMode = 1 << 4
-	SignatureCheckModeCallback           SignatureCheckMode = SignatureCheckModeBivariantSignatureCheckModeCallback | SignatureCheckModeStrictSignatureCheckModeCallback
+	SignatureCheckModeCallback           SignatureCheckMode = SignatureCheckModeBivariantCallback | SignatureCheckModeStrictCallback
 )
 
 type IntersectionState int32

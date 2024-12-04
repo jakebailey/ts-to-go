@@ -1641,7 +1641,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                     const memberName = getNameOfNamed(member);
                     nameMapping.set(memberName, `${enumName}${memberName}`);
                 }
-                const replacements = [...nameMapping.entries()].sort((a, b) => b[0].length - a[0].length);
+                const replacers = [...nameMapping.entries()].sort((a, b) => b[0].length - a[0].length).map(([name, value]) => {
+                    const regexp = new RegExp(`\\b${name}`, "g")
+                    return (s: string) => {
+                        return s.replace(regexp, value);
+                    }
+                });
 
                 for (let i = 0; i < members.length; i++) {
                     const member = members[i];
@@ -1655,11 +1660,12 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                     else if (initializer) {
                         let initializerText = initializer.getText();
 
-                        for (const [name, value] of replacements) {
-                            initializerText = initializerText.replaceAll(name, value);
+                        for (const replacer of replacers) {
+                            initializerText = replacer(initializerText);
                         }
 
                         initializerText = initializerText.replaceAll("~", "^");
+                        initializerText = initializerText.replaceAll(/\r?\n/g, "");
 
                         writer.write(`${enumName} = ${initializerText}`);
                     }
@@ -2211,5 +2217,6 @@ await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
 await convert("program.ts", "output/program.go");
 await convert("emitter.ts", "output/emitter.go", "Printer");
 await convert("expressionToTypeNode.ts", "output/expressionToTypeNode.go", "SyntacticTypeNodeBuilder");
+await convert("types.ts", "output/types.go");
 
 console.log("Done!");
