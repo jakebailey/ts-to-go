@@ -29,7 +29,7 @@ import {
 } from "ts-morph";
 import which from "which";
 
-const root = "/home/jabaile/work/ts-native-pin/src/compiler";
+const root = "C:\\Users\\rchiodo\\source\\repos\\pyrx-4\\packages\\pyright\\packages\\pyright-internal";
 function pathFor(s: string) {
     return path.join(root, s);
 }
@@ -45,7 +45,7 @@ const checker = project.getTypeChecker();
 async function convert(filename: string, output: string, mainStruct?: string) {
     const start = performance.now();
 
-    const createFunction = mainStruct ? `create${mainStruct}` : undefined;
+    const createFunction = mainStruct ? `${mainStruct}` : undefined;
     let methodReceiver: string | undefined;
     if (mainStruct) {
         switch (mainStruct) {
@@ -64,6 +64,10 @@ async function convert(filename: string, output: string, mainStruct?: string) {
                 break;
             case "SyntacticTypeNodeBuilder":
                 methodReceiver = "stnb";
+                break;
+            case "Parser":
+                methodReceiver = "p";
+                mainStruct = "Parser";
                 break;
             default:
                 throw new Error(`Unknown main struct: ${mainStruct}`);
@@ -2153,7 +2157,13 @@ async function convert(filename: string, output: string, mainStruct?: string) {
         writer.write(`type ${mainStruct} struct {`);
 
         writer.indent(() => {
-            sourceFile.getFunctionOrThrow(createFunction!).getStatements().forEach(statement => {
+            const classStruct = sourceFile.getClassOrThrow(mainStruct);
+            const constructors = classStruct.getConstructors();
+            if (constructors.length < 1) {
+                throw new Error(`No constructor found for ${mainStruct}`);
+            }
+            const constructor = constructors[0];                
+            constructor.getStatements().forEach(statement => {
                 if (!seenReturn && Node.isVariableStatement(statement)) {
                     for (const declaration of statement.getDeclarations()) {
                         structFields.add(getNameOfNamed(declaration));
@@ -2208,15 +2218,15 @@ async function convert(filename: string, output: string, mainStruct?: string) {
     console.log([...todoCounts.entries()].sort((a, b) => b[1] - a[1]).map(([k, v]) => `    ${k} ${v}`).join("\n"));
 }
 
-await convert("checker.ts", "output/checker.go", "TypeChecker");
-await convert("binder.ts", "output/binder.go", "Binder");
-await convert("scanner.ts", "output/scanner.go", "Scanner");
-await convert("parser.ts", "output/parser.go");
-await convert("utilities.ts", "output/utilities.go");
-await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
-await convert("program.ts", "output/program.go");
-await convert("emitter.ts", "output/emitter.go", "Printer");
-await convert("expressionToTypeNode.ts", "output/expressionToTypeNode.go", "SyntacticTypeNodeBuilder");
-await convert("types.ts", "output/types.go");
+await convert("src/parser/parser.ts", "output/src/parser.go", "Parser");
+// await convert("binder.ts", "output/binder.go", "Binder");
+// await convert("scanner.ts", "output/scanner.go", "Scanner");
+// await convert("parser.ts", "output/parser.go");
+// await convert("utilities.ts", "output/utilities.go");
+// await convert("utilitiesPublic.ts", "output/utilitiesPublic.go");
+// await convert("program.ts", "output/program.go");
+// await convert("emitter.ts", "output/emitter.go", "Printer");
+// await convert("expressionToTypeNode.ts", "output/expressionToTypeNode.go", "SyntacticTypeNodeBuilder");
+// await convert("types.ts", "output/types.go");
 
 console.log("Done!");
