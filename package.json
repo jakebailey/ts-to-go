@@ -2,6 +2,7 @@
     "name": "ts-to-go",
     "module": "index.ts",
     "type": "module",
+    "private": true,
     "devDependencies": {
         "@types/bun": "^1.1.10",
         "@types/which": "^3.0.4"
