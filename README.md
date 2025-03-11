@@ -1,15 +1,9 @@
 # ts-to-go
 
-To install dependencies:
-
-```bash
-bun install
-```
+This is a tool to convert TypeScript to Go; it's super hacky and only works for basic syntactic transformation of the TypeScript compiler itself.
 
 To run:
 
 ```bash
 bun run index.ts
 ```
-
-This project was created using `bun init` in bun v1.1.25. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
